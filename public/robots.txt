@@ -1,0 +1,17 @@
+# public/robots.txt
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /api/
+Disallow: /admin/
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /profile
+Disallow: /dashboard
+Disallow: /settings
+
+# Sitemap location
+Sitemap: https://insightpip.com/sitemap.xml

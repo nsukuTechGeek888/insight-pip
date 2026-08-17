@@ -1,0 +1,41 @@
+﻿ INSIGHT-PIP - COMPLETE & ACCURATE PROJECT STRUCTURE (Dec 17, 2025)
+==========================================================================
+
+src/lib/  COMPLETE
+ aiProcessor.ts (1943 bytes)
+ api.ts  (5129 bytes) - API utilities
+ blogData.ts (3333 bytes)
+ brokers.ts (714 bytes)
+ data.ts (1386 bytes)
+ db.ts (312 bytes)
+ propFirms.ts (609 bytes)
+ slugify.ts (278 bytes)
+ utils.ts (127 bytes)
+
+src/components/ui/  COMPLETE
+ button.tsx
+ card.tsx
+ checkbox.tsx
+ input.tsx
+ popover.tsx
+ progress.tsx
+ switch.tsx
+├── textarea.tsx
+└── toggle.tsx
+
+src/contexts/  COMPLETE
+ NavigationContext.tsx
+ UserContext.tsx
+
+src/Data/  COMPLETE
+ brokersData.ts (4 brokers)
+ challengesData.ts
+
+src/hooks/  COMPLETE
+ useIsMobile.ts
+
+src/components/ (Root level) 
+ AdaptiveLayout.tsx
+ Navbar.tsx
+ Footer.tsx
+

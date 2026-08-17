@@ -1,0 +1,164 @@
+﻿ INSIGHT-PIP - DETAILED PROJECT STRUCTURE (Updated Dec 17, 2025)
+========================================================================================
+
+src/app/ (Next.js Routes & Pages)
+ layout.tsx
+├── page.tsx
+├── globals.css
+├── favicon.ico
+├── ClientLayout.tsx
+├── ClientRootLayout.tsx
+├── DesktopHome.tsx
+│
+├── account/
+│   └── page.tsx
+│
+├── api/
+│   ├── auth/
+│   │   ├── login/route.ts
+│   │   ├── logout/route.ts
+│   │   ├── me/route.ts
+│   │   └── register/route.ts
+│   ├── currency-converter/route.js
+│   └── economic-calendar/route.js
+│
+ blog/
+    page.tsx
+    DesktopBlogPage.tsx
+    [slug]/page.tsx
+
+ brokers/
+    page.tsx
+    DesktopBrokersPage.tsx
+    BonusesTab.tsx
+    ReviewsTab.tsx
+    RegulationsTab.tsx
+    [broker]/
+       layout.tsx
+       page.tsx
+    tools/
+        DesktopToolsTab.tsx
+        PipCalculator.tsx
+        PremiumEconomicCalendar.tsx
+        RealCurrencyConverter.tsx
+        RiskManagerPro.tsx
+
+ compare/
+    page.tsx
+    DesktopCompare.tsx
+
+ economic-calendar/
+    layout.jsx
+    page.jsx
+
+ login/
+    page.tsx
+    DesktopLogin.tsx
+
+ mobile-login/
+    page.tsx
+
+ offers/
+    page.tsx
+    DesktopOffers.tsx
+
+ prop-firms/
+    page.tsx
+    DesktopPropFirms.tsx
+    DesktopToolsTab.tsx
+    PipCalculator.tsx
+    PremiumEconomicCalendar.tsx
+    RealCurrencyConverter.tsx
+    ReviewsTab.tsx
+    EnhancedPositionSizer.tsx
+    RiskManagerPro.tsx
+    [firm]/
+       layout.tsx
+       page.tsx
+    reviews/
+        [firms]/page.tsx
+
+ reviews/
+    page.tsx
+    DesktopReviews.tsx
+
+ signup/
+    page.tsx
+
+ tools/
+     page.tsx
+
+src/components/ (Reusable React Components)
+ AdaptiveLayout.tsx
+ Navbar.tsx
+ Footer.tsx
+
+ account/
+    MobileAccountPage.tsx
+
+ auth/
+    MobileLoginPage.tsx  (Main mobile login - 475 lines)
+
+ blog/
+    MobileBlogPage.tsx
+
+ brokers/
+    MobileBrokersPage.tsx
+    MobileReviewsTab.tsx
+    MobileToolsTab.tsx
+
+ compare/
+    MobileCompare.tsx
+
+ home/
+    MobileHome.tsx
+
+ mobile/
+    MobileHeader.tsx
+    MobileLayout.tsx
+    BottomNavigation.tsx
+    ToolsPage.tsx
+
+ offers/
+    MobileOffers.tsx
+
+ prop-firms/
+    MobilePropFirms.tsx
+    MobileReviewsTab.tsx
+    MobileToolsTab.tsx
+
+ reviews/
+    MobileReviews.tsx
+
+ ui/ (UI Components - Shadcn/UI based)
+     button.tsx
+     card.tsx
+     checkbox.tsx
+     input.tsx
+     popover.tsx
+     progress.tsx
+     switch.tsx
+     textarea.tsx
+    └── toggle.tsx
+
+src/contexts/ (React Context Providers)
+├── NavigationContext.tsx
+└── UserContext.tsx
+
+src/Data/ (Static Data Files)
+├── brokersData.ts (4 brokers: PrimeFX, EagleTrade, SwiftMarkets, Nova Brokers)
+└── challengesData.ts
+
+src/hooks/ (Custom React Hooks)
+└── useIsMobile.ts
+
+src/lib/ (Utility Functions & Libraries)
+├── aiProcessor.ts
+├── blogData.ts
+├── brokers.ts
+├── data.ts
+├── db.ts
+├── propFirms.ts
+├── slugify.ts
+└── utils.ts
+

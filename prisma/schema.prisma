@@ -1,0 +1,1079 @@
+// prisma/schema.prisma - COMPLETE UPDATED WITH REGION FIELDS
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============== ENUMS ==============
+
+enum IncidentType {
+  WITHDRAWAL_PAID
+  WITHDRAWAL_DELAY
+  WITHDRAWAL_REJECTED
+  SLIPPAGE_ISSUES
+  SPREAD_SPIKE
+  EXECUTION_DELAY
+  TRADE_MANIPULATION_SUSPECTED
+  PLATFORM_FREEZE
+  SERVER_DOWN
+  LOGIN_ISSUES
+  ORDER_EXECUTION_FAILURE
+  ACCOUNT_SUSPENDED
+  ACCOUNT_BANNED
+  WITHDRAWAL_DENIED_AFTER_PROFIT
+  RULE_VIOLATION_DISPUTE
+  SUSPICIOUS_BROKER_ACTIVITY
+  SCAM_WARNING
+  OTHER
+}
+
+enum ResolutionStatus {
+  PENDING
+  RESOLVED
+  CONFIRMED
+  DISPUTED
+}
+
+enum TraderExperience {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  PROFESSIONAL
+}
+
+enum TradingStyle {
+  SCALPER
+  DAY_TRADER
+  SWING_TRADER
+  EA_TRADER
+  NEWS_TRADER
+}
+
+enum ReplyType {
+  USER
+  BROKER
+  PROP_FIRM
+  ADMIN
+}
+
+// ============== USERS ==============
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      String   @default("USER")
+  avatar    String?
+  
+  // REGION FIELD - NEW
+  region    String?   // User's preferred/current region (SA, EU, UAE, etc.)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  reviews       Review[]       @relation("UserReviews")
+  helpfulVotes  HelpfulVote[]  @relation("UserHelpfulVotes")
+  reviewReplies ReviewReply[]  @relation("UserReviewReplies")
+  reviewReports ReviewReport[] @relation("UserReviewReports")
+  favorites     Favorite[]
+  comparisons   Comparison[]
+  incidents     Incident[]
+  blogPosts     BlogPost[]     @relation("UserBlogPosts")
+
+  @@map("users")
+}
+
+// ============== BROKERS ==============
+model Broker {
+  id     Int    @id @default(autoincrement())
+  name   String @unique
+  slug   String @unique
+  status String @default("ACTIVE")
+
+  description      String?
+  shortDescription String? @map("short_description")
+  logo             String?
+  founded          Int?
+  headquarters     String?
+  website          String
+  contactEmail     String? @map("contact_email")
+  contactPhone     String? @map("contact_phone")
+
+  type           String?
+  category       String?
+  targetAudience String[] @map("target_audience")
+
+  regulated   Boolean @default(false)
+  regulation  Json?
+  safetyScore Float?  @default(0.0) @map("safety_score")
+
+  rating       Float? @default(0.0)
+  reviewsCount Int    @default(0) @map("reviews_count")
+  expertRating Float? @default(0.0) @map("expert_rating")
+
+  avgOverallRating  Float? @default(0.0) @map("avg_overall_rating")
+  avgServiceRating  Float? @default(0.0) @map("avg_service_rating")
+  avgPlatformRating Float? @default(0.0) @map("avg_platform_rating")
+  avgValueRating    Float? @default(0.0) @map("avg_value_rating")
+  avgSupportRating  Float? @default(0.0) @map("avg_support_rating")
+  
+  avgWithdrawalExperience Float? @default(0.0) @map("avg_withdrawal_experience")
+  avgDepositExperience    Float? @default(0.0) @map("avg_deposit_experience")
+  avgCustomerSupport      Float? @default(0.0) @map("avg_customer_support")
+  avgTradingExperience    Float? @default(0.0) @map("avg_trading_experience")
+  avgReliability          Float? @default(0.0) @map("avg_reliability")
+
+  avgTrustScore         Float? @default(0.0) @map("avg_trust_score")
+  avgWithdrawalSuccess  Float? @default(0.0) @map("avg_withdrawal_success")
+  avgExecutionQuality   Float? @default(0.0) @map("avg_execution_quality")
+  recommendationRate    Float? @default(0.0) @map("recommendation_rate")
+  withdrawalStats       Json? @map("withdrawal_stats")
+  accountIssueStats     Json? @map("account_issue_stats")
+
+  totalIncidents        Int @default(0) @map("total_incidents")
+  incidentsLast7Days    Int @default(0) @map("incidents_last_7_days")
+  incidentsLast30Days   Int @default(0) @map("incidents_last_30_days")
+  withdrawalReports     Int @default(0) @map("withdrawal_reports")
+  withdrawalDelays      Int @default(0) @map("withdrawal_delays")
+  withdrawalConfirmed   Int @default(0) @map("withdrawal_confirmed")
+  withdrawalRejected    Int @default(0) @map("withdrawal_rejected")
+  executionComplaints   Int @default(0) @map("execution_complaints")
+  slippageReports       Int @default(0) @map("slippage_reports")
+  spreadSpikeReports    Int @default(0) @map("spread_spike_reports")
+  platformIssues        Int @default(0) @map("platform_issues")
+  serverDownReports     Int @default(0) @map("server_down_reports")
+  accountBansReported   Int @default(0) @map("account_bans_reported")
+  accountSuspensions    Int @default(0) @map("account_suspensions")
+  resolvedIncidents     Int @default(0) @map("resolved_incidents")
+  disputedIncidents     Int @default(0) @map("disputed_incidents")
+  lastIncidentAt        DateTime? @map("last_incident_at")
+  incidentTrends        Json? @map("incident_trends")
+
+  minDeposit      Float?  @map("min_deposit")
+  maxLeverage     String? @map("max_leverage")
+  averageSpreads  Json?   @map("average_spreads")
+  commissions     Json?
+  leverageOptions Json?   @map("leverage_options")
+
+  features    String[]
+  platforms   String[]
+  instruments Json?
+
+  accountTypes   BrokerAccountType[]
+  demoAccount    Boolean   @default(false) @map("demo_account")
+  islamicAccount Boolean   @default(false) @map("islamic_account")
+
+  depositMethods    String[] @map("deposit_methods")
+  withdrawalMethods String[] @map("withdrawal_methods")
+  withdrawalFee     String?  @map("withdrawal_fee")
+  minWithdrawal     Float?   @map("min_withdrawal")
+
+  supportLanguages    String[] @map("support_languages")
+  supportAvailability String?  @map("support_availability")
+
+  hasEducation   Boolean  @default(false) @map("has_education")
+  educationTypes String[] @map("education_types")
+
+  trustScore    Int?     @default(0) @map("trust_score")
+  awards        String[]
+  isRecommended Boolean  @default(false) @map("is_recommended")
+
+  country          String?
+  years            Int?
+  yearsInOperation Int?    @map("years_in_operation")
+  assets           String?
+  promo            String?
+  maxAllocation    Float?  @map("max_allocation")
+  payout           Float?
+  bonusOffer       String? @map("bonus_offer")
+  bonus            String?
+  highlight        String?
+  signupLink       String? @map("signup_link")
+  accountSize      Float?  @map("account_size")
+
+  corporateAddress       String?  @map("corporate_address")
+  accountCurrencies      String[] @map("account_currencies")
+  regulatoryWarnings     String[] @map("regulatory_warnings")
+  entityMapping          Json?    @map("entity_mapping")
+  minTradeSize           String?  @map("min_trade_size")
+  maxTradeSize           String?  @map("max_trade_size")
+  marginCall             String?  @map("margin_call")
+  stopOutLevel           String?  @map("stop_out_level")
+  orderExecution         String?  @map("order_execution")
+  tradingHours           String?  @map("trading_hours")
+  swapRates              String?  @map("swap_rates")
+  commissionNotes        String?  @map("commission_notes")
+  chartingTools          String[] @map("charting_tools")
+  copyTradingAvailable   Boolean  @default(false) @map("copy_trading_available")
+  socialTradingAvailable Boolean  @default(false) @map("social_trading_available")
+  vpsAvailable           Boolean  @default(false) @map("vps_available")
+  apiAvailable           Boolean  @default(false) @map("api_available")
+  economicCalendar       Boolean  @default(false) @map("economic_calendar")
+  newsTrading            Boolean  @default(false) @map("news_trading")
+  depositMethodsDetails  Json?    @map("deposit_methods_details")
+  withdrawalMethodsDetails Json?  @map("withdrawal_methods_details")
+  withdrawalProcessingTime String? @map("withdrawal_processing_time")
+  depositProcessingTime  String?  @map("deposit_processing_time")
+  inactivityFee          String?  @map("inactivity_fee")
+  accountClosurePolicy   String?  @map("account_closure_policy")
+  partnershipPrograms    String[] @map("partnership_programs")
+  ibProgramAvailable     Boolean  @default(false) @map("ib_program_available")
+  affiliateProgramAvailable Boolean @default(false) @map("affiliate_program_available")
+  securityFeatures       String[] @map("security_features")
+  accountVerification    String?  @map("account_verification")
+  twoFactorAuth          Boolean  @default(false) @map("two_factor_auth")
+  socialMedia            Json?    @map("social_media")
+  pressReleases          Json?    @map("press_releases")
+  
+  maxDailyLoss           Float?   @map("max_daily_loss")
+  maxLossPerTrade        Float?   @map("max_loss_per_trade")
+  profitTarget           String?  @map("profit_target")
+  consistencyRule        String?  @map("consistency_rule")
+  scalingPlan            Json?    @map("scaling_plan")
+  newsTradingRestrictions String? @map("news_trading_restrictions")
+  weekendHolding         Boolean  @default(true) @map("weekend_holding")
+  eaTrading              Boolean  @default(true) @map("ea_trading")
+  hedgingAllowed         Boolean  @default(true) @map("hedging_allowed")
+  martingaleAllowed      Boolean  @default(true) @map("martingale_allowed")
+  hftAllowed             Boolean  @default(true) @map("hft_allowed")
+  copyTradingRules       String?  @map("copy_trading_rules")
+  maxDailyProfit         Float?   @map("max_daily_profit")
+  firstPayoutSplit       Int?     @map("first_payout_split")
+  secondPayoutSplit      Int?     @map("second_payout_split")
+  thirdPayoutSplit       Int?     @map("third_payout_split")
+  maxWithdrawableProfit  Float?   @map("max_withdrawable_profit")
+  goatGuard              Boolean  @default(false) @map("goat_guard")
+  activationFee          Json?    @map("activation_fee")
+  
+  monthlySearches        Int?     @map("monthly_searches")
+  monthlyTraffic         Int?     @map("monthly_traffic")
+  claimedPayouts         String?  @map("claimed_payouts")
+  tradersServed          Int?     @map("traders_served")
+  countriesServed        Int?     @map("countries_served")
+  foundedMonth           String?  @map("founded_month")
+  additionalOffice       String?  @map("additional_office")
+  legalName              String?  @map("legal_name")
+  companyNumber          String?  @map("company_number")
+  ceo                    String?  @map("ceo")
+
+  // ====== REGION FIELDS - NEW ======
+  regions          String[] @default(["GLOBAL"])  // Which regions this broker is available in
+  restrictedRegions String[] @default([])         // Regions where this broker is NOT available
+  regionNotes      Json?    @map("region_notes")  // Optional region-specific notes (JSON)
+  regionDescriptions Json? @map("region_descriptions") // Region-specific descriptions
+  regionPricing     Json?  @map("region_pricing")      // Region-specific pricing (e.g., ZAR, USD)
+  regionPaymentMethods Json? @map("region_payment_methods") // Region-specific payment methods
+
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at")
+  lastReviewed DateTime? @map("last_reviewed")
+
+  reviews    Review[]          @relation("BrokerReviews")
+  favorites  Favorite[]        @relation("BrokerFavorites")
+  bonuses    BrokerBonus[]
+  promotions BrokerPromotion[]
+  incidents  Incident[]        @relation("BrokerIncidents")
+  reviewReplies ReviewReply[]  @relation("BrokerReviewReplies")
+
+  @@index([rating])
+  @@index([minDeposit])
+  @@index([regulated])
+  @@index([country])
+  @@index([avgTrustScore])
+  @@index([totalIncidents])
+  @@index([regions]) // NEW INDEX
+  @@map("brokers")
+}
+
+// ============== PROP FIRMS ==============
+model PropFirm {
+  id     Int    @id @default(autoincrement())
+  name   String @unique
+  slug   String @unique
+  status String @default("ACTIVE")
+
+  description      String?
+  shortDescription String? @map("short_description")
+  logo             String?
+  founded          Int?
+  headquarters     String?
+  website          String
+  contactEmail     String? @map("contact_email")
+  contactPhone     String? @map("contact_phone")
+
+  type     String?
+  category String?
+
+  // ===== COMPANY & LEADERSHIP =====
+  ceo                  String?  @map("ceo")
+  ceoBio               String?  @map("ceo_bio")
+  leadershipTeam       Json?    @map("leadership_team")
+  legalName            String?  @map("legal_name")
+  companyNumber        String?  @map("company_number")
+  corporateAddress     String?  @map("corporate_address")
+  additionalOffice     String?  @map("additional_office")
+  registrationNumber   String?  @map("registration_number")
+  registrationCountry  String?  @map("registration_country")
+  entityMapping        Json?    @map("entity_mapping")
+  foundedMonth         String?  @map("founded_month")
+  previousHeadquarters String?  @map("previous_headquarters")
+  migrationStatus      String?  @map("migration_status")
+
+  // ===== REGULATION =====
+  regulated          Boolean  @default(false)
+  regulation         String?
+  regulatoryBodies   String[] @map("regulatory_bodies")
+  regulatoryWarnings String[] @map("regulatory_warnings")
+  safetyScore        Float?   @default(0.0) @map("safety_score")
+
+  // ===== RATINGS & REVIEWS =====
+  rating          Float? @default(0.0)
+  reviewsCount    Int    @default(0) @map("reviews_count")
+  expertRating    Float? @default(0.0) @map("expert_rating")
+  avgTrustScore   Float? @default(0.0) @map("avg_trust_score")
+  recommendationRate Float? @default(0.0) @map("recommendation_rate")
+  isRecommended   Boolean @default(false) @map("is_recommended")
+
+  avgOverallRating     Float? @default(0.0) @map("avg_overall_rating")
+  avgTradingConditions Float? @default(0.0) @map("avg_trading_conditions")
+  avgCustomerCare      Float? @default(0.0) @map("avg_customer_care")
+  avgUserFriendliness  Float? @default(0.0) @map("avg_user_friendliness")
+  avgPayoutProcess     Float? @default(0.0) @map("avg_payout_process")
+  avgReliability       Float? @default(0.0) @map("avg_reliability")
+  avgExecutionQuality  Float? @default(0.0) @map("avg_execution_quality")
+
+  // ===== THIRD-PARTY REVIEWS =====
+  trustpilotRating     Float?  @map("trustpilot_rating")
+  trustpilotReviews    Int?    @map("trustpilot_reviews")
+  trustpilotUrl        String? @map("trustpilot_url")
+  forexPeaceArmyRating Float?  @map("forex_peace_army_rating")
+  otherReviewSites     Json?   @map("other_review_sites")
+
+  // ===== REPUTATION & SENTIMENT =====
+  positiveReviewThemes  String[] @map("positive_review_themes")
+  negativeReviewThemes  String[] @map("negative_review_themes")
+  supportAgents         String[] @map("support_agents")
+  knownIssues           Json?    @map("known_issues")
+  systemBugs            String[] @map("system_bugs")
+  payoutDelaysReported  Boolean  @default(false) @map("payout_delays_reported")
+  slippageReported      Boolean  @default(false) @map("slippage_reported")
+  hiddenRulesReported   Boolean  @default(false) @map("hidden_rules_reported")
+  retroactiveRuleChanges Boolean @default(false) @map("retroactive_rule_changes")
+  withdrawalDenials     Boolean  @default(false) @map("withdrawal_denials")
+  publicWarnings        Json?    @map("public_warnings")
+  warningDates          DateTime[] @map("warning_dates")
+
+  // ===== FINANCIAL PERFORMANCE =====
+  totalPayoutsPaid        String?  @map("total_payouts_paid")
+  totalPayoutsCurrency    String?  @map("total_payouts_currency")
+  totalPayoutsVerified    Boolean  @default(false) @map("total_payouts_verified")
+  payoutVerificationSource String? @map("payout_verification_source")
+  totalTradersServed      Int?     @map("total_traders_served")
+  monthlyTradingVolume    String?  @map("monthly_trading_volume")
+  dailyTradeCount         Int?     @map("daily_trade_count")
+
+  // ===== RISK ASSESSMENT =====
+  riskLevel     String?  @map("risk_level")
+  riskScore     Int?     @map("risk_score")
+  riskFactors   String[] @map("risk_factors")
+  recommendation String? @map("recommendation")
+  redFlags      String[] @map("red_flags")
+  greenFlags    String[] @map("green_flags")
+
+  // ===== ACCOUNT & CAPITAL =====
+  maxAccountSize         Int?     @map("max_account_size")
+  maxAccountSizeCurrency String?  @map("max_account_size_currency")
+  minAccountSize         Int?     @map("min_account_size")
+  accountCurrencies      String[] @map("account_currencies")
+  maxAllocation          Float?   @map("max_allocation")
+  minDeposit             Float?   @map("min_deposit")
+
+  // ===== CHALLENGE MODELS =====
+  oneStepAvailable       Boolean @default(false) @map("one_step_available")
+  oneStepProfitTarget    Int?    @map("one_step_profit_target")
+  oneStepMaxDrawdown     Int?    @map("one_step_max_drawdown")
+  oneStepDailyDrawdown   Int?    @map("one_step_daily_drawdown")
+  oneStepMinDays         Int?    @map("one_step_min_days")
+  oneStepMaxLossPerTrade Int?    @map("one_step_max_loss_per_trade")
+  oneStepConsistency     Int?    @map("one_step_consistency")
+  
+  twoStepAvailable       Boolean @default(false) @map("two_step_available")
+  twoStepProfitTarget1   Int?    @map("two_step_profit_target_1")
+  twoStepProfitTarget2   Int?    @map("two_step_profit_target_2")
+  twoStepMaxDrawdown     Int?    @map("two_step_max_drawdown")
+  twoStepDailyDrawdown   Int?    @map("two_step_daily_drawdown")
+  twoStepMinDays1        Int?    @map("two_step_min_days_1")
+  twoStepMinDays2        Int?    @map("two_step_min_days_2")
+  twoStepMaxLossPerTrade Int?    @map("two_step_max_loss_per_trade")
+  twoStepConsistency     Int?    @map("two_step_consistency")
+  
+  instantFundingAvailable Boolean @default(false) @map("instant_funding_available")
+  ifMaxDrawdown          Int?    @map("if_max_drawdown")
+  ifDailyDrawdown        Int?    @map("if_daily_drawdown")
+  ifMinTradingDays       Int?    @map("if_min_trading_days")
+  ifMaxLossPerTrade      Int?    @map("if_max_loss_per_trade")
+  ifConsistencyRule      Int?    @map("if_consistency_rule")
+  ifProfitSplit          Int?    @map("if_profit_split")
+  ifRewardCycle          String? @map("if_reward_cycle")
+  ifTimeLimit            Json?   @map("if_time_limit")
+
+  payLaterAvailable       Boolean  @default(false) @map("pay_later_available")
+  payLaterInitialFee      Int?     @map("pay_later_initial_fee")
+  payLaterActivationFee   Int?     @map("pay_later_activation_fee")
+  payLaterProfitTarget    Int?     @map("pay_later_profit_target")
+  payLaterMaxDrawdown     Int?     @map("pay_later_max_drawdown")
+  payLaterMaxLossPerTrade Int?     @map("pay_later_max_loss_per_trade")
+  payLaterConsistency     Int?     @map("pay_later_consistency")
+  payLaterMaxAccounts     Int?     @map("pay_later_max_accounts")
+  payLaterCountryCap      Int?     @map("pay_later_country_cap")
+  payLaterAccountSizes    String[] @map("pay_later_account_sizes")
+
+  // ===== NEWS TRADING RULES =====
+  newsTrading             Boolean  @default(false) @map("news_trading")
+  newsTradingWindow       String?  @map("news_trading_window")
+  newsProfitCap           Int?     @map("news_profit_cap")
+  newsTradingRestrictions String?  @map("news_trading_restrictions")
+  profitCaps              Json?    @map("profit_caps")
+  shortTradeMinDuration   Int?     @map("short_trade_min_duration")
+
+  // ===== PROHIBITED STRATEGIES =====
+  prohibitedStrategies   String[] @map("prohibited_strategies")
+  hedgingAllowed         Boolean  @default(true) @map("hedging_allowed")
+  martingaleAllowed      Boolean  @default(true) @map("martingale_allowed")
+  copyTradingAllowed     Boolean  @default(true) @map("copy_trading_allowed")
+  copyTradingRules       String?  @map("copy_trading_rules")
+  eaTrading              Boolean  @default(true) @map("ea_trading")
+  hftAllowed             Boolean  @default(true) @map("hft_allowed")
+  weekendHolding         Boolean  @default(true) @map("weekend_holding")
+  consistencyRule        String?  @map("consistency_rule")
+
+  // ===== SCALING PLAN =====
+  scalingPlan            Json?    @map("scaling_plan")
+  
+  scalingLevel1Months    Int?     @map("scaling_level1_months")
+  scalingLevel1Payouts   Int?     @map("scaling_level1_payouts")
+  scalingLevel1Boost     Int?     @map("scaling_level1_boost")
+  scalingLevel1Split     Int?     @map("scaling_level1_split")
+  scalingLevel1Drawdown  Int?     @map("scaling_level1_drawdown")
+  scalingLevel1Benefits  String[] @map("scaling_level1_benefits")
+  
+  scalingLevel2Months        Int?     @map("scaling_level2_months")
+  scalingLevel2Payouts       Int?     @map("scaling_level2_payouts")
+  scalingLevel2Boost         Int?     @map("scaling_level2_boost")
+  scalingLevel2Split         Int?     @map("scaling_level2_split")
+  scalingLevel2Drawdown      Int?     @map("scaling_level2_drawdown")
+  scalingLevel2WeeklyPayouts Boolean  @default(false) @map("scaling_level2_weekly_payouts")
+  scalingLevel2Benefits      String[] @map("scaling_level2_benefits")
+  
+  scalingLevel3Months          Int?     @map("scaling_level3_months")
+  scalingLevel3Payouts         Int?     @map("scaling_level3_payouts")
+  scalingLevel3Boost           Int?     @map("scaling_level3_boost")
+  scalingLevel3Split           Int?     @map("scaling_level3_split")
+  scalingLevel3Drawdown        Int?     @map("scaling_level3_drawdown")
+  scalingLevel3MonthlySalary   Int?     @map("scaling_level3_monthly_salary")
+  scalingLevel3FreeChallenge   Boolean  @default(false) @map("scaling_level3_free_challenge")
+  scalingLevel3Benefits        String[] @map("scaling_level3_benefits")
+  
+  scalingLevel4Months          Int?     @map("scaling_level4_months")
+  scalingLevel4Payouts         Int?     @map("scaling_level4_payouts")
+  scalingLevel4Boost           Int?     @map("scaling_level4_boost")
+  scalingLevel4Split           Int?     @map("scaling_level4_split")
+  scalingLevel4Drawdown        Int?     @map("scaling_level4_drawdown")
+  scalingLevel4MonthlySalary   Int?     @map("scaling_level4_monthly_salary")
+  scalingLevel4FreeChallenge   Boolean  @default(false) @map("scaling_level4_free_challenge")
+  scalingLevel4Benefits        String[] @map("scaling_level4_benefits")
+  scalingLevelMax              Int?     @map("scaling_level_max")
+
+  // ===== PROMOTIONS =====
+  bogoAvailable          Boolean  @default(false) @map("bogo_available")
+  bogoDiscount           Int?     @map("bogo_discount")
+  bogoFreeAccounts       Int?     @map("bogo_free_accounts")
+  bogoFreeAccountTiming  String?  @map("bogo_free_account_timing")
+  affiliateDiscountCode  String?  @map("affiliate_discount_code")
+  affiliateDiscountPercent Int?   @map("affiliate_discount_percent")
+  discountCodes          Json?    @map("discount_codes")
+
+  // ===== TRADING CONDITIONS =====
+  leverageOptions        Json?    @map("leverage_options")
+  maxLeverage            String?  @map("max_leverage")
+  averageSpreads         Json?    @map("average_spreads")
+  commissions            Json?    @map("commissions")
+  platformFees           Float?   @default(0) @map("platform_fees")
+  minTradeSize           String?  @map("min_trade_size")
+  maxTradeSize           String?  @map("max_trade_size")
+  marginCall             String?  @map("margin_call")
+  stopOutLevel           String?  @map("stop_out_level")
+  orderExecution         String?  @map("order_execution")
+  tradingHours           String?  @map("trading_hours")
+  swapRates              String?  @map("swap_rates")
+  commissionNotes        String?  @map("commission_notes")
+
+  // ===== PLATFORMS & FEATURES =====
+  platforms          String[] @map("platforms")
+  tradingInstruments String[] @map("trading_instruments")
+  features           String[] @map("features")
+  chartingTools      String[] @map("charting_tools")
+  
+  copyTradingAvailable   Boolean @default(false) @map("copy_trading_available")
+  socialTradingAvailable Boolean @default(false) @map("social_trading_available")
+  vpsAvailable           Boolean @default(false) @map("vps_available")
+  apiAvailable           Boolean @default(false) @map("api_available")
+  economicCalendar       Boolean @default(false) @map("economic_calendar")
+
+  // ===== PAYOUT DETAILS =====
+  payoutFrequency        String?  @map("payout_frequency")
+  payoutMethods          String[] @map("payout_methods")
+  minimumPayout          Int?     @map("minimum_payout")
+  payoutProcessingTime   String?  @map("payout_processing_time")
+
+  // ===== RESTRICTIONS =====
+  supportedCountries  String[] @map("supported_countries")
+  prohibitedCountries String[] @map("prohibited_countries")
+  minimumAge          Int?     @map("minimum_age")
+  restrictedFeatures  String[] @map("restricted_features")
+  warnings            String[] @map("warnings")
+
+  // ===== SUPPORT & EDUCATION =====
+  customerSupport    String[] @map("customer_support")
+  hasEducation       Boolean  @default(false) @map("has_education")
+  educationResources String[] @map("education_resources")
+  communityFeatures  String[] @map("community_features")
+
+  // ===== PAYMENT METHODS =====
+  depositMethodsDetails    Json?    @map("deposit_methods_details")
+  withdrawalMethodsDetails Json?    @map("withdrawal_methods_details")
+  depositProcessingTime    String?  @map("deposit_processing_time")
+  withdrawalProcessingTime String?  @map("withdrawal_processing_time")
+  inactivityFee            String?  @map("inactivity_fee")
+  accountClosurePolicy     String?  @map("account_closure_policy")
+
+  // ===== PARTNERSHIPS =====
+  partnershipPrograms       String[] @map("partnership_programs")
+  ibProgramAvailable        Boolean  @default(false) @map("ib_program_available")
+  affiliateProgramAvailable Boolean  @default(false) @map("affiliate_program_available")
+
+  // ===== SECURITY =====
+  securityFeatures      String[] @map("security_features")
+  accountVerification   String?  @map("account_verification")
+  twoFactorAuth         Boolean  @default(false) @map("two_factor_auth")
+  goatGuard             Boolean  @default(false) @map("goat_guard")
+
+  // ===== SOCIAL MEDIA =====
+  socialMedia           Json?    @map("social_media")
+  pressReleases         Json?    @map("press_releases")
+
+  // ===== STATISTICS =====
+  monthlySearches        Int?     @map("monthly_searches")
+  monthlyTraffic         Int?     @map("monthly_traffic")
+  claimedPayouts         String?  @map("claimed_payouts")
+  tradersServed          Int?     @map("traders_served")
+  countriesServed        Int?     @map("countries_served")
+
+  // ===== ORIGINAL FIELDS =====
+  country          String?
+  years            Int?
+  yearsInOperation Int?     @map("years_in_operation")
+  assets           String[]
+  promo            String?
+  signupLink       String?  @map("signup_link")
+
+  tradingConditions Float? @map("trading_conditions")
+  customerCare      Float? @map("customer_care")
+  userFriendliness  Float? @map("user_friendliness")
+  payoutProcess     Float? @map("payout_process")
+  totalReviews      Int?   @map("total_reviews")
+
+  // ===== INCIDENT METRICS =====
+  totalIncidents        Int @default(0) @map("total_incidents")
+  incidentsLast7Days    Int @default(0) @map("incidents_last_7_days")
+  incidentsLast30Days   Int @default(0) @map("incidents_last_30_days")
+  withdrawalReports     Int @default(0) @map("withdrawal_reports")
+  withdrawalDelays      Int @default(0) @map("withdrawal_delays")
+  withdrawalConfirmed   Int @default(0) @map("withdrawal_confirmed")
+  withdrawalRejected    Int @default(0) @map("withdrawal_rejected")
+  executionComplaints   Int @default(0) @map("execution_complaints")
+  slippageReports       Int @default(0) @map("slippage_reports")
+  platformIssues        Int @default(0) @map("platform_issues")
+  serverDownReports     Int @default(0) @map("server_down_reports")
+  accountBansReported   Int @default(0) @map("account_bans_reported")
+  ruleViolationDisputes Int @default(0) @map("rule_violation_disputes")
+  resolvedIncidents     Int @default(0) @map("resolved_incidents")
+  disputedIncidents     Int @default(0) @map("disputed_incidents")
+  lastIncidentAt        DateTime? @map("last_incident_at")
+  incidentTrends        Json? @map("incident_trends")
+
+  // ====== REGION FIELDS - NEW ======
+  regions          String[] @default(["GLOBAL"])
+  restrictedRegions String[] @default([])
+  regionNotes      Json?    @map("region_notes")
+  regionDescriptions Json? @map("region_descriptions")
+  regionPricing     Json?  @map("region_pricing")
+  regionPaymentMethods Json? @map("region_payment_methods")
+
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at")
+  lastReviewed DateTime? @map("last_reviewed")
+
+  // ===== RELATIONS =====
+  reviews      Review[]            @relation("PropFirmReviews")
+  favorites    Favorite[]          @relation("PropFirmFavorites")
+  promotions   PropFirmPromotion[]
+  incidents    Incident[]          @relation("PropFirmIncidents")
+  reviewReplies ReviewReply[]      @relation("PropFirmReviewReplies")
+  programs     PropFirmProgram[]
+
+  @@index([rating])
+  @@index([payoutFrequency])
+  @@index([country])
+  @@index([regulated])
+  @@index([avgTrustScore])
+  @@index([totalIncidents])
+  @@index([trustpilotRating])
+  @@index([maxAccountSize])
+  @@index([regions]) // NEW INDEX
+  @@map("prop_firms")
+}
+
+// ============== PROP FIRM PROGRAMS ==============
+model PropFirmProgram {
+  id          Int     @id @default(autoincrement())
+  name        String
+  type        String
+  description String?
+
+  timeLimit     Json? @map("time_limit")
+  rules         Json?
+  accountOptions Json? @map("account_options")
+
+  propFirmId Int      @map("prop_firm_id")
+  propFirm   PropFirm @relation(fields: [propFirmId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("prop_firm_programs")
+}
+
+// ============== PROP FIRM PROMOTIONS ==============
+model PropFirmPromotion {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  discount    String?
+  code        String?
+  validUntil  DateTime? @map("valid_until")
+
+  // ====== REGION FIELDS - NEW ======
+  regions          String[] @default(["GLOBAL"])
+  restrictedRegions String[] @default([])
+
+  propFirmId Int      @map("prop_firm_id")
+  propFirm   PropFirm @relation(fields: [propFirmId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([regions]) // NEW INDEX
+  @@map("prop_firm_promotions")
+}
+
+// ============== BROKER ACCOUNT TYPES ==============
+model BrokerAccountType {
+  id         Int     @id @default(autoincrement())
+  name       String
+  minDeposit Float?  @map("min_deposit")
+  commission String?
+  spreadType String? @map("spread_type")
+  swapFree   Boolean @default(false) @map("swap_free")
+
+  brokerId Int    @map("broker_id")
+  broker   Broker @relation(fields: [brokerId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("broker_account_types")
+}
+
+// ============== BROKER BONUSES ==============
+model BrokerBonus {
+  id         Int     @id @default(autoincrement())
+  type       String
+  amount     String
+  conditions String?
+  expiry     String?
+  code       String?
+
+  // ====== REGION FIELDS - NEW ======
+  regions          String[] @default(["GLOBAL"])
+  restrictedRegions String[] @default([])
+
+  brokerId Int    @map("broker_id")
+  broker   Broker @relation(fields: [brokerId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([regions]) // NEW INDEX
+  @@map("broker_bonuses")
+}
+
+// ============== BROKER PROMOTIONS ==============
+model BrokerPromotion {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  discount    String?
+  code        String?
+  validUntil  DateTime? @map("valid_until")
+
+  // ====== REGION FIELDS - NEW ======
+  regions          String[] @default(["GLOBAL"])
+  restrictedRegions String[] @default([])
+
+  brokerId Int    @map("broker_id")
+  broker   Broker @relation(fields: [brokerId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([regions]) // NEW INDEX
+  @@map("broker_promotions")
+}
+
+// ============== REVIEWS ==============
+model Review {
+  id String @id @default(cuid())
+
+  title   String
+  content String
+  rating  Int
+
+  pros String?
+  cons String?
+
+  experienceLevel     String? @map("experience_level")
+  yearsTrading        String? @map("years_trading")
+  tradingStyle        String? @map("trading_style")
+  tradingEnvironment  String? @map("trading_environment")
+
+  platformStability   Int? @map("platform_stability")
+  executionQuality    Int? @map("execution_quality")
+  withdrawalExperience Int? @map("withdrawal_experience")
+  depositExperience   Int? @map("deposit_experience")
+  customerSupport     Int? @map("customer_support")
+  reliability         Int? 
+  value               Int?
+
+  withdrawalSpeed     String? @map("withdrawal_speed")
+  accountIssues       String? @map("account_issues")
+  wouldRecommend      String? @map("would_recommend")
+
+  trustScore          Int? @map("trust_score")
+  proofFiles          Json? @map("proof_files")
+
+  serviceRating  Int? @map("service_rating")
+  platformRating Int? @map("platform_rating")
+  valueRating    Int? @map("value_rating")
+  supportRating  Int? @map("support_rating")
+
+  withdrawalExperienceLegacy Int? @map("withdrawal_experience_legacy")
+  depositExperienceLegacy    Int? @map("deposit_experience_legacy")
+  customerSupportLegacy      Int? @map("customer_support_legacy")
+  tradingExperienceLegacy    Int? @map("trading_experience_legacy")
+  reliabilityLegacy          Int? @map("reliability_legacy")
+
+  tradingConditions Int? @map("trading_conditions")
+  customerCare      Int? @map("customer_care")
+  userFriendliness  Int? @map("user_friendliness")
+  payoutProcess     Int? @map("payout_process")
+
+  tradingExperienceLevel String? @map("trading_experience_level")
+  yearsTradingLegacy      Int?    @map("years_trading_legacy")
+  verifiedTrader         Boolean @default(false) @map("verified_trader")
+
+  isVerified     Boolean   @default(false) @map("is_verified")
+  isApproved     Boolean   @default(false) @map("is_approved")
+  isFeatured     Boolean   @default(false) @map("is_featured")
+  isHidden       Boolean   @default(false) @map("is_hidden")
+  status         String    @default("PENDING")
+  moderationNote String?   @map("moderation_note")
+  moderatedBy    String?   @map("moderated_by")
+  moderatedAt    DateTime? @map("moderated_at")
+
+  helpfulCount    Int @default(0) @map("helpful_count")
+  notHelpfulCount Int @default(0) @map("not_helpful_count")
+  replyCount      Int @default(0) @map("reply_count")
+  reportCount     Int @default(0) @map("report_count")
+
+  retractedAt        DateTime? @map("retracted_at")
+  retractionReason   String?   @map("retraction_reason")
+  editedAt           DateTime? @map("edited_at")
+  editedWithinWindow Boolean   @default(false) @map("edited_within_window")
+  trustScoreSnapshot Int?      @map("trust_score_snapshot")
+  originalContent    String?   @map("original_content")
+  editHistory        Json?     @map("edit_history")
+
+  // ====== REGION FIELD - NEW ======
+  region         String?   // Region where the review was written
+
+  userId String @map("user_id")
+  user   User   @relation("UserReviews", fields: [userId], references: [id], onDelete: Cascade)
+
+  brokerId Int?    @map("broker_id")
+  broker   Broker? @relation("BrokerReviews", fields: [brokerId], references: [id], onDelete: Cascade)
+
+  propFirmId Int?      @map("prop_firm_id")
+  propFirm   PropFirm? @relation("PropFirmReviews", fields: [propFirmId], references: [id], onDelete: Cascade)
+
+  replies ReviewReply[]
+  votes   HelpfulVote[]
+  reports ReviewReport[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([userId, brokerId])
+  @@unique([userId, propFirmId])
+  @@index([rating])
+  @@index([status])
+  @@index([createdAt])
+  @@index([trustScore])
+  @@index([brokerId, status])
+  @@index([propFirmId, status])
+  @@index([region]) // NEW INDEX
+  @@map("reviews")
+}
+
+// ============== REVIEW REPLIES ==============
+model ReviewReply {
+  id         String   @id @default(cuid())
+  content    String   @db.Text
+  mediaUrls  String[] @map("media_urls")
+  replyType  ReplyType @default(USER) @map("reply_type")
+  replyCount Int      @default(0) @map("reply_count")
+
+  // ====== REGION FIELD - NEW ======
+  region     String?   // Region where the reply was written
+
+  reviewId   String   @map("review_id")
+  review     Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  userId     String?  @map("user_id")
+  user       User?    @relation("UserReviewReplies", fields: [userId], references: [id])
+
+  brokerId   Int?     @map("broker_id")
+  broker     Broker?  @relation("BrokerReviewReplies", fields: [brokerId], references: [id])
+
+  propFirmId Int?     @map("prop_firm_id")
+  propFirm   PropFirm? @relation("PropFirmReviewReplies", fields: [propFirmId], references: [id])
+
+  parentReplyId String?       @map("parent_reply_id")
+  parentReply   ReviewReply?  @relation("ReplyReplies", fields: [parentReplyId], references: [id])
+  replies       ReviewReply[] @relation("ReplyReplies")
+
+  isApproved Boolean @default(false) @map("is_approved")
+  isHidden   Boolean @default(false) @map("is_hidden")
+  moderatedBy String? @map("moderated_by")
+  moderatedAt DateTime? @map("moderated_at")
+
+  helpfulCount Int @default(0) @map("helpful_count")
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([reviewId])
+  @@index([userId])
+  @@index([brokerId])
+  @@index([propFirmId])
+  @@index([parentReplyId])
+  @@index([replyType])
+  @@index([createdAt])
+  @@index([region]) // NEW INDEX
+  @@map("review_replies")
+}
+
+// ============== INCIDENTS ==============
+model Incident {
+  id String @id @default(cuid())
+
+  entityType     String        @map("entity_type")
+  entityId       Int           @map("entity_id")
+  incidentType   IncidentType  @map("incident_type")
+  title          String
+  description    String        @db.Text
+  incidentDate   DateTime      @map("incident_date")
+  reportDate     DateTime      @default(now()) @map("report_date")
+
+  withdrawalAmount Float?          @map("withdrawal_amount")
+  withdrawalMethod String?          @map("withdrawal_method")
+  resolutionStatus ResolutionStatus @default(PENDING) @map("resolution_status")
+
+  userId           String           @map("user_id")
+  userExperience   TraderExperience? @map("user_experience")
+  userTradingStyle TradingStyle?     @map("user_trading_style")
+
+  proofUrls        String[] @map("proof_urls")
+  proofVerified    Boolean  @default(false) @map("proof_verified")
+  confirmations    Int      @default(0)
+  disputes         Int      @default(0)
+  verifiedBadge    Boolean  @default(false) @map("verified_badge")
+
+  status           String    @default("PENDING")
+  moderatedBy      String?   @map("moderated_by")
+  moderatedAt      DateTime? @map("moderated_at")
+  moderationNote   String?   @map("moderation_note")
+
+  followUps        Json?     @map("follow_ups")
+  auditLog         Json?     @map("audit_log")
+  visibility       String    @default("PUBLIC") @map("visibility")
+
+  // ====== REGION FIELD - NEW ======
+  region         String?   // Region where the incident was reported
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  brokerId   Int?      @map("broker_id")
+  broker     Broker?   @relation("BrokerIncidents", fields: [brokerId], references: [id], onDelete: Cascade)
+  
+  propFirmId Int?      @map("prop_firm_id")
+  propFirm   PropFirm? @relation("PropFirmIncidents", fields: [propFirmId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([userId, brokerId, propFirmId])
+  @@index([entityType, entityId])
+  @@index([incidentType])
+  @@index([status])
+  @@index([createdAt])
+  @@index([reportDate])
+  @@index([resolutionStatus])
+  @@index([withdrawalAmount])
+  @@index([visibility])
+  @@index([region]) // NEW INDEX
+  
+  @@map("incidents")
+}
+
+// ============== HELPFUL VOTES ==============
+model HelpfulVote {
+  id       String @id @default(cuid())
+  voteType String
+
+  reviewId String @map("review_id")
+  review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  userId String @map("user_id")
+  user   User   @relation("UserHelpfulVotes", fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([reviewId, userId])
+  @@map("helpful_votes")
+}
+
+// ============== REVIEW REPORTS ==============
+model ReviewReport {
+  id      String  @id @default(cuid())
+  reason  String
+  details String?
+  status  String  @default("PENDING")
+
+  reviewId String @map("review_id")
+  review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  userId String @map("user_id")
+  user   User   @relation("UserReviewReports", fields: [userId], references: [id], onDelete: Cascade)
+
+  resolvedBy String?   @map("resolved_by")
+  resolvedAt DateTime? @map("resolved_at")
+  resolution String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([reviewId, userId])
+  @@map("review_reports")
+}
+
+// ============== FAVORITES ==============
+model Favorite {
+  id Int @id @default(autoincrement())
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  brokerId Int?    @map("broker_id")
+  broker   Broker? @relation("BrokerFavorites", fields: [brokerId], references: [id], onDelete: Cascade)
+
+  propFirmId Int?      @map("prop_firm_id")
+  propFirm   PropFirm? @relation("PropFirmFavorites", fields: [propFirmId], references: [id], onDelete: Cascade)
+
+  notes String?
+  tags  String[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([userId, brokerId, propFirmId])
+  @@map("favorites")
+}
+
+// ============== COMPARISONS ==============
+model Comparison {
+  id Int @id @default(autoincrement())
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  isPublic    Boolean @default(false) @map("is_public")
+
+  items    Json
+  criteria Json
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([isPublic])
+  @@map("comparisons")
+}
+
+// ============== BLOG POSTS ==============
+model BlogPost {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  summary     String   @db.Text
+  content     String   @db.Text
+  category    String
+  tags        String[]
+  imageUrl    String?
+  featured    Boolean  @default(false)
+  status      String   @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
+  views       Int      @default(0)
+  likes       Int      @default(0)
+  comments    Int      @default(0)
+  publishedAt DateTime?
+  
+  authorId    String   @map("author_id")
+  author      User     @relation("UserBlogPosts", fields: [authorId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  
+  @@index([slug])
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
+  @@map("blog_posts")
+}

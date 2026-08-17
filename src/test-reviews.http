@@ -1,0 +1,103 @@
+### Variables
+@baseUrl = http://localhost:3000
+@brokerId = 1
+@propFirmId = 1
+@reviewId = 
+
+### Register a test user
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "name": "Test User"
+}
+
+### Login to get session
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+### Login (get session cookie)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Create a broker review
+POST {{baseUrl}}/api/reviews
+Content-Type: application/json
+
+{
+  "title": "Great trading experience",
+  "content": "I've been trading with this broker for 6 months and the experience has been excellent. Fast execution and good customer support.",
+  "rating": 5,
+  "pros": "Fast execution, Low spreads, Great support",
+  "cons": "Minimum deposit could be lower",
+  "serviceRating": 5,
+  "platformRating": 4,
+  "valueRating": 5,
+  "supportRating": 5,
+  "tradingExperience": "Intermediate",
+  "yearsTrading": 3,
+  "brokerId": {{brokerId}}
+}
+
+### Create a prop firm review
+POST {{baseUrl}}/api/reviews
+Content-Type: application/json
+
+{
+  "title": "Good prop firm for beginners",
+  "content": "The evaluation process is fair and the rules are clear. Payouts are processed quickly.",
+  "rating": 4,
+  "pros": "Fair rules, Quick payouts, Good support",
+  "cons": "News trading restrictions",
+  "tradingConditions": 4,
+  "customerCare": 5,
+  "userFriendliness": 4,
+  "payoutProcess": 5,
+  "tradingExperience": "Beginner",
+  "yearsTrading": 1,
+  "propFirmId": {{propFirmId}}
+}
+
+### Get all reviews (with filters)
+GET {{baseUrl}}/api/reviews?page=1&limit=10&sort=newest
+
+### Get broker reviews
+GET {{baseUrl}}/api/brokers/{{brokerId}}/reviews?page=1&limit=10&sort=newest
+
+### Get prop firm reviews
+GET {{baseUrl}}/api/prop-firms/{{propFirmId}}/reviews?page=1&limit=10&sort=highest
+
+### Get single review (replace with actual review ID)
+GET {{baseUrl}}/api/reviews/REPLACE_WITH_REVIEW_ID
+
+### Update a review
+PUT {{baseUrl}}/api/reviews/REPLACE_WITH_REVIEW_ID
+Content-Type: application/json
+
+{
+  "title": "Updated review title",
+  "content": "Updated review content after more experience with the platform.",
+  "rating": 5
+}
+
+### Vote helpful on a review
+POST {{baseUrl}}/api/reviews/REPLACE_WITH_REVIEW_ID/helpful
+Content-Type: application/json
+
+{
+  "voteType": "HELPFUL"
+}
+
+### Delete a review
+DELETE {{baseUrl}}/api/reviews/REPLACE_WITH_REVIEW_ID

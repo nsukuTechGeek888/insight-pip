@@ -1,0 +1,53 @@
+﻿ INSIGHT-PIP PROJECT STRUCTURE
+================================
+
+Root Level Files:
+   Configuration
+      .env
+      .gitignore
+      eslint.config.mjs
+      next.config.js
+      next.config.ts
+      next-env.d.ts
+      postcss.config.js
+      postcss.config.mjs
+      tailwind.config.js
+      tsconfig.json
+  
+   Package & Dependencies
+      package.json
+  
+   Documentation
+      README.md
+      PROJECT_TREE.md
+      project-tree.txt
+      ACCURATE_TREE.txt
+      DETAILED_STRUCTURE.txt
+      test.http
+  
+   Vercel
+      .vercel/
+          project.json
+          README.txt
+
+ DIRECTORIES
+==============
+
+prisma/
+   schema.prisma (Database schema definition)
+
+public/
+   file.svg
+   globe.svg
+   next.svg
+   vercel.svg
+   window.svg
+
+src/
+   app/ (Next.js App Directory - Pages & Routes)
+   components/ (React Components)
+   contexts/ (React Context Providers)
+   Data/ (Static Data Files)
+   hooks/ (Custom React Hooks)
+   lib/ (Utility Functions & Helpers)
+

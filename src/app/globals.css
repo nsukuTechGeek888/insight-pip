@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+/* Set global background and text */
+body {
+  background-color: #000000; /* Solid black background */
+  color: #ffffff;            /* White text for readability */
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Make table headers sticky and match dark theme */
+table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 40; /* Increased from 10 to ensure header stays above content */
+  background-color: #000000;
+  color: #ffffff;
+  border-bottom: 1px solid #333;
+}
+
+/* Modern dark scrollbar styling */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #333;
+  border-radius: 10px;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #333 transparent;
+}
+
+/* NEW: Ensure filter dropdowns appear above sticky headers */
+.filter-dropdown {
+  z-index: 50 !important; /* Higher than sticky header z-index */
+}
+
+/* NEW: Sticky header container for table */
+.sticky-table-header {
+  position: sticky;
+  top: 64px; /* Adjust based on your navbar height */
+  z-index: 40;
+  background-color: #18181b; /* bg-zinc-900 equivalent */
+}
+
+/* NEW: Ensure Headless UI popovers appear above everything */
+[data-headlessui-state="open"] {
+  z-index: 60 !important; /* Highest priority */
+}
+
+/* NEW: Fix for Radix UI dropdowns */
+[data-radix-popper-content-wrapper] {
+  z-index: 60 !important;
+}
+
+/* NEW: Animation for smoother dropdown appearance */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-dropdown, [data-headlessui-state="open"] {
+  animation: slideDown 0.2s ease-out;
+}
+
+/* Add to your existing globals.css */
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(34, 211, 238, 0.5); }
+  50% { box-shadow: 0 0 40px rgba(34, 211, 238, 0.8), 0 0 60px rgba(192, 38, 211, 0.6); }
+}
+
+@keyframes gradient-x {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes tilt {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(0.5deg); }
+  75% { transform: rotate(-0.5deg); }
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: gradient-x 3s ease infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+.animate-tilt {
+  animation: tilt 10s infinite linear;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(17, 24, 39, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #06b6d4, #8b5cf6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #0891b2, #7c3aed);
+}
+

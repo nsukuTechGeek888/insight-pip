@@ -1,0 +1,310 @@
+﻿// prisma/seed-unified.ts
+import { PrismaClient } from '@prisma/client';
+import { brokersData } from '../src/Data/brokersData';
+import { challengesData } from '../src/Data/challengesData';
+
+const prisma = new PrismaClient();
+
+async function main() {
+  console.log('🌱 Starting database seeding...');
+  
+  // Clear existing data in correct order (due to foreign keys)
+  console.log('🗑️ Clearing existing data...');
+  await prisma.userReview.deleteMany();
+  await prisma.favorite.deleteMany();
+  await prisma.comparison.deleteMany();
+  await prisma.brokerBonus.deleteMany();
+  await prisma.brokerPromotion.deleteMany();
+  await prisma.brokerAccountType.deleteMany();
+  await prisma.propFirmPromotion.deleteMany();
+  await prisma.propFirmProgram.deleteMany();
+  await prisma.broker.deleteMany();
+  await prisma.propFirm.deleteMany();
+  
+  console.log('🚀 Seeding brokers...');
+  
+  // Seed Brokers
+  for (const brokerData of brokersData) {
+    try {
+      // Create the main broker record
+      const broker = await prisma.broker.create({
+        data: {
+          name: brokerData.name,
+          slug: brokerData.name.toLowerCase().replace(/\s+/g, '-'),
+          description: brokerData.description,
+          logo: brokerData.logo,
+          website: brokerData.website,
+          founded: brokerData.founded,
+          headquarters: brokerData.headquarters,
+          
+          // Basic fields
+          type: brokerData.type || 'Broker',
+          category: 'Multi-asset',
+          regulated: brokerData.regulated || false,
+          minDeposit: brokerData.minDeposit,
+          demoAccount: brokerData.demoAccount || false,
+          islamicAccount: brokerData.accountTypes?.some((at: any) => at.name === 'Islamic') || false,
+          
+          // Arrays
+          platforms: brokerData.platforms || [],
+          features: brokerData.features || [],
+          depositMethods: brokerData.depositMethods || [],
+          withdrawalMethods: brokerData.withdrawalMethods || [],
+          supportLanguages: brokerData.support?.languages || [],
+          awards: brokerData.awards || [],
+          targetAudience: brokerData.suitableFor || [],
+          
+          // JSON fields
+          regulation: brokerData.regulation ? JSON.stringify(brokerData.regulation) : null,
+          averageSpreads: brokerData.spreads ? JSON.stringify(brokerData.spreads) : null,
+          commissions: brokerData.commissions ? JSON.stringify(brokerData.commissions) : null,
+          instruments: brokerData.instruments ? JSON.stringify(brokerData.instruments) : null,
+          leverageOptions: brokerData.leverage ? JSON.stringify({ general: brokerData.leverage }) : null,
+          
+          // Customer support
+          supportAvailability: brokerData.support?.availability || '24/5',
+          
+          // Educational
+          hasEducation: !!(brokerData.education?.learningMaterials && brokerData.education.learningMaterials.length > 0),
+          educationTypes: brokerData.education?.learningMaterials?.map((lm: string) => 
+            lm.includes('Video') ? 'Video Tutorials' : 
+            lm.includes('Webinar') ? 'Webinars' : 
+            lm.includes('Course') ? 'Courses' : 'Other'
+          ) || [],
+          
+          // Ratings
+          rating: brokerData.rating || 0,
+          reviewsCount: brokerData.reviewsCount || 0,
+          expertRating: brokerData.rating || 0,
+          
+          // Trading conditions
+          maxLeverage: brokerData.leverage,
+          withdrawalFee: brokerData.withdrawalFee,
+          minWithdrawal: brokerData.minWithdrawal,
+          
+          // Original/compatibility fields
+          country: brokerData.country,
+          yearsInOperation: brokerData.yearsInOperation || brokerData.years,
+          assets: brokerData.assets,
+          promo: brokerData.promo,
+          maxAllocation: brokerData.maxAllocation,
+          payout: brokerData.payout,
+          bonusOffer: brokerData.bonusOffer,
+          bonus: brokerData.bonus,
+          highlight: brokerData.highlight,
+          signupLink: brokerData.signupLink,
+          accountSize: brokerData.accountSize,
+        }
+      });
+      
+      console.log(`✅ Created broker: ${broker.name}`);
+      
+      // Create account types
+      if (brokerData.accountTypes && brokerData.accountTypes.length > 0) {
+        for (const accountType of brokerData.accountTypes) {
+          await prisma.brokerAccountType.create({
+            data: {
+              name: accountType.name,
+              minDeposit: accountType.minDeposit,
+              commission: accountType.commission,
+              spreadType: accountType.spreadType,
+              swapFree: accountType.swapFree || false,
+              brokerId: broker.id
+            }
+          });
+        }
+        console.log(`   ↳ Created ${brokerData.accountTypes.length} account types`);
+      }
+      
+      // Create bonuses
+      if (brokerData.bonuses && brokerData.bonuses.length > 0) {
+        for (const bonus of brokerData.bonuses) {
+          await prisma.brokerBonus.create({
+            data: {
+              type: bonus.type,
+              amount: bonus.amount,
+              conditions: bonus.conditions,
+              expiry: bonus.expiry,
+              code: bonus.code,
+              brokerId: broker.id
+            }
+          });
+        }
+        console.log(`   ↳ Created ${brokerData.bonuses.length} bonuses`);
+      }
+      
+      // Create promotions
+      if (brokerData.promotions && brokerData.promotions.length > 0) {
+        for (const promotion of brokerData.promotions) {
+          await prisma.brokerPromotion.create({
+            data: {
+              name: promotion,
+              description: `Promotion: ${promotion}`,
+              brokerId: broker.id
+            }
+          });
+        }
+        console.log(`   ↳ Created ${brokerData.promotions.length} promotions`);
+      }
+      
+    } catch (error) {
+      console.error(`❌ Error creating broker ${brokerData.name}:`, error);
+    }
+  }
+  
+  console.log('🚀 Seeding prop firms...');
+  
+  // Seed Prop Firms
+  for (const firmData of challengesData) {
+    try {
+      // Find max allocation from all programs
+      let maxAllocationValue = 0;
+      if (firmData.programs && firmData.programs.length > 0) {
+        for (const program of firmData.programs) {
+          if (program.accountOptions) {
+            for (const option of program.accountOptions) {
+              if (option.maxAllocation && option.maxAllocation > maxAllocationValue) {
+                maxAllocationValue = option.maxAllocation;
+              }
+            }
+          }
+        }
+      }
+      
+      // Create the main prop firm record - ONLY USE FIELDS THAT EXIST IN SCHEMA
+      const propFirm = await prisma.propFirm.create({
+        data: {
+          name: firmData.name,
+          slug: firmData.name.toLowerCase().replace(/\s+/g, '-'),
+          description: `Prop firm offering various funding programs`,
+          website: firmData.signupLink || '#',
+          founded: firmData.founded,
+          headquarters: firmData.country,
+          
+          // Basic fields
+          type: firmData.type || 'Prop Firm',
+          category: 'Multi-asset',
+          regulated: firmData.regulation ? true : false,
+          regulation: firmData.regulation || null,
+          
+          // Arrays - ONLY THESE EXIST IN SCHEMA
+          platforms: firmData.platform || [],
+          tradingInstruments: firmData.tradingInstruments || [],
+          features: firmData.communityFeatures || [],
+          payoutMethods: firmData.payoutMethods || [],
+          supportedCountries: firmData.supportedCountries || [],
+          prohibitedCountries: firmData.prohibitedCountries || [],
+          customerSupport: firmData.customerSupport || [],
+          educationResources: firmData.educationResources || [],
+          communityFeatures: firmData.communityFeatures || [],
+          
+          // JSON fields
+          leverageOptions: firmData.leverageOptions ? JSON.stringify(firmData.leverageOptions) : null,
+          averageSpreads: firmData.spreads ? JSON.stringify(firmData.spreads) : null,
+          commissions: firmData.commissions ? JSON.stringify(firmData.commissions) : null,
+          
+          // Trading conditions
+          platformFees: firmData.platformFees || 0,
+          payoutFrequency: firmData.payoutFrequency,
+          minimumPayout: firmData.minimumPayout,
+          newsTradingRestrictions: firmData.newsTradingRestrictions,
+          minimumAge: firmData.minimumAge,
+          
+          // Ratings
+          rating: firmData.rating || 0,
+          reviewsCount: firmData.totalReviews || 0,
+          expertRating: firmData.rating || 0,
+          trustpilotRating: firmData.trustpilotRating,
+          trustpilotReviews: firmData.trustpilotReviews,
+          
+          // User ratings breakdown
+          tradingConditions: firmData.tradingConditions,
+          customerCare: firmData.customerCare,
+          userFriendliness: firmData.userFriendliness,
+          payoutProcess: firmData.payoutProcess,
+          totalReviews: firmData.totalReviews,
+          
+          // Original/compatibility fields
+          country: firmData.country,
+          yearsInOperation: firmData.yearsInOperation,
+          assets: firmData.assets || [],
+          promo: firmData.promotions?.[0]?.name || null,
+          maxAllocation: maxAllocationValue,
+          signupLink: firmData.signupLink,
+        }
+      });
+      
+      console.log(`✅ Created prop firm: ${propFirm.name}`);
+      
+      // Create programs
+      if (firmData.programs && firmData.programs.length > 0) {
+        for (const program of firmData.programs) {
+          await prisma.propFirmProgram.create({
+            data: {
+              name: program.type,
+              type: program.type,
+              description: program.description,
+              timeLimit: program.timeLimit ? JSON.stringify(program.timeLimit) : null,
+              rules: program.rules ? JSON.stringify(program.rules) : null,
+              profitTarget: program.rules?.profitTarget ? 
+                (typeof program.rules.profitTarget === 'object' ? 
+                  JSON.stringify(program.rules.profitTarget) : 
+                  program.rules.profitTarget.toString()) : 
+                null,
+              accountOptions: program.accountOptions ? JSON.stringify(program.accountOptions) : null,
+              propFirmId: propFirm.id
+            }
+          });
+        }
+        console.log(`   ↳ Created ${firmData.programs.length} programs`);
+      }
+      
+      // Create promotions
+      if (firmData.promotions && firmData.promotions.length > 0) {
+        for (const promotion of firmData.promotions) {
+          await prisma.propFirmPromotion.create({
+            data: {
+              name: promotion.name,
+              description: promotion.description,
+              code: promotion.code,
+              validUntil: promotion.validUntil ? new Date(promotion.validUntil) : null,
+              propFirmId: propFirm.id
+            }
+          });
+        }
+        console.log(`   ↳ Created ${firmData.promotions.length} promotions`);
+      }
+      
+    } catch (error) {
+      console.error(`❌ Error creating prop firm ${firmData.name}:`, error);
+    }
+  }
+  
+  // Verify counts
+  const brokerCount = await prisma.broker.count();
+  const propFirmCount = await prisma.propFirm.count();
+  
+  console.log('🎉 Seeding completed successfully!');
+  console.log(`📊 Summary:`);
+  console.log(`   - Brokers in data: ${brokersData.length}`);
+  console.log(`   - Prop Firms in data: ${challengesData.length}`);
+  console.log(`✅ Database verification:`);
+  console.log(`   - Actual brokers in DB: ${brokerCount}`);
+  console.log(`   - Actual prop firms in DB: ${propFirmCount}`);
+  
+  if (propFirmCount === 0 && challengesData.length > 0) {
+    console.log('❌ ERROR: No prop firms were created in the database!');
+    console.log('💡 Check if there are validation errors above');
+  }
+  
+  console.log(`🌐 Open Prisma Studio: npx prisma studio`);
+}
+
+main()
+  .catch((e) => {
+    console.error('❌ Seeding error:', e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

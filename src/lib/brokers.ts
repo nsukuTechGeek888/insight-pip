@@ -1,0 +1,31 @@
+export const brokers = [
+  {
+    id: 1,
+    name: "Trusted Markets",
+    type: "Broker",
+    rating: 4.5,
+    country: "USA",
+    yearsInOperation: 5,
+    regulated: true,
+    platform: ["MT4", "MT5", "cTrader"],
+    minDeposit: 100,
+    assets: "FX, Metals, Indices",
+    promo: "🎁 50% Deposit Bonus",
+    maxAllocation: 5000000,
+  },
+  {
+    id: 2,
+    name: "SwiftTrade",
+    type: "Broker",
+    rating: 4.2,
+    country: "UK",
+    yearsInOperation: 7,
+    regulated: true,
+    platform: ["MT5", "MetaTrader Web"],
+    minDeposit: 50,
+    assets: "FX, Crypto, Stocks",
+    promo: "🎁 30% Welcome Bonus",
+    maxAllocation: 1000000,
+  },
+  // Add more brokers as needed...
+];
