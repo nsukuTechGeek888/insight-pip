@@ -311,7 +311,7 @@ function SocialMediaInput({ value, onChange }: { value: Record<string, string>; 
   );
 }
 
-// Logo Upload Component
+// Logo Upload Component - FIXED VERSION
 function LogoUpload({ currentLogo, onLogoUploaded, onLogoRemoved }: { 
   currentLogo: string; 
   onLogoUploaded: (url: string) => void; 
@@ -337,11 +337,19 @@ function LogoUpload({ currentLogo, onLogoUploaded, onLogoRemoved }: {
     formData.append('type', 'broker');
 
     try {
-      const response = await fetch('/api/upload', { method: 'POST', credentials: 'include', body: formData });
+      const response = await fetch('/api/upload', { 
+        method: 'POST', 
+        credentials: 'include', 
+        body: formData 
+      });
       const data = await response.json();
-      if (response.ok && data.url) onLogoUploaded(data.url);
-      else alert(data.error || 'Failed to upload logo');
+      if (response.ok && data.url) {
+        onLogoUploaded(data.url);
+      } else {
+        alert(data.error || 'Failed to upload logo');
+      }
     } catch (error) {
+      console.error('Upload error:', error);
       alert('Failed to upload logo');
     } finally {
       setUploading(false);
