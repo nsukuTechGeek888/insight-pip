@@ -1,32 +1,39 @@
-﻿// src/components/Navbar.tsx - FIXED with useRef
+﻿// src/components/Navbar.tsx - CLEAN VERSION WITH REAL FLAGS & CLEANER BUTTONS
 
 'use client';
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useRef } from "react";  // ← ADDED useRef
+import { useEffect, useState, useRef } from "react";
 import { Menu, X, User, LogOut, ChevronDown, CircleUserRound, Sparkles, Zap, Shield, Crown, Calculator } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { useRegion } from "@/contexts/RegionContext";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Simple Region Selector Component inline to avoid import issues
+// ===================== REAL FLAG MAP =====================
+const REGION_DISPLAY: Record<string, { label: string; flag: string }> = {
+  GLOBAL: { label: 'Global', flag: '🌍' },
+  SA: { label: 'South Africa', flag: '🇿🇦' },
+  EU: { label: 'Europe', flag: '🇪🇺' },
+  UK: { label: 'United Kingdom', flag: '🇬🇧' },
+  UAE: { label: 'UAE', flag: '🇦🇪' },
+  KE: { label: 'Kenya', flag: '🇰🇪' },
+  AU: { label: 'Australia', flag: '🇦🇺' },
+  SG: { label: 'Singapore', flag: '🇸🇬' },
+  US: { label: 'United States', flag: '🇺🇸' },
+  CA: { label: 'Canada', flag: '🇨🇦' },
+};
+
+// ===================== REGION SELECTOR =====================
 function SimpleRegionSelector({ currentRegion, onRegionChange }: { currentRegion: string; onRegionChange: (region: string) => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const regions = [
-    { code: 'GLOBAL', label: 'Global', flag: '🌍' },
-    { code: 'SA', label: 'South Africa', flag: '🇿🇦' },
-    { code: 'EU', label: 'Europe', flag: '🇪🇺' },
-    { code: 'UK', label: 'United Kingdom', flag: '🇬🇧' },
-    { code: 'UAE', label: 'UAE', flag: '🇦🇪' },
-    { code: 'KE', label: 'Kenya', flag: '🇰🇪' },
-    { code: 'AU', label: 'Australia', flag: '🇦🇺' },
-    { code: 'SG', label: 'Singapore', flag: '🇸🇬' },
-    { code: 'US', label: 'United States', flag: '🇺🇸' },
-    { code: 'CA', label: 'Canada', flag: '🇨🇦' },
-  ];
+  const regions = Object.entries(REGION_DISPLAY).map(([code, data]) => ({
+    code,
+    label: data.label,
+    flag: data.flag,
+  }));
 
   const currentRegionData = regions.find(r => r.code === currentRegion) || regions[0];
 
@@ -46,7 +53,7 @@ function SimpleRegionSelector({ currentRegion, onRegionChange }: { currentRegion
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-zinc-800/50 border border-zinc-700 hover:border-purple-500/50 transition-all text-white text-sm"
       >
-        <span>{currentRegionData.flag}</span>
+        <span className="text-base">{currentRegionData.flag}</span>
         <span className="hidden lg:inline">{currentRegionData.label}</span>
         <ChevronDown size={14} className={`text-zinc-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
@@ -70,7 +77,7 @@ function SimpleRegionSelector({ currentRegion, onRegionChange }: { currentRegion
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span>{region.flag}</span>
+                    <span className="text-base">{region.flag}</span>
                     <span>{region.label}</span>
                   </div>
                   {isActive && <span className="text-purple-400">✓</span>}
@@ -84,6 +91,7 @@ function SimpleRegionSelector({ currentRegion, onRegionChange }: { currentRegion
   );
 }
 
+// ===================== MAIN LINKS =====================
 const mainLinks = [
   { label: "Home", href: "/", icon: null },
   { label: "Offers", href: "/offers", icon: Sparkles, badge: "Hot" },
@@ -95,19 +103,7 @@ const mainLinks = [
   { label: "Tools", href: "/tools", icon: Calculator },
 ];
 
-const REGION_DISPLAY: Record<string, { label: string; flag: string }> = {
-  SA: { label: 'South Africa', flag: '🇿🇦' },
-  EU: { label: 'Europe', flag: '🇪🇺' },
-  UK: { label: 'United Kingdom', flag: '🇬🇧' },
-  UAE: { label: 'United Arab Emirates', flag: '🇦🇪' },
-  KE: { label: 'Kenya', flag: '🇰🇪' },
-  AU: { label: 'Australia', flag: '🇦🇺' },
-  SG: { label: 'Singapore', flag: '🇸🇬' },
-  US: { label: 'United States', flag: '🇺🇸' },
-  CA: { label: 'Canada', flag: '🇨🇦' },
-  GLOBAL: { label: 'Global', flag: '🌍' },
-};
-
+// ===================== MAIN NAVBAR =====================
 export default function Navbar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -182,7 +178,8 @@ export default function Navbar() {
         }`}
       >
         <nav className="max-w-7xl mx-auto flex items-center justify-between text-white">
-          {/* Logo */}
+          
+          {/* LOGO */}
           <Link href="/" className="flex items-center gap-2 group">
             <div className="w-8 h-8 rounded-md overflow-hidden flex-shrink-0">
               <img 
@@ -207,7 +204,7 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop Menu */}
+          {/* DESKTOP MENU */}
           <div className="hidden md:flex gap-1 items-center">
             {mainLinks.map((link) => {
               const isActive = isClient && pathname === link.href;
@@ -341,17 +338,18 @@ export default function Navbar() {
                 >
                   Login
                 </Link>
+                {/* 👇 CLEANER, SLIMMER SIGN UP BUTTON 👇 */}
                 <Link
                   href="/signup"
                   className="px-5 py-2 font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 hover:from-blue-500 hover:via-purple-500 hover:to-pink-400 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
                 >
-                  Sign Up Free
+                  Sign Up
                 </Link>
               </div>
             )}
           </div>
 
-          {/* Mobile Menu Toggle */}
+          {/* MOBILE MENU TOGGLE */}
           <div className="md:hidden flex items-center gap-3">
             <span className="text-base">{regionInfo.flag}</span>
             <button
@@ -365,7 +363,7 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* Mobile Menu */}
+      {/* MOBILE MENU */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -478,7 +476,7 @@ export default function Navbar() {
                     onClick={() => setMenuOpen(false)}
                     className="flex items-center justify-center py-3 px-4 font-semibold text-white rounded-lg bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 hover:from-blue-500 hover:via-purple-500 hover:to-pink-400 transition-all shadow-lg"
                   >
-                    Sign Up Free
+                    Sign Up
                   </Link>
                 </div>
               )}
