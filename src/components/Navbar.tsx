@@ -1,4 +1,4 @@
-﻿// src/components/Navbar.tsx - CLEAN VERSION WITH REAL FLAGS & CLEANER BUTTONS
+﻿// src/components/Navbar.tsx - FINAL ADAPTABLE VERSION
 
 'use client';
 
@@ -11,6 +11,7 @@ import { useRegion } from "@/contexts/RegionContext";
 import { motion, AnimatePresence } from "framer-motion";
 
 // ===================== REAL FLAG MAP =====================
+// ✏️ Change this list to add or remove regions
 const REGION_DISPLAY: Record<string, { label: string; flag: string }> = {
   GLOBAL: { label: 'Global', flag: '🌍' },
   SA: { label: 'South Africa', flag: '🇿🇦' },
@@ -92,6 +93,7 @@ function SimpleRegionSelector({ currentRegion, onRegionChange }: { currentRegion
 }
 
 // ===================== MAIN LINKS =====================
+// ✏️ Change this list to add or remove navigation links
 const mainLinks = [
   { label: "Home", href: "/", icon: null },
   { label: "Offers", href: "/offers", icon: Sparkles, badge: "Hot" },
@@ -244,7 +246,7 @@ export default function Navbar() {
               <SimpleRegionSelector currentRegion={region} onRegionChange={setRegion} />
             </div>
 
-            {/* User Account Section */}
+            {/* User Account Section - ONLY SHOWS WHEN LOGGED IN */}
             {user ? (
               <div className="relative user-menu-container ml-2">
                 <button
@@ -331,6 +333,7 @@ export default function Navbar() {
                 </AnimatePresence>
               </div>
             ) : (
+              /* ONLY SHOWS WHEN LOGGED OUT */
               <div className="flex items-center gap-2 ml-2">
                 <Link
                   href="/login"
