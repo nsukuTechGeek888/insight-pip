@@ -753,71 +753,71 @@ export default function BrokerPage({ params }: Props) {
         
         console.log('🔍 Loading broker with identifier:', identifier);
         console.log('📍 Current region:', region);
+        console.log('🔍 Is numeric?', /^\d+$/.test(identifier));
         
-        // Try by slug first (most common for SEO-friendly URLs)
-        let response = await fetch(`/api/brokers/slug/${identifier}?region=${region}`);
-        let data = await response.json();
+        let foundBroker = null;
         
-        console.log('📡 Slug API response:', data.success ? 'Success' : 'Failed', data.error || '');
+        // STEP 1: Check if it's a numeric ID first
+        const isNumeric = /^\d+$/.test(identifier);
         
-        if (data.success && data.data) {
-          setBroker(data.data);
-          // Check region availability
-          const available = isAvailableInRegion(data.data, region);
+        if (isNumeric) {
+          // Try by ID first
+          console.log('🔍 Trying by ID (numeric):', identifier);
+          const idResponse = await fetch(`/api/brokers/${identifier}?region=${region}`);
+          const idData = await idResponse.json();
+          console.log('📡 ID API response:', idData.success ? 'Success' : 'Failed', idData.error || '');
+          
+          if (idData.success && idData.data) {
+            foundBroker = idData.data;
+            console.log('✅ Found broker by ID:', foundBroker.name);
+          }
+        }
+        
+        // STEP 2: If not found, try by slug
+        if (!foundBroker) {
+          console.log('🔍 Trying by slug:', identifier);
+          const slugResponse = await fetch(`/api/brokers/slug/${identifier}?region=${region}`);
+          const slugData = await slugResponse.json();
+          console.log('📡 Slug API response:', slugData.success ? 'Success' : 'Failed', slugData.error || '');
+          
+          if (slugData.success && slugData.data) {
+            foundBroker = slugData.data;
+            console.log('✅ Found broker by slug:', foundBroker.name);
+          }
+        }
+        
+        // STEP 3: If still not found, search by name
+        if (!foundBroker) {
+          console.log('🔍 Searching all brokers for match...');
+          const allBrokersResponse = await fetch(`/api/brokers?region=${region}&limit=100`);
+          const allData = await allBrokersResponse.json();
+          
+          if (allData.success && allData.data) {
+            const slugifiedParam = slugify(identifier);
+            foundBroker = allData.data.find((b: any) => {
+              return b.slug === slugifiedParam || 
+                     b.slug === identifier ||
+                     b.id === parseInt(identifier) ||
+                     (b.name && slugify(b.name) === slugifiedParam) ||
+                     b.name?.toLowerCase() === identifier.toLowerCase();
+            });
+            
+            if (foundBroker) {
+              console.log('✅ Found broker by name search:', foundBroker.name);
+            }
+          }
+        }
+        
+        if (foundBroker) {
+          setBroker(foundBroker);
+          const available = isAvailableInRegion(foundBroker, region);
           setRegionUnavailable(!available);
-          await fetchBrokerReviews(data.data.id);
-          await fetchIncidents(data.data.id);
-          setIsLoading(false);
-          return;
+          await fetchBrokerReviews(foundBroker.id);
+          await fetchIncidents(foundBroker.id);
+        } else {
+          console.log('❌ No broker found for identifier:', identifier);
+          setBroker(null);
         }
-        
-        // If slug fails and identifier is numeric, try by ID
-        const numericId = parseInt(identifier);
-        if (!isNaN(numericId)) {
-          console.log('🔍 Trying by ID:', numericId);
-          response = await fetch(`/api/brokers/${numericId}?region=${region}`);
-          data = await response.json();
-          
-          if (data.success && data.data) {
-            setBroker(data.data);
-            const available = isAvailableInRegion(data.data, region);
-            setRegionUnavailable(!available);
-            await fetchBrokerReviews(data.data.id);
-            await fetchIncidents(data.data.id);
-            setIsLoading(false);
-            return;
-          }
-        }
-        
-        // Final fallback - search by name from all brokers
-        console.log('🔍 Searching all brokers for match...');
-        const allBrokersResponse = await fetch(`/api/brokers?region=${region}&limit=100`);
-        const allData = await allBrokersResponse.json();
-        
-        if (allData.success && allData.data) {
-          const slugifiedParam = slugify(identifier);
-          const found = allData.data.find((b: any) => {
-            return b.slug === slugifiedParam || 
-                   b.slug === identifier ||
-                   (b.name && slugify(b.name) === slugifiedParam) ||
-                   b.name?.toLowerCase() === identifier.toLowerCase();
-          });
-          
-          if (found) {
-            console.log('✅ Found broker by name search:', found.name);
-            setBroker(found);
-            const available = isAvailableInRegion(found, region);
-            setRegionUnavailable(!available);
-            await fetchBrokerReviews(found.id);
-            await fetchIncidents(found.id);
-            setIsLoading(false);
-            return;
-          }
-        }
-        
-        // No broker found
-        console.log('❌ No broker found for identifier:', identifier);
-        setBroker(null);
       } catch (error) {
         console.error('Error loading broker:', error);
         setBroker(null);
@@ -1168,7 +1168,7 @@ export default function BrokerPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Tab Content - Simplified for brevity, but you can keep your existing tab content */}
+      {/* Tab Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <AnimatePresence mode="wait">
           <motion.div 
@@ -1199,7 +1199,7 @@ export default function BrokerPage({ params }: Props) {
               </div>
             )}
 
-            {/* Other tabs - keep your existing implementations */}
+            {/* Offers Tab */}
             {activeTab === 'offers' && (
               <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
                 <h2 className="text-xl font-bold text-white mb-4">Offers & Promotions</h2>
@@ -1215,8 +1215,296 @@ export default function BrokerPage({ params }: Props) {
               </div>
             )}
 
-            {/* Add remaining tabs as needed... */}
-            
+            {/* Regulation Tab */}
+            {activeTab === 'regulation' && (
+              <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
+                <h2 className="text-xl font-bold text-white mb-4">Regulation & Compliance</h2>
+                <div className="space-y-4">
+                  {regulations.length > 0 ? (
+                    <div>
+                      <h3 className="text-sm font-semibold text-zinc-300 mb-2">Regulatory Bodies</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {regulations.map((reg: string, idx: number) => (
+                          <span key={idx} className="px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-sm border border-green-500/20">
+                            {reg}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-zinc-400">No regulation information available.</p>
+                  )}
+                  {hasWarnings && (
+                    <WarningCard title="Regulatory Warnings" warnings={broker.regulatoryWarnings} type="warning" />
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Trading Tab */}
+            {activeTab === 'trading' && (
+              <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
+                <h2 className="text-xl font-bold text-white mb-4">Trading Conditions</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between py-2 border-b border-zinc-800">
+                      <span className="text-zinc-400">Max Leverage</span>
+                      <span className="text-white font-medium">{leverageDisplay}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-zinc-800">
+                      <span className="text-zinc-400">Min Deposit</span>
+                      <span className="text-white font-medium">${effectiveMinDeposit || '—'}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-zinc-800">
+                      <span className="text-zinc-400">Order Execution</span>
+                      <span className="text-white font-medium">{executionDisplay}</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between py-2 border-b border-zinc-800">
+                      <span className="text-zinc-400">Trading Hours</span>
+                      <span className="text-white font-medium">{tradingHoursDisplay}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-zinc-800">
+                      <span className="text-zinc-400">Platforms</span>
+                      <span className="text-white font-medium">{platformCount}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-zinc-800">
+                      <span className="text-zinc-400">Account Types</span>
+                      <span className="text-white font-medium">{accountTypesCount}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Accounts Tab */}
+            {activeTab === 'accounts' && (
+              <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
+                <h2 className="text-xl font-bold text-white mb-4">Account Types</h2>
+                {broker.accountTypes && broker.accountTypes.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {broker.accountTypes.map((acc: any, idx: number) => (
+                      <div key={idx} className="bg-zinc-800/30 rounded-xl p-4 border border-zinc-700">
+                        <h3 className="text-white font-semibold mb-2">{acc.name || 'Standard Account'}</h3>
+                        <div className="space-y-1 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-zinc-400">Min Deposit</span>
+                            <span className="text-white">${acc.minDeposit || 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-zinc-400">Spread Type</span>
+                            <span className="text-white">{acc.spreadType || 'Variable'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-zinc-400">Commission</span>
+                            <span className="text-white">{acc.commission || 'No commission'}</span>
+                          </div>
+                          {acc.swapFree && (
+                            <div className="flex justify-between">
+                              <span className="text-zinc-400">Swap-Free</span>
+                              <span className="text-green-400">✅ Available</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-zinc-400">No account information available.</p>
+                )}
+              </div>
+            )}
+
+            {/* Platforms Tab */}
+            {activeTab === 'platforms' && (
+              <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
+                <h2 className="text-xl font-bold text-white mb-4">Trading Platforms</h2>
+                {broker.platforms && broker.platforms.length > 0 ? (
+                  <div className="flex flex-wrap gap-3">
+                    {broker.platforms.map((platform: string, idx: number) => (
+                      <span key={idx} className="px-4 py-2 bg-zinc-800 rounded-xl text-white border border-zinc-700">
+                        {platform}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-zinc-400">No platform information available.</p>
+                )}
+              </div>
+            )}
+
+            {/* Fees Tab */}
+            {activeTab === 'fees' && (
+              <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
+                <h2 className="text-xl font-bold text-white mb-4">Fees & Costs</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between py-2 border-b border-zinc-800">
+                      <span className="text-zinc-400">Min Deposit</span>
+                      <span className="text-white font-medium">${effectiveMinDeposit || '—'}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-zinc-800">
+                      <span className="text-zinc-400">Min Withdrawal</span>
+                      <span className="text-white font-medium">${broker.minWithdrawal || '—'}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-zinc-800">
+                      <span className="text-zinc-400">Withdrawal Fee</span>
+                      <span className="text-white font-medium">{broker.withdrawalFee || 'No fee'}</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between py-2 border-b border-zinc-800">
+                      <span className="text-zinc-400">Inactivity Fee</span>
+                      <span className="text-white font-medium">{broker.inactivityFee || 'No fee'}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-zinc-800">
+                      <span className="text-zinc-400">Margin Call</span>
+                      <span className="text-white font-medium">{broker.marginCall || '100%'}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-zinc-800">
+                      <span className="text-zinc-400">Stop Out Level</span>
+                      <span className="text-white font-medium">{broker.stopOutLevel || '50%'}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Support Tab */}
+            {activeTab === 'support' && (
+              <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
+                <h2 className="text-xl font-bold text-white mb-4">Customer Support</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between py-2 border-b border-zinc-800">
+                      <span className="text-zinc-400">Support Languages</span>
+                      <span className="text-white font-medium">{broker.supportLanguages?.join(', ') || 'English'}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-zinc-800">
+                      <span className="text-zinc-400">Availability</span>
+                      <span className="text-white font-medium">{broker.supportAvailability || '24/5'}</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between py-2 border-b border-zinc-800">
+                      <span className="text-zinc-400">Channels</span>
+                      <span className="text-white font-medium">Live Chat, Email, Phone</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-zinc-800">
+                      <span className="text-zinc-400">Response Time</span>
+                      <span className="text-white font-medium">Under 5 minutes (live chat)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Reviews Tab */}
+            {activeTab === 'reviews' && (
+              <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold text-white">Reviews</h2>
+                  <button
+                    onClick={() => setShowReviewForm(true)}
+                    className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-sm font-medium hover:from-purple-500 hover:to-pink-500 transition-all"
+                  >
+                    Write a Review
+                  </button>
+                </div>
+                {reviewsLoading ? (
+                  <div className="text-center py-8">
+                    <Loader2 size={24} className="animate-spin text-purple-500 mx-auto" />
+                  </div>
+                ) : brokerReviews.length > 0 ? (
+                  <div className="space-y-4">
+                    {brokerReviews.map((review) => (
+                      <div key={review.id} className="bg-zinc-800/30 rounded-xl p-4 border border-zinc-700">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
+                            {review.user?.name?.charAt(0) || 'U'}
+                          </div>
+                          <div>
+                            <div className="text-white font-medium">{review.user?.name || 'Anonymous'}</div>
+                            <div className="flex items-center gap-2">
+                              <StarRating rating={review.rating || 0} size="sm" />
+                              <span className="text-xs text-zinc-500">{new Date(review.createdAt).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <h4 className="text-white font-semibold mb-1">{review.title}</h4>
+                        <p className="text-zinc-400 text-sm">{review.content}</p>
+                        <div className="flex items-center gap-4 mt-3 pt-2 border-t border-zinc-700">
+                          <button
+                            onClick={() => markHelpful(review.id, 'HELPFUL')}
+                            className={`flex items-center gap-1 text-xs ${userVotes[review.id] === 'HELPFUL' ? 'text-green-400' : 'text-zinc-500'}`}
+                          >
+                            <ThumbsUp size={12} /> Helpful ({review.helpfulCount || 0})
+                          </button>
+                          <button
+                            onClick={() => shareReview(review)}
+                            className="flex items-center gap-1 text-xs text-zinc-500"
+                          >
+                            <Share2 size={12} /> Share
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-zinc-400 text-center py-8">No reviews yet. Be the first to share your experience!</p>
+                )}
+              </div>
+            )}
+
+            {/* Incidents Tab */}
+            {activeTab === 'incidents' && (
+              <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold text-white">Incidents</h2>
+                  <button
+                    onClick={() => setShowIncidentForm(true)}
+                    className="px-4 py-2 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-lg text-sm font-medium hover:from-red-500 hover:to-orange-500 transition-all"
+                  >
+                    Report Incident
+                  </button>
+                </div>
+                {incidentsLoading ? (
+                  <div className="text-center py-8">
+                    <Loader2 size={24} className="animate-spin text-purple-500 mx-auto" />
+                  </div>
+                ) : brokerIncidents.length > 0 ? (
+                  <div className="space-y-4">
+                    {brokerIncidents.map((incident) => (
+                      <div key={incident.id} className="bg-red-500/5 rounded-xl p-4 border border-red-500/20">
+                        <div className="flex items-start gap-3">
+                          <AlertTriangle size={16} className="text-red-400 mt-1 flex-shrink-0" />
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-white font-semibold">{incident.title}</h4>
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                incident.resolutionStatus === 'RESOLVED' 
+                                  ? 'bg-green-500/20 text-green-400' 
+                                  : 'bg-red-500/20 text-red-400'
+                              }`}>
+                                {incident.resolutionStatus || 'PENDING'}
+                              </span>
+                            </div>
+                            <p className="text-zinc-400 text-sm mt-1">{incident.description}</p>
+                            <div className="flex items-center gap-3 mt-2 text-xs text-zinc-500">
+                              <span>{new Date(incident.createdAt).toLocaleDateString()}</span>
+                              <span>{incident.incidentType?.replace(/_/g, ' ')}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-zinc-400 text-center py-8">No incidents reported for this broker.</p>
+                )}
+              </div>
+            )}
           </motion.div>
         </AnimatePresence>
       </div>
