@@ -923,7 +923,7 @@ function LightboxModal({ images, initialIndex, onClose }: {
 export default function MobileBrokerDetail({ params }: { params: { broker: string } }) {
   const router = useRouter();
   const { user } = useUser();
-  const { region } = useRegion(); // ✅ REGION
+  const { region } = useRegion();
   const [broker, setBroker] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -963,28 +963,58 @@ export default function MobileBrokerDetail({ params }: { params: { broker: strin
     });
   }, [showReplySection]);
 
-  // Load broker data - ✅ WITH REGION
+  // ===================== FIXED: Load broker data with region =====================
   useEffect(() => {
     const loadData = async () => {
       try {
         setIsLoading(true);
-        const brokerId = parseInt(params.broker);
+        setError(null);
+        
+        const identifier = params.broker;
+        console.log('🔍 Mobile: Loading broker with identifier:', identifier);
+        console.log('📍 Mobile: Current region:', region);
+        
         let foundBroker = null;
         
-        if (!isNaN(brokerId)) {
-          const response = await api.getBrokerById(brokerId);
-          if (response.success && response.data) foundBroker = response.data;
+        // Try by slug first (most common)
+        const slugResponse = await fetch(`/api/brokers/slug/${identifier}?region=${region}`);
+        const slugData = await slugResponse.json();
+        
+        if (slugData.success && slugData.data) {
+          foundBroker = slugData.data;
+          console.log('✅ Mobile: Found broker by slug:', foundBroker.name);
         }
         
+        // If slug fails and identifier is numeric, try by ID
         if (!foundBroker) {
-          // ✅ FIXED: Use region in API call
-          const allBrokersResponse = await api.getBrokers(region);
-          if (allBrokersResponse.success && allBrokersResponse.data) {
-            foundBroker = allBrokersResponse.data.find((b: any) => {
-              return b.id?.toString() === params.broker || 
-                     (b.name && slugify(b.name) === params.broker) ||
-                     b.name?.toLowerCase() === params.broker.toLowerCase();
+          const numericId = parseInt(identifier);
+          if (!isNaN(numericId)) {
+            const idResponse = await fetch(`/api/brokers/${numericId}?region=${region}`);
+            const idData = await idResponse.json();
+            if (idData.success && idData.data) {
+              foundBroker = idData.data;
+              console.log('✅ Mobile: Found broker by ID:', foundBroker.name);
+            }
+          }
+        }
+        
+        // Fallback: search all brokers
+        if (!foundBroker) {
+          console.log('🔄 Mobile: Searching all brokers...');
+          const allBrokersResponse = await fetch(`/api/brokers?region=${region}&limit=100`);
+          const allData = await allBrokersResponse.json();
+          
+          if (allData.success && allData.data) {
+            const slugifiedParam = slugify(identifier);
+            foundBroker = allData.data.find((b: any) => {
+              return b.slug === slugifiedParam || 
+                     b.slug === identifier ||
+                     (b.name && slugify(b.name) === slugifiedParam) ||
+                     b.name?.toLowerCase() === identifier.toLowerCase();
             });
+            if (foundBroker) {
+              console.log('✅ Mobile: Found broker in fallback search:', foundBroker.name);
+            }
           }
         }
         
@@ -1000,16 +1030,17 @@ export default function MobileBrokerDetail({ params }: { params: { broker: strin
           ]);
         } else {
           setError('Broker not found');
+          console.log('❌ Mobile: No broker found for:', identifier);
         }
       } catch (err) {
-        console.error('Error loading broker:', err);
+        console.error('❌ Mobile: Error loading broker:', err);
         setError('Failed to load broker data');
       } finally {
         setIsLoading(false);
       }
     };
     loadData();
-  }, [params.broker, region]); // ✅ Added region to dependency
+  }, [params.broker, region]);
 
   const fetchBrokerReviews = async (brokerId: number) => {
     setReviewsLoading(true);
@@ -1409,8 +1440,7 @@ export default function MobileBrokerDetail({ params }: { params: { broker: strin
           })}
         </div>
 
-        {/* ==================== REST OF TABS (same as before) ==================== */}
-        {/* Overview Tab */}
+        {/* ==================== OVERVIEW TAB ==================== */}
         {activeTab === 'overview' && (
           <div className="space-y-4">
             {/* About */}
@@ -1771,7 +1801,7 @@ export default function MobileBrokerDetail({ params }: { params: { broker: strin
               )}
               
               {/* Regulatory Bodies */}
-              {broker.regulatoryBodies?.length > 0 && (
+              if (broker.regulatoryBodies?.length > 0) {(
                 <div className="mt-3">
                   <h4 className="text-xs text-zinc-400 mb-2">Regulatory Bodies</h4>
                   <div className="flex flex-wrap gap-2">

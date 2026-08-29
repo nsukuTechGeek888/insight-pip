@@ -4,13 +4,26 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRegion } from '@/contexts/RegionContext';
 import { useUser } from '@/contexts/UserContext';
 import BrokerPage from './DesktopBrokerPage';
-import MobileBrokerDetail from '@/components/brokers/MobileBrokerDetail';
 import NotAvailableInRegion from '@/components/NotAvailableInRegion';
 import { BreadcrumbSchema } from '@/components/StructuredData';
+
+// Dynamic import for mobile component with fallback
+const MobileBrokerDetail = dynamic(
+  () => import('@/components/brokers/MobileBrokerDetail'),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
+      </div>
+    )
+  }
+);
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);

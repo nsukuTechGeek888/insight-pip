@@ -180,120 +180,48 @@ class ApiService {
     }
   }
 
-  async getBrokerById(id: string | number) {
+  // ====== FIXED: getBrokerById ======
+  async getBrokerById(id: string | number): Promise<{ success: boolean; data?: any; error?: string }> {
     console.log(`🔍 API: Fetching broker by ID: ${id}`);
     try {
       const response = await this.fetch<any>(`/brokers/${id}`);
       
-      // Handle the nested data structure
-      if (response && response.success && response.data) {
-        // If response has success and data properties, extract the data
-        console.log(`✅ API: Successfully fetched broker:`, response.data.name || 'Unknown');
+      // Check if the response has the expected structure
+      if (response && response.success === true && response.data) {
+        console.log(`✅ API: Successfully fetched broker by ID:`, response.data.name || 'Unknown');
         return { success: true, data: response.data, error: undefined };
-      } else if (response && response.id) {
-        // If response is directly the broker object
-        console.log(`✅ API: Successfully fetched broker:`, response.name || 'Unknown');
+      } 
+      
+      // If response is directly the broker object (no wrapper)
+      if (response && response.id) {
+        console.log(`✅ API: Successfully fetched broker by ID (direct):`, response.name || 'Unknown');
         return { success: true, data: response, error: undefined };
-      } else {
-        console.log(`❌ API: Invalid response format for broker ${id}`, response);
-        return { success: false, data: undefined, error: 'Invalid response format' };
       }
+      
+      // If response has data but no success flag
+      if (response && response.data && response.data.id) {
+        console.log(`✅ API: Successfully fetched broker by ID (data only):`, response.data.name || 'Unknown');
+        return { success: true, data: response.data, error: undefined };
+      }
+      
+      console.log(`❌ API: Invalid response format for broker ${id}`, response);
+      return { success: false, data: undefined, error: 'Invalid response format' };
     } catch (error) {
       console.error(`❌ API: Failed to fetch broker ${id}:`, error);
-      return {
-        success: false,
-        data: undefined,
-        error: error instanceof Error ? error.message : 'Failed to fetch broker'
-      };
-    }
-  }
-
-  async getBrokerBySlug(slug: string) {
-    console.log(`🔍 API: Fetching broker by slug: ${slug}`);
-    try {
-      // Use the same endpoint as getBrokerById - the API now handles both IDs and slugs
-      const response = await this.fetch<any>(`/brokers/${slug}`);
       
-      // Handle the nested data structure
-      if (response && response.success && response.data) {
-        // If response has success and data properties, extract the data
-        console.log(`✅ API: Successfully fetched broker by slug:`, response.data.name || 'Unknown');
-        return { success: true, data: response.data, error: undefined };
-      } else if (response && response.id) {
-        // If response is directly the broker object
-        console.log(`✅ API: Successfully fetched broker by slug:`, response.name || 'Unknown');
-        return { success: true, data: response, error: undefined };
-      } else {
-        console.log(`❌ API: Invalid response format for broker slug ${slug}`, response);
-        return { success: false, data: undefined, error: 'Invalid response format' };
-      }
-    } catch (error) {
-      console.error(`❌ API: Failed to fetch broker by slug ${slug}:`, error);
-      return {
-        success: false,
-        data: undefined,
-        error: error instanceof Error ? error.message : 'Failed to fetch broker'
-      };
-    }
-  }
-
-  // NEW METHOD: Unified method to get broker by ID or slug
-  async getBrokerByIdOrSlug(identifier: string | number): Promise<{ success: boolean; data?: any; error?: string }> {
-    try {
-      console.log('🌐 Fetching broker with identifier:', identifier);
-      
-      const response = await this.fetch<any>(`/brokers/${identifier}`);
-      
-      // Handle the nested data structure
-      if (response && response.success && response.data) {
-        console.log('✅ Found broker:', response.data.name);
-        return {
-          success: true,
-          data: response.data,
-          error: undefined
-        };
-      } else if (response && response.id) {
-        console.log('✅ Found broker:', response.name);
-        return {
-          success: true,
-          data: response,
-          error: undefined
-        };
-      } else {
-        console.log('❌ Invalid response format for broker', identifier);
-        return {
-          success: false,
-          data: undefined,
-          error: 'Invalid response format'
-        };
-      }
-    } catch (error) {
-      console.error('❌ Error in getBrokerByIdOrSlug:', error);
-      
-      // Ultimate fallback: get all brokers and find manually
+      // Try fallback: get all brokers and find by ID
       try {
-        console.log('🔄 Ultimate fallback: Getting all brokers...');
+        console.log('🔄 Fallback: Searching all brokers for ID match...');
         const allBrokers = await this.getBrokers();
-        
         if (allBrokers.success && allBrokers.data) {
-          const foundBroker = allBrokers.data.find((b: any) => {
-            const idMatch = b.id === identifier || b.id === Number(identifier);
-            const slugMatch = b.slug === identifier;
-            const nameMatch = b.name && b.name.toLowerCase().replace(/\s+/g, '-') === String(identifier).toLowerCase();
-            return idMatch || slugMatch || nameMatch;
-          });
-          
-          if (foundBroker) {
-            console.log('✅ Found broker in fallback search:', foundBroker.name);
-            return {
-              success: true,
-              data: foundBroker,
-              error: undefined
-            };
+          const found = allBrokers.data.find((b: any) => b.id === Number(id) || b.id === id);
+          if (found) {
+            console.log(`✅ Found broker in fallback:`, found.name);
+            return { success: true, data: found, error: undefined };
           }
         }
       } catch (fallbackError) {
-        console.error('❌ Fallback also failed:', fallbackError);
+        console.error('Fallback failed:', fallbackError);
       }
       
       return {
@@ -302,6 +230,104 @@ class ApiService {
         error: error instanceof Error ? error.message : 'Failed to fetch broker'
       };
     }
+  }
+
+  // ====== FIXED: getBrokerBySlug ======
+  async getBrokerBySlug(slug: string): Promise<{ success: boolean; data?: any; error?: string }> {
+    console.log(`🔍 API: Fetching broker by slug: ${slug}`);
+    try {
+      const response = await this.fetch<any>(`/brokers/slug/${slug}`);
+      
+      // Check if the response has the expected structure
+      if (response && response.success === true && response.data) {
+        console.log(`✅ API: Successfully fetched broker by slug:`, response.data.name || 'Unknown');
+        return { success: true, data: response.data, error: undefined };
+      } 
+      
+      // If response is directly the broker object (no wrapper)
+      if (response && response.id) {
+        console.log(`✅ API: Successfully fetched broker by slug (direct):`, response.name || 'Unknown');
+        return { success: true, data: response, error: undefined };
+      }
+      
+      // If response has data but no success flag
+      if (response && response.data && response.data.id) {
+        console.log(`✅ API: Successfully fetched broker by slug (data only):`, response.data.name || 'Unknown');
+        return { success: true, data: response.data, error: undefined };
+      }
+      
+      console.log(`❌ API: Invalid response format for broker slug ${slug}`, response);
+      return { success: false, data: undefined, error: 'Invalid response format' };
+    } catch (error) {
+      console.error(`❌ API: Failed to fetch broker by slug ${slug}:`, error);
+      
+      // Try fallback: get all brokers and find by slug
+      try {
+        console.log('🔄 Fallback: Searching all brokers for slug match...');
+        const allBrokers = await this.getBrokers();
+        if (allBrokers.success && allBrokers.data) {
+          const found = allBrokers.data.find((b: any) => b.slug === slug);
+          if (found) {
+            console.log(`✅ Found broker in fallback:`, found.name);
+            return { success: true, data: found, error: undefined };
+          }
+        }
+      } catch (fallbackError) {
+        console.error('Fallback failed:', fallbackError);
+      }
+      
+      return {
+        success: false,
+        data: undefined,
+        error: error instanceof Error ? error.message : 'Failed to fetch broker'
+      };
+    }
+  }
+
+  // ====== NEW: getBrokerByIdOrSlug - Unified method ======
+  async getBrokerByIdOrSlug(identifier: string | number): Promise<{ success: boolean; data?: any; error?: string }> {
+    console.log(`🌐 API: Fetching broker with identifier: ${identifier}`);
+    
+    // Try by slug first (most common for SEO URLs)
+    if (typeof identifier === 'string' && !/^\d+$/.test(identifier)) {
+      const result = await this.getBrokerBySlug(identifier);
+      if (result.success && result.data) {
+        return result;
+      }
+    }
+    
+    // Try by ID
+    const result = await this.getBrokerById(identifier);
+    if (result.success && result.data) {
+      return result;
+    }
+    
+    // Ultimate fallback: search all brokers by name
+    try {
+      console.log('🔄 Ultimate fallback: Searching by name...');
+      const allBrokers = await this.getBrokers();
+      if (allBrokers.success && allBrokers.data) {
+        const searchTerm = String(identifier).toLowerCase();
+        const found = allBrokers.data.find((b: any) => {
+          const nameMatch = b.name?.toLowerCase() === searchTerm;
+          const nameIncludes = b.name?.toLowerCase().includes(searchTerm);
+          const slugMatch = b.slug === identifier;
+          return nameMatch || nameIncludes || slugMatch;
+        });
+        if (found) {
+          console.log(`✅ Found broker in ultimate fallback:`, found.name);
+          return { success: true, data: found, error: undefined };
+        }
+      }
+    } catch (fallbackError) {
+      console.error('Ultimate fallback failed:', fallbackError);
+    }
+    
+    return {
+      success: false,
+      data: undefined,
+      error: `Broker not found: ${identifier}`
+    };
   }
 
   // ====== PROP FIRMS ENDPOINTS - UPDATED WITH REGION ======
