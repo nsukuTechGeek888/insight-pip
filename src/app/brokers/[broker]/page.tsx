@@ -1,4 +1,4 @@
-// app/brokers/[broker]/page.tsx - UPDATED WITH REGION CHECK
+// app/brokers/[broker]/page.tsx - UPDATED WITH REGION CHECK AND ID FALLBACK
 
 'use client';
 
@@ -61,7 +61,7 @@ export default function BrokerDetailPage() {
     setMounted(true);
   }, []);
 
-  // Fetch broker data with region
+  // Fetch broker data with region - FIXED: Try ID first, then slug
   useEffect(() => {
     const fetchBroker = async () => {
       if (!brokerSlug || regionLoading) return;
@@ -70,13 +70,63 @@ export default function BrokerDetailPage() {
         setLoading(true);
         setNotAvailable(false);
         
-        // Fetch broker with region context
-        const response = await fetch(`/api/brokers/slug/${brokerSlug}?region=${region}`);
-        const data = await response.json();
+        const identifier = brokerSlug;
+        console.log('🔍 page.tsx: Loading broker with identifier:', identifier);
+        console.log('🔍 Is numeric?', /^\d+$/.test(identifier));
         
-        if (data.success) {
-          setBroker(data.data);
-        } else if (data.error === 'NOT_AVAILABLE_IN_REGION') {
+        let foundBroker = null;
+        let data = null;
+        let response = null;
+        
+        // STEP 1: Try by ID if numeric
+        const isNumeric = /^\d+$/.test(identifier);
+        
+        if (isNumeric) {
+          console.log('🔍 page.tsx: Trying by ID:', identifier);
+          response = await fetch(`/api/brokers/${identifier}?region=${region}`);
+          data = await response.json();
+          console.log('📡 ID API response:', data.success ? 'Success' : 'Failed');
+          
+          if (data.success && data.data) {
+            foundBroker = data.data;
+            console.log('✅ Found broker by ID:', foundBroker.name);
+          }
+        }
+        
+        // STEP 2: Try by slug if not found
+        if (!foundBroker) {
+          console.log('🔍 page.tsx: Trying by slug:', identifier);
+          response = await fetch(`/api/brokers/slug/${identifier}?region=${region}`);
+          data = await response.json();
+          console.log('📡 Slug API response:', data.success ? 'Success' : 'Failed');
+          
+          if (data.success && data.data) {
+            foundBroker = data.data;
+            console.log('✅ Found broker by slug:', foundBroker.name);
+          }
+        }
+        
+        // STEP 3: Fallback - search all brokers
+        if (!foundBroker) {
+          console.log('🔍 page.tsx: Searching all brokers...');
+          const allResponse = await fetch(`/api/brokers?region=${region}&limit=100`);
+          const allData = await allResponse.json();
+          
+          if (allData.success && allData.data) {
+            foundBroker = allData.data.find((b: any) => {
+              return b.slug === identifier || 
+                     b.id === parseInt(identifier) ||
+                     b.name?.toLowerCase() === identifier.toLowerCase();
+            });
+            if (foundBroker) {
+              console.log('✅ Found broker in fallback:', foundBroker.name);
+            }
+          }
+        }
+        
+        if (foundBroker) {
+          setBroker(foundBroker);
+        } else if (data?.error === 'NOT_AVAILABLE_IN_REGION') {
           setNotAvailable(true);
           setAvailableRegions(data.availableRegions || []);
           setAvailableRegionNames(data.availableRegionNames || []);
@@ -86,7 +136,6 @@ export default function BrokerDetailPage() {
             const altResponse = await fetch(`/api/brokers?region=${region}&limit=5`);
             const altData = await altResponse.json();
             if (altData.success) {
-              // Filter out the current broker
               const filtered = altData.data.filter((b: any) => b.slug !== brokerSlug);
               setAlternatives(filtered.slice(0, 4));
             }
