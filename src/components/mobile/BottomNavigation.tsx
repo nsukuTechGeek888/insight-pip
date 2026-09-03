@@ -10,8 +10,7 @@ import {
   Gift, 
   BookOpen, 
   User,
-  Calculator,
-  Search
+  Calculator
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useNavigation } from '@/contexts/NavigationContext';
@@ -29,15 +28,17 @@ export default function BottomNavigation() {
     { icon: Building2, label: 'Brokers', path: '/brokers' },
   ];
 
-  // Dynamic item (5th position)
-  const dynamicItemsMap = {
-    'blog': { icon: BookOpen, label: 'Blog', path: '/blog', key: 'blog' },
-    'account': { icon: User, label: 'Account', path: '/account', key: 'account' },
+  // Dynamic items - Reviews is default
+  const dynamicItemsMap: Record<string, { icon: any; label: string; path: string; key: string }> = {
     'reviews': { icon: Star, label: 'Reviews', path: '/reviews', key: 'reviews' },
+    'blog': { icon: BookOpen, label: 'Blog', path: '/blog', key: 'blog' },
     'tools': { icon: Calculator, label: 'Tools', path: '/tools', key: 'tools' },
+    'account': { icon: User, label: 'Account', path: '/account', key: 'account' },
   };
 
-  const dynamicItemConfig = dynamicItemsMap[dynamicItem as keyof typeof dynamicItemsMap] || dynamicItemsMap['reviews'];
+  // Default to reviews if the current dynamicItem is not in the map
+  const defaultItem = dynamicItemsMap['reviews'];
+  const dynamicItemConfig = dynamicItemsMap[dynamicItem] || defaultItem;
   const navItems = [...fixedItems, dynamicItemConfig];
 
   const handleNavigation = (item: any) => {

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, Menu, X, Home, Trophy, TrendingUp, Scale, BookOpen, 
   User, Star, Gift, ArrowRight, Calculator, LogOut, CircleUserRound,
-  Settings, HelpCircle, Shield, Crown, ChevronDown
+  Settings, HelpCircle, Shield, Crown
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -23,22 +23,22 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [showVoiceSearch, setShowVoiceSearch] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { dynamicItem, updateDynamicItem } = useNavigation();
   const { user, isLoading, logout } = useUser();
 
-  // Main navigation items
+  // Main navigation items - with keys for dynamic items
   const mainNavItems = [
     { icon: Home, label: "Home", path: "/" },
     { icon: Gift, label: "Offers", path: "/offers" },
     { icon: Trophy, label: "Prop Firms", path: "/prop-firms" },
     { icon: TrendingUp, label: "Brokers", path: "/brokers" },
     { icon: Scale, label: "Compare", path: "/compare" },
-    { icon: Star, label: "Reviews", path: "/reviews" },
-    { icon: BookOpen, label: "Blog", path: "/blog" },
-    { icon: Calculator, label: "Tools", path: "/tools" },
+    // These items can change the dynamic bottom nav
+    { icon: Star, label: "Reviews", path: "/reviews", key: "reviews" },
+    { icon: BookOpen, label: "Blog", path: "/blog", key: "blog" },
+    { icon: Calculator, label: "Tools", path: "/tools", key: "tools" },
   ];
 
   // Account navigation
@@ -86,7 +86,10 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
   };
 
   const handleNavClick = (item: any) => {
-    if (item.key) updateDynamicItem(item.key);
+    // If the item has a key, update the dynamic navigation
+    if (item.key) {
+      updateDynamicItem(item.key);
+    }
     setMenuOpen(false);
   };
 
@@ -128,7 +131,6 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            {/* User Avatar - Clean, subtle */}
             {!isLoading && user && (
               <button 
                 onClick={() => setMenuOpen(true)}
@@ -155,7 +157,7 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
         </div>
       </motion.header>
 
-      {/* Search Overlay - Clean, full-screen */}
+      {/* Search Overlay */}
       <AnimatePresence>
         {searchOpen && (
           <motion.div
@@ -187,7 +189,6 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
               </div>
             </div>
 
-            {/* Results */}
             {search.trim() && (
               <div className="space-y-3">
                 <p className="text-xs text-zinc-500">
@@ -237,7 +238,6 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
               </div>
             )}
 
-            {/* Suggestions */}
             {!search.trim() && (
               <div className="space-y-2">
                 <p className="text-xs text-zinc-500">Popular searches</p>
@@ -256,7 +256,7 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
         )}
       </AnimatePresence>
 
-      {/* Menu Overlay - Clean, organized */}
+      {/* Menu Overlay */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -340,6 +340,13 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
                       <Icon size={18} className={isActive ? "text-blue-400" : "text-zinc-500"} />
                       <span className="font-medium">{item.label}</span>
                       {isActive && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-400" />}
+                      {item.key && (
+                        <span className={`text-[8px] px-1.5 py-0.5 rounded-full ${
+                          item.key === dynamicItem ? "bg-blue-500/20 text-blue-400" : "bg-zinc-800 text-zinc-500"
+                        }`}>
+                          {item.key === dynamicItem ? "Active" : ""}
+                        </span>
+                      )}
                     </Link>
                   );
                 })}
