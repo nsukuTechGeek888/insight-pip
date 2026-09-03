@@ -1,4 +1,5 @@
-// components/home/MobileHome.tsx - REDESIGNED: Clean, Professional, Data-Driven
+// components/home/MobileHome.tsx - REDESIGNED HOMEPAGE
+// Product Experience: UNDERSTAND → DISCOVER → VERIFY → ACT
 
 'use client';
 
@@ -9,33 +10,32 @@ import Link from 'next/link';
 import { api } from '@/lib/api';
 import { useRegion } from '@/contexts/RegionContext';
 import { 
-  Star, Search, Shield, Building2, MessageCircle, 
+  Star, Shield, Building2, MessageCircle, 
   AlertTriangle, CheckCircle, ArrowRight, Users, 
-  Eye, X, Clock, Award, Info, DollarSign, Wallet, 
-  Gauge, Heart, RefreshCw, Flame, Crown, Gem, Gift, Percent, 
+  Eye, Clock, Award, Info, DollarSign, Wallet, 
+  Gauge, Heart, RefreshCw, Flame, Crown, Gem, Gift, 
   Rocket, Tag, ShieldCheck, HelpCircle, XCircle, Activity, 
   Target, Smartphone, AlertCircle, TrendingUp, ChevronRight,
   Menu, Home, BarChart3, FileText, Settings, ChevronDown,
   ThumbsUp, ThumbsDown, ExternalLink, ChevronUp, Layers,
   Briefcase, LineChart, PiggyBank, Globe, Server, Monitor,
   CreditCard, Landmark, BadgeCheck,
-  Trophy, Medal, Hash, Sparkles
+  Trophy, Medal, Hash, Sparkles, Zap, Compass
 } from 'lucide-react';
 import { formatCurrency } from '@/utils/api-helpers';
 import TrustScoreBadge from '@/components/ui/TrustScoreBadge';
 import MobileLayout from '@/components/mobile/MobileLayout';
 
 // ===================== DESIGN SYSTEM =====================
-// Colors: Clean, restrained, professional
 const COLORS = {
-  surface: '#0d0d1a',
-  surfaceLight: '#151525',
+  surface: '#0a0a12',
+  surfaceLight: '#12121f',
   surfaceCard: '#1a1a2e',
-  border: '#2a2a3e',
-  borderLight: '#3a3a4e',
+  border: '#1e1e32',
+  borderLight: '#2a2a3e',
   textPrimary: '#ffffff',
-  textSecondary: '#a0a0b8',
-  textMuted: '#68687e',
+  textSecondary: '#8a8aa0',
+  textMuted: '#5a5a72',
   accent: '#2563eb',
   accentHover: '#3b82f6',
   success: '#22c55e',
@@ -44,26 +44,6 @@ const COLORS = {
   gold: '#fbbf24',
   silver: '#9ca3af',
   bronze: '#d97706',
-};
-
-// Typography scale
-const TYPOGRAPHY = {
-  h1: 'text-2xl font-bold leading-tight',
-  h2: 'text-lg font-semibold leading-tight',
-  h3: 'text-base font-semibold leading-tight',
-  body: 'text-sm leading-relaxed',
-  small: 'text-xs leading-relaxed',
-  meta: 'text-[10px] leading-relaxed',
-};
-
-// Spacing
-const SPACING = {
-  xs: 'gap-1',
-  sm: 'gap-2',
-  md: 'gap-3',
-  lg: 'gap-4',
-  xl: 'gap-5',
-  '2xl': 'gap-6',
 };
 
 // ===================== REGION =====================
@@ -81,38 +61,12 @@ const REGION_DISPLAY: Record<string, { label: string; flag: string }> = {
 };
 
 // ===================== HELPERS =====================
-const getAllAccountOptions = (firm: any) => {
-  if (!firm.programs) return [];
-  return firm.programs.flatMap((program: any) => program.accountOptions || []);
-};
-
-const getAllProgramTypes = (firm: any) => {
-  if (!firm.programs) return [];
-  return firm.programs.map((program: any) => program.type);
-};
-
-const getAllPlatforms = (firm: any) => {
-  return firm.platforms || firm.platform || [];
-};
-
-const getMinAccountSize = (firm: any) => {
-  const accountOptions = getAllAccountOptions(firm);
-  if (accountOptions.length === 0) return 0;
-  return Math.min(...accountOptions.map((acc: any) => acc.accountSize));
-};
-
-const getMaxPayout = (firm: any) => {
-  const accountOptions = getAllAccountOptions(firm);
-  if (accountOptions.length === 0) return 0;
-  return Math.max(...accountOptions.map((acc: any) => acc.payoutPercentage || acc.payout));
-};
-
 const calculateTrustStatsFromReviews = (reviews: any[]) => {
   if (!reviews || reviews.length === 0) {
     return { avgTrustScore: 0, totalReviews: 0 };
   }
   const avgTrustScore = reviews.reduce((sum, r) => sum + (r.trustScore || 0), 0) / reviews.length;
-  return { avgTrustScore, totalReviews: reviews.length };
+  return { avgTrustScore: Math.round(avgTrustScore), totalReviews: reviews.length };
 };
 
 const isAvailableInRegion = (firm: any, region: string) => {
@@ -130,7 +84,7 @@ const isAvailableInRegion = (firm: any, region: string) => {
 
 // ===================== COMPONENTS =====================
 
-// Star Rating - Clean, minimal
+// Star Rating - Clean
 function StarRating({ rating, count = 0, size = "sm" }: { rating: number; count?: number; size?: "sm" | "md" }) {
   const starSize = size === "md" ? "w-4 h-4" : "w-3 h-3";
   const hasReviews = count > 0;
@@ -148,87 +102,17 @@ function StarRating({ rating, count = 0, size = "sm" }: { rating: number; count?
         ))}
       </div>
       {hasReviews && (
-        <span className="text-sm text-white font-medium">{displayRating.toFixed(1)}</span>
+        <span className="text-xs text-white font-medium">{displayRating.toFixed(1)}</span>
       )}
       {count > 0 && (
-        <span className="text-xs text-zinc-500">({count})</span>
+        <span className="text-[10px] text-zinc-500">({count})</span>
       )}
-    </div>
-  );
-}
-
-// Ranking Number - Clean, no gradients
-function RankingNumber({ rank }: { rank: number }) {
-  if (rank === 1) {
-    return (
-      <div className="flex items-center justify-center w-7 h-7 bg-amber-500 rounded-full flex-shrink-0">
-        <Trophy size={12} className="text-white" />
-      </div>
-    );
-  }
-  if (rank === 2) {
-    return (
-      <div className="flex items-center justify-center w-7 h-7 bg-zinc-400 rounded-full flex-shrink-0">
-        <Medal size={12} className="text-white" />
-      </div>
-    );
-  }
-  if (rank === 3) {
-    return (
-      <div className="flex items-center justify-center w-7 h-7 bg-amber-700 rounded-full flex-shrink-0">
-        <Medal size={12} className="text-white" />
-      </div>
-    );
-  }
-  return (
-    <div className="flex items-center justify-center w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-500 font-mono text-[10px] flex-shrink-0">
-      {rank}
-    </div>
-  );
-}
-
-// Firm Logo - Clean
-function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" }) {
-  const sizeClasses = {
-    sm: "w-10 h-10 rounded-lg text-sm",
-    md: "w-12 h-12 rounded-lg text-base",
-    lg: "w-14 h-14 rounded-lg text-lg"
-  };
-  
-  const initials = firm.name?.charAt(0) || '?';
-  
-  if (firm.logo) {
-    return (
-      <div className={`${sizeClasses[size]} overflow-hidden bg-white border border-zinc-800 flex-shrink-0`}>
-        <img 
-          src={firm.logo} 
-          alt={firm.name} 
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.style.display = 'none';
-            const parent = target.parentElement;
-            if (parent) {
-              const fallback = document.createElement('div');
-              fallback.className = `${sizeClasses[size]} bg-zinc-800 flex items-center justify-center text-white font-bold flex-shrink-0`;
-              fallback.textContent = initials;
-              parent.appendChild(fallback);
-            }
-          }}
-        />
-      </div>
-    );
-  }
-  
-  return (
-    <div className={`${sizeClasses[size]} bg-zinc-800 flex items-center justify-center text-white font-bold flex-shrink-0`}>
-      {initials}
     </div>
   );
 }
 
 // Trust Score Display - Clean, prominent
-function TrustScoreDisplay({ score }: { score: number }) {
+function TrustScoreDisplay({ score, size = "sm" }: { score: number; size?: "sm" | "md" }) {
   const normalizedScore = Math.min(100, Math.max(0, score || 0));
   const getColor = () => {
     if (normalizedScore >= 80) return 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10';
@@ -242,332 +126,58 @@ function TrustScoreDisplay({ score }: { score: number }) {
     return 'Low Trust';
   };
 
+  const textSize = size === "md" ? "text-sm" : "text-[10px]";
+  const numberSize = size === "md" ? "text-base" : "text-xs";
+
   return (
-    <div className={`flex items-center gap-2 px-2.5 py-1 rounded-full border ${getColor()}`}>
-      <Shield size={12} />
-      <span className="text-[10px] font-medium">{getLabel()}</span>
-      <span className="text-white font-bold text-sm">{normalizedScore}</span>
+    <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border ${getColor()}`}>
+      <Shield size={size === "md" ? 14 : 10} />
+      <span className={`${textSize} font-medium`}>{getLabel()}</span>
+      <span className={`${numberSize} font-bold text-white`}>{normalizedScore}</span>
     </div>
   );
 }
 
-// ===================== FIRM CARD =====================
-function FirmCard({ firm, type, rank, onViewDetails }: { 
-  firm: any; 
-  type: 'prop' | 'broker'; 
-  rank: number; 
-  onViewDetails: () => void;
-}) {
-  const trustScore = firm.trustScore || 0;
-  const reviewCount = firm.reviewCount || 0;
+// Ranking Entry - Premium financial index style
+function RankingEntry({ rank, entity, onClick }: { rank: number; entity: any; onClick: () => void }) {
   const isTop3 = rank <= 3;
-  const platforms = type === 'prop' ? getAllPlatforms(firm) : (firm.platforms || firm.platform || []);
   
-  const isRegulated = firm.regulated || firm.regulation || (firm.regulatoryBodies && firm.regulatoryBodies.length > 0);
-  const hasOffer = type === 'broker' 
-    ? ((firm.bonuses && firm.bonuses.length > 0) || (firm.promotions && firm.promotions.length > 0))
-    : (firm.promotions && firm.promotions.length > 0);
-  const offerText = type === 'broker'
-    ? (firm.bonuses?.[0]?.amount || firm.promotions?.[0]?.name || "Special Offer")
-    : (firm.promotions?.[0]?.name || "Limited Time");
+  const getRankDisplay = () => {
+    if (rank === 1) return <Trophy size={12} className="text-amber-400" />;
+    if (rank === 2) return <Medal size={12} className="text-zinc-400" />;
+    if (rank === 3) return <Medal size={12} className="text-amber-700" />;
+    return <span className="text-zinc-500 font-mono text-xs w-4 text-center">{rank}</span>;
+  };
 
   return (
-    <div className={`bg-zinc-900 rounded-lg border ${isTop3 ? 'border-amber-500/30' : 'border-zinc-800'}`}>
-      <div className="p-4">
-        {/* Header */}
-        <div className="flex items-start gap-3">
-          <RankingNumber rank={rank} />
-          <FirmLogo firm={firm} size="md" />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <h3 className="text-white font-semibold text-base truncate">{firm.name}</h3>
-                <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <StarRating rating={firm.rating || 0} count={reviewCount} />
-                  {isRegulated && type === 'broker' && (
-                    <BadgeCheck size={12} className="text-emerald-400" />
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Top 3 Badge */}
-        {isTop3 && (
-          <div className="mt-3 inline-flex items-center gap-1 border border-amber-500/30 bg-amber-500/10 text-amber-400 text-[10px] font-medium px-2 py-0.5 rounded-full">
-            {rank === 1 && <Crown size={10} />}
-            {rank === 2 && <Medal size={10} />}
-            {rank === 3 && <Medal size={10} />}
-            #{rank} Ranked
-          </div>
-        )}
-        
-        {/* Metrics */}
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          {type === 'prop' ? (
-            <>
-              <div className="bg-zinc-800/50 rounded-lg p-2 text-center">
-                <div className="text-zinc-500 text-[8px] uppercase tracking-wider">Payout</div>
-                <div className="text-white font-semibold text-sm">Up to {getMaxPayout(firm)}%</div>
-              </div>
-              <div className="bg-zinc-800/50 rounded-lg p-2 text-center">
-                <div className="text-zinc-500 text-[8px] uppercase tracking-wider">Min Account</div>
-                <div className="text-white font-semibold text-sm">{formatCurrency(getMinAccountSize(firm))}</div>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="bg-zinc-800/50 rounded-lg p-2 text-center">
-                <div className="text-zinc-500 text-[8px] uppercase tracking-wider">Min Deposit</div>
-                <div className="text-white font-semibold text-sm">{formatCurrency(firm.minDeposit || 100)}</div>
-              </div>
-              <div className="bg-zinc-800/50 rounded-lg p-2 text-center">
-                <div className="text-zinc-500 text-[8px] uppercase tracking-wider">Leverage</div>
-                <div className="text-white font-semibold text-sm">{firm.leverage || '1:100'}</div>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Trust Score */}
-        {trustScore > 0 && (
-          <div className="mt-3">
-            <TrustScoreDisplay score={trustScore} />
-          </div>
-        )}
-
-        {/* Platform Badges */}
-        {platforms.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1">
-            {platforms.slice(0, 3).map((p: string, i: number) => (
-              <span key={i} className="text-[8px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full border border-zinc-700">
-                {p}
-              </span>
-            ))}
-            {platforms.length > 3 && (
-              <span className="text-[8px] text-zinc-500">+{platforms.length - 3}</span>
-            )}
-          </div>
-        )}
-
-        {/* Offer */}
-        {hasOffer && (
-          <div className="mt-3 p-2 rounded-lg bg-amber-500/5 border border-amber-500/20">
-            <div className="flex items-center gap-1.5">
-              <Gift size={10} className="text-amber-400" />
-              <span className="text-[8px] font-medium text-amber-400 uppercase tracking-wider">Offer</span>
-            </div>
-            <p className="text-white text-xs font-medium">{offerText}</p>
-          </div>
-        )}
-        
-        {/* Action Button */}
-        <button
-          onClick={onViewDetails}
-          className="mt-4 w-full py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-        >
-          View Details <ArrowRight size={14} />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ===================== FEATURED CARD =====================
-function FeaturedCard({ firm, type, onPress, trustScore, reviewCount }: { 
-  firm: any; 
-  type: 'broker' | 'prop'; 
-  onPress: () => void; 
-  trustScore: number; 
-  reviewCount: number;
-}) {
-  const isBroker = type === 'broker';
-  const platforms = type === 'prop' ? getAllPlatforms(firm) : (firm.platforms || firm.platform || []);
-  
-  return (
-    <div className="bg-blue-600/10 border border-blue-600/30 rounded-lg overflow-hidden">
-      <div className="p-4">
-        {/* Featured Badge */}
-        <div className="flex justify-between items-start mb-3">
-          <div className="inline-flex items-center gap-1 border border-blue-500/30 bg-blue-500/10 text-blue-400 text-[9px] font-medium px-2 py-0.5 rounded-full">
-            <Crown size={10} />
-            FEATURED
-          </div>
-          <span className="text-[8px] text-zinc-500">{isBroker ? 'Broker' : 'Prop Firm'}</span>
-        </div>
-        
-        <div className="flex items-center gap-3 mb-3">
-          <FirmLogo firm={firm} size="lg" />
-          <div>
-            <h3 className="text-white font-bold text-base">{firm.name}</h3>
-            <div className="flex items-center gap-2 mt-0.5">
-              <StarRating rating={firm.rating || 0} count={reviewCount} size="md" />
-            </div>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-2 mb-3">
-          {isBroker ? (
-            <>
-              <div className="bg-zinc-800/50 rounded-lg p-2">
-                <div className="text-zinc-500 text-[10px]">Min Deposit</div>
-                <div className="text-white font-semibold text-sm">{formatCurrency(firm.minDeposit || 100)}</div>
-              </div>
-              <div className="bg-zinc-800/50 rounded-lg p-2">
-                <div className="text-zinc-500 text-[10px]">Leverage</div>
-                <div className="text-white font-semibold text-sm">{firm.leverage || '1:200'}</div>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="bg-zinc-800/50 rounded-lg p-2">
-                <div className="text-zinc-500 text-[10px]">Max Payout</div>
-                <div className="text-white font-semibold text-sm">Up to {getMaxPayout(firm)}%</div>
-              </div>
-              <div className="bg-zinc-800/50 rounded-lg p-2">
-                <div className="text-zinc-500 text-[10px]">Min Account</div>
-                <div className="text-white font-semibold text-sm">{formatCurrency(getMinAccountSize(firm))}</div>
-              </div>
-            </>
-          )}
-        </div>
-
-        {trustScore > 0 && (
-          <div className="mb-3">
-            <TrustScoreDisplay score={trustScore} />
-          </div>
-        )}
-        
-        <button 
-          onClick={onPress} 
-          className="w-full py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-        >
-          {isBroker ? 'View Account Types' : 'View Challenge Options'} <ArrowRight size={14} />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ===================== QUICK ACTION CARD =====================
-function QuickActionCard({ icon: Icon, title, description, href, color }: any) {
-  return (
-    <Link href={href} className="flex-1">
-      <div className="bg-zinc-800/50 border border-zinc-700 rounded-lg p-3 text-center hover:bg-zinc-800 transition-colors">
-        <Icon size={18} className={`${color} mx-auto mb-1`} />
-        <div className="text-white font-medium text-xs">{title}</div>
-        <div className="text-zinc-500 text-[10px]">{description}</div>
-      </div>
-    </Link>
-  );
-}
-
-// ===================== LIVE INCIDENT FEED =====================
-function LiveIncidentFeed({ brokers, propFirms }: { brokers: any[]; propFirms: any[] }) {
-  const [incidents, setIncidents] = useState<any[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
-
-  const incidentTypes = [
-    { value: 'WITHDRAWAL_DELAY', label: 'Withdrawal Delay', icon: Clock, color: 'text-amber-400' },
-    { value: 'WITHDRAWAL_REJECTED', label: 'Withdrawal Rejected', icon: XCircle, color: 'text-red-400' },
-    { value: 'SCAM_WARNING', label: 'Scam Warning', icon: AlertCircle, color: 'text-red-400' },
-    { value: 'ACCOUNT_SUSPENDED', label: 'Account Suspended', icon: AlertTriangle, color: 'text-red-400' },
-  ];
-
-  useEffect(() => {
-    const fetchIncidents = async () => {
-      try {
-        const response = await fetch('/api/incidents?limit=5');
-        const data = await response.json();
-        if (response.ok && data.incidents) {
-          const enriched = data.incidents.map((incident: any) => {
-            let entityName = incident.entityName;
-            if (!entityName && incident.entityType === 'broker') {
-              const broker = brokers.find(b => b.id === incident.entityId);
-              entityName = broker?.name || 'Unknown';
-            } else if (!entityName && incident.entityType === 'propFirm') {
-              const propFirm = propFirms.find(p => p.id === incident.entityId);
-              entityName = propFirm?.name || 'Unknown';
-            }
-            return { ...incident, entityName };
-          });
-          setIncidents(enriched);
-        }
-      } catch (err) {
-        console.error('Failed to fetch incidents:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchIncidents();
-    const interval = setInterval(fetchIncidents, 30000);
-    return () => clearInterval(interval);
-  }, [brokers, propFirms]);
-
-  useEffect(() => {
-    if (incidents.length === 0) return;
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % incidents.length);
-    }, 8000);
-    return () => clearInterval(interval);
-  }, [incidents.length]);
-
-  if (loading || incidents.length === 0) {
-    return (
-      <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-3">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-          <span className="text-xs font-medium text-zinc-400">Live Incidents</span>
-        </div>
-        <div className="text-center py-1 text-zinc-500 text-xs">No recent incidents</div>
-      </div>
-    );
-  }
-
-  const current = incidents[currentIndex];
-  const typeInfo = incidentTypes.find(t => t.value === current.incidentType);
-  const IconComponent = typeInfo?.icon || AlertTriangle;
-  const iconColor = typeInfo?.color || 'text-red-400';
-
-  return (
-    <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-3">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping absolute" />
-            <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-          </div>
-          <span className="text-xs font-medium text-zinc-400">⚠️ Live Incident Alert</span>
-        </div>
-        <Link href="/reviews?tab=incidents" className="text-[10px] text-blue-400 hover:text-blue-300">
-          View all
-        </Link>
+    <div 
+      onClick={onClick}
+      className={`flex items-center gap-3 py-2.5 border-b border-[#1e1e32] last:border-0 cursor-pointer hover:bg-[#1a1a2e] transition-all px-2 -mx-2 rounded-lg ${
+        isTop3 ? 'bg-amber-500/5' : ''
+      }`}
+    >
+      <div className="w-6 flex items-center justify-center flex-shrink-0">
+        {getRankDisplay()}
       </div>
       
-      <AnimatePresence mode="wait">
-        <motion.div 
-          key={currentIndex} 
-          initial={{ opacity: 0, y: 8 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          exit={{ opacity: 0, y: -8 }} 
-          className="space-y-1"
-        >
-          <div className="flex items-center gap-2">
-            <IconComponent size={12} className={iconColor} />
-            <span className="text-white font-semibold text-sm">{current.entityName}</span>
-            {current.confirmations >= 3 && (
-              <span className="text-[8px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full">Verified</span>
-            )}
-          </div>
-          <p className="text-zinc-300 text-xs">{current.title}</p>
-          <div className="flex items-center gap-3 text-[10px] text-zinc-500">
-            <span className="flex items-center gap-1"><Clock size={8} /> {new Date(current.incidentDate).toLocaleDateString()}</span>
-            <span className="flex items-center gap-1"><Users size={8} /> {current.confirmations} confirmations</span>
-          </div>
-        </motion.div>
-      </AnimatePresence>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="text-white font-medium text-sm truncate">{entity.name}</span>
+          {entity.regulated && (
+            <BadgeCheck size={10} className="text-emerald-400 flex-shrink-0" />
+          )}
+        </div>
+        <div className="flex items-center gap-2 text-[10px] text-zinc-500">
+          <StarRating rating={entity.rating || 0} count={entity.reviewCount || 0} />
+          <span>•</span>
+          <span className="text-zinc-500">{entity.country || 'International'}</span>
+        </div>
+      </div>
+      
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <TrustScoreDisplay score={entity.trustScore || 0} />
+        <ArrowRight size={12} className="text-zinc-500" />
+      </div>
     </div>
   );
 }
@@ -581,24 +191,31 @@ export default function MobileHome() {
   const [loading, setLoading] = useState(true);
   const [enrichedBrokers, setEnrichedBrokers] = useState<any[]>([]);
   const [enrichedPropFirms, setEnrichedPropFirms] = useState<any[]>([]);
-  const [selectedType, setSelectedType] = useState<'prop' | 'broker'>('prop');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const [recentReviews, setRecentReviews] = useState<any[]>([]);
+  const [recentIncidents, setRecentIncidents] = useState<any[]>([]);
 
   const regionInfo = REGION_DISPLAY[region] || REGION_DISPLAY['GLOBAL'];
 
-  // Fetch data with region
+  // Fetch data
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [brokersRes, propFirmsRes] = await Promise.all([
+        const [brokersRes, propFirmsRes, reviewsRes, incidentsRes] = await Promise.all([
           api.getBrokers(region),
-          api.getPropFirms(region)
+          api.getPropFirms(region),
+          fetch('/api/reviews?limit=5&status=APPROVED'),
+          fetch('/api/incidents?limit=5')
         ]);
+
         if (brokersRes.success) setBrokers(brokersRes.data || []);
         if (propFirmsRes.success) setPropFirms(propFirmsRes.data || []);
+
+        const reviewsData = await reviewsRes.json();
+        if (reviewsData.reviews) setRecentReviews(reviewsData.reviews);
+
+        const incidentsData = await incidentsRes.json();
+        if (incidentsData.incidents) setRecentIncidents(incidentsData.incidents);
       } catch (err) {
         console.error('Failed to load data', err);
       } finally {
@@ -608,7 +225,7 @@ export default function MobileHome() {
     fetchData();
   }, [region]);
 
-  // Enrich firms with reviews and trust scores
+  // Enrich brokers with trust scores
   useEffect(() => {
     const enrichFirms = async () => {
       if (brokers.length === 0 && propFirms.length === 0) return;
@@ -622,7 +239,7 @@ export default function MobileHome() {
               const stats = calculateTrustStatsFromReviews(data.reviews);
               return { 
                 ...broker, 
-                trustScore: Math.round(stats.avgTrustScore), 
+                trustScore: stats.avgTrustScore, 
                 reviewCount: stats.totalReviews
               };
             }
@@ -640,7 +257,7 @@ export default function MobileHome() {
               const stats = calculateTrustStatsFromReviews(data.reviews);
               return { 
                 ...propFirm, 
-                trustScore: Math.round(stats.avgTrustScore), 
+                trustScore: stats.avgTrustScore, 
                 reviewCount: stats.totalReviews
               };
             }
@@ -655,41 +272,34 @@ export default function MobileHome() {
     enrichFirms();
   }, [brokers, propFirms]);
 
-  // Filter by region
-  const regionFilteredPropFirms = useMemo(() => {
-    return enrichedPropFirms.filter(firm => isAvailableInRegion(firm, region));
-  }, [enrichedPropFirms, region]);
-
+  // Filter by region and sort by trust score
   const regionFilteredBrokers = useMemo(() => {
-    return enrichedBrokers.filter(firm => isAvailableInRegion(firm, region));
+    return enrichedBrokers
+      .filter(firm => isAvailableInRegion(firm, region))
+      .sort((a, b) => (b.trustScore || 0) - (a.trustScore || 0));
   }, [enrichedBrokers, region]);
 
-  // Sort by trust score
-  const sortedPropFirms = useMemo(() => {
-    return [...regionFilteredPropFirms].sort((a, b) => (b.trustScore || 0) - (a.trustScore || 0));
-  }, [regionFilteredPropFirms]);
+  const regionFilteredPropFirms = useMemo(() => {
+    return enrichedPropFirms
+      .filter(firm => isAvailableInRegion(firm, region))
+      .sort((a, b) => (b.trustScore || 0) - (a.trustScore || 0));
+  }, [enrichedPropFirms, region]);
 
-  const sortedBrokers = useMemo(() => {
-    return [...regionFilteredBrokers].sort((a, b) => (b.trustScore || 0) - (a.trustScore || 0));
-  }, [regionFilteredBrokers]);
+  // Top 5 for rankings preview
+  const topBrokers = regionFilteredBrokers.slice(0, 5);
+  const topPropFirms = regionFilteredPropFirms.slice(0, 5);
 
-  const sortedCurrentFirms = selectedType === 'prop' ? sortedPropFirms : sortedBrokers;
-  
-  const filteredFirms = useMemo(() => {
-    if (!searchTerm) return sortedCurrentFirms;
-    return sortedCurrentFirms.filter(f => f.name?.toLowerCase().includes(searchTerm.toLowerCase()));
-  }, [sortedCurrentFirms, searchTerm]);
-
-  const featuredPropFirm = sortedPropFirms[0] || null;
-  const featuredBroker = sortedBrokers[0] || null;
-
-  const totalPages = Math.ceil(filteredFirms.length / itemsPerPage);
-  const paginatedFirms = filteredFirms.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  useEffect(() => {
-    setCurrentPage(1);
-    setSearchTerm('');
-  }, [selectedType]);
+  // Incident types for display
+  const incidentTypeMap: Record<string, { icon: any; color: string; label: string }> = {
+    'WITHDRAWAL_DELAY': { icon: Clock, color: 'text-amber-400', label: 'Withdrawal Delay' },
+    'WITHDRAWAL_REJECTED': { icon: XCircle, color: 'text-red-400', label: 'Withdrawal Rejected' },
+    'SCAM_WARNING': { icon: AlertCircle, color: 'text-red-400', label: 'Scam Warning' },
+    'ACCOUNT_SUSPENDED': { icon: AlertTriangle, color: 'text-red-400', label: 'Account Suspended' },
+    'WITHDRAWAL_PAID': { icon: CheckCircle, color: 'text-emerald-400', label: 'Withdrawal Paid' },
+    'PLATFORM_FREEZE': { icon: Activity, color: 'text-amber-400', label: 'Platform Freeze' },
+    'SERVER_DOWN': { icon: Server, color: 'text-red-400', label: 'Server Down' },
+    'EXECUTION_DELAY': { icon: Clock, color: 'text-amber-400', label: 'Execution Delay' },
+  };
 
   const totalReviews = [...enrichedBrokers, ...enrichedPropFirms].reduce((sum, f) => sum + (f.reviewCount || 0), 0);
 
@@ -697,7 +307,20 @@ export default function MobileHome() {
     router.push(type === 'prop' ? `/prop-firms/${id}` : `/brokers/${id}`);
   };
 
-  if (!loading && brokers.length === 0 && propFirms.length === 0) {
+  if (loading) {
+    return (
+      <MobileLayout title="InsightPip" showSearch={false}>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto" />
+            <p className="text-xs text-zinc-500 mt-3">Loading...</p>
+          </div>
+        </div>
+      </MobileLayout>
+    );
+  }
+
+  if (brokers.length === 0 && propFirms.length === 0) {
     return (
       <MobileLayout title="InsightPip" showSearch={false}>
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
@@ -711,9 +334,7 @@ export default function MobileHome() {
           <button
             onClick={() => {
               const regionSelector = document.querySelector('[data-region-selector]');
-              if (regionSelector) {
-                (regionSelector as HTMLElement).click();
-              }
+              if (regionSelector) (regionSelector as HTMLElement).click();
             }}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
           >
@@ -724,198 +345,255 @@ export default function MobileHome() {
     );
   }
 
-  if (loading) {
-    return (
-      <MobileLayout title="InsightPip" showSearch={false}>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto" />
-            <p className="text-xs text-zinc-500 mt-3">Loading trading platforms...</p>
-          </div>
-        </div>
-      </MobileLayout>
-    );
-  }
-
   return (
     <MobileLayout title="InsightPip" showSearch={false}>
-      <div className="space-y-5 pb-6">
+      <div className="space-y-8 pb-6">
         
-        {/* Hero - Clean Stats */}
-        <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-5">
-          <h1 className="text-xl font-bold text-white mb-1">Trading Partner<span className="text-blue-400"> Research</span></h1>
-          <p className="text-zinc-400 text-sm mb-4">Compare {brokers.length + propFirms.length}+ verified brokers and prop firms.</p>
+        {/* ==================== 1. HERO ==================== */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="pt-4 pb-2"
+        >
+          <h1 className="text-3xl font-bold text-white leading-tight">
+            Know who you're <span className="text-blue-400">trusting</span>.
+          </h1>
+          <p className="text-zinc-400 text-sm mt-2 leading-relaxed max-w-xs">
+            Research brokers and prop firms before you trade with them.
+          </p>
+          <div className="flex gap-3 mt-4">
+            <Link
+              href="/rankings"
+              className="px-5 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-1.5"
+            >
+              Explore Rankings <ArrowRight size={14} />
+            </Link>
+            <Link
+              href="/compare"
+              className="px-5 py-2.5 bg-[#1a1a2e] border border-[#2a2a3e] text-white rounded-lg text-sm font-medium hover:bg-[#2a2a3e] transition-colors flex items-center gap-1.5"
+            >
+              Compare <GitCompare size={14} className="text-zinc-400" />
+            </Link>
+          </div>
+        </motion.div>
+
+        {/* ==================== 2. INSIGHTPIP INTELLIGENCE ==================== */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="border border-[#1e1e32] rounded-lg p-4 bg-[#12121f]"
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <TrendingUp size={14} className="text-blue-400" />
+            <h2 className="text-sm font-semibold text-white">InsightPip Intelligence</h2>
+          </div>
           <div className="grid grid-cols-3 gap-2">
-            <div className="bg-zinc-800/50 rounded-lg p-2 text-center">
-              <div className="text-blue-400 font-bold text-lg">{propFirms.length}</div>
-              <div className="text-zinc-500 text-[10px]">Prop Firms</div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-white">{brokers.length}</div>
+              <div className="text-[10px] text-zinc-500">Brokers</div>
             </div>
-            <div className="bg-zinc-800/50 rounded-lg p-2 text-center">
-              <div className="text-blue-400 font-bold text-lg">{brokers.length}</div>
-              <div className="text-zinc-500 text-[10px]">Brokers</div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-white">{propFirms.length}</div>
+              <div className="text-[10px] text-zinc-500">Prop Firms</div>
             </div>
-            <div className="bg-zinc-800/50 rounded-lg p-2 text-center">
-              <div className="text-blue-400 font-bold text-lg">{totalReviews.toLocaleString()}</div>
-              <div className="text-zinc-500 text-[10px]">Reviews</div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-white">{totalReviews}</div>
+              <div className="text-[10px] text-zinc-500">Reviews</div>
             </div>
           </div>
-          <div className="mt-3 text-center text-[10px] text-zinc-500 flex items-center justify-center gap-1">
-            <Hash size={10} /> Ranked by Trust Score
-          </div>
-        </div>
+        </motion.div>
 
-        {/* Live Incident Feed */}
-        <LiveIncidentFeed brokers={brokers} propFirms={propFirms} />
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-3">
-          <QuickActionCard 
-            icon={MessageCircle} 
-            title="Write a Review" 
-            description="Share your experience" 
-            href="/reviews"
-            color="text-blue-400"
-          />
-          <QuickActionCard 
-            icon={AlertTriangle} 
-            title="Report Incident" 
-            description="Warn other traders" 
-            href="/reviews?tab=incidents"
-            color="text-red-400"
-          />
-        </div>
-
-        {/* Featured Sections */}
-        {featuredPropFirm && (
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Trophy size={14} className="text-amber-400" />
-              <h2 className="text-white font-semibold text-sm">Top Ranked Prop Firm</h2>
+        {/* ==================== 3. THE TRUST RANKINGS ==================== */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Trophy size={16} className="text-amber-400" />
+              <h2 className="text-base font-semibold text-white">The Trust Rankings</h2>
             </div>
-            <FeaturedCard 
-              firm={featuredPropFirm} 
-              type="prop" 
-              onPress={() => handleNavigate(featuredPropFirm.id, featuredPropFirm.name, 'prop')}
-              trustScore={featuredPropFirm.trustScore || 0}
-              reviewCount={featuredPropFirm.reviewCount || 0}
-            />
+            <Link href="/rankings" className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+              View all <ArrowRight size={12} />
+            </Link>
           </div>
-        )}
 
-        {featuredBroker && (
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Trophy size={14} className="text-amber-400" />
-              <h2 className="text-white font-semibold text-sm">Top Ranked Broker</h2>
-            </div>
-            <FeaturedCard 
-              firm={featuredBroker} 
-              type="broker" 
-              onPress={() => handleNavigate(featuredBroker.id, featuredBroker.name, 'broker')}
-              trustScore={featuredBroker.trustScore || 0}
-              reviewCount={featuredBroker.reviewCount || 0}
-            />
-          </div>
-        )}
-
-        {/* Type Toggle */}
-        <div className="flex gap-1 bg-zinc-900 border border-zinc-800 rounded-lg p-1">
-          <button
-            onClick={() => setSelectedType('prop')}
-            className={`flex-1 py-2.5 rounded-md text-sm font-medium transition-all ${
-              selectedType === 'prop'
-                ? 'bg-blue-600 text-white'
-                : 'text-zinc-400 hover:text-white'
-            }`}
-          >
-            Prop Firms ({sortedPropFirms.length})
-          </button>
-          <button
-            onClick={() => setSelectedType('broker')}
-            className={`flex-1 py-2.5 rounded-md text-sm font-medium transition-all ${
-              selectedType === 'broker'
-                ? 'bg-blue-600 text-white'
-                : 'text-zinc-400 hover:text-white'
-            }`}
-          >
-            Brokers ({sortedBrokers.length})
-          </button>
-        </div>
-
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
-          <input
-            type="text"
-            placeholder={`Search ${selectedType === 'prop' ? 'prop firms' : 'brokers'}...`}
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-9 pr-4 py-2.5 text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-blue-600"
-          />
-        </div>
-
-        {/* Results Count */}
-        {searchTerm && (
-          <div className="text-xs text-zinc-500">
-            Found {filteredFirms.length} result{filteredFirms.length !== 1 ? 's' : ''}
-          </div>
-        )}
-
-        {/* Firms List */}
-        {paginatedFirms.length > 0 ? (
-          <div className="space-y-3">
-            {paginatedFirms.map((firm, index) => {
-              const globalRank = (currentPage - 1) * itemsPerPage + index + 1;
-              return (
-                <FirmCard
-                  key={firm.id}
-                  firm={firm}
-                  type={selectedType}
-                  rank={globalRank}
-                  onViewDetails={() => handleNavigate(firm.id, firm.name, selectedType)}
+          <div className="bg-[#12121f] border border-[#1e1e32] rounded-lg p-3">
+            <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-3">Top Brokers</p>
+            {topBrokers.length > 0 ? (
+              topBrokers.map((broker, index) => (
+                <RankingEntry
+                  key={broker.id}
+                  rank={index + 1}
+                  entity={broker}
+                  onClick={() => handleNavigate(broker.id, broker.name, 'broker')}
                 />
-              );
-            })}
+              ))
+            ) : (
+              <p className="text-zinc-500 text-sm text-center py-4">No brokers available in your region</p>
+            )}
+
+            {topPropFirms.length > 0 && (
+              <>
+                <div className="border-t border-[#1e1e32] my-3" />
+                <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-3">Top Prop Firms</p>
+                {topPropFirms.slice(0, 3).map((firm, index) => (
+                  <RankingEntry
+                    key={firm.id}
+                    rank={index + 1}
+                    entity={firm}
+                    onClick={() => handleNavigate(firm.id, firm.name, 'prop')}
+                  />
+                ))}
+              </>
+            )}
           </div>
-        ) : (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-zinc-800/50 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Search size={24} className="text-zinc-500" />
+        </motion.div>
+
+        {/* ==================== 4. TRADER VOICES ==================== */}
+        {recentReviews.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <MessageCircle size={16} className="text-blue-400" />
+                <h2 className="text-base font-semibold text-white">Trader Voices</h2>
+              </div>
+              <Link href="/reviews" className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                Read all <ArrowRight size={12} />
+              </Link>
             </div>
-            <p className="text-zinc-500 text-sm">No {selectedType === 'prop' ? 'prop firms' : 'brokers'} found</p>
-            <p className="text-zinc-600 text-xs mt-1">Try adjusting your search</p>
-          </div>
+
+            <div className="space-y-2">
+              {recentReviews.slice(0, 3).map((review) => (
+                <div key={review.id} className="bg-[#12121f] border border-[#1e1e32] rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <StarRating rating={review.rating || 0} size="sm" />
+                    <span className="text-xs text-zinc-500">•</span>
+                    <span className="text-[10px] text-zinc-500">{review.entityName}</span>
+                  </div>
+                  <p className="text-zinc-300 text-sm leading-relaxed line-clamp-2">
+                    {review.content}
+                  </p>
+                  <div className="flex items-center gap-3 mt-1.5 text-[10px] text-zinc-500">
+                    <span>{review.user?.name || 'Anonymous'}</span>
+                    <span>•</span>
+                    <span>{new Date(review.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         )}
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center gap-2 py-2">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(p => p - 1)}
-              className="px-3 py-1.5 rounded-md bg-zinc-800 text-white text-xs disabled:opacity-50 disabled:cursor-not-allowed hover:bg-zinc-700 transition-colors"
-            >
-              Previous
-            </button>
-            <span className="px-3 py-1.5 text-zinc-400 text-xs">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(p => p + 1)}
-              className="px-3 py-1.5 rounded-md bg-zinc-800 text-white text-xs disabled:opacity-50 disabled:cursor-not-allowed hover:bg-zinc-700 transition-colors"
-            >
-              Next
-            </button>
-          </div>
+        {/* ==================== 5. WHAT'S HAPPENING ==================== */}
+        {recentIncidents.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <AlertTriangle size={16} className="text-red-400" />
+                <h2 className="text-base font-semibold text-white">What's Happening</h2>
+              </div>
+              <Link href="/reviews?tab=incidents" className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                View all <ArrowRight size={12} />
+              </Link>
+            </div>
+
+            <div className="space-y-2">
+              {recentIncidents.slice(0, 3).map((incident) => {
+                const typeInfo = incidentTypeMap[incident.incidentType] || { icon: AlertCircle, color: 'text-zinc-400', label: 'Reported' };
+                const Icon = typeInfo.icon;
+                return (
+                  <div key={incident.id} className="bg-[#12121f] border border-[#1e1e32] rounded-lg p-3">
+                    <div className="flex items-start gap-2">
+                      <Icon size={14} className={`${typeInfo.color} mt-0.5 flex-shrink-0`} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-white font-medium text-sm truncate">{incident.entityName || 'Unknown'}</span>
+                          <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 flex-shrink-0">
+                            {incident.status || 'PENDING'}
+                          </span>
+                        </div>
+                        <p className="text-zinc-400 text-xs">{incident.title}</p>
+                        <div className="flex items-center gap-3 mt-1 text-[10px] text-zinc-500">
+                          <span>{typeInfo.label}</span>
+                          <span>•</span>
+                          <span>{new Date(incident.incidentDate || incident.createdAt).toLocaleDateString()}</span>
+                          {incident.confirmations > 0 && (
+                            <>
+                              <span>•</span>
+                              <span>{incident.confirmations} confirmations</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
         )}
 
-        {/* Footer Note */}
-        <div className="text-center text-[10px] text-zinc-600 py-2 border-t border-zinc-800 pt-4">
-          Data is community-reported and verified. Always do your own research.
+        {/* ==================== 6. EXPLORE TRADING PARTNERS ==================== */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="border border-[#1e1e32] rounded-lg p-4 bg-[#12121f]"
+        >
+          <h2 className="text-sm font-semibold text-white mb-3">Explore Trading Partners</h2>
+          <div className="grid grid-cols-2 gap-3">
+            <Link
+              href="/brokers"
+              className="p-3 bg-[#1a1a2e] border border-[#2a2a3e] rounded-lg text-center hover:bg-[#2a2a3e] transition-colors"
+            >
+              <Building2 size={20} className="text-blue-400 mx-auto mb-1" />
+              <div className="text-white text-sm font-medium">Brokers</div>
+              <div className="text-[10px] text-zinc-500">Research, reviews, incidents</div>
+            </Link>
+            <Link
+              href="/prop-firms"
+              className="p-3 bg-[#1a1a2e] border border-[#2a2a3e] rounded-lg text-center hover:bg-[#2a2a3e] transition-colors"
+            >
+              <TrendingUp size={20} className="text-purple-400 mx-auto mb-1" />
+              <div className="text-white text-sm font-medium">Prop Firms</div>
+              <div className="text-[10px] text-zinc-500">Challenges, rules, offers</div>
+            </Link>
+          </div>
+        </motion.div>
+
+        {/* ==================== 7. FINAL BRAND STATEMENT ==================== */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="text-center py-4 border-t border-[#1e1e32]"
+        >
+          <p className="text-sm text-zinc-400 italic">
+            "Before you trade with them, <span className="text-white">know them</span>."
+          </p>
+          <Link
+            href="/brokers"
+            className="inline-flex items-center gap-2 mt-3 text-blue-400 text-sm font-medium hover:text-blue-300 transition-colors"
+          >
+            Research Brokers <ArrowRight size={14} />
+          </Link>
+        </motion.div>
+
+        {/* Footer */}
+        <div className="text-center text-[10px] text-zinc-600 pb-2">
+          Research before you trust.™
         </div>
       </div>
     </MobileLayout>
