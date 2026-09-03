@@ -30,7 +30,7 @@ async function getUserFromToken(request: NextRequest) {
   }
 }
 
-// Validation schema for incidents
+// Validation schema for incidents - UPDATED: min description length 3 instead of 20
 const incidentSchema = z.object({
   entityType: z.enum(['broker', 'propFirm']),
   entityId: z.number(),
@@ -54,8 +54,8 @@ const incidentSchema = z.object({
     'SCAM_WARNING',
     'OTHER'
   ]),
-  title: z.string().min(5).max(100),
-  description: z.string().min(20).max(2000),
+  title: z.string().min(3).max(100),
+  description: z.string().min(3).max(2000), // ✅ CHANGED: min 3 instead of 20
   incidentDate: z.string().datetime(),
   
   // Optional fields
