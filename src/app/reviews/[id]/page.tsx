@@ -60,12 +60,14 @@ export default async function ReviewDetailPage({ params }: Props) {
   // Fetch the review for metadata
   let review = null;
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://insightpip.com'}/api/reviews/${reviewId}`, {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://insightpip.com';
+    const response = await fetch(`${baseUrl}/api/reviews/${reviewId}`, {
       next: { revalidate: 3600 }
     });
     if (response.ok) {
       const data = await response.json();
-      review = data.review || data;
+      // Handle both response formats
+      review = data.review || data.data || data;
     }
   } catch (error) {
     console.error('Error fetching review for metadata:', error);
@@ -126,8 +128,12 @@ export default async function ReviewDetailPage({ params }: Props) {
         <meta name="region-flag" content={regionFlag} />
       </div>
 
-      {/* Render appropriate component - banner removed, region passed via context */}
-      {isMobile ? <MobileReviewDetail /> : <DesktopReviewDetail />}
+      {/* Render appropriate component - pass reviewId as prop */}
+      {isMobile ? (
+        <MobileReviewDetail reviewId={reviewId} />
+      ) : (
+        <DesktopReviewDetail reviewId={reviewId} />
+      )}
     </>
   );
 }
@@ -135,13 +141,15 @@ export default async function ReviewDetailPage({ params }: Props) {
 // Generate static paths for better SEO
 export async function generateStaticParams() {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://insightpip.com'}/api/reviews?limit=100`, {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://insightpip.com';
+    const response = await fetch(`${baseUrl}/api/reviews?limit=100`, {
       next: { revalidate: 3600 }
     });
     if (response.ok) {
       const data = await response.json();
-      if (data.reviews && Array.isArray(data.reviews)) {
-        return data.reviews.map((review: any) => ({
+      const reviews = data.reviews || data.data || [];
+      if (Array.isArray(reviews)) {
+        return reviews.map((review: any) => ({
           id: review.id.toString(),
         }));
       }
