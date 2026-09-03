@@ -3,8 +3,8 @@
 
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
@@ -20,7 +20,7 @@ import {
   ThumbsUp, ThumbsDown, ExternalLink, ChevronUp, Layers,
   Briefcase, LineChart, PiggyBank, Globe, Server, Monitor,
   CreditCard, Landmark, BadgeCheck,
-  Trophy, Medal, Hash, Sparkles, Zap, Compass
+  Trophy, Medal, Hash, Sparkles, Zap, Compass, GitCompare
 } from 'lucide-react';
 import { formatCurrency } from '@/utils/api-helpers';
 import TrustScoreBadge from '@/components/ui/TrustScoreBadge';
@@ -201,21 +201,31 @@ export default function MobileHome() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [brokersRes, propFirmsRes, reviewsRes, incidentsRes] = await Promise.all([
+        const [brokersRes, propFirmsRes] = await Promise.all([
           api.getBrokers(region),
-          api.getPropFirms(region),
-          fetch('/api/reviews?limit=5&status=APPROVED'),
-          fetch('/api/incidents?limit=5')
+          api.getPropFirms(region)
         ]);
 
         if (brokersRes.success) setBrokers(brokersRes.data || []);
         if (propFirmsRes.success) setPropFirms(propFirmsRes.data || []);
 
-        const reviewsData = await reviewsRes.json();
-        if (reviewsData.reviews) setRecentReviews(reviewsData.reviews);
+        // Fetch reviews
+        try {
+          const reviewsRes = await fetch('/api/reviews?limit=5&status=APPROVED');
+          const reviewsData = await reviewsRes.json();
+          if (reviewsData.reviews) setRecentReviews(reviewsData.reviews);
+        } catch (err) {
+          console.error('Failed to fetch reviews:', err);
+        }
 
-        const incidentsData = await incidentsRes.json();
-        if (incidentsData.incidents) setRecentIncidents(incidentsData.incidents);
+        // Fetch incidents
+        try {
+          const incidentsRes = await fetch('/api/incidents?limit=5');
+          const incidentsData = await incidentsRes.json();
+          if (incidentsData.incidents) setRecentIncidents(incidentsData.incidents);
+        } catch (err) {
+          console.error('Failed to fetch incidents:', err);
+        }
       } catch (err) {
         console.error('Failed to load data', err);
       } finally {
@@ -333,8 +343,8 @@ export default function MobileHome() {
           </p>
           <button
             onClick={() => {
-              const regionSelector = document.querySelector('[data-region-selector]');
-              if (regionSelector) (regionSelector as HTMLElement).click();
+              const selector = document.querySelector('[data-region-selector]');
+              if (selector) (selector as HTMLElement).click();
             }}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
           >
@@ -373,7 +383,7 @@ export default function MobileHome() {
               href="/compare"
               className="px-5 py-2.5 bg-[#1a1a2e] border border-[#2a2a3e] text-white rounded-lg text-sm font-medium hover:bg-[#2a2a3e] transition-colors flex items-center gap-1.5"
             >
-              Compare <GitCompare size={14} className="text-zinc-400" />
+              <GitCompare size={14} className="text-zinc-400" /> Compare
             </Link>
           </div>
         </motion.div>
