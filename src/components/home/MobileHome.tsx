@@ -1,4 +1,4 @@
-// components/home/MobileHome.tsx - REDESIGNED WITH RANKINGS SLIDER
+// components/home/MobileHome.tsx - REDESIGNED WITH RANKINGS SLIDER & LOGOS
 
 'use client';
 
@@ -138,7 +138,7 @@ function TrustScoreDisplay({ score, size = "sm" }: { score: number; size?: "sm" 
   );
 }
 
-// Ranking Entry - Premium financial index style
+// Ranking Entry - Premium financial index style with Logo
 function RankingEntry({ rank, entity, onClick, index }: { rank: number; entity: any; onClick: () => void; index: number }) {
   const isTop3 = rank <= 3;
   
@@ -148,6 +148,9 @@ function RankingEntry({ rank, entity, onClick, index }: { rank: number; entity: 
     if (rank === 3) return <Medal size={12} className="text-amber-700" />;
     return <span className="text-zinc-500 font-mono text-xs w-4 text-center">{rank}</span>;
   };
+
+  // Get logo URL
+  const logoUrl = entity.logo || null;
 
   return (
     <motion.div 
@@ -161,6 +164,30 @@ function RankingEntry({ rank, entity, onClick, index }: { rank: number; entity: 
     >
       <div className="w-6 flex items-center justify-center flex-shrink-0">
         {getRankDisplay()}
+      </div>
+      
+      {/* Logo */}
+      <div className="w-8 h-8 rounded-lg overflow-hidden bg-[#1a1a2e] border border-[#2a2a3e] flex-shrink-0 flex items-center justify-center">
+        {logoUrl ? (
+          <img 
+            src={logoUrl} 
+            alt={entity.name} 
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+              const parent = target.parentElement;
+              if (parent) {
+                const fallback = document.createElement('span');
+                fallback.className = 'text-white font-bold text-xs';
+                fallback.textContent = entity.name.charAt(0);
+                parent.appendChild(fallback);
+              }
+            }}
+          />
+        ) : (
+          <span className="text-white font-bold text-xs">{entity.name.charAt(0)}</span>
+        )}
       </div>
       
       <div className="flex-1 min-w-0">
