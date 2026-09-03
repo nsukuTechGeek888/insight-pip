@@ -6,6 +6,9 @@ import DesktopReviewDetail from './DesktopReviewDetail';
 import MobileReviewDetail from '@/components/reviews/MobileReviewDetail';
 import { cookies } from 'next/headers';
 
+// ✅ FORCE DYNAMIC - Fixes the static/dynamic conflict
+export const dynamic = 'force-dynamic';
+
 // Region display info
 const REGION_DISPLAY: Record<string, { label: string; flag: string }> = {
   SA: { label: 'South Africa', flag: '🇿🇦' },
@@ -138,27 +141,28 @@ export default async function ReviewDetailPage({ params }: Props) {
   );
 }
 
-// Generate static paths for better SEO
-export async function generateStaticParams() {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://insightpip.com';
-    const response = await fetch(`${baseUrl}/api/reviews?limit=100`, {
-      next: { revalidate: 3600 }
-    });
-    if (response.ok) {
-      const data = await response.json();
-      const reviews = data.reviews || data.data || [];
-      if (Array.isArray(reviews)) {
-        return reviews.map((review: any) => ({
-          id: review.id.toString(),
-        }));
-      }
-    }
-  } catch (error) {
-    console.error('Error generating static params for reviews:', error);
-  }
-  return [];
-}
+// Generate static paths for better SEO - only works with force-dynamic disabled
+// Commented out to fix static/dynamic conflict
+// export async function generateStaticParams() {
+//   try {
+//     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://insightpip.com';
+//     const response = await fetch(`${baseUrl}/api/reviews?limit=100`, {
+//       next: { revalidate: 3600 }
+//     });
+//     if (response.ok) {
+//       const data = await response.json();
+//       const reviews = data.reviews || data.data || [];
+//       if (Array.isArray(reviews)) {
+//         return reviews.map((review: any) => ({
+//           id: review.id.toString(),
+//         }));
+//       }
+//     }
+//   } catch (error) {
+//     console.error('Error generating static params for reviews:', error);
+//   }
+//   return [];
+// }
 
 // Revalidate pages every hour
 export const revalidate = 3600;
