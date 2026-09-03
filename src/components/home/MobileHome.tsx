@@ -1,10 +1,9 @@
-// components/home/MobileHome.tsx - REDESIGNED HOMEPAGE
-// Product Experience: UNDERSTAND → DISCOVER → VERIFY → ACT
+// components/home/MobileHome.tsx - REDESIGNED WITH RANKINGS SLIDER
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
@@ -20,7 +19,8 @@ import {
   ThumbsUp, ThumbsDown, ExternalLink, ChevronUp, Layers,
   Briefcase, LineChart, PiggyBank, Globe, Server, Monitor,
   CreditCard, Landmark, BadgeCheck,
-  Trophy, Medal, Hash, Sparkles, Zap, Compass, GitCompare
+  Trophy, Medal, Hash, Sparkles, Zap, Compass, GitCompare,
+  ChevronLeft, ChevronRight as ChevronRightIcon
 } from 'lucide-react';
 import { formatCurrency } from '@/utils/api-helpers';
 import TrustScoreBadge from '@/components/ui/TrustScoreBadge';
@@ -139,18 +139,21 @@ function TrustScoreDisplay({ score, size = "sm" }: { score: number; size?: "sm" 
 }
 
 // Ranking Entry - Premium financial index style
-function RankingEntry({ rank, entity, onClick }: { rank: number; entity: any; onClick: () => void }) {
+function RankingEntry({ rank, entity, onClick, index }: { rank: number; entity: any; onClick: () => void; index: number }) {
   const isTop3 = rank <= 3;
   
   const getRankDisplay = () => {
-    if (rank === 1) return <Trophy size={12} className="text-amber-400" />;
+    if (rank === 1) return <Crown size={12} className="text-amber-400" />;
     if (rank === 2) return <Medal size={12} className="text-zinc-400" />;
     if (rank === 3) return <Medal size={12} className="text-amber-700" />;
     return <span className="text-zinc-500 font-mono text-xs w-4 text-center">{rank}</span>;
   };
 
   return (
-    <div 
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.05 }}
       onClick={onClick}
       className={`flex items-center gap-3 py-2.5 border-b border-[#1e1e32] last:border-0 cursor-pointer hover:bg-[#1a1a2e] transition-all px-2 -mx-2 rounded-lg ${
         isTop3 ? 'bg-amber-500/5' : ''
@@ -178,7 +181,7 @@ function RankingEntry({ rank, entity, onClick }: { rank: number; entity: any; on
         <TrustScoreDisplay score={entity.trustScore || 0} />
         <ArrowRight size={12} className="text-zinc-500" />
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -193,6 +196,13 @@ export default function MobileHome() {
   const [enrichedPropFirms, setEnrichedPropFirms] = useState<any[]>([]);
   const [recentReviews, setRecentReviews] = useState<any[]>([]);
   const [recentIncidents, setRecentIncidents] = useState<any[]>([]);
+  
+  // Rankings slider state
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [offsetX, setOffsetX] = useState(0);
+  const sliderRef = useRef<HTMLDivElement>(null);
 
   const regionInfo = REGION_DISPLAY[region] || REGION_DISPLAY['GLOBAL'];
 
@@ -209,23 +219,17 @@ export default function MobileHome() {
         if (brokersRes.success) setBrokers(brokersRes.data || []);
         if (propFirmsRes.success) setPropFirms(propFirmsRes.data || []);
 
-        // Fetch reviews
         try {
           const reviewsRes = await fetch('/api/reviews?limit=5&status=APPROVED');
           const reviewsData = await reviewsRes.json();
           if (reviewsData.reviews) setRecentReviews(reviewsData.reviews);
-        } catch (err) {
-          console.error('Failed to fetch reviews:', err);
-        }
+        } catch (err) {}
 
-        // Fetch incidents
         try {
           const incidentsRes = await fetch('/api/incidents?limit=5');
           const incidentsData = await incidentsRes.json();
           if (incidentsData.incidents) setRecentIncidents(incidentsData.incidents);
-        } catch (err) {
-          console.error('Failed to fetch incidents:', err);
-        }
+        } catch (err) {}
       } catch (err) {
         console.error('Failed to load data', err);
       } finally {
@@ -295,11 +299,60 @@ export default function MobileHome() {
       .sort((a, b) => (b.trustScore || 0) - (a.trustScore || 0));
   }, [enrichedPropFirms, region]);
 
-  // Top 5 for rankings preview
+  // Top 5 for rankings
   const topBrokers = regionFilteredBrokers.slice(0, 5);
   const topPropFirms = regionFilteredPropFirms.slice(0, 5);
 
-  // Incident types for display
+  // Slider data
+  const slides = [
+    { 
+      id: 'brokers', 
+      label: 'Top Brokers', 
+      icon: Building2, 
+      data: topBrokers,
+      type: 'broker' as const,
+      emptyMessage: 'No brokers available in your region'
+    },
+    { 
+      id: 'propFirms', 
+      label: 'Top Prop Firms', 
+      icon: TrendingUp, 
+      data: topPropFirms,
+      type: 'prop' as const,
+      emptyMessage: 'No prop firms available in your region'
+    },
+  ];
+
+  const totalSlides = slides.length;
+
+  // Touch handlers for swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
+    setStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    const currentX = e.touches[0].clientX;
+    const diff = startX - currentX;
+    setOffsetX(diff);
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    const threshold = 50;
+    if (offsetX > threshold && currentSlide < totalSlides - 1) {
+      setCurrentSlide(currentSlide + 1);
+    } else if (offsetX < -threshold && currentSlide > 0) {
+      setCurrentSlide(currentSlide - 1);
+    }
+    setOffsetX(0);
+  };
+
+  const handleDotClick = (index: number) => {
+    setCurrentSlide(index);
+  };
+
   const incidentTypeMap: Record<string, { icon: any; color: string; label: string }> = {
     'WITHDRAWAL_DELAY': { icon: Clock, color: 'text-amber-400', label: 'Withdrawal Delay' },
     'WITHDRAWAL_REJECTED': { icon: XCircle, color: 'text-red-400', label: 'Withdrawal Rejected' },
@@ -415,7 +468,7 @@ export default function MobileHome() {
           </div>
         </motion.div>
 
-        {/* ==================== 3. THE TRUST RANKINGS ==================== */}
+        {/* ==================== 3. THE TRUST RANKINGS - SLIDER ==================== */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -431,35 +484,112 @@ export default function MobileHome() {
             </Link>
           </div>
 
-          <div className="bg-[#12121f] border border-[#1e1e32] rounded-lg p-3">
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-3">Top Brokers</p>
-            {topBrokers.length > 0 ? (
-              topBrokers.map((broker, index) => (
-                <RankingEntry
-                  key={broker.id}
-                  rank={index + 1}
-                  entity={broker}
-                  onClick={() => handleNavigate(broker.id, broker.name, 'broker')}
-                />
-              ))
-            ) : (
-              <p className="text-zinc-500 text-sm text-center py-4">No brokers available in your region</p>
-            )}
+          {/* Slider Container */}
+          <div className="relative bg-[#12121f] border border-[#1e1e32] rounded-lg overflow-hidden">
+            
+            {/* Slide Indicator - Shows which tab is active */}
+            <div className="flex items-center justify-between px-4 pt-3 pb-1">
+              <div className="flex gap-1">
+                {slides.map((slide, index) => (
+                  <button
+                    key={slide.id}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-medium transition-all ${
+                      currentSlide === index
+                        ? 'bg-blue-600 text-white'
+                        : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    <slide.icon size={12} />
+                    {slide.label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] text-zinc-500">
+                  {currentSlide + 1} / {totalSlides}
+                </span>
+              </div>
+            </div>
 
-            {topPropFirms.length > 0 && (
-              <>
-                <div className="border-t border-[#1e1e32] my-3" />
-                <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-3">Top Prop Firms</p>
-                {topPropFirms.slice(0, 3).map((firm, index) => (
-                  <RankingEntry
-                    key={firm.id}
-                    rank={index + 1}
-                    entity={firm}
-                    onClick={() => handleNavigate(firm.id, firm.name, 'prop')}
+            {/* Swipe hint - subtle indicator that you can slide */}
+            <div className="flex items-center justify-center gap-1 px-4 pb-1">
+              <div className="flex gap-1">
+                {slides.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleDotClick(index)}
+                    className={`h-1 rounded-full transition-all ${
+                      currentSlide === index
+                        ? 'w-6 bg-blue-500'
+                        : 'w-2 bg-zinc-600 hover:bg-zinc-500'
+                    }`}
                   />
                 ))}
-              </>
-            )}
+              </div>
+            </div>
+
+            {/* Swipe hint text */}
+            <div className="text-center text-[8px] text-zinc-600 pb-1">
+              ← Swipe to see more →
+            </div>
+
+            {/* Slides */}
+            <div 
+              ref={sliderRef}
+              className="overflow-hidden touch-pan-y"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              <motion.div
+                className="flex"
+                animate={{ x: `-${currentSlide * 100}%` }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                style={{ width: `${totalSlides * 100}%` }}
+              >
+                {slides.map((slide) => (
+                  <div key={slide.id} className="w-full px-3 pb-3 flex-shrink-0">
+                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2">
+                      {slide.label}
+                    </p>
+                    {slide.data.length > 0 ? (
+                      slide.data.map((entity, index) => (
+                        <RankingEntry
+                          key={entity.id}
+                          rank={index + 1}
+                          entity={entity}
+                          index={index}
+                          onClick={() => handleNavigate(entity.id, entity.name, slide.type)}
+                        />
+                      ))
+                    ) : (
+                      <p className="text-zinc-500 text-sm text-center py-4">{slide.emptyMessage}</p>
+                    )}
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+
+            {/* Navigation Arrows - visible on hover/tap */}
+            <div className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-between px-1">
+              {currentSlide > 0 && (
+                <button
+                  onClick={() => setCurrentSlide(currentSlide - 1)}
+                  className="pointer-events-auto w-7 h-7 rounded-full bg-[#1a1a2e] border border-[#2a2a3e] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-[#2a2a3e] transition-colors"
+                >
+                  <ChevronLeft size={14} />
+                </button>
+              )}
+              {currentSlide < totalSlides - 1 && (
+                <button
+                  onClick={() => setCurrentSlide(currentSlide + 1)}
+                  className="pointer-events-auto w-7 h-7 rounded-full bg-[#1a1a2e] border border-[#2a2a3e] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-[#2a2a3e] transition-colors ml-auto"
+                >
+                  <ChevronRightIcon size={14} />
+                </button>
+              )}
+            </div>
           </div>
         </motion.div>
 
