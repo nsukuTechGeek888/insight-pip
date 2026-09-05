@@ -20,7 +20,7 @@ import {
   Briefcase, LineChart, PiggyBank, Globe, Server, Monitor,
   CreditCard, Landmark, BadgeCheck,
   Trophy, Medal, Hash, Sparkles, Zap, Compass, GitCompare,
-  ChevronLeft, ChevronRight as ChevronRightIcon
+  ChevronLeft, ChevronRight as ChevronRightIcon, User
 } from 'lucide-react';
 import { formatCurrency } from '@/utils/api-helpers';
 import TrustScoreBadge from '@/components/ui/TrustScoreBadge';
@@ -149,7 +149,6 @@ function RankingEntry({ rank, entity, onClick, index }: { rank: number; entity: 
     return <span className="text-zinc-500 font-mono text-xs w-4 text-center">{rank}</span>;
   };
 
-  // Get logo URL
   const logoUrl = entity.logo || null;
 
   return (
@@ -514,7 +513,7 @@ export default function MobileHome() {
           {/* Slider Container */}
           <div className="relative bg-[#12121f] border border-[#1e1e32] rounded-lg overflow-hidden">
             
-            {/* Slide Indicator - Shows which tab is active */}
+            {/* Slide Indicator */}
             <div className="flex items-center justify-between px-4 pt-3 pb-1">
               <div className="flex gap-1">
                 {slides.map((slide, index) => (
@@ -539,7 +538,7 @@ export default function MobileHome() {
               </div>
             </div>
 
-            {/* Swipe hint - subtle indicator that you can slide */}
+            {/* Dots */}
             <div className="flex items-center justify-center gap-1 px-4 pb-1">
               <div className="flex gap-1">
                 {slides.map((_, index) => (
@@ -556,7 +555,7 @@ export default function MobileHome() {
               </div>
             </div>
 
-            {/* Swipe hint text */}
+            {/* Swipe hint */}
             <div className="text-center text-[8px] text-zinc-600 pb-1">
               ← Swipe to see more →
             </div>
@@ -598,7 +597,7 @@ export default function MobileHome() {
               </motion.div>
             </div>
 
-            {/* Navigation Arrows - visible on hover/tap */}
+            {/* Navigation Arrows */}
             <div className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-between px-1">
               {currentSlide > 0 && (
                 <button
@@ -620,7 +619,7 @@ export default function MobileHome() {
           </div>
         </motion.div>
 
-        {/* ==================== 4. TRADER VOICES ==================== */}
+        {/* ==================== 4. TRADER VOICES - WITH LOGOS & AVATARS ==================== */}
         {recentReviews.length > 0 && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -638,23 +637,83 @@ export default function MobileHome() {
             </div>
 
             <div className="space-y-2">
-              {recentReviews.slice(0, 3).map((review) => (
-                <div key={review.id} className="bg-[#12121f] border border-[#1e1e32] rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <StarRating rating={review.rating || 0} size="sm" />
-                    <span className="text-xs text-zinc-500">•</span>
-                    <span className="text-[10px] text-zinc-500">{review.entityName}</span>
+              {recentReviews.slice(0, 3).map((review) => {
+                // Get entity logo
+                const entityLogo = review.entityLogo || null;
+                // Get user avatar
+                const userAvatar = review.user?.avatar || null;
+                const userName = review.user?.name || 'Anonymous';
+                const userInitial = userName.charAt(0).toUpperCase();
+
+                return (
+                  <div key={review.id} className="bg-[#12121f] border border-[#1e1e32] rounded-lg p-3">
+                    {/* Header with Entity Logo and Name */}
+                    <div className="flex items-center gap-2 mb-1.5">
+                      {/* Entity Logo */}
+                      <div className="w-5 h-5 rounded-md overflow-hidden bg-[#1a1a2e] border border-[#2a2a3e] flex-shrink-0 flex items-center justify-center">
+                        {entityLogo ? (
+                          <img 
+                            src={entityLogo} 
+                            alt={review.entityName} 
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                const fallback = document.createElement('span');
+                                fallback.className = 'text-white font-bold text-[8px]';
+                                fallback.textContent = review.entityName?.charAt(0) || '?';
+                                parent.appendChild(fallback);
+                              }
+                            }}
+                          />
+                        ) : (
+                          <span className="text-white font-bold text-[8px]">{review.entityName?.charAt(0) || '?'}</span>
+                        )}
+                      </div>
+                      <span className="text-xs text-zinc-400 font-medium">{review.entityName}</span>
+                      <span className="text-[8px] text-zinc-600">•</span>
+                      <StarRating rating={review.rating || 0} size="sm" />
+                    </div>
+
+                    {/* Review Content */}
+                    <p className="text-zinc-300 text-sm leading-relaxed line-clamp-2">
+                      {review.content}
+                    </p>
+
+                    {/* Footer with User Avatar and Date */}
+                    <div className="flex items-center gap-2 mt-2">
+                      {/* User Avatar */}
+                      <div className="w-5 h-5 rounded-full overflow-hidden bg-[#1a1a2e] border border-[#2a2a3e] flex-shrink-0 flex items-center justify-center">
+                        {userAvatar ? (
+                          <img 
+                            src={userAvatar} 
+                            alt={userName} 
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                const fallback = document.createElement('span');
+                                fallback.className = 'text-white font-bold text-[8px]';
+                                fallback.textContent = userInitial;
+                                parent.appendChild(fallback);
+                              }
+                            }}
+                          />
+                        ) : (
+                          <User size={10} className="text-zinc-400" />
+                        )}
+                      </div>
+                      <span className="text-[10px] text-zinc-500">{userName}</span>
+                      <span className="text-[8px] text-zinc-600">•</span>
+                      <span className="text-[10px] text-zinc-500">{new Date(review.createdAt).toLocaleDateString()}</span>
+                    </div>
                   </div>
-                  <p className="text-zinc-300 text-sm leading-relaxed line-clamp-2">
-                    {review.content}
-                  </p>
-                  <div className="flex items-center gap-3 mt-1.5 text-[10px] text-zinc-500">
-                    <span>{review.user?.name || 'Anonymous'}</span>
-                    <span>•</span>
-                    <span>{new Date(review.createdAt).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </motion.div>
         )}
