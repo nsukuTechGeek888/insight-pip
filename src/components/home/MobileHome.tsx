@@ -20,7 +20,7 @@ import {
   Briefcase, LineChart, PiggyBank, Globe, Server, Monitor,
   CreditCard, Landmark, BadgeCheck,
   Trophy, Medal, Hash, Sparkles, Zap, Compass, GitCompare,
-  ChevronLeft, ChevronRight as ChevronRightIcon, User
+  ChevronLeft, ChevronRight as ChevronRightIcon, User, Percent
 } from 'lucide-react';
 import { formatCurrency } from '@/utils/api-helpers';
 import TrustScoreBadge from '@/components/ui/TrustScoreBadge';
@@ -211,6 +211,92 @@ function RankingEntry({ rank, entity, onClick, index }: { rank: number; entity: 
   );
 }
 
+// Offer Card Component
+function OfferCard({ offer, type }: { offer: any; type: 'broker' | 'prop' }) {
+  const router = useRouter();
+  
+  const handleClick = () => {
+    if (type === 'broker') {
+      router.push(`/brokers/${offer.slug || offer.name.toLowerCase().replace(/\s+/g, '-')}`);
+    } else {
+      router.push(`/prop-firms/${offer.slug || offer.name.toLowerCase().replace(/\s+/g, '-')}`);
+    }
+  };
+
+  const isBroker = type === 'broker';
+  const logoUrl = offer.logo || null;
+  const offerText = isBroker 
+    ? (offer.bonuses?.[0]?.amount || offer.promotions?.[0]?.name || 'Special Offer')
+    : (offer.promotions?.[0]?.name || 'Limited Time Offer');
+  const discountText = isBroker
+    ? (offer.promotions?.[0]?.discount || '')
+    : (offer.promotions?.[0]?.discount || '');
+  
+  const hasDiscount = discountText && discountText !== '';
+  const expiry = isBroker
+    ? (offer.promotions?.[0]?.validUntil || offer.bonuses?.[0]?.expiry || '')
+    : (offer.promotions?.[0]?.validUntil || '');
+
+  return (
+    <div 
+      onClick={handleClick}
+      className="flex items-center gap-3 p-3 bg-[#1a1a2e] border border-[#2a2a3e] rounded-lg cursor-pointer hover:bg-[#2a2a3e] transition-all"
+    >
+      {/* Logo */}
+      <div className="w-10 h-10 rounded-lg overflow-hidden bg-[#12121f] border border-[#2a2a3e] flex-shrink-0 flex items-center justify-center">
+        {logoUrl ? (
+          <img 
+            src={logoUrl} 
+            alt={offer.name} 
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+              const parent = target.parentElement;
+              if (parent) {
+                const fallback = document.createElement('span');
+                fallback.className = 'text-white font-bold text-xs';
+                fallback.textContent = offer.name.charAt(0);
+                parent.appendChild(fallback);
+              }
+            }}
+          />
+        ) : (
+          <span className="text-white font-bold text-sm">{offer.name.charAt(0)}</span>
+        )}
+      </div>
+      
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="text-white font-medium text-sm truncate">{offer.name}</span>
+          <span className={`text-[8px] px-1.5 py-0.5 rounded-full ${
+            isBroker 
+              ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+              : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
+          }`}>
+            {isBroker ? 'Broker' : 'Prop'}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 mt-0.5">
+          <span className="text-amber-400 text-xs font-medium">{offerText}</span>
+          {hasDiscount && (
+            <span className="text-[8px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded-full">
+              {discountText}% OFF
+            </span>
+          )}
+        </div>
+        {expiry && (
+          <div className="text-[8px] text-zinc-500 mt-0.5">
+            Expires: {new Date(expiry).toLocaleDateString()}
+          </div>
+        )}
+      </div>
+      
+      <ArrowRight size={14} className="text-zinc-500 flex-shrink-0" />
+    </div>
+  );
+}
+
 // ===================== MAIN COMPONENT =====================
 export default function MobileHome() {
   const router = useRouter();
@@ -328,6 +414,28 @@ export default function MobileHome() {
   // Top 5 for rankings
   const topBrokers = regionFilteredBrokers.slice(0, 5);
   const topPropFirms = regionFilteredPropFirms.slice(0, 5);
+
+  // Get offers (brokers and prop firms with promotions/bonuses)
+  const brokerOffers = useMemo(() => {
+    return regionFilteredBrokers
+      .filter(b => (b.bonuses && b.bonuses.length > 0) || (b.promotions && b.promotions.length > 0))
+      .slice(0, 3);
+  }, [regionFilteredBrokers]);
+
+  const propFirmOffers = useMemo(() => {
+    return regionFilteredPropFirms
+      .filter(p => p.promotions && p.promotions.length > 0)
+      .slice(0, 3);
+  }, [regionFilteredPropFirms]);
+
+  // Combine offers - prioritize brokers with offers, then prop firms
+  const allOffers = useMemo(() => {
+    const combined = [
+      ...brokerOffers.map(o => ({ ...o, _type: 'broker' as const })),
+      ...propFirmOffers.map(o => ({ ...o, _type: 'prop' as const }))
+    ];
+    return combined.slice(0, 4);
+  }, [brokerOffers, propFirmOffers]);
 
   // Slider data
   const slides = [
@@ -619,7 +727,36 @@ export default function MobileHome() {
           </div>
         </motion.div>
 
-        {/* ==================== 4. TRADER VOICES - WITH LOGOS & AVATARS ==================== */}
+        {/* ==================== 4. BEST OFFERS ==================== */}
+        {allOffers.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.25 }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Percent size={16} className="text-amber-400" />
+                <h2 className="text-base font-semibold text-white">Best Offers</h2>
+              </div>
+              <Link href="/offers" className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                View all <ArrowRight size={12} />
+              </Link>
+            </div>
+
+            <div className="space-y-2">
+              {allOffers.map((offer, index) => (
+                <OfferCard 
+                  key={`${offer._type}-${offer.id}`}
+                  offer={offer}
+                  type={offer._type}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* ==================== 5. TRADER VOICES - WITH LOGOS & AVATARS ==================== */}
         {recentReviews.length > 0 && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -638,9 +775,7 @@ export default function MobileHome() {
 
             <div className="space-y-2">
               {recentReviews.slice(0, 3).map((review) => {
-                // Get entity logo
                 const entityLogo = review.entityLogo || null;
-                // Get user avatar
                 const userAvatar = review.user?.avatar || null;
                 const userName = review.user?.name || 'Anonymous';
                 const userInitial = userName.charAt(0).toUpperCase();
@@ -718,7 +853,7 @@ export default function MobileHome() {
           </motion.div>
         )}
 
-        {/* ==================== 5. WHAT'S HAPPENING ==================== */}
+        {/* ==================== 6. WHAT'S HAPPENING ==================== */}
         {recentIncidents.length > 0 && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -771,7 +906,7 @@ export default function MobileHome() {
           </motion.div>
         )}
 
-        {/* ==================== 6. EXPLORE TRADING PARTNERS ==================== */}
+        {/* ==================== 7. EXPLORE TRADING PARTNERS ==================== */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -799,7 +934,7 @@ export default function MobileHome() {
           </div>
         </motion.div>
 
-        {/* ==================== 7. FINAL BRAND STATEMENT ==================== */}
+        {/* ==================== 8. FINAL BRAND STATEMENT ==================== */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
