@@ -20,7 +20,8 @@ import {
   Briefcase, LineChart, PiggyBank, Globe, Server, Monitor,
   CreditCard, Landmark, BadgeCheck,
   Trophy, Medal, Hash, Sparkles, Zap, Compass, GitCompare,
-  ChevronLeft, ChevronRight as ChevronRightIcon, User, Percent
+  ChevronLeft, ChevronRight as ChevronRightIcon, User, Percent,
+  Flame as FlameIcon, Zap as ZapIcon
 } from 'lucide-react';
 import { formatCurrency } from '@/utils/api-helpers';
 import TrustScoreBadge from '@/components/ui/TrustScoreBadge';
@@ -44,6 +45,8 @@ const COLORS = {
   gold: '#fbbf24',
   silver: '#9ca3af',
   bronze: '#d97706',
+  offerGradient1: '#1a1a2e',
+  offerGradient2: '#2a1a3e',
 };
 
 // ===================== REGION =====================
@@ -211,8 +214,8 @@ function RankingEntry({ rank, entity, onClick, index }: { rank: number; entity: 
   );
 }
 
-// Offer Card Component
-function OfferCard({ offer, type }: { offer: any; type: 'broker' | 'prop' }) {
+// Offer Card Component - Standout Design
+function OfferCard({ offer, type, index }: { offer: any; type: 'broker' | 'prop'; index: number }) {
   const router = useRouter();
   
   const handleClick = () => {
@@ -225,75 +228,118 @@ function OfferCard({ offer, type }: { offer: any; type: 'broker' | 'prop' }) {
 
   const isBroker = type === 'broker';
   const logoUrl = offer.logo || null;
-  const offerText = isBroker 
-    ? (offer.bonuses?.[0]?.amount || offer.promotions?.[0]?.name || 'Special Offer')
-    : (offer.promotions?.[0]?.name || 'Limited Time Offer');
-  const discountText = isBroker
-    ? (offer.promotions?.[0]?.discount || '')
-    : (offer.promotions?.[0]?.discount || '');
   
+  // Get the best offer text
+  let offerText = 'Special Offer';
+  let discountText = '';
+  let expiry = '';
+  
+  if (isBroker) {
+    if (offer.promotions && offer.promotions.length > 0) {
+      offerText = offer.promotions[0].name || offerText;
+      discountText = offer.promotions[0].discount || '';
+      expiry = offer.promotions[0].validUntil || '';
+    }
+    if (offer.bonuses && offer.bonuses.length > 0 && !offer.promotions?.length) {
+      offerText = offer.bonuses[0].amount || offer.bonuses[0].type || offerText;
+      expiry = offer.bonuses[0].expiry || '';
+    }
+  } else {
+    if (offer.promotions && offer.promotions.length > 0) {
+      offerText = offer.promotions[0].name || offerText;
+      discountText = offer.promotions[0].discount || '';
+      expiry = offer.promotions[0].validUntil || '';
+    }
+  }
+
   const hasDiscount = discountText && discountText !== '';
-  const expiry = isBroker
-    ? (offer.promotions?.[0]?.validUntil || offer.bonuses?.[0]?.expiry || '')
-    : (offer.promotions?.[0]?.validUntil || '');
+  const hasExpiry = expiry && expiry !== '';
 
   return (
-    <div 
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.08 }}
       onClick={handleClick}
-      className="flex items-center gap-3 p-3 bg-[#1a1a2e] border border-[#2a2a3e] rounded-lg cursor-pointer hover:bg-[#2a2a3e] transition-all"
+      className="relative group cursor-pointer overflow-hidden rounded-lg border border-amber-500/30 bg-gradient-to-br from-[#1a1a2e] to-[#2a1a3e] hover:border-amber-500/60 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/10"
     >
-      {/* Logo */}
-      <div className="w-10 h-10 rounded-lg overflow-hidden bg-[#12121f] border border-[#2a2a3e] flex-shrink-0 flex items-center justify-center">
-        {logoUrl ? (
-          <img 
-            src={logoUrl} 
-            alt={offer.name} 
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-              const parent = target.parentElement;
-              if (parent) {
-                const fallback = document.createElement('span');
-                fallback.className = 'text-white font-bold text-xs';
-                fallback.textContent = offer.name.charAt(0);
-                parent.appendChild(fallback);
-              }
-            }}
-          />
-        ) : (
-          <span className="text-white font-bold text-sm">{offer.name.charAt(0)}</span>
-        )}
-      </div>
+      {/* Glow effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-transparent to-amber-500/5 group-hover:from-amber-500/10 group-hover:to-amber-500/10 transition-all duration-500" />
       
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="text-white font-medium text-sm truncate">{offer.name}</span>
-          <span className={`text-[8px] px-1.5 py-0.5 rounded-full ${
-            isBroker 
-              ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-              : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
-          }`}>
-            {isBroker ? 'Broker' : 'Prop'}
-          </span>
-        </div>
-        <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-amber-400 text-xs font-medium">{offerText}</span>
-          {hasDiscount && (
-            <span className="text-[8px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded-full">
-              {discountText}% OFF
-            </span>
+      {/* Corner accent */}
+      <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-amber-500/10 to-transparent rounded-bl-full" />
+      
+      <div className="relative p-3 flex items-center gap-3">
+        {/* Logo */}
+        <div className="w-12 h-12 rounded-lg overflow-hidden bg-[#12121f] border border-amber-500/20 flex-shrink-0 flex items-center justify-center group-hover:border-amber-500/40 transition-all">
+          {logoUrl ? (
+            <img 
+              src={logoUrl} 
+              alt={offer.name} 
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const parent = target.parentElement;
+                if (parent) {
+                  const fallback = document.createElement('span');
+                  fallback.className = 'text-white font-bold text-sm';
+                  fallback.textContent = offer.name.charAt(0);
+                  parent.appendChild(fallback);
+                }
+              }}
+            />
+          ) : (
+            <span className="text-white font-bold text-sm">{offer.name.charAt(0)}</span>
           )}
         </div>
-        {expiry && (
-          <div className="text-[8px] text-zinc-500 mt-0.5">
-            Expires: {new Date(expiry).toLocaleDateString()}
+        
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-white font-medium text-sm truncate">{offer.name}</span>
+            <span className={`text-[8px] px-1.5 py-0.5 rounded-full ${
+              isBroker 
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+            }`}>
+              {isBroker ? 'Broker' : 'Prop'}
+            </span>
           </div>
-        )}
+          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <FlameIcon size={10} className="text-amber-400" />
+              <span className="text-amber-400 text-xs font-medium truncate">{offerText}</span>
+            </div>
+            {hasDiscount && (
+              <span className="text-[8px] bg-green-500/30 text-green-400 px-1.5 py-0.5 rounded-full font-medium border border-green-500/20">
+                {discountText}% OFF
+              </span>
+            )}
+            {!hasDiscount && isBroker && (
+              <span className="text-[8px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded-full border border-blue-500/20">
+                Bonus Available
+              </span>
+            )}
+          </div>
+          {hasExpiry && (
+            <div className="flex items-center gap-1 mt-0.5">
+              <Clock size={8} className="text-zinc-500" />
+              <span className="text-[8px] text-zinc-500">
+                Expires: {new Date(expiry).toLocaleDateString()}
+              </span>
+            </div>
+          )}
+          {!hasExpiry && (
+            <div className="flex items-center gap-1 mt-0.5">
+              <ZapIcon size={8} className="text-amber-400" />
+              <span className="text-[8px] text-amber-400/70">Limited Time</span>
+            </div>
+          )}
+        </div>
+        
+        <ArrowRight size={16} className="text-amber-400/60 group-hover:text-amber-400 group-hover:translate-x-1 transition-all flex-shrink-0" />
       </div>
-      
-      <ArrowRight size={14} className="text-zinc-500 flex-shrink-0" />
-    </div>
+    </motion.div>
   );
 }
 
@@ -315,6 +361,9 @@ export default function MobileHome() {
   const [startX, setStartX] = useState(0);
   const [offsetX, setOffsetX] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
+
+  // Offers toggle state
+  const [offersTab, setOffersTab] = useState<'all' | 'brokers' | 'propFirms'>('all');
 
   const regionInfo = REGION_DISPLAY[region] || REGION_DISPLAY['GLOBAL'];
 
@@ -415,27 +464,40 @@ export default function MobileHome() {
   const topBrokers = regionFilteredBrokers.slice(0, 5);
   const topPropFirms = regionFilteredPropFirms.slice(0, 5);
 
-  // Get offers (brokers and prop firms with promotions/bonuses)
+  // Get offers
   const brokerOffers = useMemo(() => {
     return regionFilteredBrokers
       .filter(b => (b.bonuses && b.bonuses.length > 0) || (b.promotions && b.promotions.length > 0))
-      .slice(0, 3);
+      .slice(0, 6);
   }, [regionFilteredBrokers]);
 
   const propFirmOffers = useMemo(() => {
     return regionFilteredPropFirms
       .filter(p => p.promotions && p.promotions.length > 0)
-      .slice(0, 3);
+      .slice(0, 6);
   }, [regionFilteredPropFirms]);
 
-  // Combine offers - prioritize brokers with offers, then prop firms
-  const allOffers = useMemo(() => {
-    const combined = [
-      ...brokerOffers.map(o => ({ ...o, _type: 'broker' as const })),
-      ...propFirmOffers.map(o => ({ ...o, _type: 'prop' as const }))
-    ];
-    return combined.slice(0, 4);
-  }, [brokerOffers, propFirmOffers]);
+  // Filter offers based on tab
+  const filteredOffers = useMemo(() => {
+    if (offersTab === 'brokers') {
+      return brokerOffers.map(o => ({ ...o, _type: 'broker' as const }));
+    }
+    if (offersTab === 'propFirms') {
+      return propFirmOffers.map(o => ({ ...o, _type: 'prop' as const }));
+    }
+    // 'all' - combine and interleave
+    const combined = [];
+    const maxLen = Math.max(brokerOffers.length, propFirmOffers.length);
+    for (let i = 0; i < maxLen; i++) {
+      if (i < brokerOffers.length) {
+        combined.push({ ...brokerOffers[i], _type: 'broker' as const });
+      }
+      if (i < propFirmOffers.length) {
+        combined.push({ ...propFirmOffers[i], _type: 'prop' as const });
+      }
+    }
+    return combined.slice(0, 6);
+  }, [brokerOffers, propFirmOffers, offersTab]);
 
   // Slider data
   const slides = [
@@ -727,8 +789,8 @@ export default function MobileHome() {
           </div>
         </motion.div>
 
-        {/* ==================== 4. BEST OFFERS ==================== */}
-        {allOffers.length > 0 && (
+        {/* ==================== 4. BEST OFFERS - STANDOUT DESIGN WITH TOGGLE ==================== */}
+        {filteredOffers.length > 0 && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -736,7 +798,9 @@ export default function MobileHome() {
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Percent size={16} className="text-amber-400" />
+                <div className="p-1.5 rounded-lg bg-amber-500/20">
+                  <Percent size={14} className="text-amber-400" />
+                </div>
                 <h2 className="text-base font-semibold text-white">Best Offers</h2>
               </div>
               <Link href="/offers" className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
@@ -744,12 +808,50 @@ export default function MobileHome() {
               </Link>
             </div>
 
+            {/* Toggle - Standout Design */}
+            <div className="flex gap-1 bg-[#12121f] border border-amber-500/20 rounded-lg p-1 mb-3">
+              <button
+                onClick={() => setOffersTab('all')}
+                className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${
+                  offersTab === 'all'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setOffersTab('brokers')}
+                className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${
+                  offersTab === 'brokers'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Building2 size={10} className="inline mr-1" />
+                Brokers
+              </button>
+              <button
+                onClick={() => setOffersTab('propFirms')}
+                className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${
+                  offersTab === 'propFirms'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <TrendingUp size={10} className="inline mr-1" />
+                Prop Firms
+              </button>
+            </div>
+
+            {/* Offer Cards */}
             <div className="space-y-2">
-              {allOffers.map((offer, index) => (
+              {filteredOffers.slice(0, 4).map((offer, index) => (
                 <OfferCard 
                   key={`${offer._type}-${offer.id}`}
                   offer={offer}
                   type={offer._type}
+                  index={index}
                 />
               ))}
             </div>
