@@ -1,135 +1,276 @@
 @import "tailwindcss";
 
-/* Set global background and text */
-body {
-  background-color: #000000; /* Solid black background */
-  color: #ffffff;            /* White text for readability */
-  font-family: Arial, Helvetica, sans-serif;
+/* =====================================================================
+   INSIGHTPIP DESIGN SYSTEM — PHASE 1 TOKENS
+   Single source of truth for colors, spacing, radius, motion.
+   ===================================================================== */
+
+:root {
+  /* ---- Brand ---- */
+  --ip-blue:          #2563EB;
+  --ip-blue-hover:    #1D4ED8;
+  --ip-blue-press:    #1E40AF;
+  --ip-blue-soft:     #EFF6FF;
+  --ip-blue-soft-2:   #DBEAFE;
+
+  /* ---- Surfaces (light) ---- */
+  --ip-bg:            #FFFFFF;
+  --ip-surface:       #FFFFFF;
+  --ip-surface-2:     #F7F8FA;
+  --ip-surface-3:     #EEF0F4;
+  --ip-border:        #E5E7EB;
+  --ip-border-strong: #D1D5DB;
+
+  /* ---- Surfaces (dark header) ---- */
+  --ip-header-bg:     #0A0E1A;
+  --ip-header-bg-2:   #111827;
+  --ip-header-border: #1F2937;
+  --ip-header-text:   #FFFFFF;
+  --ip-header-text-2: #9CA3AF;
+
+  /* ---- Text on light ---- */
+  --ip-text:          #0A0E1A;
+  --ip-text-2:        #6B7280;
+  --ip-text-3:        #9CA3AF;
+  --ip-text-invert:   #FFFFFF;
+
+  /* ---- Semantic ---- */
+  --ip-green:         #16A34A;
+  --ip-green-soft:    #DCFCE7;
+  --ip-amber:         #F59E0B;
+  --ip-amber-soft:    #FEF3C7;
+  --ip-red:           #DC2626;
+  --ip-red-soft:      #FEE2E2;
+  --ip-gold:          #D97706;
+  --ip-gold-soft:     #FEF3C7;
+
+  /* ---- Radius ---- */
+  --ip-r-sm:  8px;
+  --ip-r-md:  12px;
+  --ip-r-lg:  16px;
+  --ip-r-pill: 999px;
+
+  /* ---- Shadows ---- */
+  --ip-shadow-xs: 0 1px 2px rgba(10, 14, 26, 0.04);
+  --ip-shadow-sm: 0 2px 8px rgba(10, 14, 26, 0.06);
+  --ip-shadow-md: 0 4px 16px rgba(10, 14, 26, 0.08);
+
+  /* ---- Motion ---- */
+  --ip-ease:      cubic-bezier(0.22, 1, 0.36, 1);
+  --ip-dur-fast:  150ms;
+  --ip-dur-base:  200ms;
+  --ip-dur-slow:  250ms;
+
+  /* ---- Safe area (iOS notch / home bar) ---- */
+  --ip-safe-top:    env(safe-area-inset-top, 0px);
+  --ip-safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Make table headers sticky and match dark theme */
+/* =====================================================================
+   BASE — GLOBAL DEFAULTS
+   NOTE: body stays dark for now. Light pages use `.ip-light-page`.
+   ===================================================================== */
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  background-color: #000000; /* unchanged — safe mode */
+  color: #ffffff;            /* unchanged — safe mode */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* =====================================================================
+   TYPOGRAPHY UTILITY SCALE
+   ===================================================================== */
+
+.ip-display { font-size: 28px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; }
+.ip-h1      { font-size: 22px; font-weight: 700; line-height: 1.20; letter-spacing: -0.02em; }
+.ip-h2      { font-size: 17px; font-weight: 600; line-height: 1.30; letter-spacing: -0.01em; }
+.ip-h3      { font-size: 15px; font-weight: 600; line-height: 1.35; }
+.ip-body    { font-size: 14px; font-weight: 400; line-height: 1.5; }
+.ip-small   { font-size: 13px; font-weight: 400; line-height: 1.5; }
+.ip-meta    { font-size: 11px; font-weight: 500; line-height: 1.4; letter-spacing: 0.02em; }
+.ip-number  { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+
+/* =====================================================================
+   LIGHT PAGE WRAPPER — opt-in
+   Wrap a page/section with `.ip-light-page` to switch to the new light system.
+   ===================================================================== */
+
+.ip-light-page {
+  background-color: var(--ip-bg);
+  color: var(--ip-text);
+}
+
+.ip-light-page .ip-text       { color: var(--ip-text); }
+.ip-light-page .ip-text-2     { color: var(--ip-text-2); }
+.ip-light-page .ip-text-3     { color: var(--ip-text-3); }
+
+.ip-light-page .ip-border     { border-color: var(--ip-border); }
+.ip-light-page .ip-surface    { background: var(--ip-surface); }
+.ip-light-page .ip-surface-2  { background: var(--ip-surface-2); }
+.ip-light-page .ip-surface-3  { background: var(--ip-surface-3); }
+
+/* =====================================================================
+   PRESERVED FROM EXISTING globals.css — DO NOT REMOVE
+   ===================================================================== */
+
 table thead th {
   position: sticky;
   top: 0;
-  z-index: 40; /* Increased from 10 to ensure header stays above content */
+  z-index: 40;
   background-color: #000000;
   color: #ffffff;
   border-bottom: 1px solid #333;
 }
 
-/* Modern dark scrollbar styling */
-.custom-scrollbar::-webkit-scrollbar {
-  height: 8px;
-  width: 8px;
-}
+.custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background-color: #333; border-radius: 10px; }
+.custom-scrollbar { scrollbar-width: thin; scrollbar-color: #333 transparent; }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
+.filter-dropdown { z-index: 50 !important; }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #333;
-  border-radius: 10px;
-}
-
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: #333 transparent;
-}
-
-/* NEW: Ensure filter dropdowns appear above sticky headers */
-.filter-dropdown {
-  z-index: 50 !important; /* Higher than sticky header z-index */
-}
-
-/* NEW: Sticky header container for table */
 .sticky-table-header {
   position: sticky;
-  top: 64px; /* Adjust based on your navbar height */
+  top: 64px;
   z-index: 40;
-  background-color: #18181b; /* bg-zinc-900 equivalent */
+  background-color: #18181b;
 }
 
-/* NEW: Ensure Headless UI popovers appear above everything */
-[data-headlessui-state="open"] {
-  z-index: 60 !important; /* Highest priority */
-}
+[data-headlessui-state="open"] { z-index: 60 !important; }
+[data-radix-popper-content-wrapper] { z-index: 60 !important; }
 
-/* NEW: Fix for Radix UI dropdowns */
-[data-radix-popper-content-wrapper] {
-  z-index: 60 !important;
-}
-
-/* NEW: Animation for smoother dropdown appearance */
 @keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-
 .filter-dropdown, [data-headlessui-state="open"] {
   animation: slideDown 0.2s ease-out;
 }
 
-/* Add to your existing globals.css */
 @keyframes glow {
   0%, 100% { box-shadow: 0 0 20px rgba(34, 211, 238, 0.5); }
   50% { box-shadow: 0 0 40px rgba(34, 211, 238, 0.8), 0 0 60px rgba(192, 38, 211, 0.6); }
 }
-
 @keyframes gradient-x {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
 }
-
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
 }
-
 @keyframes tilt {
   0%, 100% { transform: rotate(0deg); }
   25% { transform: rotate(0.5deg); }
   75% { transform: rotate(-0.5deg); }
 }
+.animate-glow { animation: glow 2s ease-in-out infinite; }
+.animate-gradient-x { background-size: 200% 200%; animation: gradient-x 3s ease infinite; }
+.animate-shimmer { animation: shimmer 2s infinite; }
+.animate-tilt { animation: tilt 10s infinite linear; }
 
-.animate-glow {
-  animation: glow 2s ease-in-out infinite;
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: rgba(17, 24, 39, 0.5); }
+::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #06b6d4, #8b5cf6); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(to bottom, #0891b2, #7c3aed); }
+
+/* =====================================================================
+   NEW: LIGHT SCROLLBAR (opt-in via .ip-light-scroll)
+   ===================================================================== */
+
+.ip-light-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.ip-light-scroll::-webkit-scrollbar-track { background: transparent; }
+.ip-light-scroll::-webkit-scrollbar-thumb { background: var(--ip-border-strong); border-radius: 3px; }
+.ip-light-scroll::-webkit-scrollbar-thumb:hover { background: var(--ip-text-3); }
+.ip-light-scroll { scrollbar-width: thin; scrollbar-color: var(--ip-border-strong) transparent; }
+
+/* =====================================================================
+   MICRO-INTERACTIONS
+   ===================================================================== */
+
+.ip-press {
+  transition: transform var(--ip-dur-fast) var(--ip-ease),
+              background-color var(--ip-dur-fast) var(--ip-ease),
+              border-color var(--ip-dur-fast) var(--ip-ease),
+              color var(--ip-dur-fast) var(--ip-ease);
+}
+.ip-press:active {
+  transform: scale(0.97);
 }
 
-.animate-gradient-x {
-  background-size: 200% 200%;
-  animation: gradient-x 3s ease infinite;
+.ip-hover-lift {
+  transition: transform var(--ip-dur-base) var(--ip-ease),
+              box-shadow var(--ip-dur-base) var(--ip-ease);
+}
+.ip-hover-lift:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--ip-shadow-md);
 }
 
-.animate-shimmer {
-  animation: shimmer 2s infinite;
+@keyframes ip-fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ip-fade-up {
+  animation: ip-fade-up var(--ip-dur-slow) var(--ip-ease) both;
 }
 
-.animate-tilt {
-  animation: tilt 10s infinite linear;
-}
+/* =====================================================================
+   SAFE AREA UTILITIES
+   ===================================================================== */
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
+.ip-safe-top    { padding-top: var(--ip-safe-top); }
+.ip-safe-bottom { padding-bottom: var(--ip-safe-bottom); }
 
-::-webkit-scrollbar-track {
-  background: rgba(17, 24, 39, 0.5);
-}
+/* =====================================================================
+   FALLBACK HARDCODED COLORS — Guarantees ip-* classes always render
+   (Fixes transparent header + transparent overlay bug on Tailwind v4)
+   ===================================================================== */
 
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #06b6d4, #8b5cf6);
-  border-radius: 4px;
-}
+/* Dark header */
+.bg-ip-header              { background-color: #0A0E1A !important; }
+.bg-ip-header-2            { background-color: #111827 !important; }
+.border-ip-header-border   { border-color: #1F2937 !important; }
+.text-ip-header-text       { color: #FFFFFF !important; }
+.text-ip-header-text-2     { color: #9CA3AF !important; }
 
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #0891b2, #7c3aed);
-}
+/* InsightPip blue */
+.bg-ip-blue                { background-color: #2563EB !important; }
+.bg-ip-blue-soft           { background-color: #EFF6FF !important; }
+.text-ip-blue              { color: #2563EB !important; }
+.border-ip-blue            { border-color: #2563EB !important; }
 
+/* Light surface */
+.bg-ip-surface             { background-color: #FFFFFF !important; }
+.bg-ip-surface-2           { background-color: #F7F8FA !important; }
+.bg-ip-surface-3           { background-color: #EEF0F4 !important; }
+.bg-ip-bg                  { background-color: #FFFFFF !important; }
+
+/* Text on light */
+.text-ip-text              { color: #0A0E1A !important; }
+.text-ip-text-2            { color: #6B7280 !important; }
+.text-ip-text-3            { color: #9CA3AF !important; }
+.text-ip-text-invert       { color: #FFFFFF !important; }
+
+/* Borders */
+.border-ip-border          { border-color: #E5E7EB !important; }
+.border-ip-border-strong   { border-color: #D1D5DB !important; }
+
+/* Semantic */
+.bg-ip-green-soft          { background-color: #DCFCE7 !important; }
+.text-ip-green             { color: #16A34A !important; }
+.bg-ip-red-soft            { background-color: #FEE2E2 !important; }
+.text-ip-red               { color: #DC2626 !important; }
+.text-ip-gold              { color: #D97706 !important; }
