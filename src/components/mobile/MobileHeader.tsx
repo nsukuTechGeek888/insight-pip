@@ -54,9 +54,9 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
   ];
 
   const accountNavItems = [
-    { icon: CircleUserRound, label: "Dashboard",     path: "/dashboard" },
+    { icon: CircleUserRound, label: "Dashboard",        path: "/dashboard" },
     { icon: User,            label: "Profile Settings", path: "/dashboard/profile" },
-    { icon: HelpCircle,      label: "Help & Support", path: "/help" },
+    { icon: HelpCircle,      label: "Help & Support",   path: "/help" },
   ];
 
   // ===================== SEARCH DATA =====================
@@ -188,7 +188,7 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
       </motion.header>
 
       {/* ============================================================
-          SEARCH OVERLAY — Clean, minimal, token-driven
+          SEARCH OVERLAY — Solid white, token-driven
           ============================================================ */}
       <AnimatePresence>
         {searchOpen && (
@@ -197,11 +197,14 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-[60] bg-ip-surface ip-light-page flex flex-col"
-            style={{ paddingTop: 'var(--ip-safe-top)' }}
+            className="fixed inset-0 z-[60] flex flex-col"
+            style={{
+              backgroundColor: '#FFFFFF',
+              paddingTop: 'var(--ip-safe-top)',
+            }}
           >
             {/* Search bar */}
-            <div className="flex items-center gap-2 px-4 h-14 border-b border-ip-border bg-ip-surface flex-shrink-0">
+            <div className="flex items-center gap-2 px-4 h-14 border-b border-ip-border flex-shrink-0" style={{ backgroundColor: '#FFFFFF' }}>
               <button
                 onClick={() => { setSearchOpen(false); setSearch(""); }}
                 className="w-9 h-9 rounded-full flex items-center justify-center text-ip-text-2 hover:text-ip-text hover:bg-ip-surface-2 active:scale-95 transition-all duration-150"
@@ -228,7 +231,7 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
             </div>
 
             {/* Scrollable content */}
-            <div className="flex-1 overflow-y-auto ip-light-scroll">
+            <div className="flex-1 overflow-y-auto ip-light-scroll" style={{ backgroundColor: '#FFFFFF' }}>
               {/* Results */}
               {search.trim() && (
                 <div className="px-4 pt-4 pb-8">
@@ -309,7 +312,7 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
       </AnimatePresence>
 
       {/* ============================================================
-          MENU OVERLAY — Clean, sectioned, token-driven
+          MENU OVERLAY — Solid white, sectioned, token-driven
           ============================================================ */}
       <AnimatePresence>
         {menuOpen && (
@@ -318,12 +321,16 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-[60] bg-ip-surface ip-light-page flex flex-col"
+            className="fixed inset-0 z-[60] flex flex-col"
+            style={{
+              backgroundColor: '#FFFFFF',
+              paddingTop: 'var(--ip-safe-top)',
+            }}
           >
             {/* Header bar */}
             <div
-              className="flex items-center justify-between px-4 h-14 border-b border-ip-border bg-ip-surface flex-shrink-0"
-              style={{ paddingTop: 'var(--ip-safe-top)', height: 'calc(3.5rem + var(--ip-safe-top))' }}
+              className="flex items-center justify-between px-4 h-14 border-b border-ip-border flex-shrink-0"
+              style={{ backgroundColor: '#FFFFFF' }}
             >
               <Link href="/" className="flex items-center gap-2.5" onClick={() => setMenuOpen(false)}>
                 <div className="w-8 h-8 rounded-lg bg-ip-blue flex items-center justify-center">
@@ -344,7 +351,13 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
             </div>
 
             {/* Scrollable content */}
-            <div className="flex-1 overflow-y-auto ip-light-scroll" style={{ paddingBottom: 'var(--ip-safe-bottom)' }}>
+            <div
+              className="flex-1 overflow-y-auto ip-light-scroll"
+              style={{
+                backgroundColor: '#FFFFFF',
+                paddingBottom: 'var(--ip-safe-bottom)'
+              }}
+            >
 
               {/* ---------- User section ---------- */}
               <div className="px-4 py-4 border-b border-ip-border">
