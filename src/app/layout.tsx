@@ -7,7 +7,12 @@ import ClientRootLayout from "./ClientRootLayout";
 import { Analytics } from "@vercel/analytics/react";
 import { RegionProvider } from "@/contexts/RegionContext";
 
-const inter = Inter({ subsets: ["latin"] });
+// ✅ CHANGE 1: added variable + display
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 // Site Configuration
 const SITE_NAME = "InsightPip";
@@ -163,7 +168,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="en" className={inter.variable}>
       <head>
         {/* Preconnect to critical third-party domains */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -178,7 +183,7 @@ export default function RootLayout({
         {/* JSON-LD Structured Data */}
         <JsonLdSchemas />
       </head>
-      <body>
+      <body className={inter.variable}>
         <RegionProvider>
           <ClientRootLayout>{children}</ClientRootLayout>
         </RegionProvider>
