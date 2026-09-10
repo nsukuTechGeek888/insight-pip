@@ -1,11 +1,10 @@
-// components/home/MobileHome.tsx
-// PHASE 2 — LIGHT BODY SYSTEM (Dark header + Light content)
-// All colors hardcoded inline (no CSS-variable dependencies)
+// components/home/MobileHome.tsx - CLEAN LIGHT UI
+// Dark header + light body system (matches MobileHeader + BottomNavigation)
 
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
@@ -13,15 +12,19 @@ import { useRegion } from '@/contexts/RegionContext';
 import {
   Star, Shield, Building2, MessageCircle,
   AlertTriangle, CheckCircle, ArrowRight,
-  Clock, XCircle, Activity,
-  TrendingUp, Crown, Medal,
-  User, Percent, GitCompare,
-  Trophy, Globe, Gift, BookOpen, Calculator, Home,
-  ArrowLeftRight, Search, Menu
+  Clock, Crown, Gift,
+  XCircle, Activity,
+  TrendingUp,
+  Home, ChevronDown,
+  Layers,
+  Globe,
+  Trophy, Medal,
+  GitCompare,
+  ChevronLeft, ChevronRight as ChevronRightIcon, User, Percent
 } from 'lucide-react';
 import MobileLayout from '@/components/mobile/MobileLayout';
 
-// ===================== HARDCODED TOKENS =====================
+// ===================== HARDCODED LIGHT TOKENS =====================
 const T = {
   bg: '#FFFFFF',
   surface: '#FFFFFF',
@@ -32,7 +35,9 @@ const T = {
   text: '#0A0E1A',
   text2: '#6B7280',
   text3: '#9CA3AF',
+  textInvert: '#FFFFFF',
   blue: '#2563EB',
+  blueHover: '#1D4ED8',
   blueSoft: '#EFF6FF',
   green: '#16A34A',
   greenSoft: '#DCFCE7',
@@ -41,8 +46,7 @@ const T = {
   red: '#DC2626',
   redSoft: '#FEE2E2',
   gold: '#D97706',
-  purple: '#9333EA',
-  purpleSoft: '#F3E8FF',
+  goldSoft: '#FEF3C7',
 };
 
 // ===================== REGION =====================
@@ -81,10 +85,10 @@ const isAvailableInRegion = (firm: any, region: string) => {
   return true;
 };
 
-// ===================== SUB-COMPONENTS =====================
+// ===================== COMPONENTS =====================
 
-function StarRating({ rating, count = 0, size = 'sm' }: { rating: number; count?: number; size?: 'sm' | 'md' }) {
-  const starSize = size === 'md' ? 14 : 12;
+function StarRating({ rating, count = 0, size = "sm" }: { rating: number; count?: number; size?: "sm" | "md" }) {
+  const starSize = size === "md" ? "w-4 h-4" : "w-3 h-3";
   const hasReviews = count > 0;
   const displayRating = hasReviews ? Math.min(5, Math.max(0, rating || 0)) : 0;
   const roundedRating = Math.round(displayRating);
@@ -95,10 +99,7 @@ function StarRating({ rating, count = 0, size = 'sm' }: { rating: number; count?
         {[1, 2, 3, 4, 5].map((i) => (
           <Star
             key={i}
-            size={starSize}
-            strokeWidth={1.75}
-            className={i <= roundedRating && hasReviews ? 'fill-current' : ''}
-            style={{ color: i <= roundedRating && hasReviews ? '#FBBF24' : T.text3 }}
+            className={`${starSize} ${i <= roundedRating && hasReviews ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-300'}`}
           />
         ))}
       </div>
@@ -112,20 +113,26 @@ function StarRating({ rating, count = 0, size = 'sm' }: { rating: number; count?
   );
 }
 
-function TrustScoreDisplay({ score, size = 'sm' }: { score: number; size?: 'sm' | 'md' }) {
+function TrustScoreDisplay({ score, size = "sm" }: { score: number; size?: "sm" | "md" }) {
   const normalizedScore = Math.min(100, Math.max(0, score || 0));
-  let fg = T.red, bg = T.redSoft, label = 'Low';
-  if (normalizedScore >= 80) { fg = T.green; bg = T.greenSoft; label = 'High'; }
-  else if (normalizedScore >= 60) { fg = T.amber; bg = T.amberSoft; label = 'Medium'; }
+
+  const getStyle = () => {
+    if (normalizedScore >= 80) return { bg: T.greenSoft, color: T.green, label: 'High Trust' };
+    if (normalizedScore >= 60) return { bg: T.amberSoft, color: T.amber, label: 'Medium Trust' };
+    return { bg: T.redSoft, color: T.red, label: 'Low Trust' };
+  };
+
+  const s = getStyle();
 
   return (
-    <div
-      className={`flex items-center gap-1.5 rounded-full ${size === 'md' ? 'px-2.5 py-1' : 'px-2 py-0.5'}`}
-      style={{ backgroundColor: bg }}
-    >
-      <Shield size={size === 'md' ? 14 : 10} style={{ color: fg }} />
-      <span className={`${size === 'md' ? 'text-sm' : 'text-[10px]'} font-medium`} style={{ color: fg }}>{label}</span>
-      <span className={`${size === 'md' ? 'text-base' : 'text-xs'} font-bold`} style={{ color: T.text }}>{normalizedScore}</span>
+    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full" style={{ backgroundColor: s.bg }}>
+      <Shield size={size === "md" ? 14 : 10} style={{ color: s.color }} />
+      <span className={`${size === "md" ? "text-sm" : "text-[10px]"} font-medium`} style={{ color: s.color }}>
+        {s.label}
+      </span>
+      <span className={`${size === "md" ? "text-base" : "text-xs"} font-bold`} style={{ color: T.text }}>
+        {normalizedScore}
+      </span>
     </div>
   );
 }
@@ -134,10 +141,10 @@ function RankingEntry({ rank, entity, onClick, index }: { rank: number; entity: 
   const isTop3 = rank <= 3;
 
   const getRankDisplay = () => {
-    if (rank === 1) return <Crown size={14} style={{ color: T.gold }} />;
-    if (rank === 2) return <Medal size={14} style={{ color: T.text3 }} />;
-    if (rank === 3) return <Medal size={14} style={{ color: '#B45309' }} />;
-    return <span className="font-mono text-xs w-4 text-center" style={{ color: T.text3 }}>{rank}</span>;
+    if (rank === 1) return <Crown size={12} style={{ color: T.gold }} />;
+    if (rank === 2) return <Medal size={12} style={{ color: T.text3 }} />;
+    if (rank === 3) return <Medal size={12} style={{ color: '#92400E' }} />;
+    return <span className="text-xs font-mono w-4 text-center" style={{ color: T.text3 }}>{rank}</span>;
   };
 
   const logoUrl = entity.logo || null;
@@ -148,13 +155,10 @@ function RankingEntry({ rank, entity, onClick, index }: { rank: number; entity: 
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={onClick}
-      className="flex items-center gap-3 py-3 cursor-pointer active:scale-[0.99] transition-transform"
+      className="flex items-center gap-3 py-2.5 px-2 -mx-2 rounded-lg cursor-pointer transition-all"
       style={{
         borderBottom: `1px solid ${T.border}`,
-        backgroundColor: isTop3 ? '#FFFBEB' : 'transparent',
-        paddingLeft: isTop3 ? 8 : 0,
-        paddingRight: isTop3 ? 8 : 0,
-        borderRadius: isTop3 ? 8 : 0,
+        backgroundColor: isTop3 ? 'rgba(217,119,6,0.04)' : 'transparent',
       }}
     >
       <div className="w-6 flex items-center justify-center flex-shrink-0">
@@ -162,7 +166,7 @@ function RankingEntry({ rank, entity, onClick, index }: { rank: number; entity: 
       </div>
 
       <div
-        className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center"
+        className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center"
         style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}` }}
       >
         {logoUrl ? (
@@ -190,19 +194,21 @@ function RankingEntry({ rank, entity, onClick, index }: { rank: number; entity: 
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-sm truncate" style={{ color: T.text }}>{entity.name}</span>
-          {entity.regulated && <CheckCircle size={12} style={{ color: T.green }} className="flex-shrink-0" />}
+          <span className="font-medium text-sm truncate" style={{ color: T.text }}>{entity.name}</span>
+          {entity.regulated && (
+            <CheckCircle size={10} className="flex-shrink-0" style={{ color: T.green }} />
+          )}
         </div>
-        <div className="flex items-center gap-2 text-[11px] mt-0.5">
+        <div className="flex items-center gap-2 text-[10px]">
           <StarRating rating={entity.rating || 0} count={entity.reviewCount || 0} />
-          <span style={{ color: T.text3 }}>·</span>
-          <span className="truncate" style={{ color: T.text3 }}>{entity.country || 'International'}</span>
+          <span style={{ color: T.text3 }}>•</span>
+          <span style={{ color: T.text3 }}>{entity.country || 'International'}</span>
         </div>
       </div>
 
       <div className="flex items-center gap-2 flex-shrink-0">
         <TrustScoreDisplay score={entity.trustScore || 0} />
-        <ArrowRight size={14} style={{ color: T.text3 }} />
+        <ArrowRight size={12} style={{ color: T.text3 }} />
       </div>
     </motion.div>
   );
@@ -253,7 +259,7 @@ function OfferCard({ offer, type, index }: { offer: any; type: 'broker' | 'prop'
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.06 }}
       onClick={handleClick}
-      className="flex items-center gap-3 p-3 rounded-xl cursor-pointer active:scale-[0.99] transition-transform"
+      className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all"
       style={{ backgroundColor: T.surface, border: `1px solid ${T.border}` }}
     >
       <div
@@ -285,40 +291,37 @@ function OfferCard({ offer, type, index }: { offer: any; type: 'broker' | 'prop'
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-sm truncate" style={{ color: T.text }}>{offer.name}</span>
+          <span className="font-medium text-sm truncate" style={{ color: T.text }}>{offer.name}</span>
           <span
-            className="text-[9px] px-1.5 py-0.5 rounded-full font-medium flex-shrink-0"
+            className="text-[8px] px-1.5 py-0.5 rounded-full"
             style={
               isBroker
                 ? { backgroundColor: T.blueSoft, color: T.blue }
-                : { backgroundColor: T.purpleSoft, color: T.purple }
+                : { backgroundColor: '#F3E8FF', color: '#9333EA' }
             }
           >
             {isBroker ? 'Broker' : 'Prop'}
           </span>
         </div>
         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-          <span className="text-xs font-medium truncate" style={{ color: T.amber }}>{offerText}</span>
+          <span className="text-xs font-medium truncate" style={{ color: T.gold }}>{offerText}</span>
           {hasDiscount && (
-            <span
-              className="text-[9px] px-1.5 py-0.5 rounded-full font-medium"
-              style={{ backgroundColor: T.greenSoft, color: T.green }}
-            >
+            <span className="text-[8px] px-1.5 py-0.5 rounded-full" style={{ backgroundColor: T.greenSoft, color: T.green }}>
               {discountText}% OFF
             </span>
           )}
         </div>
         {hasExpiry && (
           <div className="flex items-center gap-1 mt-0.5">
-            <Clock size={10} style={{ color: T.text3 }} />
-            <span className="text-[10px]" style={{ color: T.text3 }}>
+            <Clock size={8} style={{ color: T.text3 }} />
+            <span className="text-[8px]" style={{ color: T.text3 }}>
               Expires: {new Date(expiry).toLocaleDateString()}
             </span>
           </div>
         )}
       </div>
 
-      <ArrowRight size={16} style={{ color: T.text3 }} className="flex-shrink-0" />
+      <ArrowRight size={14} className="flex-shrink-0" style={{ color: T.text3 }} />
     </motion.div>
   );
 }
@@ -345,7 +348,6 @@ export default function MobileHome() {
 
   const regionInfo = REGION_DISPLAY[region] || REGION_DISPLAY['GLOBAL'];
 
-  // Fetch data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -378,7 +380,6 @@ export default function MobileHome() {
     fetchData();
   }, [region]);
 
-  // Enrich
   useEffect(() => {
     const enrichFirms = async () => {
       if (brokers.length === 0 && propFirms.length === 0) return;
@@ -454,8 +455,12 @@ export default function MobileHome() {
     const combined: any[] = [];
     const maxLen = Math.max(brokerOffers.length, propFirmOffers.length);
     for (let i = 0; i < maxLen; i++) {
-      if (i < brokerOffers.length) combined.push({ ...brokerOffers[i], _type: 'broker' as const });
-      if (i < propFirmOffers.length) combined.push({ ...propFirmOffers[i], _type: 'prop' as const });
+      if (i < brokerOffers.length) {
+        combined.push({ ...brokerOffers[i], _type: 'broker' as const });
+      }
+      if (i < propFirmOffers.length) {
+        combined.push({ ...propFirmOffers[i], _type: 'prop' as const });
+      }
     }
     return combined.slice(0, 6);
   }, [brokerOffers, propFirmOffers, offersTab]);
@@ -464,33 +469,44 @@ export default function MobileHome() {
     { id: 'brokers', label: 'Top Brokers', icon: Building2, data: topBrokers, type: 'broker' as const, emptyMessage: 'No brokers available in your region' },
     { id: 'propFirms', label: 'Top Prop Firms', icon: TrendingUp, data: topPropFirms, type: 'prop' as const, emptyMessage: 'No prop firms available in your region' },
   ];
+
   const totalSlides = slides.length;
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setIsDragging(true);
     setStartX(e.touches[0].clientX);
   };
+
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return;
-    setOffsetX(startX - e.touches[0].clientX);
+    const currentX = e.touches[0].clientX;
+    setOffsetX(startX - currentX);
   };
+
   const handleTouchEnd = () => {
     setIsDragging(false);
     const threshold = 50;
-    if (offsetX > threshold && currentSlide < totalSlides - 1) setCurrentSlide(currentSlide + 1);
-    else if (offsetX < -threshold && currentSlide > 0) setCurrentSlide(currentSlide - 1);
+    if (offsetX > threshold && currentSlide < totalSlides - 1) {
+      setCurrentSlide(currentSlide + 1);
+    } else if (offsetX < -threshold && currentSlide > 0) {
+      setCurrentSlide(currentSlide - 1);
+    }
     setOffsetX(0);
   };
 
+  const handleDotClick = (index: number) => {
+    setCurrentSlide(index);
+  };
+
   const incidentTypeMap: Record<string, { icon: any; color: string; label: string }> = {
-    WITHDRAWAL_DELAY: { icon: Clock, color: T.amber, label: 'Withdrawal Delay' },
-    WITHDRAWAL_REJECTED: { icon: XCircle, color: T.red, label: 'Withdrawal Rejected' },
-    SCAM_WARNING: { icon: AlertTriangle, color: T.red, label: 'Scam Warning' },
-    ACCOUNT_SUSPENDED: { icon: AlertTriangle, color: T.red, label: 'Account Suspended' },
-    WITHDRAWAL_PAID: { icon: CheckCircle, color: T.green, label: 'Withdrawal Paid' },
-    PLATFORM_FREEZE: { icon: Activity, color: T.amber, label: 'Platform Freeze' },
-    SERVER_DOWN: { icon: AlertTriangle, color: T.red, label: 'Server Down' },
-    EXECUTION_DELAY: { icon: Clock, color: T.amber, label: 'Execution Delay' },
+    'WITHDRAWAL_DELAY': { icon: Clock, color: T.amber, label: 'Withdrawal Delay' },
+    'WITHDRAWAL_REJECTED': { icon: XCircle, color: T.red, label: 'Withdrawal Rejected' },
+    'SCAM_WARNING': { icon: AlertTriangle, color: T.red, label: 'Scam Warning' },
+    'ACCOUNT_SUSPENDED': { icon: AlertTriangle, color: T.red, label: 'Account Suspended' },
+    'WITHDRAWAL_PAID': { icon: CheckCircle, color: T.green, label: 'Withdrawal Paid' },
+    'PLATFORM_FREEZE': { icon: Activity, color: T.amber, label: 'Platform Freeze' },
+    'SERVER_DOWN': { icon: AlertTriangle, color: T.red, label: 'Server Down' },
+    'EXECUTION_DELAY': { icon: Clock, color: T.amber, label: 'Execution Delay' },
   };
 
   const totalReviews = [...enrichedBrokers, ...enrichedPropFirms].reduce((sum, f) => sum + (f.reviewCount || 0), 0);
@@ -504,7 +520,10 @@ export default function MobileHome() {
       <MobileLayout title="InsightPip" showSearch={false}>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 mx-auto" style={{ borderColor: T.blue }} />
+            <div
+              className="animate-spin rounded-full h-8 w-8 mx-auto"
+              style={{ border: `2px solid ${T.border}`, borderTopColor: T.blue }}
+            />
             <p className="text-xs mt-3" style={{ color: T.text3 }}>Loading...</p>
           </div>
         </div>
@@ -516,7 +535,7 @@ export default function MobileHome() {
     return (
       <MobileLayout title="InsightPip" showSearch={false}>
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
-          <Globe size={48} style={{ color: T.text3 }} className="mx-auto mb-4" />
+          <Globe size={48} className="mx-auto mb-4" style={{ color: T.text3 }} />
           <h2 className="text-xl font-bold mb-2" style={{ color: T.text }}>
             No trading partners in {regionInfo.flag} {regionInfo.label}
           </h2>
@@ -528,7 +547,7 @@ export default function MobileHome() {
               const selector = document.querySelector('[data-region-selector]');
               if (selector) (selector as HTMLElement).click();
             }}
-            className="px-6 py-3 rounded-lg text-sm font-medium text-white"
+            className="px-6 py-3 rounded-lg transition-colors text-sm text-white"
             style={{ backgroundColor: T.blue }}
           >
             Change Region
@@ -542,7 +561,7 @@ export default function MobileHome() {
     <MobileLayout title="InsightPip" showSearch={false}>
       <div className="space-y-6 pb-6">
 
-        {/* 1. HERO */}
+        {/* HERO */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -558,14 +577,14 @@ export default function MobileHome() {
           <div className="flex gap-3 mt-4">
             <Link
               href="/rankings"
-              className="px-5 py-2.5 rounded-lg text-sm font-medium text-white flex items-center gap-1.5 active:scale-[0.98] transition-transform"
+              className="px-5 py-2.5 rounded-lg text-sm font-medium flex items-center gap-1.5 text-white"
               style={{ backgroundColor: T.blue }}
             >
               Explore Rankings <ArrowRight size={14} />
             </Link>
             <Link
               href="/compare"
-              className="px-5 py-2.5 rounded-lg text-sm font-medium flex items-center gap-1.5 active:scale-[0.98] transition-transform"
+              className="px-5 py-2.5 rounded-lg text-sm font-medium flex items-center gap-1.5"
               style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}`, color: T.text }}
             >
               <GitCompare size={14} style={{ color: T.text2 }} /> Compare
@@ -573,16 +592,16 @@ export default function MobileHome() {
           </div>
         </motion.div>
 
-        {/* 2. INTELLIGENCE */}
+        {/* INTELLIGENCE */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="rounded-xl p-4"
+          className="rounded-lg p-4"
           style={{ backgroundColor: T.surface, border: `1px solid ${T.border}` }}
         >
           <div className="flex items-center gap-2 mb-3">
-            <TrendingUp size={16} style={{ color: T.blue }} />
+            <TrendingUp size={14} style={{ color: T.blue }} />
             <h2 className="text-sm font-semibold" style={{ color: T.text }}>InsightPip Intelligence</h2>
           </div>
           <div className="grid grid-cols-3 gap-2">
@@ -601,7 +620,7 @@ export default function MobileHome() {
           </div>
         </motion.div>
 
-        {/* 3. RANKINGS */}
+        {/* RANKINGS SLIDER */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -609,53 +628,55 @@ export default function MobileHome() {
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Trophy size={18} style={{ color: T.gold }} />
+              <Trophy size={16} style={{ color: T.gold }} />
               <h2 className="text-base font-semibold" style={{ color: T.text }}>The Trust Rankings</h2>
             </div>
-            <Link href="/rankings" className="text-xs font-medium flex items-center gap-1" style={{ color: T.blue }}>
+            <Link href="/rankings" className="text-xs flex items-center gap-1" style={{ color: T.blue }}>
               View all <ArrowRight size={12} />
             </Link>
           </div>
 
-          <div className="rounded-xl overflow-hidden" style={{ backgroundColor: T.surface, border: `1px solid ${T.border}` }}>
-            <div className="flex items-center justify-between px-4 pt-3 pb-2">
+          <div className="relative rounded-lg overflow-hidden" style={{ backgroundColor: T.surface, border: `1px solid ${T.border}` }}>
+            <div className="flex items-center justify-between px-4 pt-3 pb-1">
               <div className="flex gap-1">
-                {slides.map((slide, index) => {
-                  const Icon = slide.icon;
-                  const active = currentSlide === index;
-                  return (
-                    <button
-                      key={slide.id}
-                      onClick={() => setCurrentSlide(index)}
-                      className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium transition-all"
-                      style={active ? { backgroundColor: T.blue, color: '#FFFFFF' } : { color: T.text3 }}
-                    >
-                      <Icon size={12} />
-                      {slide.label}
-                    </button>
-                  );
-                })}
+                {slides.map((slide, index) => (
+                  <button
+                    key={slide.id}
+                    onClick={() => setCurrentSlide(index)}
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-medium transition-all"
+                    style={
+                      currentSlide === index
+                        ? { backgroundColor: T.blue, color: T.textInvert }
+                        : { color: T.text3, backgroundColor: 'transparent' }
+                    }
+                  >
+                    <slide.icon size={12} />
+                    {slide.label}
+                  </button>
+                ))}
               </div>
               <span className="text-[10px]" style={{ color: T.text3 }}>
                 {currentSlide + 1} / {totalSlides}
               </span>
             </div>
 
-            <div className="flex items-center justify-center gap-1 px-4 pb-2">
-              {slides.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className="h-1 rounded-full transition-all"
-                  style={{
-                    width: currentSlide === index ? 24 : 8,
-                    backgroundColor: currentSlide === index ? T.blue : T.borderStrong,
-                  }}
-                />
-              ))}
+            <div className="flex items-center justify-center gap-1 px-4 pb-1">
+              <div className="flex gap-1">
+                {slides.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleDotClick(index)}
+                    className="h-1 rounded-full transition-all"
+                    style={{
+                      width: currentSlide === index ? '24px' : '8px',
+                      backgroundColor: currentSlide === index ? T.blue : T.borderStrong,
+                    }}
+                  />
+                ))}
+              </div>
             </div>
 
-            <div className="text-center text-[9px] pb-2" style={{ color: T.text3 }}>
+            <div className="text-center text-[8px] pb-1" style={{ color: T.text3 }}>
               ← Swipe to see more →
             </div>
 
@@ -674,29 +695,53 @@ export default function MobileHome() {
               >
                 {slides.map((slide) => (
                   <div key={slide.id} className="w-full px-3 pb-3 flex-shrink-0">
+                    <p className="text-[10px] uppercase tracking-wider mb-2" style={{ color: T.text3 }}>
+                      {slide.label}
+                    </p>
                     {slide.data.length > 0 ? (
-                      <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${T.border}` }}>
-                        {slide.data.map((entity, index) => (
-                          <RankingEntry
-                            key={entity.id}
-                            rank={index + 1}
-                            entity={entity}
-                            index={index}
-                            onClick={() => handleNavigate(entity.id, entity.name, slide.type)}
-                          />
-                        ))}
-                      </div>
+                      slide.data.map((entity, index) => (
+                        <RankingEntry
+                          key={entity.id}
+                          rank={index + 1}
+                          entity={entity}
+                          index={index}
+                          onClick={() => handleNavigate(entity.id, entity.name, slide.type)}
+                        />
+                      ))
                     ) : (
-                      <p className="text-sm text-center py-6" style={{ color: T.text3 }}>{slide.emptyMessage}</p>
+                      <p className="text-sm text-center py-4" style={{ color: T.text3 }}>
+                        {slide.emptyMessage}
+                      </p>
                     )}
                   </div>
                 ))}
               </motion.div>
             </div>
+
+            <div className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-between px-1">
+              {currentSlide > 0 && (
+                <button
+                  onClick={() => setCurrentSlide(currentSlide - 1)}
+                  className="pointer-events-auto w-7 h-7 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: T.surface, border: `1px solid ${T.border}`, color: T.text2 }}
+                >
+                  <ChevronLeft size={14} />
+                </button>
+              )}
+              {currentSlide < totalSlides - 1 && (
+                <button
+                  onClick={() => setCurrentSlide(currentSlide + 1)}
+                  className="pointer-events-auto w-7 h-7 rounded-full flex items-center justify-center ml-auto"
+                  style={{ backgroundColor: T.surface, border: `1px solid ${T.border}`, color: T.text2 }}
+                >
+                  <ChevronRightIcon size={14} />
+                </button>
+              )}
+            </div>
           </div>
         </motion.div>
 
-        {/* 4. OFFERS */}
+        {/* OFFERS */}
         {filteredOffers.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -705,40 +750,45 @@ export default function MobileHome() {
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Percent size={18} style={{ color: T.blue }} />
+                <Percent size={16} style={{ color: T.blue }} />
                 <h2 className="text-base font-semibold" style={{ color: T.text }}>Offers</h2>
               </div>
-              <Link href="/offers" className="text-xs font-medium flex items-center gap-1" style={{ color: T.blue }}>
+              <Link href="/offers" className="text-xs flex items-center gap-1" style={{ color: T.blue }}>
                 View all <ArrowRight size={12} />
               </Link>
             </div>
 
-            <div className="flex gap-1 rounded-xl p-1 mb-3" style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}` }}>
-              {(['all', 'brokers', 'propFirms'] as const).map((tab) => {
-                const active = offersTab === tab;
-                const label = tab === 'all' ? 'All' : tab === 'brokers' ? 'Brokers' : 'Prop Firms';
-                return (
-                  <button
-                    key={tab}
-                    onClick={() => setOffersTab(tab)}
-                    className="flex-1 py-1.5 rounded-md text-xs font-medium transition-all"
-                    style={active ? { backgroundColor: T.blue, color: '#FFFFFF' } : { color: T.text2 }}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
+            <div className="flex gap-1 rounded-lg p-1 mb-3" style={{ backgroundColor: T.surface, border: `1px solid ${T.border}` }}>
+              {(['all', 'brokers', 'propFirms'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setOffersTab(tab)}
+                  className="flex-1 py-1.5 rounded-md text-xs font-medium transition-all"
+                  style={
+                    offersTab === tab
+                      ? { backgroundColor: T.blue, color: T.textInvert }
+                      : { color: T.text2, backgroundColor: 'transparent' }
+                  }
+                >
+                  {tab === 'all' ? 'All' : tab === 'brokers' ? 'Brokers' : 'Prop Firms'}
+                </button>
+              ))}
             </div>
 
             <div className="space-y-2">
               {filteredOffers.slice(0, 4).map((offer, index) => (
-                <OfferCard key={`${offer._type}-${offer.id}`} offer={offer} type={offer._type} index={index} />
+                <OfferCard
+                  key={`${offer._type}-${offer.id}`}
+                  offer={offer}
+                  type={offer._type}
+                  index={index}
+                />
               ))}
             </div>
           </motion.div>
         )}
 
-        {/* 5. TRADER VOICES */}
+        {/* TRADER VOICES */}
         {recentReviews.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -747,10 +797,10 @@ export default function MobileHome() {
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <MessageCircle size={18} style={{ color: T.blue }} />
+                <MessageCircle size={16} style={{ color: T.blue }} />
                 <h2 className="text-base font-semibold" style={{ color: T.text }}>Trader Voices</h2>
               </div>
-              <Link href="/reviews" className="text-xs font-medium flex items-center gap-1" style={{ color: T.blue }}>
+              <Link href="/reviews" className="text-xs flex items-center gap-1" style={{ color: T.blue }}>
                 Read all <ArrowRight size={12} />
               </Link>
             </div>
@@ -760,49 +810,72 @@ export default function MobileHome() {
                 const entityLogo = review.entityLogo || null;
                 const userAvatar = review.user?.avatar || null;
                 const userName = review.user?.name || 'Anonymous';
+                const userInitial = userName.charAt(0).toUpperCase();
 
                 return (
-                  <div
-                    key={review.id}
-                    className="rounded-xl p-3"
-                    style={{ backgroundColor: T.surface, border: `1px solid ${T.border}` }}
-                  >
+                  <div key={review.id} className="rounded-lg p-3" style={{ backgroundColor: T.surface, border: `1px solid ${T.border}` }}>
                     <div className="flex items-center gap-2 mb-1.5">
-                      <div
-                        className="w-6 h-6 rounded-md overflow-hidden flex-shrink-0 flex items-center justify-center"
-                        style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}` }}
-                      >
+                      <div className="w-5 h-5 rounded-md overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}` }}>
                         {entityLogo ? (
-                          <img src={entityLogo} alt={review.entityName} className="w-full h-full object-cover" />
+                          <img
+                            src={entityLogo}
+                            alt={review.entityName}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                const fallback = document.createElement('span');
+                                fallback.className = 'font-bold text-[8px]';
+                                fallback.style.color = T.text;
+                                fallback.textContent = review.entityName?.charAt(0) || '?';
+                                parent.appendChild(fallback);
+                              }
+                            }}
+                          />
                         ) : (
-                          <span className="font-bold text-[10px]" style={{ color: T.text }}>
+                          <span className="font-bold text-[8px]" style={{ color: T.text }}>
                             {review.entityName?.charAt(0) || '?'}
                           </span>
                         )}
                       </div>
-                      <span className="text-xs font-medium" style={{ color: T.text }}>{review.entityName}</span>
-                      <span style={{ color: T.text3 }}>·</span>
+                      <span className="text-xs font-medium" style={{ color: T.text2 }}>{review.entityName}</span>
+                      <span className="text-[8px]" style={{ color: T.text3 }}>•</span>
                       <StarRating rating={review.rating || 0} size="sm" />
                     </div>
 
-                    <p className="text-sm leading-relaxed line-clamp-2" style={{ color: T.text2 }}>
+                    <p className="text-sm leading-relaxed line-clamp-2" style={{ color: T.text }}>
                       {review.content}
                     </p>
 
                     <div className="flex items-center gap-2 mt-2">
-                      <div
-                        className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center"
-                        style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}` }}
-                      >
+                      <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}` }}>
                         {userAvatar ? (
-                          <img src={userAvatar} alt={userName} className="w-full h-full object-cover" />
+                          <img
+                            src={userAvatar}
+                            alt={userName}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                const fallback = document.createElement('span');
+                                fallback.className = 'font-bold text-[8px]';
+                                fallback.style.color = T.text;
+                                fallback.textContent = userInitial;
+                                parent.appendChild(fallback);
+                              }
+                            }}
+                          />
                         ) : (
-                          <User size={11} style={{ color: T.text3 }} />
+                          <User size={10} style={{ color: T.text2 }} />
                         )}
                       </div>
-                      <span className="text-[11px]" style={{ color: T.text2 }}>{userName}</span>
-                      <span style={{ color: T.text3 }}>·</span>
-                      <span className="text-[11px]" style={{ color: T.text3 }}>
+                      <span className="text-[10px]" style={{ color: T.text3 }}>{userName}</span>
+                      <span className="text-[8px]" style={{ color: T.text3 }}>•</span>
+                      <span className="text-[10px]" style={{ color: T.text3 }}>
                         {new Date(review.createdAt).toLocaleDateString()}
                       </span>
                     </div>
@@ -813,7 +886,7 @@ export default function MobileHome() {
           </motion.div>
         )}
 
-        {/* 6. WHAT'S HAPPENING */}
+        {/* WHAT'S HAPPENING */}
         {recentIncidents.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -822,10 +895,10 @@ export default function MobileHome() {
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <AlertTriangle size={18} style={{ color: T.red }} />
+                <AlertTriangle size={16} style={{ color: T.red }} />
                 <h2 className="text-base font-semibold" style={{ color: T.text }}>What's Happening</h2>
               </div>
-              <Link href="/reviews?tab=incidents" className="text-xs font-medium flex items-center gap-1" style={{ color: T.blue }}>
+              <Link href="/reviews?tab=incidents" className="text-xs flex items-center gap-1" style={{ color: T.blue }}>
                 View all <ArrowRight size={12} />
               </Link>
             </div>
@@ -835,33 +908,26 @@ export default function MobileHome() {
                 const typeInfo = incidentTypeMap[incident.incidentType] || { icon: AlertTriangle, color: T.text3, label: 'Reported' };
                 const Icon = typeInfo.icon;
                 return (
-                  <div
-                    key={incident.id}
-                    className="rounded-xl p-3"
-                    style={{ backgroundColor: T.surface, border: `1px solid ${T.border}` }}
-                  >
+                  <div key={incident.id} className="rounded-lg p-3" style={{ backgroundColor: T.surface, border: `1px solid ${T.border}` }}>
                     <div className="flex items-start gap-2">
-                      <Icon size={16} style={{ color: typeInfo.color }} className="mt-0.5 flex-shrink-0" />
+                      <Icon size={14} className="mt-0.5 flex-shrink-0" style={{ color: typeInfo.color }} />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-sm truncate" style={{ color: T.text }}>
+                          <span className="font-medium text-sm truncate" style={{ color: T.text }}>
                             {incident.entityName || 'Unknown'}
                           </span>
-                          <span
-                            className="text-[9px] px-1.5 py-0.5 rounded-full font-medium flex-shrink-0"
-                            style={{ backgroundColor: T.redSoft, color: T.red }}
-                          >
+                          <span className="text-[8px] px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: T.redSoft, color: T.red }}>
                             {incident.status || 'PENDING'}
                           </span>
                         </div>
-                        <p className="text-xs mt-0.5" style={{ color: T.text2 }}>{incident.title}</p>
-                        <div className="flex items-center gap-2 mt-1 text-[10px]" style={{ color: T.text3 }}>
+                        <p className="text-xs" style={{ color: T.text2 }}>{incident.title}</p>
+                        <div className="flex items-center gap-3 mt-1 text-[10px]" style={{ color: T.text3 }}>
                           <span>{typeInfo.label}</span>
-                          <span>·</span>
+                          <span>•</span>
                           <span>{new Date(incident.incidentDate || incident.createdAt).toLocaleDateString()}</span>
                           {incident.confirmations > 0 && (
                             <>
-                              <span>·</span>
+                              <span>•</span>
                               <span>{incident.confirmations} confirmations</span>
                             </>
                           )}
@@ -875,38 +941,30 @@ export default function MobileHome() {
           </motion.div>
         )}
 
-        {/* 7. EXPLORE */}
+        {/* EXPLORE */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="rounded-xl p-4"
+          className="rounded-lg p-4"
           style={{ backgroundColor: T.surface, border: `1px solid ${T.border}` }}
         >
           <h2 className="text-sm font-semibold mb-3" style={{ color: T.text }}>Explore Trading Partners</h2>
           <div className="grid grid-cols-2 gap-3">
-            <Link
-              href="/brokers"
-              className="p-3 rounded-lg text-center active:scale-[0.98] transition-transform"
-              style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}` }}
-            >
-              <Building2 size={20} style={{ color: T.blue }} className="mx-auto mb-1" />
+            <Link href="/brokers" className="p-3 rounded-lg text-center transition-colors" style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}` }}>
+              <Building2 size={20} className="mx-auto mb-1" style={{ color: T.blue }} />
               <div className="text-sm font-medium" style={{ color: T.text }}>Brokers</div>
-              <div className="text-[10px]" style={{ color: T.text3 }}>Research & reviews</div>
+              <div className="text-[10px]" style={{ color: T.text3 }}>Research, reviews, incidents</div>
             </Link>
-            <Link
-              href="/prop-firms"
-              className="p-3 rounded-lg text-center active:scale-[0.98] transition-transform"
-              style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}` }}
-            >
-              <TrendingUp size={20} style={{ color: T.purple }} className="mx-auto mb-1" />
+            <Link href="/prop-firms" className="p-3 rounded-lg text-center transition-colors" style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}` }}>
+              <TrendingUp size={20} className="mx-auto mb-1" style={{ color: '#9333EA' }} />
               <div className="text-sm font-medium" style={{ color: T.text }}>Prop Firms</div>
-              <div className="text-[10px]" style={{ color: T.text3 }}>Challenges & rules</div>
+              <div className="text-[10px]" style={{ color: T.text3 }}>Challenges, rules, offers</div>
             </Link>
           </div>
         </motion.div>
 
-        {/* 8. BRAND STATEMENT */}
+        {/* BRAND STATEMENT */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -915,13 +973,9 @@ export default function MobileHome() {
           style={{ borderTop: `1px solid ${T.border}` }}
         >
           <p className="text-sm italic" style={{ color: T.text2 }}>
-            "Before you trade with them, <span style={{ color: T.text, fontStyle: 'normal', fontWeight: 600 }}>know them</span>."
+            "Before you trade with them, <span style={{ color: T.text, fontStyle: 'normal' }}>know them</span>."
           </p>
-          <Link
-            href="/brokers"
-            className="inline-flex items-center gap-2 mt-3 text-sm font-medium"
-            style={{ color: T.blue }}
-          >
+          <Link href="/brokers" className="inline-flex items-center gap-2 mt-3 text-sm font-medium" style={{ color: T.blue }}>
             Research Brokers <ArrowRight size={14} />
           </Link>
         </motion.div>
