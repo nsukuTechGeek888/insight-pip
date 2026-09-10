@@ -1,11 +1,14 @@
-﻿'use client';
+﻿// src/components/mobile/MobileHeader.tsx
+// PHASE 1 REDESIGN — Dark navy branded header, refined lockup, token-based colors
 
-import { useState, useMemo } from "react";
+'use client';
+
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Search, Menu, X, Home, Trophy, TrendingUp, Scale, BookOpen, 
+import {
+  Search, Menu, X, Home, Trophy, TrendingUp, Scale, BookOpen,
   User, Star, Gift, ArrowRight, Calculator, LogOut, CircleUserRound,
-  Settings, HelpCircle, Shield, Crown
+  Settings, HelpCircle, Crown, ChevronRight
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -28,52 +31,63 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
   const { dynamicItem, updateDynamicItem } = useNavigation();
   const { user, isLoading, logout } = useUser();
 
-  // Main navigation items - with keys for dynamic items
+  // Lock body scroll while overlay is open
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (searchOpen || menuOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev; };
+    }
+  }, [searchOpen, menuOpen]);
+
+  // ===================== NAVIGATION ITEMS =====================
   const mainNavItems = [
-    { icon: Home, label: "Home", path: "/" },
-    { icon: Gift, label: "Offers", path: "/offers" },
-    { icon: Trophy, label: "Prop Firms", path: "/prop-firms" },
-    { icon: TrendingUp, label: "Brokers", path: "/brokers" },
-    { icon: Scale, label: "Compare", path: "/compare" },
-    // These items can change the dynamic bottom nav
-    { icon: Star, label: "Reviews", path: "/reviews", key: "reviews" },
-    { icon: BookOpen, label: "Blog", path: "/blog", key: "blog" },
-    { icon: Calculator, label: "Tools", path: "/tools", key: "tools" },
+    { icon: Home,       label: "Home",       path: "/" },
+    { icon: Gift,       label: "Offers",     path: "/offers" },
+    { icon: Trophy,     label: "Prop Firms", path: "/prop-firms" },
+    { icon: TrendingUp, label: "Brokers",    path: "/brokers" },
+    { icon: Scale,      label: "Compare",    path: "/compare" },
+    { icon: Star,       label: "Reviews",    path: "/reviews", key: "reviews" },
+    { icon: BookOpen,   label: "Blog",       path: "/blog",    key: "blog" },
+    { icon: Calculator, label: "Tools",      path: "/tools",   key: "tools" },
   ];
 
-  // Account navigation
   const accountNavItems = [
-    { icon: CircleUserRound, label: "Dashboard", path: "/dashboard" },
-    { icon: User, label: "Profile", path: "/dashboard/profile" },
-    { icon: HelpCircle, label: "Help", path: "/help" },
+    { icon: CircleUserRound, label: "Dashboard",     path: "/dashboard" },
+    { icon: User,            label: "Profile Settings", path: "/dashboard/profile" },
+    { icon: HelpCircle,      label: "Help & Support", path: "/help" },
   ];
 
-  // Search data
+  // ===================== SEARCH DATA =====================
   const allData = useMemo(() => {
-    const brokers = brokersData.map(broker => ({
+    const brokers = brokersData.map((broker: any) => ({
       ...broker,
       type: "broker" as const,
-      searchableText: `${broker.name} ${broker.country} ${broker.description || ""} ${broker.regulation || ""}`.toLowerCase()
+      searchableText: `${broker.name} ${broker.country} ${broker.description || ""} ${broker.regulation || ""}`.toLowerCase(),
     }));
-    
-    const propFirms = challengesData.map(firm => ({
+
+    const propFirms = challengesData.map((firm: any) => ({
       ...firm,
       type: "prop-firm" as const,
-      searchableText: `${firm.name} ${firm.country} ${firm.description || ""} ${firm.programs?.map((p: any) => p.type).join(" ") || ""}`.toLowerCase()
+      searchableText: `${firm.name} ${firm.country} ${firm.description || ""} ${(firm.programs?.map((p: any) => p.type).join(" ") || "")}`.toLowerCase(),
     }));
-    
+
     return [...brokers, ...propFirms];
   }, []);
 
   const searchResults = useMemo(() => {
     if (!search.trim()) return [];
     const searchTerm = search.toLowerCase();
-    return allData.filter(item => 
-      item.searchableText.includes(searchTerm) || 
-      item.name.toLowerCase().includes(searchTerm)
-    ).slice(0, 8);
+    return allData
+      .filter((item: any) =>
+        item.searchableText.includes(searchTerm) ||
+        item.name.toLowerCase().includes(searchTerm)
+      )
+      .slice(0, 8);
   }, [search, allData]);
 
+  // ===================== HANDLERS =====================
   const handleNavigate = (item: any) => {
     const slug = item.name.toLowerCase().replace(/\s+/g, "-");
     if (item.type === "broker") {
@@ -86,10 +100,7 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
   };
 
   const handleNavClick = (item: any) => {
-    // If the item has a key, update the dynamic navigation
-    if (item.key) {
-      updateDynamicItem(item.key);
-    }
+    if (item.key) updateDynamicItem(item.key);
     setMenuOpen(false);
   };
 
@@ -102,86 +113,113 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
   const getUserInitials = () => {
     if (user?.name) return user.name.charAt(0).toUpperCase();
     if (user?.email) return user.email.charAt(0).toUpperCase();
-    return 'U';
+    return "U";
   };
 
+  const isActive = (path: string) => pathname === path;
+
+  // ===================== RENDER =====================
   return (
     <>
-      {/* Header - Clean, premium */}
-      <motion.header 
-        initial={{ opacity: 0, y: -10 }}
+      {/* ============================================================
+          HEADER — Dark navy, safe-area aware, sticky
+          ============================================================ */}
+      <motion.header
+        initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-50 bg-[#0a0a12] border-b border-[#1e1e32] px-4 py-3"
+        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+        className="sticky top-0 z-50 bg-ip-header border-b border-ip-header-border"
+        style={{ paddingTop: 'var(--ip-safe-top)' }}
       >
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-md overflow-hidden flex-shrink-0 bg-[#1a1a2e] flex items-center justify-center">
-              <span className="text-white font-bold text-sm">IP</span>
+        <div className="flex items-center justify-between px-4 h-14">
+          {/* ---------- Logo lockup ---------- */}
+          <Link href="/" className="flex items-center gap-2.5 min-w-0 group">
+            {/* Logo mark */}
+            <div className="w-8 h-8 rounded-lg bg-ip-blue flex items-center justify-center flex-shrink-0">
+              <span className="text-white font-bold text-[13px] tracking-tight">IP</span>
             </div>
-            <div>
-              <span className="text-lg font-semibold tracking-tight text-white">
-                Insight<span className="text-blue-500">Pip</span>
+
+            {/* Wordmark + tagline */}
+            <div className="flex flex-col leading-none min-w-0">
+              <span className="text-ip-header-text font-semibold text-[17px] tracking-[-0.01em]">
+                Insight<span className="text-ip-blue">Pip</span>
               </span>
-              <div className="text-[8px] text-zinc-500 tracking-wider uppercase -mt-0.5">
+              <span className="text-ip-header-text-2 text-[9px] font-medium tracking-[0.08em] uppercase mt-0.5">
                 Research before you trust
-              </div>
+              </span>
             </div>
           </Link>
 
-          {/* Actions */}
-          <div className="flex items-center gap-2">
+          {/* ---------- Actions ---------- */}
+          <div className="flex items-center gap-0.5">
+            {/* User avatar (if logged in) */}
             {!isLoading && user && (
-              <button 
+              <button
                 onClick={() => setMenuOpen(true)}
-                className="w-8 h-8 rounded-full bg-[#1a1a2e] border border-[#2a2a3e] flex items-center justify-center text-white font-medium text-sm hover:border-blue-500/50 transition-colors"
+                className="w-9 h-9 rounded-full bg-ip-header-2 border border-ip-header-border flex items-center justify-center text-ip-header-text font-semibold text-[13px] active:scale-95 transition-transform duration-150"
+                aria-label="Open account menu"
+                title={user.name || user.email}
               >
                 {getUserInitials()}
               </button>
             )}
-            
-            <button 
-              onClick={() => setSearchOpen(true)}
-              className="p-2 rounded-lg hover:bg-[#1a1a2e] transition-colors"
-            >
-              <Search size={18} className="text-zinc-400" />
-            </button>
-            
-            <button 
+
+            {/* Search */}
+            {showSearch && (
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-ip-header-text-2 hover:text-ip-header-text hover:bg-ip-header-2 active:scale-95 transition-all duration-150"
+                aria-label="Search"
+              >
+                <Search size={19} strokeWidth={1.75} />
+              </button>
+            )}
+
+            {/* Menu */}
+            <button
               onClick={() => setMenuOpen(true)}
-              className="p-2 rounded-lg hover:bg-[#1a1a2e] transition-colors"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-ip-header-text-2 hover:text-ip-header-text hover:bg-ip-header-2 active:scale-95 transition-all duration-150"
+              aria-label="Open menu"
             >
-              <Menu size={18} className="text-zinc-400" />
+              <Menu size={19} strokeWidth={1.75} />
             </button>
           </div>
         </div>
       </motion.header>
 
-      {/* Search Overlay */}
+      {/* ============================================================
+          SEARCH OVERLAY — Clean, minimal, token-driven
+          ============================================================ */}
       <AnimatePresence>
         {searchOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-[#0a0a12] z-50 p-4"
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-0 z-[60] bg-ip-surface ip-light-page flex flex-col"
+            style={{ paddingTop: 'var(--ip-safe-top)' }}
           >
-            <div className="flex items-center gap-3 mb-6">
-              <button 
-                onClick={() => {
-                  setSearchOpen(false);
-                  setSearch("");
-                }}
-                className="p-2 hover:bg-[#1a1a2e] rounded-lg transition-colors"
+            {/* Search bar */}
+            <div className="flex items-center gap-2 px-4 h-14 border-b border-ip-border bg-ip-surface flex-shrink-0">
+              <button
+                onClick={() => { setSearchOpen(false); setSearch(""); }}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-ip-text-2 hover:text-ip-text hover:bg-ip-surface-2 active:scale-95 transition-all duration-150"
+                aria-label="Close search"
               >
-                <X size={22} className="text-white" />
+                <X size={20} strokeWidth={1.75} />
               </button>
+
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-500" size={18} />
+                <Search
+                  size={16}
+                  strokeWidth={1.75}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-ip-text-3 pointer-events-none"
+                />
                 <input
                   type="text"
                   placeholder="Search brokers, prop firms..."
-                  className="w-full bg-[#12121f] border border-[#1e1e32] rounded-lg pl-10 pr-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full bg-ip-surface-2 border border-ip-border rounded-xl pl-9 pr-3 py-2.5 text-[15px] text-ip-text placeholder:text-ip-text-3 focus:outline-none focus:border-ip-blue transition-colors"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   autoFocus
@@ -189,206 +227,281 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
               </div>
             </div>
 
-            {search.trim() && (
-              <div className="space-y-3">
-                <p className="text-xs text-zinc-500">
-                  {searchResults.length} results found
-                </p>
-                
-                {searchResults.length > 0 ? (
-                  <div className="space-y-2 max-h-[70vh] overflow-y-auto">
-                    {searchResults.map((item) => (
+            {/* Scrollable content */}
+            <div className="flex-1 overflow-y-auto ip-light-scroll">
+              {/* Results */}
+              {search.trim() && (
+                <div className="px-4 pt-4 pb-8">
+                  <p className="text-[11px] font-medium tracking-wider uppercase text-ip-text-3 mb-3">
+                    {searchResults.length} {searchResults.length === 1 ? 'result' : 'results'}
+                  </p>
+
+                  {searchResults.length > 0 ? (
+                    <div className="space-y-1">
+                      {searchResults.map((item: any) => (
+                        <button
+                          key={`${item.type}-${item.id}`}
+                          onClick={() => handleNavigate(item)}
+                          className="w-full text-left p-3 rounded-xl hover:bg-ip-surface-2 transition-colors flex items-center gap-3 active:scale-[0.99]"
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-ip-surface-3 border border-ip-border flex items-center justify-center text-ip-text font-semibold text-sm flex-shrink-0 overflow-hidden">
+                            {item.name.charAt(0)}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <span className="text-ip-text font-semibold text-[15px] truncate">
+                                {item.name}
+                              </span>
+                              <span
+                                className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0 ${
+                                  item.type === "prop-firm"
+                                    ? "bg-purple-500/10 text-purple-600"
+                                    : "bg-ip-blue-soft text-ip-blue"
+                                }`}
+                              >
+                                {item.type === "prop-firm" ? "Prop" : "Broker"}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-[12px] text-ip-text-3">
+                              <span>{item.rating ? `★ ${item.rating}` : '—'}</span>
+                              <span>·</span>
+                              <span className="truncate">{item.country || 'International'}</span>
+                            </div>
+                          </div>
+
+                          <ArrowRight size={16} strokeWidth={1.75} className="text-ip-text-3 flex-shrink-0" />
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-16">
+                      <Search size={32} strokeWidth={1.5} className="text-ip-text-3 mx-auto mb-3" />
+                      <p className="text-ip-text font-medium text-[15px]">No results found</p>
+                      <p className="text-ip-text-3 text-[13px] mt-1">Try a different search term</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Suggestions */}
+              {!search.trim() && (
+                <div className="px-4 pt-4 pb-8">
+                  <p className="text-[11px] font-medium tracking-wider uppercase text-ip-text-3 mb-3">
+                    Popular searches
+                  </p>
+                  <div className="space-y-1">
+                    {["FTMO", "IC Markets", "The 5%ers", "Instant funding", "High leverage brokers", "Best prop firms"].map((suggestion) => (
                       <button
-                        key={`${item.type}-${item.id}`}
-                        onClick={() => handleNavigate(item)}
-                        className="w-full text-left p-3 bg-[#12121f] rounded-lg hover:bg-[#1a1a2e] transition-colors text-white flex items-center gap-3 border border-transparent hover:border-[#1e1e32]"
+                        key={suggestion}
+                        onClick={() => setSearch(suggestion)}
+                        className="w-full text-left px-3 py-3 rounded-xl hover:bg-ip-surface-2 transition-colors text-ip-text text-[15px] active:scale-[0.99]"
                       >
-                        <div className="w-10 h-10 rounded-lg bg-[#1a1a2e] flex items-center justify-center text-white font-bold flex-shrink-0">
-                          {item.name.charAt(0)}
-                        </div>
-                        
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-white font-medium truncate">{item.name}</h3>
-                            <span className={`text-[8px] px-2 py-0.5 rounded-full ${
-                              item.type === "prop-firm" 
-                                ? "bg-purple-500/10 text-purple-400 border border-purple-500/20" 
-                                : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                            }`}>
-                              {item.type === "prop-firm" ? "Prop" : "Broker"}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-zinc-500">
-                            <span>★ {item.rating}</span>
-                            <span>•</span>
-                            <span>{item.country}</span>
-                          </div>
-                        </div>
-                        
-                        <ArrowRight size={14} className="text-zinc-500" />
+                        {suggestion}
                       </button>
                     ))}
                   </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <p className="text-zinc-400">No results found</p>
-                    <p className="text-zinc-500 text-sm mt-1">Try different keywords</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {!search.trim() && (
-              <div className="space-y-2">
-                <p className="text-xs text-zinc-500">Popular searches</p>
-                {["FTMO", "IC Markets", "The 5%ers", "Prop firms", "High leverage", "Instant funding"].map((suggestion) => (
-                  <button
-                    key={suggestion}
-                    onClick={() => setSearch(suggestion)}
-                    className="w-full text-left p-3 bg-[#12121f] rounded-lg hover:bg-[#1a1a2e] transition-colors text-white text-sm"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Menu Overlay */}
+      {/* ============================================================
+          MENU OVERLAY — Clean, sectioned, token-driven
+          ============================================================ */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-[#0a0a12] z-50 overflow-y-auto"
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-0 z-[60] bg-ip-surface ip-light-page flex flex-col"
           >
-            {/* Header */}
-            <div className="sticky top-0 bg-[#0a0a12] border-b border-[#1e1e32] p-4">
-              <div className="flex items-center justify-between">
-                <Link href="/" className="flex items-center gap-2.5" onClick={() => setMenuOpen(false)}>
-                  <span className="text-lg font-semibold text-white">
-                    Insight<span className="text-blue-500">Pip</span>
-                  </span>
-                </Link>
-                <button 
-                  onClick={() => setMenuOpen(false)}
-                  className="p-2 hover:bg-[#1a1a2e] rounded-lg transition-colors"
-                >
-                  <X size={22} className="text-white" />
-                </button>
-              </div>
+            {/* Header bar */}
+            <div
+              className="flex items-center justify-between px-4 h-14 border-b border-ip-border bg-ip-surface flex-shrink-0"
+              style={{ paddingTop: 'var(--ip-safe-top)', height: 'calc(3.5rem + var(--ip-safe-top))' }}
+            >
+              <Link href="/" className="flex items-center gap-2.5" onClick={() => setMenuOpen(false)}>
+                <div className="w-8 h-8 rounded-lg bg-ip-blue flex items-center justify-center">
+                  <span className="text-white font-bold text-[13px] tracking-tight">IP</span>
+                </div>
+                <span className="text-ip-text font-semibold text-[17px] tracking-[-0.01em]">
+                  Insight<span className="text-ip-blue">Pip</span>
+                </span>
+              </Link>
+
+              <button
+                onClick={() => setMenuOpen(false)}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-ip-text-2 hover:text-ip-text hover:bg-ip-surface-2 active:scale-95 transition-all duration-150"
+                aria-label="Close menu"
+              >
+                <X size={20} strokeWidth={1.75} />
+              </button>
             </div>
 
-            {/* User Section */}
-            <div className="p-4 border-b border-[#1e1e32]">
-              {!isLoading && user ? (
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-[#1a1a2e] border border-[#2a2a3e] flex items-center justify-center text-white font-bold text-lg">
-                    {getUserInitials()}
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-white font-medium">{user.name || 'User'}</div>
-                    <div className="text-zinc-500 text-sm">{user.email}</div>
-                    <div className="flex items-center gap-1 mt-1 text-[10px] text-blue-400">
-                      <Crown size={10} />
-                      <span>Verified Member</span>
+            {/* Scrollable content */}
+            <div className="flex-1 overflow-y-auto ip-light-scroll" style={{ paddingBottom: 'var(--ip-safe-bottom)' }}>
+
+              {/* ---------- User section ---------- */}
+              <div className="px-4 py-4 border-b border-ip-border">
+                {!isLoading && user ? (
+                  <>
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-full bg-ip-blue flex items-center justify-center text-white font-semibold text-[17px] flex-shrink-0">
+                        {getUserInitials()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-ip-text font-semibold text-[15px] truncate">
+                          {user.name || 'User'}
+                        </div>
+                        <div className="text-ip-text-3 text-[13px] truncate">{user.email}</div>
+                      </div>
+                      <Crown size={16} className="text-ip-gold flex-shrink-0" />
                     </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex gap-3">
-                  <Link
-                    href="/login"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex-1 px-4 py-2.5 bg-[#1a1a2e] border border-[#2a2a3e] rounded-lg text-white text-center font-medium hover:bg-[#2a2a3e] transition-colors"
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    href="/signup"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex-1 px-4 py-2.5 bg-blue-600 rounded-lg text-white text-center font-medium hover:bg-blue-700 transition-colors"
-                  >
-                    Sign Up
-                  </Link>
-                </div>
-              )}
-            </div>
 
-            {/* Navigation */}
-            <div className="p-4">
-              <p className="text-xs text-zinc-500 uppercase tracking-wider mb-3 px-2">Main</p>
-              <div className="space-y-1">
-                {mainNavItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = pathname === item.path;
-                  
-                  return (
-                    <Link
-                      key={item.path}
-                      href={item.path}
-                      onClick={() => handleNavClick(item)}
-                      className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
-                        isActive
-                          ? "bg-blue-500/10 text-blue-400"
-                          : "text-zinc-300 hover:bg-[#1a1a2e] hover:text-white"
-                      }`}
-                    >
-                      <Icon size={18} className={isActive ? "text-blue-400" : "text-zinc-500"} />
-                      <span className="font-medium">{item.label}</span>
-                      {isActive && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-400" />}
-                      {item.key && (
-                        <span className={`text-[8px] px-1.5 py-0.5 rounded-full ${
-                          item.key === dynamicItem ? "bg-blue-500/20 text-blue-400" : "bg-zinc-800 text-zinc-500"
-                        }`}>
-                          {item.key === dynamicItem ? "Active" : ""}
-                        </span>
-                      )}
-                    </Link>
-                  );
-                })}
+                    <div className="flex gap-2">
+                      <Link
+                        href="/dashboard"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex-1 px-4 py-2.5 bg-ip-blue text-white rounded-xl text-[14px] font-medium text-center active:scale-[0.98] transition-transform"
+                      >
+                        Dashboard
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="flex-1 px-4 py-2.5 bg-ip-red-soft text-ip-red rounded-xl text-[14px] font-medium active:scale-[0.98] transition-transform"
+                      >
+                        Log Out
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="mb-3">
+                      <div className="text-ip-text font-semibold text-[15px]">
+                        Welcome to InsightPip
+                      </div>
+                      <div className="text-ip-text-3 text-[13px] mt-0.5">
+                        Sign in to access your account
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Link
+                        href="/login"
+                        onClick={() => setMenuOpen(false)}
+                        className="px-4 py-2.5 bg-ip-surface-2 border border-ip-border rounded-xl text-ip-text text-center font-medium text-[14px] active:scale-[0.98] transition-transform"
+                      >
+                        Login
+                      </Link>
+                      <Link
+                        href="/signup"
+                        onClick={() => setMenuOpen(false)}
+                        className="px-4 py-2.5 bg-ip-blue rounded-xl text-white text-center font-medium text-[14px] active:scale-[0.98] transition-transform"
+                      >
+                        Sign Up Free
+                      </Link>
+                    </div>
+                  </>
+                )}
               </div>
-            </div>
 
-            {/* Account */}
-            {!isLoading && user && (
-              <div className="p-4 border-t border-[#1e1e32]">
-                <p className="text-xs text-zinc-500 uppercase tracking-wider mb-3 px-2">Account</p>
-                <div className="space-y-1">
-                  {accountNavItems.map((item) => {
+              {/* ---------- Main navigation ---------- */}
+              <div className="px-4 py-4">
+                <p className="text-[11px] font-medium tracking-wider uppercase text-ip-text-3 mb-2 px-1">
+                  Navigation
+                </p>
+                <div className="space-y-0.5">
+                  {mainNavItems.map((item) => {
                     const Icon = item.icon;
-                    const isActive = pathname === item.path;
-                    
+                    const active = isActive(item.path);
+                    const isDynamic = !!item.key;
+
                     return (
                       <Link
                         key={item.path}
                         href={item.path}
-                        onClick={() => setMenuOpen(false)}
-                        className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
-                          isActive
-                            ? "bg-blue-500/10 text-blue-400"
-                            : "text-zinc-300 hover:bg-[#1a1a2e] hover:text-white"
+                        onClick={() => handleNavClick(item)}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
+                          active
+                            ? "bg-ip-blue-soft text-ip-blue"
+                            : "text-ip-text hover:bg-ip-surface-2"
                         }`}
                       >
-                        <Icon size={18} className={isActive ? "text-blue-400" : "text-zinc-500"} />
-                        <span className="font-medium">{item.label}</span>
+                        <Icon
+                          size={18}
+                          strokeWidth={1.75}
+                          className={active ? "text-ip-blue" : "text-ip-text-3"}
+                        />
+                        <span className="font-medium text-[15px] flex-1">
+                          {item.label}
+                        </span>
+                        {isDynamic && item.key === dynamicItem && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-ip-blue flex-shrink-0" />
+                        )}
+                        <ChevronRight
+                          size={16}
+                          strokeWidth={1.75}
+                          className={active ? "text-ip-blue" : "text-ip-text-3"}
+                        />
                       </Link>
                     );
                   })}
-                  
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-3 p-3 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors w-full"
-                  >
-                    <LogOut size={18} />
-                    <span className="font-medium">Log Out</span>
-                  </button>
                 </div>
               </div>
-            )}
+
+              {/* ---------- Account section ---------- */}
+              {!isLoading && user && (
+                <div className="px-4 py-4 border-t border-ip-border">
+                  <p className="text-[11px] font-medium tracking-wider uppercase text-ip-text-3 mb-2 px-1">
+                    Account
+                  </p>
+                  <div className="space-y-0.5">
+                    {accountNavItems.map((item) => {
+                      const Icon = item.icon;
+                      const active = isActive(item.path);
+
+                      return (
+                        <Link
+                          key={item.path}
+                          href={item.path}
+                          onClick={() => setMenuOpen(false)}
+                          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
+                            active
+                              ? "bg-ip-blue-soft text-ip-blue"
+                              : "text-ip-text hover:bg-ip-surface-2"
+                          }`}
+                        >
+                          <Icon
+                            size={18}
+                            strokeWidth={1.75}
+                            className={active ? "text-ip-blue" : "text-ip-text-3"}
+                          />
+                          <span className="font-medium text-[15px] flex-1">
+                            {item.label}
+                          </span>
+                          <ChevronRight
+                            size={16}
+                            strokeWidth={1.75}
+                            className={active ? "text-ip-blue" : "text-ip-text-3"}
+                          />
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* ---------- Footer tagline ---------- */}
+              <div className="px-4 py-6 text-center">
+                <p className="text-[11px] tracking-[0.08em] uppercase text-ip-text-3">
+                  Research before you trust
+                </p>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
