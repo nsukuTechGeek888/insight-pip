@@ -1,14 +1,15 @@
 ﻿// src/components/mobile/MobileHeader.tsx
 // PHASE 1 REDESIGN — Dark navy branded header, refined lockup, token-based colors
+// FIXED: Replaced Scale icon (not always exported by lucide-react) with ArrowLeftRight
 
 'use client';
 
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Search, Menu, X, Home, Trophy, TrendingUp, Scale, BookOpen,
+  Search, Menu, X, Home, Trophy, TrendingUp, ArrowLeftRight, BookOpen,
   User, Star, Gift, ArrowRight, Calculator, LogOut, CircleUserRound,
-  Settings, HelpCircle, Crown, ChevronRight
+  HelpCircle, Crown, ChevronRight
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -43,14 +44,14 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
 
   // ===================== NAVIGATION ITEMS =====================
   const mainNavItems = [
-    { icon: Home,       label: "Home",       path: "/" },
-    { icon: Gift,       label: "Offers",     path: "/offers" },
-    { icon: Trophy,     label: "Prop Firms", path: "/prop-firms" },
-    { icon: TrendingUp, label: "Brokers",    path: "/brokers" },
-    { icon: Scale,      label: "Compare",    path: "/compare" },
-    { icon: Star,       label: "Reviews",    path: "/reviews", key: "reviews" },
-    { icon: BookOpen,   label: "Blog",       path: "/blog",    key: "blog" },
-    { icon: Calculator, label: "Tools",      path: "/tools",   key: "tools" },
+    { icon: Home,           label: "Home",       path: "/" },
+    { icon: Gift,           label: "Offers",     path: "/offers" },
+    { icon: Trophy,         label: "Prop Firms", path: "/prop-firms" },
+    { icon: TrendingUp,     label: "Brokers",    path: "/brokers" },
+    { icon: ArrowLeftRight, label: "Compare",    path: "/compare" },
+    { icon: Star,           label: "Reviews",    path: "/reviews", key: "reviews" },
+    { icon: BookOpen,       label: "Blog",       path: "/blog",    key: "blog" },
+    { icon: Calculator,     label: "Tools",      path: "/tools",   key: "tools" },
   ];
 
   const accountNavItems = [
@@ -132,14 +133,12 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
         style={{ paddingTop: 'var(--ip-safe-top)' }}
       >
         <div className="flex items-center justify-between px-4 h-14">
-          {/* ---------- Logo lockup ---------- */}
+          {/* Logo lockup */}
           <Link href="/" className="flex items-center gap-2.5 min-w-0 group">
-            {/* Logo mark */}
             <div className="w-8 h-8 rounded-lg bg-ip-blue flex items-center justify-center flex-shrink-0">
               <span className="text-white font-bold text-[13px] tracking-tight">IP</span>
             </div>
 
-            {/* Wordmark + tagline */}
             <div className="flex flex-col leading-none min-w-0">
               <span className="text-ip-header-text font-semibold text-[17px] tracking-[-0.01em]">
                 Insight<span className="text-ip-blue">Pip</span>
@@ -150,9 +149,8 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
             </div>
           </Link>
 
-          {/* ---------- Actions ---------- */}
+          {/* Actions */}
           <div className="flex items-center gap-0.5">
-            {/* User avatar (if logged in) */}
             {!isLoading && user && (
               <button
                 onClick={() => setMenuOpen(true)}
@@ -164,7 +162,6 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
               </button>
             )}
 
-            {/* Search */}
             {showSearch && (
               <button
                 onClick={() => setSearchOpen(true)}
@@ -175,7 +172,6 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
               </button>
             )}
 
-            {/* Menu */}
             <button
               onClick={() => setMenuOpen(true)}
               className="w-9 h-9 rounded-full flex items-center justify-center text-ip-header-text-2 hover:text-ip-header-text hover:bg-ip-header-2 active:scale-95 transition-all duration-150"
@@ -188,7 +184,7 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
       </motion.header>
 
       {/* ============================================================
-          SEARCH OVERLAY — Solid white, token-driven
+          SEARCH OVERLAY — Solid white
           ============================================================ */}
       <AnimatePresence>
         {searchOpen && (
@@ -203,7 +199,6 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
               paddingTop: 'var(--ip-safe-top)',
             }}
           >
-            {/* Search bar */}
             <div className="flex items-center gap-2 px-4 h-14 border-b border-ip-border flex-shrink-0" style={{ backgroundColor: '#FFFFFF' }}>
               <button
                 onClick={() => { setSearchOpen(false); setSearch(""); }}
@@ -230,9 +225,7 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
               </div>
             </div>
 
-            {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto ip-light-scroll" style={{ backgroundColor: '#FFFFFF' }}>
-              {/* Results */}
               {search.trim() && (
                 <div className="px-4 pt-4 pb-8">
                   <p className="text-[11px] font-medium tracking-wider uppercase text-ip-text-3 mb-3">
@@ -287,7 +280,6 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
                 </div>
               )}
 
-              {/* Suggestions */}
               {!search.trim() && (
                 <div className="px-4 pt-4 pb-8">
                   <p className="text-[11px] font-medium tracking-wider uppercase text-ip-text-3 mb-3">
@@ -312,7 +304,7 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
       </AnimatePresence>
 
       {/* ============================================================
-          MENU OVERLAY — Solid white, sectioned, token-driven
+          MENU OVERLAY — Solid white, sectioned
           ============================================================ */}
       <AnimatePresence>
         {menuOpen && (
@@ -327,7 +319,6 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
               paddingTop: 'var(--ip-safe-top)',
             }}
           >
-            {/* Header bar */}
             <div
               className="flex items-center justify-between px-4 h-14 border-b border-ip-border flex-shrink-0"
               style={{ backgroundColor: '#FFFFFF' }}
@@ -350,7 +341,6 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
               </button>
             </div>
 
-            {/* Scrollable content */}
             <div
               className="flex-1 overflow-y-auto ip-light-scroll"
               style={{
@@ -358,8 +348,7 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
                 paddingBottom: 'var(--ip-safe-bottom)'
               }}
             >
-
-              {/* ---------- User section ---------- */}
+              {/* User section */}
               <div className="px-4 py-4 border-b border-ip-border">
                 {!isLoading && user ? (
                   <>
@@ -422,7 +411,7 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
                 )}
               </div>
 
-              {/* ---------- Main navigation ---------- */}
+              {/* Main navigation */}
               <div className="px-4 py-4">
                 <p className="text-[11px] font-medium tracking-wider uppercase text-ip-text-3 mb-2 px-1">
                   Navigation
@@ -466,7 +455,7 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
                 </div>
               </div>
 
-              {/* ---------- Account section ---------- */}
+              {/* Account section */}
               {!isLoading && user && (
                 <div className="px-4 py-4 border-t border-ip-border">
                   <p className="text-[11px] font-medium tracking-wider uppercase text-ip-text-3 mb-2 px-1">
@@ -508,7 +497,6 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
                 </div>
               )}
 
-              {/* ---------- Footer tagline ---------- */}
               <div className="px-4 py-6 text-center">
                 <p className="text-[11px] tracking-[0.08em] uppercase text-ip-text-3">
                   Research before you trust
