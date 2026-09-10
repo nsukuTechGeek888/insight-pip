@@ -2,12 +2,6 @@
 
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { api } from '@/lib/api';
-import { useRegion } from '@/contexts/RegionContext';
 import { 
   Star, Shield, Building2, MessageCircle, 
   AlertTriangle, CheckCircle, ArrowRight, Users, 
@@ -17,7 +11,7 @@ import {
   Target, Smartphone, AlertCircle, TrendingUp, ChevronRight,
   Menu, Home, BarChart3, FileText, Settings, ChevronDown,
   ThumbsUp, ThumbsDown, ExternalLink, ChevronUp, Layers,
-  Briefcase, LineChart, PiggyBank, Globe, Server, Monitor,
+  Briefcase, PiggyBank, Globe, Server, Monitor,
   CreditCard, Landmark, BadgeCheck,
   Trophy, Medal, Hash, Sparkles, Zap, Compass, GitCompare,
   ChevronLeft, ChevronRight as ChevronRightIcon, User, Percent
@@ -1026,3 +1020,4 @@ export default function MobileHome() {
     </MobileLayout>
   );
 }
+
