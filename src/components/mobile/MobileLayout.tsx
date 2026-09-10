@@ -13,7 +13,10 @@ interface MobileLayoutProps {
 
 export default function MobileLayout({ children, title, showSearch = false }: MobileLayoutProps) {
   return (
-    <div className="min-h-screen bg-[#0a0a12] text-white pb-20">
+    <div
+      className="min-h-screen pb-24"
+      style={{ backgroundColor: '#FFFFFF', color: '#0A0E1A' }}
+    >
       <MobileHeader title={title} showSearch={showSearch} />
       <main className="px-4 pt-4 max-w-lg mx-auto">
         {children}
