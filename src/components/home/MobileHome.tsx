@@ -1,4 +1,6 @@
-// components/home/MobileHome.tsx - CLEAN UI (Deriv-inspired)
+// components/home/MobileHome.tsx
+// PHASE 2 — LIGHT BODY SYSTEM (Dark header + Light content)
+// All colors hardcoded inline (no CSS-variable dependencies)
 
 'use client';
 
@@ -8,43 +10,39 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { useRegion } from '@/contexts/RegionContext';
-import { 
-  Star, Shield, Building2, MessageCircle, 
-  AlertTriangle, CheckCircle, ArrowRight, Users, 
-  Eye, Clock, Award, Info, DollarSign, Wallet, 
-  Gauge, Heart, RefreshCw, Flame, Crown, Gem, Gift, 
-  Rocket, Tag, ShieldCheck, HelpCircle, XCircle, Activity, 
-  Target, Smartphone, AlertCircle, TrendingUp, ChevronRight,
-  Menu, Home, BarChart3, FileText, Settings, ChevronDown,
-  ThumbsUp, ThumbsDown, ExternalLink, ChevronUp, Layers,
-  Briefcase, PiggyBank, Globe, Server, Monitor,
-  CreditCard, Landmark, BadgeCheck,
-  Trophy, Medal, Hash, Sparkles, Zap, Compass, GitCompare,
-  ChevronLeft, ChevronRight as ChevronRightIcon, User, Percent
+import {
+  Star, Shield, Building2, MessageCircle,
+  AlertTriangle, CheckCircle, ArrowRight,
+  Clock, XCircle, Activity,
+  TrendingUp, Crown, Medal,
+  User, Percent, GitCompare,
+  Trophy, Globe, Gift, BookOpen, Calculator, Home,
+  ArrowLeftRight, Search, Menu
 } from 'lucide-react';
-import { formatCurrency } from '@/utils/api-helpers';
-import TrustScoreBadge from '@/components/ui/TrustScoreBadge';
 import MobileLayout from '@/components/mobile/MobileLayout';
-// ===================== DESIGN SYSTEM =====================
-// Clean, minimal, no gradients. Inspired by Deriv.com
 
-const COLORS = {
-  surface: '#0a0a12',
-  surfaceLight: '#12121f',
-  surfaceCard: '#1a1a2e',
-  border: '#1e1e32',
-  borderLight: '#2a2a3e',
-  textPrimary: '#ffffff',
-  textSecondary: '#8a8aa0',
-  textMuted: '#5a5a72',
-  accent: '#2563eb',
-  accentHover: '#3b82f6',
-  success: '#22c55e',
-  warning: '#f59e0b',
-  danger: '#ef4444',
-  gold: '#fbbf24',
-  silver: '#9ca3af',
-  bronze: '#d97706',
+// ===================== HARDCODED TOKENS =====================
+const T = {
+  bg: '#FFFFFF',
+  surface: '#FFFFFF',
+  surface2: '#F7F8FA',
+  surface3: '#EEF0F4',
+  border: '#E5E7EB',
+  borderStrong: '#D1D5DB',
+  text: '#0A0E1A',
+  text2: '#6B7280',
+  text3: '#9CA3AF',
+  blue: '#2563EB',
+  blueSoft: '#EFF6FF',
+  green: '#16A34A',
+  greenSoft: '#DCFCE7',
+  amber: '#F59E0B',
+  amberSoft: '#FEF3C7',
+  red: '#DC2626',
+  redSoft: '#FEE2E2',
+  gold: '#D97706',
+  purple: '#9333EA',
+  purpleSoft: '#F3E8FF',
 };
 
 // ===================== REGION =====================
@@ -73,7 +71,7 @@ const calculateTrustStatsFromReviews = (reviews: any[]) => {
 const isAvailableInRegion = (firm: any, region: string) => {
   if (!firm) return false;
   if (firm.regions) {
-    return firm.regions.includes(region) || 
+    return firm.regions.includes(region) ||
            firm.regions.includes('GLOBAL') ||
            firm.regions.length === 0;
   }
@@ -83,11 +81,10 @@ const isAvailableInRegion = (firm: any, region: string) => {
   return true;
 };
 
-// ===================== COMPONENTS =====================
+// ===================== SUB-COMPONENTS =====================
 
-// Clean Star Rating
-function StarRating({ rating, count = 0, size = "sm" }: { rating: number; count?: number; size?: "sm" | "md" }) {
-  const starSize = size === "md" ? "w-4 h-4" : "w-3 h-3";
+function StarRating({ rating, count = 0, size = 'sm' }: { rating: number; count?: number; size?: 'sm' | 'md' }) {
+  const starSize = size === 'md' ? 14 : 12;
   const hasReviews = count > 0;
   const displayRating = hasReviews ? Math.min(5, Math.max(0, rating || 0)) : 0;
   const roundedRating = Math.round(displayRating);
@@ -96,79 +93,82 @@ function StarRating({ rating, count = 0, size = "sm" }: { rating: number; count?
     <div className="flex items-center gap-1">
       <div className="flex gap-0.5">
         {[1, 2, 3, 4, 5].map((i) => (
-          <Star 
-            key={i} 
-            className={`${starSize} ${i <= roundedRating && hasReviews ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-700'}`} 
+          <Star
+            key={i}
+            size={starSize}
+            strokeWidth={1.75}
+            className={i <= roundedRating && hasReviews ? 'fill-current' : ''}
+            style={{ color: i <= roundedRating && hasReviews ? '#FBBF24' : T.text3 }}
           />
         ))}
       </div>
       {hasReviews && (
-        <span className="text-xs text-white font-medium">{displayRating.toFixed(1)}</span>
+        <span className="text-xs font-medium" style={{ color: T.text }}>{displayRating.toFixed(1)}</span>
       )}
       {count > 0 && (
-        <span className="text-[10px] text-zinc-500">({count})</span>
+        <span className="text-[10px]" style={{ color: T.text3 }}>({count})</span>
       )}
     </div>
   );
 }
 
-// Clean Trust Score
-function TrustScoreDisplay({ score, size = "sm" }: { score: number; size?: "sm" | "md" }) {
+function TrustScoreDisplay({ score, size = 'sm' }: { score: number; size?: 'sm' | 'md' }) {
   const normalizedScore = Math.min(100, Math.max(0, score || 0));
-  const getColor = () => {
-    if (normalizedScore >= 80) return 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10';
-    if (normalizedScore >= 60) return 'text-amber-400 border-amber-500/30 bg-amber-500/10';
-    return 'text-red-400 border-red-500/30 bg-red-500/10';
-  };
-  
-  const getLabel = () => {
-    if (normalizedScore >= 80) return 'High Trust';
-    if (normalizedScore >= 60) return 'Medium Trust';
-    return 'Low Trust';
-  };
+  let fg = T.red, bg = T.redSoft, label = 'Low';
+  if (normalizedScore >= 80) { fg = T.green; bg = T.greenSoft; label = 'High'; }
+  else if (normalizedScore >= 60) { fg = T.amber; bg = T.amberSoft; label = 'Medium'; }
 
   return (
-    <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border ${getColor()}`}>
-      <Shield size={size === "md" ? 14 : 10} />
-      <span className={`${size === "md" ? "text-sm" : "text-[10px]"} font-medium`}>{getLabel()}</span>
-      <span className={`${size === "md" ? "text-base" : "text-xs"} font-bold text-white`}>{normalizedScore}</span>
+    <div
+      className={`flex items-center gap-1.5 rounded-full ${size === 'md' ? 'px-2.5 py-1' : 'px-2 py-0.5'}`}
+      style={{ backgroundColor: bg }}
+    >
+      <Shield size={size === 'md' ? 14 : 10} style={{ color: fg }} />
+      <span className={`${size === 'md' ? 'text-sm' : 'text-[10px]'} font-medium`} style={{ color: fg }}>{label}</span>
+      <span className={`${size === 'md' ? 'text-base' : 'text-xs'} font-bold`} style={{ color: T.text }}>{normalizedScore}</span>
     </div>
   );
 }
 
-// Clean Ranking Entry
 function RankingEntry({ rank, entity, onClick, index }: { rank: number; entity: any; onClick: () => void; index: number }) {
   const isTop3 = rank <= 3;
-  
+
   const getRankDisplay = () => {
-    if (rank === 1) return <Crown size={12} className="text-amber-400" />;
-    if (rank === 2) return <Medal size={12} className="text-zinc-400" />;
-    if (rank === 3) return <Medal size={12} className="text-amber-700" />;
-    return <span className="text-zinc-500 font-mono text-xs w-4 text-center">{rank}</span>;
+    if (rank === 1) return <Crown size={14} style={{ color: T.gold }} />;
+    if (rank === 2) return <Medal size={14} style={{ color: T.text3 }} />;
+    if (rank === 3) return <Medal size={14} style={{ color: '#B45309' }} />;
+    return <span className="font-mono text-xs w-4 text-center" style={{ color: T.text3 }}>{rank}</span>;
   };
 
   const logoUrl = entity.logo || null;
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={onClick}
-      className={`flex items-center gap-3 py-2.5 border-b border-[#1e1e32] last:border-0 cursor-pointer hover:bg-[#1a1a2e] transition-all px-2 -mx-2 rounded-lg ${
-        isTop3 ? 'bg-amber-500/5' : ''
-      }`}
+      className="flex items-center gap-3 py-3 cursor-pointer active:scale-[0.99] transition-transform"
+      style={{
+        borderBottom: `1px solid ${T.border}`,
+        backgroundColor: isTop3 ? '#FFFBEB' : 'transparent',
+        paddingLeft: isTop3 ? 8 : 0,
+        paddingRight: isTop3 ? 8 : 0,
+        borderRadius: isTop3 ? 8 : 0,
+      }}
     >
       <div className="w-6 flex items-center justify-center flex-shrink-0">
         {getRankDisplay()}
       </div>
-      
-      {/* Logo */}
-      <div className="w-8 h-8 rounded-lg overflow-hidden bg-[#1a1a2e] border border-[#2a2a3e] flex-shrink-0 flex items-center justify-center">
+
+      <div
+        className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center"
+        style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}` }}
+      >
         {logoUrl ? (
-          <img 
-            src={logoUrl} 
-            alt={entity.name} 
+          <img
+            src={logoUrl}
+            alt={entity.name}
             className="w-full h-full object-cover"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
@@ -176,43 +176,41 @@ function RankingEntry({ rank, entity, onClick, index }: { rank: number; entity: 
               const parent = target.parentElement;
               if (parent) {
                 const fallback = document.createElement('span');
-                fallback.className = 'text-white font-bold text-xs';
+                fallback.className = 'font-bold text-xs';
+                fallback.style.color = T.text;
                 fallback.textContent = entity.name.charAt(0);
                 parent.appendChild(fallback);
               }
             }}
           />
         ) : (
-          <span className="text-white font-bold text-xs">{entity.name.charAt(0)}</span>
+          <span className="font-bold text-xs" style={{ color: T.text }}>{entity.name.charAt(0)}</span>
         )}
       </div>
-      
+
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-white font-medium text-sm truncate">{entity.name}</span>
-          {entity.regulated && (
-            <BadgeCheck size={10} className="text-emerald-400 flex-shrink-0" />
-          )}
+          <span className="font-semibold text-sm truncate" style={{ color: T.text }}>{entity.name}</span>
+          {entity.regulated && <CheckCircle size={12} style={{ color: T.green }} className="flex-shrink-0" />}
         </div>
-        <div className="flex items-center gap-2 text-[10px] text-zinc-500">
+        <div className="flex items-center gap-2 text-[11px] mt-0.5">
           <StarRating rating={entity.rating || 0} count={entity.reviewCount || 0} />
-          <span>•</span>
-          <span className="text-zinc-500">{entity.country || 'International'}</span>
+          <span style={{ color: T.text3 }}>·</span>
+          <span className="truncate" style={{ color: T.text3 }}>{entity.country || 'International'}</span>
         </div>
       </div>
-      
+
       <div className="flex items-center gap-2 flex-shrink-0">
         <TrustScoreDisplay score={entity.trustScore || 0} />
-        <ArrowRight size={12} className="text-zinc-500" />
+        <ArrowRight size={14} style={{ color: T.text3 }} />
       </div>
     </motion.div>
   );
 }
 
-// Clean Offer Card - No gradients, simple design
 function OfferCard({ offer, type, index }: { offer: any; type: 'broker' | 'prop'; index: number }) {
   const router = useRouter();
-  
+
   const handleClick = () => {
     if (type === 'broker') {
       router.push(`/brokers/${offer.slug || offer.name.toLowerCase().replace(/\s+/g, '-')}`);
@@ -223,11 +221,11 @@ function OfferCard({ offer, type, index }: { offer: any; type: 'broker' | 'prop'
 
   const isBroker = type === 'broker';
   const logoUrl = offer.logo || null;
-  
+
   let offerText = 'Special Offer';
   let discountText = '';
   let expiry = '';
-  
+
   if (isBroker) {
     if (offer.promotions && offer.promotions.length > 0) {
       offerText = offer.promotions[0].name || offerText;
@@ -250,19 +248,22 @@ function OfferCard({ offer, type, index }: { offer: any; type: 'broker' | 'prop'
   const hasExpiry = expiry && expiry !== '';
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.06 }}
       onClick={handleClick}
-      className="flex items-center gap-3 p-3 bg-[#12121f] border border-[#1e1e32] rounded-lg cursor-pointer hover:border-[#2a2a3e] hover:bg-[#1a1a2e] transition-all group"
+      className="flex items-center gap-3 p-3 rounded-xl cursor-pointer active:scale-[0.99] transition-transform"
+      style={{ backgroundColor: T.surface, border: `1px solid ${T.border}` }}
     >
-      {/* Logo */}
-      <div className="w-10 h-10 rounded-lg overflow-hidden bg-[#1a1a2e] border border-[#1e1e32] flex-shrink-0 flex items-center justify-center">
+      <div
+        className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center"
+        style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}` }}
+      >
         {logoUrl ? (
-          <img 
-            src={logoUrl} 
-            alt={offer.name} 
+          <img
+            src={logoUrl}
+            alt={offer.name}
             className="w-full h-full object-cover"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
@@ -270,45 +271,54 @@ function OfferCard({ offer, type, index }: { offer: any; type: 'broker' | 'prop'
               const parent = target.parentElement;
               if (parent) {
                 const fallback = document.createElement('span');
-                fallback.className = 'text-white font-bold text-sm';
+                fallback.className = 'font-bold text-sm';
+                fallback.style.color = T.text;
                 fallback.textContent = offer.name.charAt(0);
                 parent.appendChild(fallback);
               }
             }}
           />
         ) : (
-          <span className="text-white font-bold text-sm">{offer.name.charAt(0)}</span>
+          <span className="font-bold text-sm" style={{ color: T.text }}>{offer.name.charAt(0)}</span>
         )}
       </div>
-      
+
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-white font-medium text-sm truncate">{offer.name}</span>
-          <span className={`text-[8px] px-1.5 py-0.5 rounded-full ${
-            isBroker 
-              ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-              : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
-          }`}>
+          <span className="font-semibold text-sm truncate" style={{ color: T.text }}>{offer.name}</span>
+          <span
+            className="text-[9px] px-1.5 py-0.5 rounded-full font-medium flex-shrink-0"
+            style={
+              isBroker
+                ? { backgroundColor: T.blueSoft, color: T.blue }
+                : { backgroundColor: T.purpleSoft, color: T.purple }
+            }
+          >
             {isBroker ? 'Broker' : 'Prop'}
           </span>
         </div>
         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-          <span className="text-amber-400 text-xs font-medium truncate">{offerText}</span>
+          <span className="text-xs font-medium truncate" style={{ color: T.amber }}>{offerText}</span>
           {hasDiscount && (
-            <span className="text-[8px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded-full border border-emerald-500/20">
+            <span
+              className="text-[9px] px-1.5 py-0.5 rounded-full font-medium"
+              style={{ backgroundColor: T.greenSoft, color: T.green }}
+            >
               {discountText}% OFF
             </span>
           )}
         </div>
         {hasExpiry && (
           <div className="flex items-center gap-1 mt-0.5">
-            <Clock size={8} className="text-zinc-500" />
-            <span className="text-[8px] text-zinc-500">Expires: {new Date(expiry).toLocaleDateString()}</span>
+            <Clock size={10} style={{ color: T.text3 }} />
+            <span className="text-[10px]" style={{ color: T.text3 }}>
+              Expires: {new Date(expiry).toLocaleDateString()}
+            </span>
           </div>
         )}
       </div>
-      
-      <ArrowRight size={14} className="text-zinc-500 group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+
+      <ArrowRight size={16} style={{ color: T.text3 }} className="flex-shrink-0" />
     </motion.div>
   );
 }
@@ -324,15 +334,13 @@ export default function MobileHome() {
   const [enrichedPropFirms, setEnrichedPropFirms] = useState<any[]>([]);
   const [recentReviews, setRecentReviews] = useState<any[]>([]);
   const [recentIncidents, setRecentIncidents] = useState<any[]>([]);
-  
-  // Rankings slider state
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [offsetX, setOffsetX] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
 
-  // Offers toggle state
   const [offersTab, setOffersTab] = useState<'all' | 'brokers' | 'propFirms'>('all');
 
   const regionInfo = REGION_DISPLAY[region] || REGION_DISPLAY['GLOBAL'];
@@ -370,11 +378,11 @@ export default function MobileHome() {
     fetchData();
   }, [region]);
 
-  // Enrich brokers with trust scores
+  // Enrich
   useEffect(() => {
     const enrichFirms = async () => {
       if (brokers.length === 0 && propFirms.length === 0) return;
-      
+
       const enrichedBrokersList = await Promise.all(
         brokers.map(async (broker) => {
           try {
@@ -382,17 +390,13 @@ export default function MobileHome() {
             const data = await response.json();
             if (response.ok && data.reviews) {
               const stats = calculateTrustStatsFromReviews(data.reviews);
-              return { 
-                ...broker, 
-                trustScore: stats.avgTrustScore, 
-                reviewCount: stats.totalReviews
-              };
+              return { ...broker, trustScore: stats.avgTrustScore, reviewCount: stats.totalReviews };
             }
           } catch (err) {}
           return { ...broker, trustScore: 0, reviewCount: 0 };
         })
       );
-      
+
       const enrichedPropList = await Promise.all(
         propFirms.map(async (propFirm) => {
           try {
@@ -400,24 +404,19 @@ export default function MobileHome() {
             const data = await response.json();
             if (response.ok && data.reviews) {
               const stats = calculateTrustStatsFromReviews(data.reviews);
-              return { 
-                ...propFirm, 
-                trustScore: stats.avgTrustScore, 
-                reviewCount: stats.totalReviews
-              };
+              return { ...propFirm, trustScore: stats.avgTrustScore, reviewCount: stats.totalReviews };
             }
           } catch (err) {}
           return { ...propFirm, trustScore: 0, reviewCount: 0 };
         })
       );
-      
+
       setEnrichedBrokers(enrichedBrokersList);
       setEnrichedPropFirms(enrichedPropList);
     };
     enrichFirms();
   }, [brokers, propFirms]);
 
-  // Filter by region and sort by trust score
   const regionFilteredBrokers = useMemo(() => {
     return enrichedBrokers
       .filter(firm => isAvailableInRegion(firm, region))
@@ -430,11 +429,9 @@ export default function MobileHome() {
       .sort((a, b) => (b.trustScore || 0) - (a.trustScore || 0));
   }, [enrichedPropFirms, region]);
 
-  // Top 5 for rankings
   const topBrokers = regionFilteredBrokers.slice(0, 5);
   const topPropFirms = regionFilteredPropFirms.slice(0, 5);
 
-  // Get offers
   const brokerOffers = useMemo(() => {
     return regionFilteredBrokers
       .filter(b => (b.bonuses && b.bonuses.length > 0) || (b.promotions && b.promotions.length > 0))
@@ -447,7 +444,6 @@ export default function MobileHome() {
       .slice(0, 6);
   }, [regionFilteredPropFirms]);
 
-  // Filter offers based on tab
   const filteredOffers = useMemo(() => {
     if (offersTab === 'brokers') {
       return brokerOffers.map(o => ({ ...o, _type: 'broker' as const }));
@@ -455,78 +451,46 @@ export default function MobileHome() {
     if (offersTab === 'propFirms') {
       return propFirmOffers.map(o => ({ ...o, _type: 'prop' as const }));
     }
-    const combined = [];
+    const combined: any[] = [];
     const maxLen = Math.max(brokerOffers.length, propFirmOffers.length);
     for (let i = 0; i < maxLen; i++) {
-      if (i < brokerOffers.length) {
-        combined.push({ ...brokerOffers[i], _type: 'broker' as const });
-      }
-      if (i < propFirmOffers.length) {
-        combined.push({ ...propFirmOffers[i], _type: 'prop' as const });
-      }
+      if (i < brokerOffers.length) combined.push({ ...brokerOffers[i], _type: 'broker' as const });
+      if (i < propFirmOffers.length) combined.push({ ...propFirmOffers[i], _type: 'prop' as const });
     }
     return combined.slice(0, 6);
   }, [brokerOffers, propFirmOffers, offersTab]);
 
-  // Slider data
   const slides = [
-    { 
-      id: 'brokers', 
-      label: 'Top Brokers', 
-      icon: Building2, 
-      data: topBrokers,
-      type: 'broker' as const,
-      emptyMessage: 'No brokers available in your region'
-    },
-    { 
-      id: 'propFirms', 
-      label: 'Top Prop Firms', 
-      icon: TrendingUp, 
-      data: topPropFirms,
-      type: 'prop' as const,
-      emptyMessage: 'No prop firms available in your region'
-    },
+    { id: 'brokers', label: 'Top Brokers', icon: Building2, data: topBrokers, type: 'broker' as const, emptyMessage: 'No brokers available in your region' },
+    { id: 'propFirms', label: 'Top Prop Firms', icon: TrendingUp, data: topPropFirms, type: 'prop' as const, emptyMessage: 'No prop firms available in your region' },
   ];
-
   const totalSlides = slides.length;
 
-  // Touch handlers for swipe
   const handleTouchStart = (e: React.TouchEvent) => {
     setIsDragging(true);
     setStartX(e.touches[0].clientX);
   };
-
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return;
-    const currentX = e.touches[0].clientX;
-    const diff = startX - currentX;
-    setOffsetX(diff);
+    setOffsetX(startX - e.touches[0].clientX);
   };
-
   const handleTouchEnd = () => {
     setIsDragging(false);
     const threshold = 50;
-    if (offsetX > threshold && currentSlide < totalSlides - 1) {
-      setCurrentSlide(currentSlide + 1);
-    } else if (offsetX < -threshold && currentSlide > 0) {
-      setCurrentSlide(currentSlide - 1);
-    }
+    if (offsetX > threshold && currentSlide < totalSlides - 1) setCurrentSlide(currentSlide + 1);
+    else if (offsetX < -threshold && currentSlide > 0) setCurrentSlide(currentSlide - 1);
     setOffsetX(0);
   };
 
-  const handleDotClick = (index: number) => {
-    setCurrentSlide(index);
-  };
-
   const incidentTypeMap: Record<string, { icon: any; color: string; label: string }> = {
-    'WITHDRAWAL_DELAY': { icon: Clock, color: 'text-amber-400', label: 'Withdrawal Delay' },
-    'WITHDRAWAL_REJECTED': { icon: XCircle, color: 'text-red-400', label: 'Withdrawal Rejected' },
-    'SCAM_WARNING': { icon: AlertCircle, color: 'text-red-400', label: 'Scam Warning' },
-    'ACCOUNT_SUSPENDED': { icon: AlertTriangle, color: 'text-red-400', label: 'Account Suspended' },
-    'WITHDRAWAL_PAID': { icon: CheckCircle, color: 'text-emerald-400', label: 'Withdrawal Paid' },
-    'PLATFORM_FREEZE': { icon: Activity, color: 'text-amber-400', label: 'Platform Freeze' },
-    'SERVER_DOWN': { icon: Server, color: 'text-red-400', label: 'Server Down' },
-    'EXECUTION_DELAY': { icon: Clock, color: 'text-amber-400', label: 'Execution Delay' },
+    WITHDRAWAL_DELAY: { icon: Clock, color: T.amber, label: 'Withdrawal Delay' },
+    WITHDRAWAL_REJECTED: { icon: XCircle, color: T.red, label: 'Withdrawal Rejected' },
+    SCAM_WARNING: { icon: AlertTriangle, color: T.red, label: 'Scam Warning' },
+    ACCOUNT_SUSPENDED: { icon: AlertTriangle, color: T.red, label: 'Account Suspended' },
+    WITHDRAWAL_PAID: { icon: CheckCircle, color: T.green, label: 'Withdrawal Paid' },
+    PLATFORM_FREEZE: { icon: Activity, color: T.amber, label: 'Platform Freeze' },
+    SERVER_DOWN: { icon: AlertTriangle, color: T.red, label: 'Server Down' },
+    EXECUTION_DELAY: { icon: Clock, color: T.amber, label: 'Execution Delay' },
   };
 
   const totalReviews = [...enrichedBrokers, ...enrichedPropFirms].reduce((sum, f) => sum + (f.reviewCount || 0), 0);
@@ -540,8 +504,8 @@ export default function MobileHome() {
       <MobileLayout title="InsightPip" showSearch={false}>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto" />
-            <p className="text-xs text-zinc-500 mt-3">Loading...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 mx-auto" style={{ borderColor: T.blue }} />
+            <p className="text-xs mt-3" style={{ color: T.text3 }}>Loading...</p>
           </div>
         </div>
       </MobileLayout>
@@ -552,11 +516,11 @@ export default function MobileHome() {
     return (
       <MobileLayout title="InsightPip" showSearch={false}>
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
-          <Globe size={48} className="text-zinc-600 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">
+          <Globe size={48} style={{ color: T.text3 }} className="mx-auto mb-4" />
+          <h2 className="text-xl font-bold mb-2" style={{ color: T.text }}>
             No trading partners in {regionInfo.flag} {regionInfo.label}
           </h2>
-          <p className="text-zinc-400 text-sm mb-4">
+          <p className="text-sm mb-4" style={{ color: T.text2 }}>
             We don't have any brokers or prop firms available in {regionInfo.flag} {regionInfo.label} yet.
           </p>
           <button
@@ -564,7 +528,8 @@ export default function MobileHome() {
               const selector = document.querySelector('[data-region-selector]');
               if (selector) (selector as HTMLElement).click();
             }}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+            className="px-6 py-3 rounded-lg text-sm font-medium text-white"
+            style={{ backgroundColor: T.blue }}
           >
             Change Region
           </button>
@@ -576,131 +541,125 @@ export default function MobileHome() {
   return (
     <MobileLayout title="InsightPip" showSearch={false}>
       <div className="space-y-6 pb-6">
-        
-        {/* ==================== 1. HERO ==================== */}
-        <motion.div 
+
+        {/* 1. HERO */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="pt-4 pb-2"
         >
-          <h1 className="text-3xl font-bold text-white leading-tight">
-            Know who you're <span className="text-blue-400">trusting</span>.
+          <h1 className="text-3xl font-bold leading-tight" style={{ color: T.text }}>
+            Know who you're <span style={{ color: T.blue }}>trusting</span>.
           </h1>
-          <p className="text-zinc-400 text-sm mt-2 leading-relaxed max-w-xs">
+          <p className="text-sm mt-2 leading-relaxed max-w-xs" style={{ color: T.text2 }}>
             Research brokers and prop firms before you trade with them.
           </p>
           <div className="flex gap-3 mt-4">
             <Link
               href="/rankings"
-              className="px-5 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-1.5"
+              className="px-5 py-2.5 rounded-lg text-sm font-medium text-white flex items-center gap-1.5 active:scale-[0.98] transition-transform"
+              style={{ backgroundColor: T.blue }}
             >
               Explore Rankings <ArrowRight size={14} />
             </Link>
             <Link
               href="/compare"
-              className="px-5 py-2.5 bg-[#1a1a2e] border border-[#2a2a3e] text-white rounded-lg text-sm font-medium hover:bg-[#2a2a3e] transition-colors flex items-center gap-1.5"
+              className="px-5 py-2.5 rounded-lg text-sm font-medium flex items-center gap-1.5 active:scale-[0.98] transition-transform"
+              style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}`, color: T.text }}
             >
-              <GitCompare size={14} className="text-zinc-400" /> Compare
+              <GitCompare size={14} style={{ color: T.text2 }} /> Compare
             </Link>
           </div>
         </motion.div>
 
-        {/* ==================== 2. INSIGHTPIP INTELLIGENCE ==================== */}
-        <motion.div 
+        {/* 2. INTELLIGENCE */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="border border-[#1e1e32] rounded-lg p-4 bg-[#12121f]"
+          className="rounded-xl p-4"
+          style={{ backgroundColor: T.surface, border: `1px solid ${T.border}` }}
         >
           <div className="flex items-center gap-2 mb-3">
-            <TrendingUp size={14} className="text-blue-400" />
-            <h2 className="text-sm font-semibold text-white">InsightPip Intelligence</h2>
+            <TrendingUp size={16} style={{ color: T.blue }} />
+            <h2 className="text-sm font-semibold" style={{ color: T.text }}>InsightPip Intelligence</h2>
           </div>
           <div className="grid grid-cols-3 gap-2">
             <div className="text-center">
-              <div className="text-2xl font-bold text-white">{brokers.length}</div>
-              <div className="text-[10px] text-zinc-500">Brokers</div>
+              <div className="text-2xl font-bold" style={{ color: T.text }}>{brokers.length}</div>
+              <div className="text-[10px]" style={{ color: T.text3 }}>Brokers</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-white">{propFirms.length}</div>
-              <div className="text-[10px] text-zinc-500">Prop Firms</div>
+              <div className="text-2xl font-bold" style={{ color: T.text }}>{propFirms.length}</div>
+              <div className="text-[10px]" style={{ color: T.text3 }}>Prop Firms</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-white">{totalReviews}</div>
-              <div className="text-[10px] text-zinc-500">Reviews</div>
+              <div className="text-2xl font-bold" style={{ color: T.text }}>{totalReviews}</div>
+              <div className="text-[10px]" style={{ color: T.text3 }}>Reviews</div>
             </div>
           </div>
         </motion.div>
 
-        {/* ==================== 3. THE TRUST RANKINGS - SLIDER ==================== */}
-        <motion.div 
+        {/* 3. RANKINGS */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Trophy size={16} className="text-amber-400" />
-              <h2 className="text-base font-semibold text-white">The Trust Rankings</h2>
+              <Trophy size={18} style={{ color: T.gold }} />
+              <h2 className="text-base font-semibold" style={{ color: T.text }}>The Trust Rankings</h2>
             </div>
-            <Link href="/rankings" className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+            <Link href="/rankings" className="text-xs font-medium flex items-center gap-1" style={{ color: T.blue }}>
               View all <ArrowRight size={12} />
             </Link>
           </div>
 
-          {/* Slider Container */}
-          <div className="relative bg-[#12121f] border border-[#1e1e32] rounded-lg overflow-hidden">
-            
-            {/* Slide Indicator */}
-            <div className="flex items-center justify-between px-4 pt-3 pb-1">
+          <div className="rounded-xl overflow-hidden" style={{ backgroundColor: T.surface, border: `1px solid ${T.border}` }}>
+            <div className="flex items-center justify-between px-4 pt-3 pb-2">
               <div className="flex gap-1">
-                {slides.map((slide, index) => (
-                  <button
-                    key={slide.id}
-                    onClick={() => setCurrentSlide(index)}
-                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-medium transition-all ${
-                      currentSlide === index
-                        ? 'bg-blue-600 text-white'
-                        : 'text-zinc-500 hover:text-zinc-300'
-                    }`}
-                  >
-                    <slide.icon size={12} />
-                    {slide.label}
-                  </button>
-                ))}
+                {slides.map((slide, index) => {
+                  const Icon = slide.icon;
+                  const active = currentSlide === index;
+                  return (
+                    <button
+                      key={slide.id}
+                      onClick={() => setCurrentSlide(index)}
+                      className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium transition-all"
+                      style={active ? { backgroundColor: T.blue, color: '#FFFFFF' } : { color: T.text3 }}
+                    >
+                      <Icon size={12} />
+                      {slide.label}
+                    </button>
+                  );
+                })}
               </div>
-              <div className="flex items-center gap-1">
-                <span className="text-[10px] text-zinc-500">
-                  {currentSlide + 1} / {totalSlides}
-                </span>
-              </div>
+              <span className="text-[10px]" style={{ color: T.text3 }}>
+                {currentSlide + 1} / {totalSlides}
+              </span>
             </div>
 
-            {/* Dots */}
-            <div className="flex items-center justify-center gap-1 px-4 pb-1">
-              <div className="flex gap-1">
-                {slides.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleDotClick(index)}
-                    className={`h-1 rounded-full transition-all ${
-                      currentSlide === index
-                        ? 'w-6 bg-blue-500'
-                        : 'w-2 bg-zinc-600 hover:bg-zinc-500'
-                    }`}
-                  />
-                ))}
-              </div>
+            <div className="flex items-center justify-center gap-1 px-4 pb-2">
+              {slides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentSlide(index)}
+                  className="h-1 rounded-full transition-all"
+                  style={{
+                    width: currentSlide === index ? 24 : 8,
+                    backgroundColor: currentSlide === index ? T.blue : T.borderStrong,
+                  }}
+                />
+              ))}
             </div>
 
-            {/* Swipe hint */}
-            <div className="text-center text-[8px] text-zinc-600 pb-1">
+            <div className="text-center text-[9px] pb-2" style={{ color: T.text3 }}>
               ← Swipe to see more →
             </div>
 
-            {/* Slides */}
-            <div 
+            <div
               ref={sliderRef}
               className="overflow-hidden touch-pan-y"
               onTouchStart={handleTouchStart}
@@ -715,127 +674,83 @@ export default function MobileHome() {
               >
                 {slides.map((slide) => (
                   <div key={slide.id} className="w-full px-3 pb-3 flex-shrink-0">
-                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2">
-                      {slide.label}
-                    </p>
                     {slide.data.length > 0 ? (
-                      slide.data.map((entity, index) => (
-                        <RankingEntry
-                          key={entity.id}
-                          rank={index + 1}
-                          entity={entity}
-                          index={index}
-                          onClick={() => handleNavigate(entity.id, entity.name, slide.type)}
-                        />
-                      ))
+                      <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${T.border}` }}>
+                        {slide.data.map((entity, index) => (
+                          <RankingEntry
+                            key={entity.id}
+                            rank={index + 1}
+                            entity={entity}
+                            index={index}
+                            onClick={() => handleNavigate(entity.id, entity.name, slide.type)}
+                          />
+                        ))}
+                      </div>
                     ) : (
-                      <p className="text-zinc-500 text-sm text-center py-4">{slide.emptyMessage}</p>
+                      <p className="text-sm text-center py-6" style={{ color: T.text3 }}>{slide.emptyMessage}</p>
                     )}
                   </div>
                 ))}
               </motion.div>
             </div>
-
-            {/* Navigation Arrows */}
-            <div className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-between px-1">
-              {currentSlide > 0 && (
-                <button
-                  onClick={() => setCurrentSlide(currentSlide - 1)}
-                  className="pointer-events-auto w-7 h-7 rounded-full bg-[#1a1a2e] border border-[#2a2a3e] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-[#2a2a3e] transition-colors"
-                >
-                  <ChevronLeft size={14} />
-                </button>
-              )}
-              {currentSlide < totalSlides - 1 && (
-                <button
-                  onClick={() => setCurrentSlide(currentSlide + 1)}
-                  className="pointer-events-auto w-7 h-7 rounded-full bg-[#1a1a2e] border border-[#2a2a3e] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-[#2a2a3e] transition-colors ml-auto"
-                >
-                  <ChevronRightIcon size={14} />
-                </button>
-              )}
-            </div>
           </div>
         </motion.div>
 
-        {/* ==================== 4. OFFERS - CLEAN, MINIMAL ==================== */}
+        {/* 4. OFFERS */}
         {filteredOffers.length > 0 && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Percent size={16} className="text-blue-400" />
-                <h2 className="text-base font-semibold text-white">Offers</h2>
+                <Percent size={18} style={{ color: T.blue }} />
+                <h2 className="text-base font-semibold" style={{ color: T.text }}>Offers</h2>
               </div>
-              <Link href="/offers" className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+              <Link href="/offers" className="text-xs font-medium flex items-center gap-1" style={{ color: T.blue }}>
                 View all <ArrowRight size={12} />
               </Link>
             </div>
 
-            {/* Tabs - Clean */}
-            <div className="flex gap-1 bg-[#12121f] border border-[#1e1e32] rounded-lg p-1 mb-3">
-              <button
-                onClick={() => setOffersTab('all')}
-                className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${
-                  offersTab === 'all'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-zinc-400 hover:text-white'
-                }`}
-              >
-                All
-              </button>
-              <button
-                onClick={() => setOffersTab('brokers')}
-                className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${
-                  offersTab === 'brokers'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-zinc-400 hover:text-white'
-                }`}
-              >
-                Brokers
-              </button>
-              <button
-                onClick={() => setOffersTab('propFirms')}
-                className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${
-                  offersTab === 'propFirms'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-zinc-400 hover:text-white'
-                }`}
-              >
-                Prop Firms
-              </button>
+            <div className="flex gap-1 rounded-xl p-1 mb-3" style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}` }}>
+              {(['all', 'brokers', 'propFirms'] as const).map((tab) => {
+                const active = offersTab === tab;
+                const label = tab === 'all' ? 'All' : tab === 'brokers' ? 'Brokers' : 'Prop Firms';
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setOffersTab(tab)}
+                    className="flex-1 py-1.5 rounded-md text-xs font-medium transition-all"
+                    style={active ? { backgroundColor: T.blue, color: '#FFFFFF' } : { color: T.text2 }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
             </div>
 
-            {/* Offer Cards */}
             <div className="space-y-2">
               {filteredOffers.slice(0, 4).map((offer, index) => (
-                <OfferCard 
-                  key={`${offer._type}-${offer.id}`}
-                  offer={offer}
-                  type={offer._type}
-                  index={index}
-                />
+                <OfferCard key={`${offer._type}-${offer.id}`} offer={offer} type={offer._type} index={index} />
               ))}
             </div>
           </motion.div>
         )}
 
-        {/* ==================== 5. TRADER VOICES ==================== */}
+        {/* 5. TRADER VOICES */}
         {recentReviews.length > 0 && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <MessageCircle size={16} className="text-blue-400" />
-                <h2 className="text-base font-semibold text-white">Trader Voices</h2>
+                <MessageCircle size={18} style={{ color: T.blue }} />
+                <h2 className="text-base font-semibold" style={{ color: T.text }}>Trader Voices</h2>
               </div>
-              <Link href="/reviews" className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+              <Link href="/reviews" className="text-xs font-medium flex items-center gap-1" style={{ color: T.blue }}>
                 Read all <ArrowRight size={12} />
               </Link>
             </div>
@@ -845,71 +760,51 @@ export default function MobileHome() {
                 const entityLogo = review.entityLogo || null;
                 const userAvatar = review.user?.avatar || null;
                 const userName = review.user?.name || 'Anonymous';
-                const userInitial = userName.charAt(0).toUpperCase();
 
                 return (
-                  <div key={review.id} className="bg-[#12121f] border border-[#1e1e32] rounded-lg p-3">
-                    {/* Header with Entity Logo */}
+                  <div
+                    key={review.id}
+                    className="rounded-xl p-3"
+                    style={{ backgroundColor: T.surface, border: `1px solid ${T.border}` }}
+                  >
                     <div className="flex items-center gap-2 mb-1.5">
-                      <div className="w-5 h-5 rounded-md overflow-hidden bg-[#1a1a2e] border border-[#1e1e32] flex-shrink-0 flex items-center justify-center">
+                      <div
+                        className="w-6 h-6 rounded-md overflow-hidden flex-shrink-0 flex items-center justify-center"
+                        style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}` }}
+                      >
                         {entityLogo ? (
-                          <img 
-                            src={entityLogo} 
-                            alt={review.entityName} 
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
-                              if (parent) {
-                                const fallback = document.createElement('span');
-                                fallback.className = 'text-white font-bold text-[8px]';
-                                fallback.textContent = review.entityName?.charAt(0) || '?';
-                                parent.appendChild(fallback);
-                              }
-                            }}
-                          />
+                          <img src={entityLogo} alt={review.entityName} className="w-full h-full object-cover" />
                         ) : (
-                          <span className="text-white font-bold text-[8px]">{review.entityName?.charAt(0) || '?'}</span>
+                          <span className="font-bold text-[10px]" style={{ color: T.text }}>
+                            {review.entityName?.charAt(0) || '?'}
+                          </span>
                         )}
                       </div>
-                      <span className="text-xs text-zinc-400 font-medium">{review.entityName}</span>
-                      <span className="text-[8px] text-zinc-600">•</span>
+                      <span className="text-xs font-medium" style={{ color: T.text }}>{review.entityName}</span>
+                      <span style={{ color: T.text3 }}>·</span>
                       <StarRating rating={review.rating || 0} size="sm" />
                     </div>
 
-                    {/* Content */}
-                    <p className="text-zinc-300 text-sm leading-relaxed line-clamp-2">
+                    <p className="text-sm leading-relaxed line-clamp-2" style={{ color: T.text2 }}>
                       {review.content}
                     </p>
 
-                    {/* Footer with User */}
                     <div className="flex items-center gap-2 mt-2">
-                      <div className="w-5 h-5 rounded-full overflow-hidden bg-[#1a1a2e] border border-[#1e1e32] flex-shrink-0 flex items-center justify-center">
+                      <div
+                        className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center"
+                        style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}` }}
+                      >
                         {userAvatar ? (
-                          <img 
-                            src={userAvatar} 
-                            alt={userName} 
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
-                              if (parent) {
-                                const fallback = document.createElement('span');
-                                fallback.className = 'text-white font-bold text-[8px]';
-                                fallback.textContent = userInitial;
-                                parent.appendChild(fallback);
-                              }
-                            }}
-                          />
+                          <img src={userAvatar} alt={userName} className="w-full h-full object-cover" />
                         ) : (
-                          <User size={10} className="text-zinc-400" />
+                          <User size={11} style={{ color: T.text3 }} />
                         )}
                       </div>
-                      <span className="text-[10px] text-zinc-500">{userName}</span>
-                      <span className="text-[8px] text-zinc-600">•</span>
-                      <span className="text-[10px] text-zinc-500">{new Date(review.createdAt).toLocaleDateString()}</span>
+                      <span className="text-[11px]" style={{ color: T.text2 }}>{userName}</span>
+                      <span style={{ color: T.text3 }}>·</span>
+                      <span className="text-[11px]" style={{ color: T.text3 }}>
+                        {new Date(review.createdAt).toLocaleDateString()}
+                      </span>
                     </div>
                   </div>
                 );
@@ -918,46 +813,55 @@ export default function MobileHome() {
           </motion.div>
         )}
 
-        {/* ==================== 6. WHAT'S HAPPENING ==================== */}
+        {/* 6. WHAT'S HAPPENING */}
         {recentIncidents.length > 0 && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <AlertTriangle size={16} className="text-red-400" />
-                <h2 className="text-base font-semibold text-white">What's Happening</h2>
+                <AlertTriangle size={18} style={{ color: T.red }} />
+                <h2 className="text-base font-semibold" style={{ color: T.text }}>What's Happening</h2>
               </div>
-              <Link href="/reviews?tab=incidents" className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+              <Link href="/reviews?tab=incidents" className="text-xs font-medium flex items-center gap-1" style={{ color: T.blue }}>
                 View all <ArrowRight size={12} />
               </Link>
             </div>
 
             <div className="space-y-2">
               {recentIncidents.slice(0, 3).map((incident) => {
-                const typeInfo = incidentTypeMap[incident.incidentType] || { icon: AlertCircle, color: 'text-zinc-400', label: 'Reported' };
+                const typeInfo = incidentTypeMap[incident.incidentType] || { icon: AlertTriangle, color: T.text3, label: 'Reported' };
                 const Icon = typeInfo.icon;
                 return (
-                  <div key={incident.id} className="bg-[#12121f] border border-[#1e1e32] rounded-lg p-3">
+                  <div
+                    key={incident.id}
+                    className="rounded-xl p-3"
+                    style={{ backgroundColor: T.surface, border: `1px solid ${T.border}` }}
+                  >
                     <div className="flex items-start gap-2">
-                      <Icon size={14} className={`${typeInfo.color} mt-0.5 flex-shrink-0`} />
+                      <Icon size={16} style={{ color: typeInfo.color }} className="mt-0.5 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-white font-medium text-sm truncate">{incident.entityName || 'Unknown'}</span>
-                          <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 flex-shrink-0">
+                          <span className="font-semibold text-sm truncate" style={{ color: T.text }}>
+                            {incident.entityName || 'Unknown'}
+                          </span>
+                          <span
+                            className="text-[9px] px-1.5 py-0.5 rounded-full font-medium flex-shrink-0"
+                            style={{ backgroundColor: T.redSoft, color: T.red }}
+                          >
                             {incident.status || 'PENDING'}
                           </span>
                         </div>
-                        <p className="text-zinc-400 text-xs">{incident.title}</p>
-                        <div className="flex items-center gap-3 mt-1 text-[10px] text-zinc-500">
+                        <p className="text-xs mt-0.5" style={{ color: T.text2 }}>{incident.title}</p>
+                        <div className="flex items-center gap-2 mt-1 text-[10px]" style={{ color: T.text3 }}>
                           <span>{typeInfo.label}</span>
-                          <span>•</span>
+                          <span>·</span>
                           <span>{new Date(incident.incidentDate || incident.createdAt).toLocaleDateString()}</span>
                           {incident.confirmations > 0 && (
                             <>
-                              <span>•</span>
+                              <span>·</span>
                               <span>{incident.confirmations} confirmations</span>
                             </>
                           )}
@@ -971,58 +875,61 @@ export default function MobileHome() {
           </motion.div>
         )}
 
-        {/* ==================== 7. EXPLORE TRADING PARTNERS ==================== */}
-        <motion.div 
+        {/* 7. EXPLORE */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="border border-[#1e1e32] rounded-lg p-4 bg-[#12121f]"
+          className="rounded-xl p-4"
+          style={{ backgroundColor: T.surface, border: `1px solid ${T.border}` }}
         >
-          <h2 className="text-sm font-semibold text-white mb-3">Explore Trading Partners</h2>
+          <h2 className="text-sm font-semibold mb-3" style={{ color: T.text }}>Explore Trading Partners</h2>
           <div className="grid grid-cols-2 gap-3">
             <Link
               href="/brokers"
-              className="p-3 bg-[#1a1a2e] border border-[#1e1e32] rounded-lg text-center hover:bg-[#2a2a3e] transition-colors"
+              className="p-3 rounded-lg text-center active:scale-[0.98] transition-transform"
+              style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}` }}
             >
-              <Building2 size={20} className="text-blue-400 mx-auto mb-1" />
-              <div className="text-white text-sm font-medium">Brokers</div>
-              <div className="text-[10px] text-zinc-500">Research, reviews, incidents</div>
+              <Building2 size={20} style={{ color: T.blue }} className="mx-auto mb-1" />
+              <div className="text-sm font-medium" style={{ color: T.text }}>Brokers</div>
+              <div className="text-[10px]" style={{ color: T.text3 }}>Research & reviews</div>
             </Link>
             <Link
               href="/prop-firms"
-              className="p-3 bg-[#1a1a2e] border border-[#1e1e32] rounded-lg text-center hover:bg-[#2a2a3e] transition-colors"
+              className="p-3 rounded-lg text-center active:scale-[0.98] transition-transform"
+              style={{ backgroundColor: T.surface2, border: `1px solid ${T.border}` }}
             >
-              <TrendingUp size={20} className="text-purple-400 mx-auto mb-1" />
-              <div className="text-white text-sm font-medium">Prop Firms</div>
-              <div className="text-[10px] text-zinc-500">Challenges, rules, offers</div>
+              <TrendingUp size={20} style={{ color: T.purple }} className="mx-auto mb-1" />
+              <div className="text-sm font-medium" style={{ color: T.text }}>Prop Firms</div>
+              <div className="text-[10px]" style={{ color: T.text3 }}>Challenges & rules</div>
             </Link>
           </div>
         </motion.div>
 
-        {/* ==================== 8. BRAND STATEMENT ==================== */}
-        <motion.div 
+        {/* 8. BRAND STATEMENT */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="text-center py-4 border-t border-[#1e1e32]"
+          className="text-center py-4"
+          style={{ borderTop: `1px solid ${T.border}` }}
         >
-          <p className="text-sm text-zinc-400 italic">
-            "Before you trade with them, <span className="text-white">know them</span>."
+          <p className="text-sm italic" style={{ color: T.text2 }}>
+            "Before you trade with them, <span style={{ color: T.text, fontStyle: 'normal', fontWeight: 600 }}>know them</span>."
           </p>
           <Link
             href="/brokers"
-            className="inline-flex items-center gap-2 mt-3 text-blue-400 text-sm font-medium hover:text-blue-300 transition-colors"
+            className="inline-flex items-center gap-2 mt-3 text-sm font-medium"
+            style={{ color: T.blue }}
           >
             Research Brokers <ArrowRight size={14} />
           </Link>
         </motion.div>
 
-        {/* Footer */}
-        <div className="text-center text-[10px] text-zinc-600 pb-2">
+        <div className="text-center text-[10px] pb-2" style={{ color: T.text3 }}>
           Research before you trust.™
         </div>
       </div>
     </MobileLayout>
   );
 }
-
