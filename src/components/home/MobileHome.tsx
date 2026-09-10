@@ -2,6 +2,12 @@
 
 'use client';
 
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { api } from '@/lib/api';
+import { useRegion } from '@/contexts/RegionContext';
 import { 
   Star, Shield, Building2, MessageCircle, 
   AlertTriangle, CheckCircle, ArrowRight, Users, 
@@ -19,7 +25,6 @@ import {
 import { formatCurrency } from '@/utils/api-helpers';
 import TrustScoreBadge from '@/components/ui/TrustScoreBadge';
 import MobileLayout from '@/components/mobile/MobileLayout';
-
 // ===================== DESIGN SYSTEM =====================
 // Clean, minimal, no gradients. Inspired by Deriv.com
 
