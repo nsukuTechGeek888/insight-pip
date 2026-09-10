@@ -1801,7 +1801,7 @@ export default function MobileBrokerDetail({ params }: { params: { broker: strin
               )}
               
               {/* Regulatory Bodies */}
-              if (broker.regulatoryBodies?.length > 0) {(
+              {broker.regulatoryBodies?.length > 0 && (
                 <div className="mt-3">
                   <h4 className="text-xs text-zinc-400 mb-2">Regulatory Bodies</h4>
                   <div className="flex flex-wrap gap-2">
