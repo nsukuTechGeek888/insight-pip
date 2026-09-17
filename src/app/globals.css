@@ -1,276 +1,572 @@
-@import "tailwindcss";
-
-/* =====================================================================
-   INSIGHTPIP DESIGN SYSTEM — PHASE 1 TOKENS
-   Single source of truth for colors, spacing, radius, motion.
-   ===================================================================== */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  /* ---- Brand ---- */
-  --ip-blue:          #2563EB;
-  --ip-blue-hover:    #1D4ED8;
-  --ip-blue-press:    #1E40AF;
-  --ip-blue-soft:     #EFF6FF;
-  --ip-blue-soft-2:   #DBEAFE;
-
-  /* ---- Surfaces (light) ---- */
-  --ip-bg:            #FFFFFF;
-  --ip-surface:       #FFFFFF;
-  --ip-surface-2:     #F7F8FA;
-  --ip-surface-3:     #EEF0F4;
-  --ip-border:        #E5E7EB;
-  --ip-border-strong: #D1D5DB;
-
-  /* ---- Surfaces (dark header) ---- */
-  --ip-header-bg:     #0A0E1A;
-  --ip-header-bg-2:   #111827;
-  --ip-header-border: #1F2937;
-  --ip-header-text:   #FFFFFF;
-  --ip-header-text-2: #9CA3AF;
-
-  /* ---- Text on light ---- */
-  --ip-text:          #0A0E1A;
-  --ip-text-2:        #6B7280;
-  --ip-text-3:        #9CA3AF;
-  --ip-text-invert:   #FFFFFF;
-
-  /* ---- Semantic ---- */
-  --ip-green:         #16A34A;
-  --ip-green-soft:    #DCFCE7;
-  --ip-amber:         #F59E0B;
-  --ip-amber-soft:    #FEF3C7;
-  --ip-red:           #DC2626;
-  --ip-red-soft:      #FEE2E2;
-  --ip-gold:          #D97706;
-  --ip-gold-soft:     #FEF3C7;
-
-  /* ---- Radius ---- */
-  --ip-r-sm:  8px;
-  --ip-r-md:  12px;
-  --ip-r-lg:  16px;
-  --ip-r-pill: 999px;
-
-  /* ---- Shadows ---- */
-  --ip-shadow-xs: 0 1px 2px rgba(10, 14, 26, 0.04);
-  --ip-shadow-sm: 0 2px 8px rgba(10, 14, 26, 0.06);
-  --ip-shadow-md: 0 4px 16px rgba(10, 14, 26, 0.08);
-
-  /* ---- Motion ---- */
-  --ip-ease:      cubic-bezier(0.22, 1, 0.36, 1);
-  --ip-dur-fast:  150ms;
-  --ip-dur-base:  200ms;
-  --ip-dur-slow:  250ms;
-
-  /* ---- Safe area (iOS notch / home bar) ---- */
-  --ip-safe-top:    env(safe-area-inset-top, 0px);
+  --ip-blue: #2563eb;
+  --ip-bg: #ffffff;
+  --ip-surface: #ffffff;
+  --ip-surface-2: #f7f8fa;
+  --ip-border: #e5e7eb;
+  --ip-text: #0a0e1a;
+  --ip-text-2: #6b7280;
+  --ip-text-3: #9ca3af;
+  --ip-green: #16a34a;
+  --ip-red: #dc2626;
+  --ip-amber: #f59e0b;
   --ip-safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* =====================================================================
-   BASE — GLOBAL DEFAULTS
-   NOTE: body stays dark for now. Light pages use `.ip-light-page`.
-   ===================================================================== */
-
-* {
-  -webkit-tap-highlight-color: transparent;
-}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  background: var(--ip-bg);
 }
 
 body {
-  background-color: #000000; /* unchanged — safe mode */
-  color: #ffffff;            /* unchanged — safe mode */
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-  font-feature-settings: 'cv11', 'ss01';
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* =====================================================================
-   TYPOGRAPHY UTILITY SCALE
-   ===================================================================== */
-
-.ip-display { font-size: 28px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; }
-.ip-h1      { font-size: 22px; font-weight: 700; line-height: 1.20; letter-spacing: -0.02em; }
-.ip-h2      { font-size: 17px; font-weight: 600; line-height: 1.30; letter-spacing: -0.01em; }
-.ip-h3      { font-size: 15px; font-weight: 600; line-height: 1.35; }
-.ip-body    { font-size: 14px; font-weight: 400; line-height: 1.5; }
-.ip-small   { font-size: 13px; font-weight: 400; line-height: 1.5; }
-.ip-meta    { font-size: 11px; font-weight: 500; line-height: 1.4; letter-spacing: 0.02em; }
-.ip-number  { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
-
-/* =====================================================================
-   LIGHT PAGE WRAPPER — opt-in
-   Wrap a page/section with `.ip-light-page` to switch to the new light system.
-   ===================================================================== */
-
-.ip-light-page {
-  background-color: var(--ip-bg);
+  margin: 0;
+  background: #000;
   color: var(--ip-text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-.ip-light-page .ip-text       { color: var(--ip-text); }
-.ip-light-page .ip-text-2     { color: var(--ip-text-2); }
-.ip-light-page .ip-text-3     { color: var(--ip-text-3); }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { font: inherit; }
 
-.ip-light-page .ip-border     { border-color: var(--ip-border); }
-.ip-light-page .ip-surface    { background: var(--ip-surface); }
-.ip-light-page .ip-surface-2  { background: var(--ip-surface-2); }
-.ip-light-page .ip-surface-3  { background: var(--ip-surface-3); }
-
-/* =====================================================================
-   PRESERVED FROM EXISTING globals.css — DO NOT REMOVE
-   ===================================================================== */
-
-table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  background-color: #000000;
-  color: #ffffff;
-  border-bottom: 1px solid #333;
+.ip-home {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 0 16px calc(86px + var(--ip-safe-bottom));
+  background: var(--ip-bg);
+  color: var(--ip-text);
+  overflow: hidden;
 }
 
-.custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background-color: #333; border-radius: 10px; }
-.custom-scrollbar { scrollbar-width: thin; scrollbar-color: #333 transparent; }
-
-.filter-dropdown { z-index: 50 !important; }
-
-.sticky-table-header {
-  position: sticky;
-  top: 64px;
-  z-index: 40;
-  background-color: #18181b;
+.ip-home-loading {
+  min-height: 65vh;
+  display: grid;
+  place-items: center;
+  background: var(--ip-bg);
 }
 
-[data-headlessui-state="open"] { z-index: 60 !important; }
-[data-radix-popper-content-wrapper] { z-index: 60 !important; }
-
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.filter-dropdown, [data-headlessui-state="open"] {
-  animation: slideDown 0.2s ease-out;
+.ip-loader {
+  width: 30px;
+  height: 30px;
+  border: 2px solid #e5e7eb;
+  border-top-color: var(--ip-blue);
+  border-radius: 50%;
+  animation: ip-spin .8s linear infinite;
 }
 
-@keyframes glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(34, 211, 238, 0.5); }
-  50% { box-shadow: 0 0 40px rgba(34, 211, 238, 0.8), 0 0 60px rgba(192, 38, 211, 0.6); }
-}
-@keyframes gradient-x {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-@keyframes tilt {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(0.5deg); }
-  75% { transform: rotate(-0.5deg); }
-}
-.animate-glow { animation: glow 2s ease-in-out infinite; }
-.animate-gradient-x { background-size: 200% 200%; animation: gradient-x 3s ease infinite; }
-.animate-shimmer { animation: shimmer 2s infinite; }
-.animate-tilt { animation: tilt 10s infinite linear; }
+@keyframes ip-spin { to { transform: rotate(360deg); } }
 
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: rgba(17, 24, 39, 0.5); }
-::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #06b6d4, #8b5cf6); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: linear-gradient(to bottom, #0891b2, #7c3aed); }
-
-/* =====================================================================
-   NEW: LIGHT SCROLLBAR (opt-in via .ip-light-scroll)
-   ===================================================================== */
-
-.ip-light-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-.ip-light-scroll::-webkit-scrollbar-track { background: transparent; }
-.ip-light-scroll::-webkit-scrollbar-thumb { background: var(--ip-border-strong); border-radius: 3px; }
-.ip-light-scroll::-webkit-scrollbar-thumb:hover { background: var(--ip-text-3); }
-.ip-light-scroll { scrollbar-width: thin; scrollbar-color: var(--ip-border-strong) transparent; }
-
-/* =====================================================================
-   MICRO-INTERACTIONS
-   ===================================================================== */
-
-.ip-press {
-  transition: transform var(--ip-dur-fast) var(--ip-ease),
-              background-color var(--ip-dur-fast) var(--ip-ease),
-              border-color var(--ip-dur-fast) var(--ip-ease),
-              color var(--ip-dur-fast) var(--ip-ease);
+.ip-empty {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 24px;
+  text-align: center;
+  color: var(--ip-text-3);
 }
-.ip-press:active {
-  transform: scale(0.97);
+.ip-empty h2 { margin: 8px 0 0; color: var(--ip-text); font-size: 18px; }
+.ip-empty p { margin: 0; font-size: 13px; line-height: 1.5; max-width: 300px; }
+
+.ip-hero {
+  position: relative;
+  min-height: 420px;
+  display: grid;
+  align-items: center;
+  padding: 28px 0 10px;
 }
 
-.ip-hover-lift {
-  transition: transform var(--ip-dur-base) var(--ip-ease),
-              box-shadow var(--ip-dur-base) var(--ip-ease);
-}
-.ip-hover-lift:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--ip-shadow-md);
-}
+.ip-hero-copy { position: relative; z-index: 2; width: 69%; }
 
-@keyframes ip-fade-up {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.ip-fade-up {
-  animation: ip-fade-up var(--ip-dur-slow) var(--ip-ease) both;
+.ip-eyebrow,
+.ip-section-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: .14em;
+  color: var(--ip-text-3);
 }
 
-/* =====================================================================
-   SAFE AREA UTILITIES
-   ===================================================================== */
+.ip-hero h1 {
+  margin: 12px 0 12px;
+  font-size: clamp(38px, 11vw, 54px);
+  line-height: .98;
+  letter-spacing: -.055em;
+  font-weight: 760;
+}
+.ip-hero h1 span { color: var(--ip-blue); }
+.ip-hero p {
+  margin: 0;
+  max-width: 330px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ip-text-2);
+}
 
-.ip-safe-top    { padding-top: var(--ip-safe-top); }
-.ip-safe-bottom { padding-bottom: var(--ip-safe-bottom); }
+.ip-primary-button {
+  margin-top: 20px;
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 15px;
+  border-radius: 9px;
+  background: var(--ip-blue);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 650;
+  text-decoration: none;
+  box-shadow: 0 8px 22px rgba(37,99,235,.18);
+}
 
-/* =====================================================================
-   FALLBACK HARDCODED COLORS — Guarantees ip-* classes always render
-   (Fixes transparent header + transparent overlay bug on Tailwind v4)
-   ===================================================================== */
+.ip-hero-art {
+  position: absolute;
+  right: -28px;
+  top: 74px;
+  width: 220px;
+  height: 220px;
+  perspective: 900px;
+  pointer-events: none;
+}
 
-/* Dark header */
-.bg-ip-header              { background-color: #0A0E1A !important; }
-.bg-ip-header-2            { background-color: #111827 !important; }
-.border-ip-header-border   { border-color: #1F2937 !important; }
-.text-ip-header-text       { color: #FFFFFF !important; }
-.text-ip-header-text-2     { color: #9CA3AF !important; }
+.ip-hero-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 112px;
+  height: 112px;
+  transform: translate(-50%,-50%) rotateX(12deg) rotateY(-18deg);
+  transform-style: preserve-3d;
+}
+.ip-core-face {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  border-radius: 30px;
+  color: #fff;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -.08em;
+  background: linear-gradient(145deg, #1d4ed8, #2563eb 55%, #60a5fa);
+  box-shadow: 0 26px 55px rgba(37,99,235,.28), inset 1px 1px 0 rgba(255,255,255,.32);
+  transform: translateZ(18px);
+}
+.ip-core-shadow {
+  position: absolute;
+  inset: 18px -10px -12px 10px;
+  border-radius: 30px;
+  background: #0b1f63;
+  transform: translateZ(-18px);
+  filter: blur(1px);
+}
+.ip-orbit {
+  position: absolute;
+  inset: 19px;
+  border: 1px solid rgba(37,99,235,.28);
+  border-radius: 50%;
+  transform-style: preserve-3d;
+}
+.ip-orbit-one { transform: rotateX(66deg) rotateZ(15deg); }
+.ip-orbit-two { transform: rotateX(66deg) rotateY(58deg) rotateZ(-24deg); }
+.ip-hero-caption {
+  position: absolute;
+  right: 0;
+  bottom: 3px;
+  font-size: 10px;
+  font-style: italic;
+  color: var(--ip-text-3);
+  transform: rotate(-8deg);
+}
 
-/* InsightPip blue */
-.bg-ip-blue                { background-color: #2563EB !important; }
-.bg-ip-blue-soft           { background-color: #EFF6FF !important; }
-.text-ip-blue              { color: #2563EB !important; }
-.border-ip-blue            { border-color: #2563EB !important; }
+.ip-principles {
+  border-top: 1px solid var(--ip-border);
+  border-bottom: 1px solid var(--ip-border);
+  padding: 4px 0;
+}
+.ip-principle {
+  display: grid;
+  grid-template-columns: 31px 1fr;
+  gap: 9px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eef0f3;
+}
+.ip-principle:last-child { border-bottom: 0; }
+.ip-principle > span {
+  font-size: 9px;
+  color: var(--ip-blue);
+  font-weight: 700;
+  padding-top: 2px;
+}
+.ip-principle strong { font-size: 12px; }
+.ip-principle p {
+  margin: 3px 0 0;
+  font-size: 10px;
+  line-height: 1.45;
+  color: var(--ip-text-2);
+}
 
-/* Light surface */
-.bg-ip-surface             { background-color: #FFFFFF !important; }
-.bg-ip-surface-2           { background-color: #F7F8FA !important; }
-.bg-ip-surface-3           { background-color: #EEF0F4 !important; }
-.bg-ip-bg                  { background-color: #FFFFFF !important; }
+.ip-section { padding-top: 34px; }
+.ip-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 13px;
+}
+.ip-section-head h2 {
+  margin: 6px 0 0;
+  font-size: 20px;
+  letter-spacing: -.035em;
+  line-height: 1.05;
+}
+.ip-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ip-blue);
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 650;
+  white-space: nowrap;
+}
 
-/* Text on light */
-.text-ip-text              { color: #0A0E1A !important; }
-.text-ip-text-2            { color: #6B7280 !important; }
-.text-ip-text-3            { color: #9CA3AF !important; }
-.text-ip-text-invert       { color: #FFFFFF !important; }
+.ip-ranking-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 3px;
+  margin-bottom: 9px;
+  background: var(--ip-surface-2);
+  border: 1px solid var(--ip-border);
+  border-radius: 10px;
+}
+.ip-ranking-tabs button {
+  border: 0;
+  background: transparent;
+  color: var(--ip-text-2);
+  border-radius: 7px;
+  padding: 8px 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 650;
+}
+.ip-ranking-tabs button.active {
+  color: var(--ip-text);
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(10,14,26,.07);
+}
 
-/* Borders */
-.border-ip-border          { border-color: #E5E7EB !important; }
-.border-ip-border-strong   { border-color: #D1D5DB !important; }
+.ip-ranking-list {
+  border-top: 1px solid var(--ip-border);
+}
+.ip-ranking-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 22px 34px minmax(0,1fr) auto 13px;
+  gap: 9px;
+  align-items: center;
+  padding: 11px 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #eef0f3;
+  text-align: left;
+}
+.ip-rank-number {
+  font-size: 11px;
+  color: var(--ip-text-3);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.ip-rank-number.top { color: #b7791f; font-weight: 750; }
+.ip-logo-box {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 9px;
+  background: #f7f8fa;
+  border: 1px solid var(--ip-border);
+  color: var(--ip-text);
+  font-weight: 750;
+  font-size: 12px;
+}
+.ip-logo-img { width: 100%; height: 100%; object-fit: contain; padding: 5px; }
+.ip-ranking-main { min-width: 0; }
+.ip-ranking-main strong {
+  display: block;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ip-ranking-main small {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+  color: var(--ip-text-3);
+  font-size: 9px;
+}
+.ip-ranking-main small svg { color: #eab308; }
+.ip-trust-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.ip-row-arrow { color: #b7bcc5; }
+.ip-empty-inline { padding: 30px 0; text-align: center; font-size: 12px; color: var(--ip-text-3); }
 
-/* Semantic */
-.bg-ip-green-soft          { background-color: #DCFCE7 !important; }
-.text-ip-green             { color: #16A34A !important; }
-.bg-ip-red-soft            { background-color: #FEE2E2 !important; }
-.text-ip-red               { color: #DC2626 !important; }
-.text-ip-gold              { color: #D97706 !important; }
+.ip-offer-stage {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  padding: 15px;
+  background: #090b11;
+  color: #fff;
+  min-height: 470px;
+  box-shadow: 0 20px 55px rgba(10,14,26,.16);
+}
+.ip-offer-stage-top {
+  display: flex;
+  justify-content: space-between;
+  color: #7e8592;
+  font-size: 9px;
+  letter-spacing: .02em;
+}
+.ip-offer-object-area {
+  position: relative;
+  height: 225px;
+  display: grid;
+  place-items: center;
+  perspective: 1000px;
+}
+.ip-offer-glow {
+  position: absolute;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(37,99,235,.34), rgba(37,99,235,0) 70%);
+  filter: blur(6px);
+}
+.ip-offer-object {
+  position: relative;
+  z-index: 2;
+  width: 145px;
+  height: 145px;
+  display: grid;
+  place-items: center;
+  transform-style: preserve-3d;
+}
+.ip-offer-disc {
+  position: absolute;
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #2d3340, #0f131b 68%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 20px 35px rgba(0,0,0,.38);
+}
+.ip-logo-box-large {
+  position: relative;
+  width: 108px;
+  height: 108px;
+  border-radius: 27px;
+  background: rgba(255,255,255,.96);
+  border: 0;
+  box-shadow: 0 18px 35px rgba(0,0,0,.25);
+  transform: translateZ(38px) rotateX(8deg) rotateY(-10deg);
+}
+.ip-logo-box-large .ip-logo-img { padding: 16px; }
+.ip-offer-info {
+  position: relative;
+  z-index: 2;
+  border-top: 1px solid rgba(255,255,255,.09);
+  padding-top: 15px;
+}
+.ip-offer-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #9ca3af;
+  font-size: 9px;
+}
+.ip-offer-score { display: inline-flex; align-items: center; gap: 4px; color: #b7c6ff; }
+.ip-offer-info h3 {
+  margin: 7px 0 2px;
+  font-size: 23px;
+  letter-spacing: -.045em;
+}
+.ip-offer-info p {
+  margin: 0;
+  color: #9ca3af;
+  font-size: 11px;
+  line-height: 1.45;
+}
+.ip-offer-info > strong {
+  display: inline-block;
+  margin-top: 9px;
+  color: #8fb0ff;
+  font-size: 13px;
+}
+.ip-offer-actions {
+  position: absolute;
+  left: 15px;
+  right: 15px;
+  bottom: 15px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+.ip-offer-main-button {
+  border: 0;
+  border-radius: 9px;
+  padding: 11px 13px;
+  background: #fff;
+  color: #0a0e1a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.ip-offer-dots {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+.ip-offer-dots button {
+  width: 5px;
+  height: 5px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #555b66;
+}
+.ip-offer-dots button.active { width: 17px; border-radius: 99px; background: #fff; }
+.ip-offer-arrows { display: flex; gap: 5px; }
+.ip-offer-arrows button {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid #2d323b;
+  background: #11151c;
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.ip-incident-list {
+  border-top: 1px solid var(--ip-border);
+}
+.ip-incident-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0,1fr) auto;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eef0f3;
+  text-decoration: none;
+  color: inherit;
+}
+.ip-incident-icon { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; background: var(--ip-surface-2); }
+.ip-incident-main { min-width: 0; }
+.ip-incident-main strong { display: block; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ip-incident-main small { display: block; margin-top: 2px; color: var(--ip-text-3); font-size: 9px; }
+.ip-incident-status { font-size: 9px; font-weight: 700; }
+.ip-no-incidents {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 15px 0;
+  color: var(--ip-text-3);
+  font-size: 11px;
+}
+
+.ip-home-footer {
+  padding: 42px 0 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--ip-text-3);
+  font-size: 8px;
+  letter-spacing: .02em;
+}
+
+@media (min-width: 700px) {
+  .ip-home { padding-left: 24px; padding-right: 24px; }
+  .ip-hero { min-height: 500px; }
+  .ip-hero-art { width: 270px; height: 270px; right: -5px; }
+  .ip-hero-copy { width: 64%; }
+  .ip-hero h1 { font-size: 56px; }
+}
+
+
+.ip-bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 80;
+  padding-bottom: var(--ip-safe-bottom);
+  background: rgba(255,255,255,.96);
+  border-top: 1px solid #e5e7eb;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+.ip-bottom-nav-inner {
+  width: 100%;
+  max-width: 520px;
+  height: 62px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+.ip-bottom-item {
+  position: relative;
+  border: 0;
+  background: transparent;
+  color: #8a919c;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  transition: transform .15s ease, color .15s ease;
+}
+.ip-bottom-item:active { transform: scale(.94); }
+.ip-bottom-item span { font-size: 8px; font-weight: 650; }
+.ip-bottom-item i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ip-blue);
+  opacity: 0;
+}
+.ip-bottom-item.active { color: var(--ip-blue); }
+.ip-bottom-item.active i { opacity: 1; }
+
+@media (prefers-color-scheme: dark) {
+  /* Keep the homepage intentionally light for this first implementation.
+     The dark homepage variant will be switched on once the light structure is verified. */
+}
