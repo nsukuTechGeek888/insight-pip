@@ -1,7 +1,7 @@
 // API helper functions for data formatting and validation
 
 // Format currency
-export function formatCurrency(amount: number, currency: string = 'USD'): string {
+export function formatCurrency(amount: number | null | undefined, currency: string = 'USD'): string {
   if (!amount && amount !== 0) return 'N/A';
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -83,10 +83,10 @@ export function isBrokerRegulated(broker: any): boolean {
 }
 
 // Get prop firm's lowest account option
-export function getLowestAccountOption(propFirm: any) {
+export function getLowestAccountOption(propFirm: any): {accountSize:number;[key:string]:unknown}|null {
   if (!propFirm || !propFirm.programs || propFirm.programs.length === 0) return null;
   
-  let lowest = null;
+  let lowest: {accountSize:number; [key:string]:unknown} | null = null;
   propFirm.programs.forEach((program: any) => {
     if (program.accountOptions && program.accountOptions.length > 0) {
       program.accountOptions.forEach((option: any) => {
@@ -101,10 +101,10 @@ export function getLowestAccountOption(propFirm: any) {
 }
 
 // Get prop firm's highest account option
-export function getHighestAccountOption(propFirm: any) {
+export function getHighestAccountOption(propFirm: any): {accountSize:number;[key:string]:unknown}|null {
   if (!propFirm || !propFirm.programs || propFirm.programs.length === 0) return null;
   
-  let highest = null;
+  let highest: {accountSize:number; [key:string]:unknown} | null = null;
   propFirm.programs.forEach((program: any) => {
     if (program.accountOptions && program.accountOptions.length > 0) {
       program.accountOptions.forEach((option: any) => {
@@ -121,7 +121,7 @@ export function getHighestAccountOption(propFirm: any) {
 // Get unique program types from a prop firm
 export function getProgramTypes(propFirm: any): string[] {
   if (!propFirm || !propFirm.programs) return [];
-  return [...new Set(propFirm.programs.map((p: any) => p.type))];
+  return [...new Set<string>(propFirm.programs.map((p: {type:string}) => p.type))];
 }
 
 // Check if prop firm is available in a country

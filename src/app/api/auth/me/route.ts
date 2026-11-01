@@ -1,3 +1,4 @@
+import {sessionSecret} from '@/lib/session-secret';
 // app/api/auth/me/route.ts - UPDATED WITH REGION
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
     // 2. Verify the JWT token
     let decodedToken;
     try {
-      const jwtSecret = process.env.JWT_SECRET || "development-secret-key-12345";
+      const jwtSecret = sessionSecret();
       decodedToken = jwt.verify(token, jwtSecret) as {
         userId: string
         email: string

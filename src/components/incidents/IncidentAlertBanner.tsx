@@ -102,7 +102,7 @@ export default function IncidentAlertBanner({
             >
               <button
                 onClick={() => dismissAlert(alert.id)}
-                className="absolute top-3 right-3 text-zinc-400 hover:text-white transition-colors"
+                className="absolute top-3 right-3 text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors"
               >
                 <X size={16} />
               </button>
@@ -117,17 +117,17 @@ export default function IncidentAlertBanner({
                     <h4 className={`font-semibold ${styles.text}`}>
                       {alert.type.replace(/_/g, ' ')} Alert
                     </h4>
-                    <div className="flex items-center gap-1 text-xs text-zinc-400">
+                    <div className="flex items-center gap-1 text-xs text-[var(--ip-text-2)]">
                       <Clock size={12} />
                       <span>{new Date(alert.triggeredAt).toLocaleDateString()}</span>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-zinc-400">
+                    <div className="flex items-center gap-1 text-xs text-[var(--ip-text-2)]">
                       <TrendingUp size={12} />
                       <span>{alert.count} reports in {alert.timeWindow}h</span>
                     </div>
                   </div>
                   
-                  <p className="text-zinc-300 text-sm mt-1">{alert.message}</p>
+                  <p className="text-[var(--ip-text-2)] text-sm mt-1">{alert.message}</p>
                   
                   <div className="mt-3 flex gap-3">
                     <Link

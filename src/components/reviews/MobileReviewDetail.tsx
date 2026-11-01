@@ -7,11 +7,11 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useRegion } from '@/contexts/RegionContext';
-import { 
+import {
   Star, ArrowLeft, MessageCircle, ThumbsUp, Share2, Copy, Check,
   Flag, Eye, Clock, Users, Shield, AlertTriangle, CheckCircle,
   Image as ImageIcon, X, Send, ChevronDown,
-  ChevronUp, Reply, Building2, Award, Zap, Wallet, CreditCard, 
+  ChevronUp, Reply, Building2, Award, Zap, Wallet, CreditCard,
   Headphones, DollarSign, BarChart3, Activity, Loader2,
   ChevronLeft, ChevronRight, Paperclip, ThumbsDown, Globe
 } from 'lucide-react';
@@ -40,13 +40,13 @@ function FirmLogo({ item, size = "md" }: { item: any; size?: "sm" | "md" | "lg" 
     md: "w-12 h-12 rounded-xl text-base",
     lg: "w-14 h-14 rounded-xl text-lg"
   };
-  
+
   if (item.logo) {
     return (
-      <div className={`${sizeClasses[size]} overflow-hidden bg-zinc-800 border border-zinc-700 flex-shrink-0 shadow-lg`}>
-        <img 
-          src={item.logo} 
-          alt={item.name} 
+      <div className={`${sizeClasses[size]} overflow-hidden bg-[var(--ip-surface-2)] border border-[var(--ip-border)] flex-shrink-0 shadow-lg`}>
+        <img
+          src={item.logo}
+          alt={item.name}
           className="w-full h-full object-cover"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
@@ -54,7 +54,7 @@ function FirmLogo({ item, size = "md" }: { item: any; size?: "sm" | "md" | "lg" 
             const parent = target.parentElement;
             if (parent) {
               const fallback = document.createElement('div');
-              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(item.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`;
+              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(item.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`;
               fallback.textContent = item.name?.charAt(0) || '?';
               parent.appendChild(fallback);
             }
@@ -63,9 +63,9 @@ function FirmLogo({ item, size = "md" }: { item: any; size?: "sm" | "md" | "lg" 
       </div>
     );
   }
-  
+
   return (
-    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(item.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`}>
+    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(item.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`}>
       {item.name?.charAt(0) || '?'}
     </div>
   );
@@ -74,8 +74,8 @@ function FirmLogo({ item, size = "md" }: { item: any; size?: "sm" | "md" | "lg" 
 // ============ GRADIENT GENERATOR ============
 const generateGradient = (name: string) => {
   const gradients = [
-    "from-pink-500 to-purple-500",
-    "from-blue-500 to-purple-500",
+    "from-pink-500 to-blue-500",
+    "from-blue-500 to-blue-500",
     "from-green-500 to-blue-500",
     "from-yellow-500 to-orange-500",
     "from-red-500 to-pink-500",
@@ -154,12 +154,12 @@ function RatingBar({ label, value, icon: Icon }: { label: string; value: number;
     <div className="space-y-1">
       <div className="flex items-center justify-between text-xs">
         <div className="flex items-center gap-1.5">
-          <Icon size={10} className="text-zinc-500" />
-          <span className="text-zinc-400">{label}</span>
+          <Icon size={10} className="text-[var(--ip-text-2)]" />
+          <span className="text-[var(--ip-text-2)]">{label}</span>
         </div>
-        <span className="text-white font-medium text-xs">{value.toFixed(1)}</span>
+        <span className="text-[var(--ip-text)] font-medium text-xs">{value.toFixed(1)}</span>
       </div>
-      <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
+      <div className="w-full h-1 bg-[var(--ip-surface-2)] rounded-full overflow-hidden">
         <div className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full" style={{ width: `${percentage}%` }} />
       </div>
     </div>
@@ -193,14 +193,14 @@ function LightboxModal({ images, initialIndex, onClose }: { images: string[]; in
       onClick={onClose}
     >
       <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10">
-        <X size={24} className="text-white" />
+        <X size={24} className="text-[var(--ip-text)]" />
       </button>
       {images.length > 1 && (
         <>
           <button onClick={(e) => { e.stopPropagation(); setCurrentIndex(prev => Math.max(0, prev - 1)); }} className="absolute left-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors disabled:opacity-50" disabled={currentIndex === 0}>
-            <ChevronLeft size={24} className="text-white" />
+            <ChevronLeft size={24} className="text-[var(--ip-text)]" />
           </button>
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-white text-sm">
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-[var(--ip-text)] text-sm">
             {currentIndex + 1} / {images.length}
           </div>
         </>
@@ -214,7 +214,7 @@ function LightboxModal({ images, initialIndex, onClose }: { images: string[]; in
       </motion.div>
       {images.length > 1 && (
         <button onClick={(e) => { e.stopPropagation(); setCurrentIndex(prev => Math.min(images.length - 1, prev + 1)); }} className="absolute right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors disabled:opacity-50" disabled={currentIndex === images.length - 1}>
-          <ChevronRight size={24} className="text-white" />
+          <ChevronRight size={24} className="text-[var(--ip-text)]" />
         </button>
       )}
     </motion.div>
@@ -222,9 +222,9 @@ function LightboxModal({ images, initialIndex, onClose }: { images: string[]; in
 }
 
 // Reply Component - Mobile Optimized with Optimistic Updates
-function ReplyItem({ reply, depth = 0, onReply, onHelpful, reviewId, currentUser }: { 
-  reply: Reply; 
-  depth?: number; 
+function ReplyItem({ reply, depth = 0, onReply, onHelpful, reviewId, currentUser }: {
+  reply: Reply;
+  depth?: number;
   onReply: (replyId: string, content: string, mediaFiles: File[]) => Promise<boolean>;
   onHelpful: (replyId: string) => void;
   reviewId: string;
@@ -245,17 +245,17 @@ function ReplyItem({ reply, depth = 0, onReply, onHelpful, reviewId, currentUser
   const isPropFirmReply = reply.replyType === 'PROP_FIRM';
   const isAdminReply = reply.replyType === 'ADMIN';
   const isVerified = isBrokerReply || isPropFirmReply || isAdminReply;
-  
-  const replyColor = isBrokerReply ? 'from-blue-500 to-cyan-500' : 
-                     isPropFirmReply ? 'from-purple-500 to-pink-500' : 
+
+  const replyColor = isBrokerReply ? 'from-blue-500 to-cyan-500' :
+                     isPropFirmReply ? 'from-blue-500 to-pink-500' :
                      isAdminReply ? 'from-red-500 to-orange-500' : 'from-zinc-600 to-zinc-500';
-  
-  const replyLabel = isBrokerReply ? 'Broker' : 
-                     isPropFirmReply ? 'Prop Firm' : 
+
+  const replyLabel = isBrokerReply ? 'Broker' :
+                     isPropFirmReply ? 'Prop Firm' :
                      isAdminReply ? 'Admin' : 'Trader';
-  
-  const ReplyIconComponent = isBrokerReply ? Building2 : 
-                             isPropFirmReply ? Award : 
+
+  const ReplyIconComponent = isBrokerReply ? Building2 :
+                             isPropFirmReply ? Award :
                              isAdminReply ? Shield : MessageCircle;
 
   useEffect(() => {
@@ -267,7 +267,7 @@ function ReplyItem({ reply, depth = 0, onReply, onHelpful, reviewId, currentUser
       setShowReplies(false);
       return;
     }
-    
+
     setLoadingReplies(true);
     try {
       const response = await fetch(`/api/reviews/${reviewId}/replies?parentId=${reply.id}`, { credentials: 'include' });
@@ -286,9 +286,9 @@ function ReplyItem({ reply, depth = 0, onReply, onHelpful, reviewId, currentUser
   const handleSubmitReply = async () => {
     if (!replyContent.trim() && replyMedia.length === 0) return;
     if (submitting) return;
-    
+
     setSubmitting(true);
-    
+
     const optimisticReply: Reply = {
       id: `temp-${Date.now()}`,
       content: replyContent,
@@ -307,14 +307,14 @@ function ReplyItem({ reply, depth = 0, onReply, onHelpful, reviewId, currentUser
       parentReplyId: reply.id,
       helpfulCount: 0
     };
-    
+
     setChildReplies(prev => [...prev, optimisticReply]);
     setLocalReplyCount(prev => prev + 1);
     setShowReplies(true);
     setReplyContent('');
     setReplyMedia([]);
     setShowReplyForm(false);
-    
+
     try {
       const success = await onReply(reply.id, replyContent, replyMedia);
       if (success) {
@@ -347,64 +347,64 @@ function ReplyItem({ reply, depth = 0, onReply, onHelpful, reviewId, currentUser
   };
 
   return (
-    <div className={`relative ${depth > 0 ? 'ml-6 mt-3 pl-3 border-l-2 border-zinc-800' : 'mt-3'}`}>
-      <div className="bg-zinc-800/30 rounded-xl p-3 border border-zinc-800">
+    <div className={`relative ${depth > 0 ? 'ml-6 mt-3 pl-3 border-l-2 border-[var(--ip-border)]' : 'mt-3'}`}>
+      <div className="bg-[var(--ip-surface-2)] rounded-xl p-3 border border-[var(--ip-border)]">
         <div className="flex items-start gap-2">
           <div className="flex-shrink-0">
             {reply.user?.avatar ? (
               <img src={reply.user.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
             ) : (
-              <div className={`w-8 h-8 rounded-full bg-gradient-to-r ${replyColor} flex items-center justify-center text-white font-bold text-xs`}>
+              <div className={`w-8 h-8 rounded-full bg-gradient-to-r ${replyColor} flex items-center justify-center text-[var(--ip-text)] font-bold text-xs`}>
                 {reply.user?.name?.charAt(0) || 'U'}
               </div>
             )}
           </div>
-          
+
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
-              <span className="font-medium text-white text-xs">{reply.user?.name || 'Anonymous'}</span>
+              <span className="font-medium text-[var(--ip-text)] text-xs">{reply.user?.name || 'Anonymous'}</span>
               {isVerified && (
-                <span className={`inline-flex items-center gap-0.5 px-1 py-0.5 rounded-full text-[8px] font-medium bg-gradient-to-r ${replyColor} text-white`}>
+                <span className={`inline-flex items-center gap-0.5 px-1 py-0.5 rounded-full text-[8px] font-medium bg-gradient-to-r ${replyColor} text-[var(--ip-text)]`}>
                   <ReplyIconComponent size={6} />
                   {replyLabel}
                 </span>
               )}
-              <span className="text-[10px] text-zinc-500">{new Date(reply.createdAt).toLocaleDateString()}</span>
+              <span className="text-[10px] text-[var(--ip-text-2)]">{new Date(reply.createdAt).toLocaleDateString()}</span>
             </div>
-            <p className="text-zinc-300 text-xs leading-relaxed">{reply.content}</p>
-            
+            <p className="text-[var(--ip-text-2)] text-xs leading-relaxed">{reply.content}</p>
+
             {reply.mediaUrls && reply.mediaUrls.length > 0 && (
               <div className="flex gap-1.5 mt-2">
                 {reply.mediaUrls.slice(0, 3).map((url, idx) => (
-                  <img key={idx} src={url} alt="" className="w-12 h-12 rounded-lg object-cover bg-zinc-800" />
+                  <img key={idx} src={url} alt="" className="w-12 h-12 rounded-lg object-cover bg-[var(--ip-surface-2)]" />
                 ))}
               </div>
             )}
-            
+
             <div className="flex items-center gap-3 mt-2">
               {depth < maxDepth && (
-                <button onClick={() => setShowReplyForm(!showReplyForm)} className="flex items-center gap-0.5 text-[10px] text-zinc-500 hover:text-purple-400">
+                <button onClick={() => setShowReplyForm(!showReplyForm)} className="flex items-center gap-0.5 text-[10px] text-[var(--ip-text-2)] hover:text-blue-400">
                   <Reply size={10} /> Reply
                 </button>
               )}
-              <button onClick={handleHelpfulClick} className={`flex items-center gap-0.5 text-[10px] ${helpful ? 'text-green-400' : 'text-zinc-500 hover:text-green-400'}`}>
+              <button onClick={handleHelpfulClick} className={`flex items-center gap-0.5 text-[10px] ${helpful ? 'text-green-400' : 'text-[var(--ip-text-2)] hover:text-green-400'}`}>
                 <ThumbsUp size={10} /> {reply.helpfulCount > 0 && `(${reply.helpfulCount})`}
               </button>
               {localReplyCount > 0 && (
-                <button onClick={loadChildReplies} className="flex items-center gap-0.5 text-[10px] text-zinc-500 hover:text-blue-400">
+                <button onClick={loadChildReplies} className="flex items-center gap-0.5 text-[10px] text-[var(--ip-text-2)] hover:text-blue-400">
                   {showReplies ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
                   {localReplyCount}
                 </button>
               )}
             </div>
-            
+
             {showReplyForm && (
               <div className="mt-3">
                 <textarea
                   value={replyContent}
                   onChange={(e) => setReplyContent(e.target.value)}
                   placeholder={`Reply to ${reply.user?.name || 'user'}...`}
-                  className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500"
+                  className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-3 py-2 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500"
                   rows={2}
                 />
                 {replyMedia.length > 0 && (
@@ -413,31 +413,31 @@ function ReplyItem({ reply, depth = 0, onReply, onHelpful, reviewId, currentUser
                       <div key={idx} className="relative">
                         <img src={URL.createObjectURL(file)} alt="" className="w-12 h-12 rounded-lg object-cover" />
                         <button onClick={() => removeFile(idx)} className="absolute -top-1 -right-1 p-0.5 bg-red-500 rounded-full">
-                          <X size={10} className="text-white" />
+                          <X size={10} className="text-[var(--ip-text)]" />
                         </button>
                       </div>
                     ))}
                   </div>
                 )}
                 <div className="flex justify-between items-center mt-2">
-                  <label className="cursor-pointer p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition-colors">
-                    <ImageIcon size={14} className="text-zinc-400" />
-                    <input 
-                      type="file" 
-                      multiple 
-                      accept="image/*,video/*" 
-                      className="hidden" 
+                  <label className="cursor-pointer p-1.5 rounded-lg bg-[var(--ip-surface-2)] hover:bg-zinc-700 transition-colors">
+                    <ImageIcon size={14} className="text-[var(--ip-text-2)]" />
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*,video/*"
+                      className="hidden"
                       onChange={(e) => {
-                        if (e.target.files) setReplyMedia(Array.from(e.target.files));
-                      }} 
+                        if (e.target.files) setReplyMedia(Array.from(e.target.files || []));
+                      }}
                     />
                   </label>
                   <div className="flex gap-2">
-                    <button onClick={() => setShowReplyForm(false)} className="px-3 py-1 rounded-lg bg-zinc-700 text-white text-xs">Cancel</button>
+                    <button onClick={() => setShowReplyForm(false)} className="px-3 py-1 rounded-lg bg-zinc-700 text-[var(--ip-text)] text-xs">Cancel</button>
                     <button
                       onClick={handleSubmitReply}
                       disabled={(!replyContent.trim() && replyMedia.length === 0) || submitting}
-                      className="px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-xs disabled:opacity-50 flex items-center gap-1"
+                      className="px-3 py-1 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-lg text-xs disabled:opacity-50 flex items-center gap-1"
                     >
                       {submitting ? <Loader2 size={10} className="animate-spin" /> : <Send size={10} />}
                       {submitting ? 'Sending...' : 'Reply'}
@@ -449,7 +449,7 @@ function ReplyItem({ reply, depth = 0, onReply, onHelpful, reviewId, currentUser
           </div>
         </div>
       </div>
-      
+
       <AnimatePresence>
         {showReplies && (
           <motion.div
@@ -460,7 +460,7 @@ function ReplyItem({ reply, depth = 0, onReply, onHelpful, reviewId, currentUser
           >
             {loadingReplies ? (
               <div className="ml-6 mt-2 p-3 text-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-500 mx-auto"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mx-auto"></div>
               </div>
             ) : (
               childReplies.map((childReply) => (
@@ -483,8 +483,8 @@ function ReplyItem({ reply, depth = 0, onReply, onHelpful, reviewId, currentUser
 }
 
 // Main Reply Form Component
-function MainReplyForm({ reviewId, onSuccess, onCancel, currentUser }: { 
-  reviewId: string; 
+function MainReplyForm({ reviewId, onSuccess, onCancel, currentUser }: {
+  reviewId: string;
   onSuccess: (optimisticReply?: any) => Promise<void>;
   onCancel: () => void;
   currentUser: any;
@@ -547,7 +547,7 @@ function MainReplyForm({ reviewId, onSuccess, onCancel, currentUser }: {
       if (!response.ok) {
         throw new Error('Failed to post reply');
       }
-      
+
       await onSuccess();
     } catch (err: any) {
       setError(err.message);
@@ -558,39 +558,39 @@ function MainReplyForm({ reviewId, onSuccess, onCancel, currentUser }: {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-3 p-3 bg-zinc-800/30 rounded-xl border border-zinc-800">
+    <form onSubmit={handleSubmit} className="mt-3 p-3 bg-[var(--ip-surface-2)] rounded-xl border border-[var(--ip-border)]">
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="Share your thoughts..."
         rows={2}
-        className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 resize-none text-xs"
+        className="w-full bg-[var(--ip-surface)] border border-[var(--ip-border)] rounded-lg px-3 py-2 text-[var(--ip-text)] placeholder-zinc-500 focus:outline-none focus:border-blue-500 resize-none text-xs"
       />
-      
+
       {mediaFiles.length > 0 && (
         <div className="flex gap-1.5 mt-2">
           {mediaFiles.map((file, idx) => (
             <div key={idx} className="relative">
-              <img src={URL.createObjectURL(file)} alt="" className="w-10 h-10 rounded-lg object-cover bg-zinc-800" />
+              <img src={URL.createObjectURL(file)} alt="" className="w-10 h-10 rounded-lg object-cover bg-[var(--ip-surface-2)]" />
               <button type="button" onClick={() => setMediaFiles(prev => prev.filter((_, i) => i !== idx))} className="absolute -top-1 -right-1 p-0.5 bg-red-500 rounded-full">
-                <X size={8} className="text-white" />
+                <X size={8} className="text-[var(--ip-text)]" />
               </button>
             </div>
           ))}
         </div>
       )}
-      
+
       <div className="flex items-center justify-between mt-2">
-        <button type="button" onClick={() => fileInputRef.current?.click()} className="p-1.5 rounded-lg bg-zinc-800 text-zinc-400">
+        <button type="button" onClick={() => fileInputRef.current?.click()} className="p-1.5 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text-2)]">
           <ImageIcon size={12} />
         </button>
         <input type="file" ref={fileInputRef} onChange={(e) => {
-          if (e.target.files) setMediaFiles(prev => [...prev, ...Array.from(e.target.files)]);
+          if (e.target.files) setMediaFiles(prev => [...prev, ...Array.from(e.target.files || [])]);
         }} multiple accept="image/*,video/*" className="hidden" />
-        
+
         <div className="flex gap-1.5">
-          <button type="button" onClick={onCancel} className="px-2 py-1 rounded-lg bg-zinc-800 text-white text-[10px]">Cancel</button>
-          <button type="submit" disabled={submitting || (!content.trim() && mediaFiles.length === 0)} className="px-2 py-1 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white text-[10px] font-medium disabled:opacity-50 flex items-center gap-1">
+          <button type="button" onClick={onCancel} className="px-2 py-1 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text)] text-[10px]">Cancel</button>
+          <button type="submit" disabled={submitting || (!content.trim() && mediaFiles.length === 0)} className="px-2 py-1 rounded-lg bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] text-[10px] font-medium disabled:opacity-50 flex items-center gap-1">
             {submitting ? <Loader2 size={10} className="animate-spin" /> : <Send size={10} />}
             Post
           </button>
@@ -608,7 +608,7 @@ export default function MobileReviewDetail() {
   const { user } = useUser();
   const { region } = useRegion(); // ✅ ADDED REGION
   const reviewId = params.id as string;
-  
+
   const [review, setReview] = useState<Review | null>(null);
   const [replies, setReplies] = useState<Reply[]>([]);
   const [loading, setLoading] = useState(true);
@@ -630,11 +630,11 @@ export default function MobileReviewDetail() {
         fetch(`/api/reviews/${reviewId}`, { credentials: 'include' }),
         fetch(`/api/reviews/${reviewId}/replies`, { credentials: 'include' })
       ]);
-      
+
       if (!reviewRes.ok) throw new Error('Review not found');
       const reviewData = await reviewRes.json();
       setReview(reviewData.review || reviewData);
-      
+
       const repliesData = await repliesRes.json();
       if (repliesData.success) {
         setReplies(repliesData.replies);
@@ -663,7 +663,7 @@ export default function MobileReviewDetail() {
       router.push('/login');
       return;
     }
-    
+
     try {
       const response = await fetch(`/api/reviews/${reviewId}/helpful`, {
         method: 'POST',
@@ -682,7 +682,7 @@ export default function MobileReviewDetail() {
 
   const handleReplySubmit = async (parentId: string | null, content: string, mediaFiles: File[]): Promise<boolean> => {
     if (!user) return false;
-    
+
     try {
       const formData = new FormData();
       formData.append('content', content);
@@ -751,8 +751,8 @@ export default function MobileReviewDetail() {
       <MobileLayout title="Review" showSearch={false}>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto" />
-            <p className="text-xs text-zinc-500 mt-3">Loading review...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto" />
+            <p className="text-xs text-[var(--ip-text-2)] mt-3">Loading review...</p>
           </div>
         </div>
       </MobileLayout>
@@ -765,8 +765,8 @@ export default function MobileReviewDetail() {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <AlertTriangle size={32} className="text-red-500 mx-auto mb-3" />
-            <p className="text-zinc-400 text-sm">{error || 'Review not found'}</p>
-            <button onClick={() => router.back()} className="mt-4 px-4 py-2 bg-purple-600 rounded-lg text-white text-sm">Go Back</button>
+            <p className="text-[var(--ip-text-2)] text-sm">{error || 'Review not found'}</p>
+            <button onClick={() => router.back()} className="mt-4 px-4 py-2 bg-blue-600 rounded-lg text-[var(--ip-text)] text-sm">Go Back</button>
           </div>
         </div>
       </MobileLayout>
@@ -783,8 +783,8 @@ export default function MobileReviewDetail() {
     review.value
   ].filter(r => r && r > 0).length;
 
-  const contentPreview = review.content.length > 200 && !showFullContent 
-    ? review.content.slice(0, 200) + '...' 
+  const contentPreview = review.content.length > 200 && !showFullContent
+    ? review.content.slice(0, 200) + '...'
     : review.content;
 
   // Build firm data for logo
@@ -798,47 +798,47 @@ export default function MobileReviewDetail() {
       {/* ❌ REGION BANNER REMOVED - Users select region in navbar */}
 
       <div className="space-y-4 pb-6">
-        
+
         {/* Region Context - Subtle */}
         <div className="flex items-center justify-between">
-          <button onClick={() => router.back()} className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white">
+          <button onClick={() => router.back()} className="flex items-center gap-1 text-xs text-[var(--ip-text-2)] hover:text-[var(--ip-text)]">
             <ArrowLeft size={14} /> Back
           </button>
-          <div className="flex items-center gap-1.5 text-[10px] text-zinc-500">
+          <div className="flex items-center gap-1.5 text-[10px] text-[var(--ip-text-2)]">
             <Globe size={10} />
             <span>{regionInfo.flag} {regionInfo.label}</span>
           </div>
         </div>
 
-        <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 overflow-hidden">
-          <div className="p-4 border-b border-zinc-800">
+        <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] overflow-hidden">
+          <div className="p-4 border-b border-[var(--ip-border)]">
             <div className="flex items-start justify-between gap-3 mb-3">
               <Link href={`/${review.entityType === 'broker' ? 'brokers' : 'prop-firms'}/${review.entitySlug}`} className="flex items-center gap-3">
                 <FirmLogo item={firmData} size="sm" />
                 <div>
-                  <p className="text-white font-semibold text-sm">{review.entityName}</p>
-                  <p className="text-[10px] text-zinc-500 capitalize">{review.entityType}</p>
+                  <p className="text-[var(--ip-text)] font-semibold text-sm">{review.entityName}</p>
+                  <p className="text-[10px] text-[var(--ip-text-2)] capitalize">{review.entityType}</p>
                 </div>
               </Link>
-              <button onClick={handleShare} className="p-2 rounded-lg bg-zinc-800">
-                {copied ? <Check size={14} className="text-green-400" /> : <Share2 size={14} className="text-zinc-400" />}
+              <button onClick={handleShare} className="p-2 rounded-lg bg-[var(--ip-surface-2)]">
+                {copied ? <Check size={14} className="text-green-400" /> : <Share2 size={14} className="text-[var(--ip-text-2)]" />}
               </button>
             </div>
-            
-            <h2 className="text-lg font-bold text-white mb-2">{review.title}</h2>
-            
-            <div className="flex flex-wrap items-center gap-2 text-[10px] text-zinc-500 mb-3">
+
+            <h2 className="text-lg font-bold text-[var(--ip-text)] mb-2">{review.title}</h2>
+
+            <div className="flex flex-wrap items-center gap-2 text-[10px] text-[var(--ip-text-2)] mb-3">
               <span className="flex items-center gap-0.5"><Clock size={10} /> {new Date(review.createdAt).toLocaleDateString()}</span>
               <span className="flex items-center gap-0.5"><ThumbsUp size={10} /> {review.helpfulCount}</span>
               <span className="flex items-center gap-0.5"><MessageCircle size={10} /> {review.replyCount}</span>
             </div>
-            
+
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <StarRating rating={review.rating} size="md" />
-              <span className="text-white font-bold text-sm">{review.rating}.0</span>
+              <span className="text-[var(--ip-text)] font-bold text-sm">{review.rating}.0</span>
               {review.trustScore > 0 && <TrustScoreBadge score={review.trustScore} size="sm" />}
             </div>
-            
+
             <div className="flex flex-wrap gap-1.5 mb-3">
               {review.isVerified && (
                 <span className="px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full text-[9px] flex items-center gap-0.5">
@@ -849,38 +849,38 @@ export default function MobileReviewDetail() {
                 <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full text-[9px]">Recommended</span>
               )}
             </div>
-            
-            <p className="text-zinc-300 text-xs leading-relaxed">
+
+            <p className="text-[var(--ip-text-2)] text-xs leading-relaxed">
               {contentPreview}
               {review.content.length > 200 && (
-                <button onClick={() => setShowFullContent(!showFullContent)} className="text-purple-400 ml-1 text-xs">
+                <button onClick={() => setShowFullContent(!showFullContent)} className="text-blue-400 ml-1 text-xs">
                   {showFullContent ? 'Show less' : 'Read more'}
                 </button>
               )}
             </p>
           </div>
-          
-          <div className="p-4 border-b border-zinc-800">
+
+          <div className="p-4 border-b border-[var(--ip-border)]">
             <div className="flex items-center gap-2 mb-2">
-              <Users size={12} className="text-purple-400" />
-              <h3 className="text-xs font-semibold text-white">Trader Info</h3>
+              <Users size={12} className="text-blue-400" />
+              <h3 className="text-xs font-semibold text-[var(--ip-text)]">Trader Info</h3>
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs">
-              {review.experienceLevel && <div><span className="text-zinc-500">Level:</span> <span className="text-white">{review.experienceLevel}</span></div>}
-              {review.yearsTrading && <div><span className="text-zinc-500">Years:</span> <span className="text-white">{review.yearsTrading}</span></div>}
-              {review.tradingStyle && <div><span className="text-zinc-500">Style:</span> <span className="text-white">{review.tradingStyle}</span></div>}
-              {review.withdrawalSpeed && <div><span className="text-zinc-500">Withdrawal:</span> <span className="text-white">{review.withdrawalSpeed}</span></div>}
+              {review.experienceLevel && <div><span className="text-[var(--ip-text-2)]">Level:</span> <span className="text-[var(--ip-text)]">{review.experienceLevel}</span></div>}
+              {review.yearsTrading && <div><span className="text-[var(--ip-text-2)]">Years:</span> <span className="text-[var(--ip-text)]">{review.yearsTrading}</span></div>}
+              {review.tradingStyle && <div><span className="text-[var(--ip-text-2)]">Style:</span> <span className="text-[var(--ip-text)]">{review.tradingStyle}</span></div>}
+              {review.withdrawalSpeed && <div><span className="text-[var(--ip-text-2)]">Withdrawal:</span> <span className="text-[var(--ip-text)]">{review.withdrawalSpeed}</span></div>}
             </div>
           </div>
-          
+
           {(review.pros || review.cons) && (
-            <div className="p-4 border-b border-zinc-800">
+            <div className="p-4 border-b border-[var(--ip-border)]">
               <div className="grid grid-cols-2 gap-3">
                 {review.pros && (
                   <div>
                     <div className="flex items-center gap-1 mb-1">
                       <ThumbsUp size={10} className="text-green-400" />
-                      <span className="text-[10px] text-zinc-500">Pros</span>
+                      <span className="text-[10px] text-[var(--ip-text-2)]">Pros</span>
                     </div>
                     <p className="text-green-400 text-xs">{review.pros}</p>
                   </div>
@@ -889,7 +889,7 @@ export default function MobileReviewDetail() {
                   <div>
                     <div className="flex items-center gap-1 mb-1">
                       <ThumbsDown size={10} className="text-red-400" />
-                      <span className="text-[10px] text-zinc-500">Cons</span>
+                      <span className="text-[10px] text-[var(--ip-text-2)]">Cons</span>
                     </div>
                     <p className="text-red-400 text-xs">{review.cons}</p>
                   </div>
@@ -897,12 +897,12 @@ export default function MobileReviewDetail() {
               </div>
             </div>
           )}
-          
+
           {totalRatings > 0 && (
-            <div className="p-4 border-b border-zinc-800">
+            <div className="p-4 border-b border-[var(--ip-border)]">
               <div className="flex items-center gap-2 mb-2">
-                <BarChart3 size={12} className="text-purple-400" />
-                <h3 className="text-xs font-semibold text-white">Ratings</h3>
+                <BarChart3 size={12} className="text-blue-400" />
+                <h3 className="text-xs font-semibold text-[var(--ip-text)]">Ratings</h3>
               </div>
               <div className="space-y-2">
                 {Object.entries(ratingLabels).map(([key, label]) => {
@@ -914,29 +914,29 @@ export default function MobileReviewDetail() {
               </div>
             </div>
           )}
-          
+
           <div className="p-4 flex gap-3">
-            <button onClick={handleHelpful} className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium transition-colors ${helpful ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-zinc-800 text-zinc-400'}`}>
+            <button onClick={handleHelpful} className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium transition-colors ${helpful ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-[var(--ip-surface-2)] text-[var(--ip-text-2)]'}`}>
               <ThumbsUp size={12} /> Helpful ({review.helpfulCount})
             </button>
-            <button onClick={() => setShowReplyForm(!showReplyForm)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-zinc-800 text-zinc-400 text-xs font-medium">
+            <button onClick={() => setShowReplyForm(!showReplyForm)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] text-xs font-medium">
               <MessageCircle size={12} /> Reply
             </button>
           </div>
         </div>
-        
+
         {showReplyForm && (
-          <MainReplyForm 
+          <MainReplyForm
             reviewId={reviewId}
             onSuccess={onMainReplySuccess}
             onCancel={() => setShowReplyForm(false)}
             currentUser={user}
           />
         )}
-        
+
         {replies.length > 0 && (
           <div className="mt-2">
-            <h3 className="text-sm font-semibold text-white mb-2 flex items-center gap-1.5">
+            <h3 className="text-sm font-semibold text-[var(--ip-text)] mb-2 flex items-center gap-1.5">
               <MessageCircle size={12} /> {review.replyCount} {review.replyCount === 1 ? 'Reply' : 'Replies'}
             </h3>
             <div className="space-y-1">

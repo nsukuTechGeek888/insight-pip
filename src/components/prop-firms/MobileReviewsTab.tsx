@@ -27,7 +27,7 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
   
   if (firm.logo) {
     return (
-      <div className={`${sizeClasses[size]} overflow-hidden bg-zinc-800 border border-zinc-700 flex-shrink-0 shadow-lg`}>
+      <div className={`${sizeClasses[size]} overflow-hidden bg-[var(--ip-surface-2)] border border-[var(--ip-border)] flex-shrink-0 shadow-lg`}>
         <img 
           src={firm.logo} 
           alt={firm.name} 
@@ -38,7 +38,7 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
             const parent = target.parentElement;
             if (parent) {
               const fallback = document.createElement('div');
-              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`;
+              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`;
               fallback.textContent = firm.name?.charAt(0) || '?';
               parent.appendChild(fallback);
             }
@@ -49,7 +49,7 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
   }
   
   return (
-    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`}>
+    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`}>
       {firm.name?.charAt(0) || '?'}
     </div>
   );
@@ -78,8 +78,8 @@ const getMinAccountSize = (firm: any) => {
 
 const generateGradient = (name: string) => {
   const gradients = [
-    "from-pink-500 to-purple-500",
-    "from-blue-500 to-purple-500",
+    "from-pink-500 to-blue-500",
+    "from-blue-500 to-blue-500",
     "from-green-500 to-blue-500",
     "from-yellow-500 to-orange-500",
     "from-red-500 to-pink-500",
@@ -177,44 +177,44 @@ function ReviewCard({ review, onHelpful }: { review: any; onHelpful: (id: number
   const isLong = review.content?.length > 150;
 
   return (
-    <div className="bg-zinc-900/80 rounded-xl border border-zinc-800 p-4">
+    <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-4">
       <div className="flex items-start gap-3 mb-3">
-        <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${generateGradient(review.userName || 'User')} flex items-center justify-center text-white font-bold text-sm flex-shrink-0`}>
+        <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${generateGradient(review.userName || 'User')} flex items-center justify-center text-[var(--ip-text)] font-bold text-sm flex-shrink-0`}>
           {review.userName?.charAt(0) || 'U'}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-white font-semibold text-sm">{review.userName || 'Anonymous Trader'}</span>
+            <span className="text-[var(--ip-text)] font-semibold text-sm">{review.userName || 'Anonymous Trader'}</span>
             {review.verified && <CheckCircle2 size={12} className="text-blue-400" />}
           </div>
           <div className="flex items-center gap-2 mt-1">
             <StarRating rating={review.rating} size="sm" />
-            <span className="text-xs text-zinc-500">{review.date}</span>
+            <span className="text-xs text-[var(--ip-text-2)]">{review.date}</span>
           </div>
         </div>
         {review.trustScore > 0 && <TrustScoreBadge score={review.trustScore} size="sm" />}
       </div>
 
-      <h4 className="text-white font-semibold text-sm mb-2">{review.title}</h4>
+      <h4 className="text-[var(--ip-text)] font-semibold text-sm mb-2">{review.title}</h4>
       
-      <p className={`text-zinc-300 text-xs leading-relaxed ${!expanded && isLong ? 'line-clamp-3' : ''}`}>
+      <p className={`text-[var(--ip-text-2)] text-xs leading-relaxed ${!expanded && isLong ? 'line-clamp-3' : ''}`}>
         {review.content}
       </p>
       
       {isLong && (
-        <button onClick={() => setExpanded(!expanded)} className="text-purple-400 text-xs mt-1">
+        <button onClick={() => setExpanded(!expanded)} className="text-blue-400 text-xs mt-1">
           {expanded ? 'Show less' : 'Read more'}
         </button>
       )}
 
-      <div className="flex items-center gap-4 mt-3 pt-2 border-t border-zinc-800">
+      <div className="flex items-center gap-4 mt-3 pt-2 border-t border-[var(--ip-border)]">
         <button 
           onClick={() => { if (!helpfulClicked) { onHelpful(review.id); setHelpfulClicked(true); } }} 
-          className={`flex items-center gap-1 text-xs ${helpfulClicked ? 'text-green-400' : 'text-zinc-500'}`}
+          className={`flex items-center gap-1 text-xs ${helpfulClicked ? 'text-green-400' : 'text-[var(--ip-text-2)]'}`}
         >
           <ThumbsUp size={12} /> Helpful ({review.helpful || 0})
         </button>
-        <button className="flex items-center gap-1 text-xs text-zinc-500">
+        <button className="flex items-center gap-1 text-xs text-[var(--ip-text-2)]">
           <Flag size={12} /> Report
         </button>
       </div>
@@ -252,7 +252,7 @@ function ReviewsFirmCard({ firm, onPress, onWriteReview }: {
   const hasOffer = firm.promotions && firm.promotions.length > 0;
 
   return (
-    <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
+    <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] overflow-hidden">
       <div className="p-4">
         {/* Header - WITH LOGO */}
         <div className="flex items-start gap-3 mb-4">
@@ -260,25 +260,25 @@ function ReviewsFirmCard({ firm, onPress, onWriteReview }: {
             <FirmLogo firm={firm} size="md" />
             {isTopRated && (
               <div className="absolute -top-1 -right-1">
-                <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-1.5 py-0.5 rounded-full text-[8px] font-bold flex items-center gap-0.5">
+                <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-[var(--ip-text)] px-1.5 py-0.5 rounded-full text-[8px] font-bold flex items-center gap-0.5">
                   <Flame size={8} /> TOP
                 </div>
               </div>
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-white font-bold text-base">{firm.name}</h3>
+            <h3 className="text-[var(--ip-text)] font-bold text-base">{firm.name}</h3>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               <div className="flex items-center gap-1">
                 <StarRating rating={rating} size="sm" />
-                <span className="text-xs text-zinc-500">({rating.toFixed(1)})</span>
+                <span className="text-xs text-[var(--ip-text-2)]">({rating.toFixed(1)})</span>
               </div>
               {trustScore > 0 && <TrustScoreBadge score={trustScore} size="sm" />}
               {isRegulated && <BadgeCheck size={14} className="text-green-400" />}
-              <span className="text-xs text-zinc-500">{reviewCount} reviews</span>
+              <span className="text-xs text-[var(--ip-text-2)]">{reviewCount} reviews</span>
             </div>
             {/* Quick Info */}
-            <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-zinc-400">
+            <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-[var(--ip-text-2)]">
               <span className="flex items-center gap-1"><Globe size={10} /> {country}</span>
               {yearsInOperation > 0 && (
                 <span className="flex items-center gap-1"><Clock size={10} /> {yearsInOperation}y</span>
@@ -293,11 +293,11 @@ function ReviewsFirmCard({ firm, onPress, onWriteReview }: {
         {/* Key Metrics */}
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="bg-green-500/10 rounded-lg p-2.5 text-center border border-green-500/20">
-            <div className="text-zinc-500 text-[10px]">Max Payout</div>
+            <div className="text-[var(--ip-text-2)] text-[10px]">Max Payout</div>
             <div className="text-green-400 font-bold text-base">{maxPayout}%</div>
           </div>
           <div className="bg-blue-500/10 rounded-lg p-2.5 text-center border border-blue-500/20">
-            <div className="text-zinc-500 text-[10px]">Min Account</div>
+            <div className="text-[var(--ip-text-2)] text-[10px]">Min Account</div>
             <div className="text-blue-400 font-bold text-base">
               {minAccount > 0 ? formatCurrency(minAccount) : 'N/A'}
             </div>
@@ -306,37 +306,37 @@ function ReviewsFirmCard({ firm, onPress, onWriteReview }: {
 
         {/* Community Ratings Progress Bars */}
         <div className="space-y-2 mb-4">
-          <div className="text-xs text-zinc-500 mb-1 flex items-center gap-1">
+          <div className="text-xs text-[var(--ip-text-2)] mb-1 flex items-center gap-1">
             <Users size={12} /> Community Ratings
           </div>
           
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 w-20"><TrendingUp size={11} className="text-green-400" /><span className="text-[11px] text-zinc-400">Trading</span></div>
-            <div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+            <div className="flex items-center gap-1 w-20"><TrendingUp size={11} className="text-green-400" /><span className="text-[11px] text-[var(--ip-text-2)]">Trading</span></div>
+            <div className="flex-1 h-1.5 bg-[var(--ip-surface-2)] rounded-full overflow-hidden">
               <div className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full" style={{ width: `${(tradingConditions / 5) * 100}%` }} />
             </div>
             <span className="text-[11px] font-medium text-green-400 w-8 text-right">{tradingConditions > 0 ? tradingConditions.toFixed(1) : 'N/A'}</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 w-20"><Headphones size={11} className="text-purple-400" /><span className="text-[11px] text-zinc-400">Support</span></div>
-            <div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full" style={{ width: `${(customerCare / 5) * 100}%` }} />
+            <div className="flex items-center gap-1 w-20"><Headphones size={11} className="text-blue-400" /><span className="text-[11px] text-[var(--ip-text-2)]">Support</span></div>
+            <div className="flex-1 h-1.5 bg-[var(--ip-surface-2)] rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full" style={{ width: `${(customerCare / 5) * 100}%` }} />
             </div>
-            <span className="text-[11px] font-medium text-purple-400 w-8 text-right">{customerCare > 0 ? customerCare.toFixed(1) : 'N/A'}</span>
+            <span className="text-[11px] font-medium text-blue-400 w-8 text-right">{customerCare > 0 ? customerCare.toFixed(1) : 'N/A'}</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 w-20"><Smartphone size={11} className="text-blue-400" /><span className="text-[11px] text-zinc-400">Platform</span></div>
-            <div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+            <div className="flex items-center gap-1 w-20"><Smartphone size={11} className="text-blue-400" /><span className="text-[11px] text-[var(--ip-text-2)]">Platform</span></div>
+            <div className="flex-1 h-1.5 bg-[var(--ip-surface-2)] rounded-full overflow-hidden">
               <div className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full" style={{ width: `${(userFriendliness / 5) * 100}%` }} />
             </div>
             <span className="text-[11px] font-medium text-blue-400 w-8 text-right">{userFriendliness > 0 ? userFriendliness.toFixed(1) : 'N/A'}</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 w-20"><Rocket size={11} className="text-yellow-400" /><span className="text-[11px] text-zinc-400">Payouts</span></div>
-            <div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+            <div className="flex items-center gap-1 w-20"><Rocket size={11} className="text-yellow-400" /><span className="text-[11px] text-[var(--ip-text-2)]">Payouts</span></div>
+            <div className="flex-1 h-1.5 bg-[var(--ip-surface-2)] rounded-full overflow-hidden">
               <div className="h-full bg-gradient-to-r from-yellow-500 to-orange-400 rounded-full" style={{ width: `${(payoutProcess / 5) * 100}%` }} />
             </div>
             <span className="text-[11px] font-medium text-yellow-400 w-8 text-right">{payoutProcess > 0 ? payoutProcess.toFixed(1) : 'N/A'}</span>
@@ -346,15 +346,15 @@ function ReviewsFirmCard({ firm, onPress, onWriteReview }: {
         {/* Programs */}
         {programTypes.length > 0 && (
           <div className="mb-3">
-            <div className="text-zinc-500 text-[10px] mb-1.5 flex items-center gap-1">
+            <div className="text-[var(--ip-text-2)] text-[10px] mb-1.5 flex items-center gap-1">
               <Layers size={12} /> Programs
             </div>
             <div className="flex flex-wrap gap-1.5">
               {programTypes.slice(0, 3).map((type: string, i: number) => (
-                <span key={i} className="text-[9px] bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full">{type}</span>
+                <span key={i} className="text-[9px] bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full">{type}</span>
               ))}
               {programTypes.length > 3 && (
-                <span className="text-[9px] text-zinc-500">+{programTypes.length - 3}</span>
+                <span className="text-[9px] text-[var(--ip-text-2)]">+{programTypes.length - 3}</span>
               )}
             </div>
           </div>
@@ -363,15 +363,15 @@ function ReviewsFirmCard({ firm, onPress, onWriteReview }: {
         {/* Platforms */}
         {platforms.length > 0 && (
           <div className="mb-3">
-            <div className="text-zinc-500 text-[10px] mb-1.5 flex items-center gap-1">
+            <div className="text-[var(--ip-text-2)] text-[10px] mb-1.5 flex items-center gap-1">
               <Monitor size={12} /> Platforms
             </div>
             <div className="flex flex-wrap gap-1.5">
               {platforms.slice(0, 3).map((p: string, i: number) => (
-                <span key={i} className="text-[9px] bg-zinc-800 text-zinc-300 px-2 py-1 rounded-full">{p}</span>
+                <span key={i} className="text-[9px] bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] px-2 py-1 rounded-full">{p}</span>
               ))}
               {platforms.length > 3 && (
-                <span className="text-[9px] text-zinc-500">+{platforms.length - 3}</span>
+                <span className="text-[9px] text-[var(--ip-text-2)]">+{platforms.length - 3}</span>
               )}
             </div>
           </div>
@@ -380,7 +380,7 @@ function ReviewsFirmCard({ firm, onPress, onWriteReview }: {
         {/* Regulation */}
         {regulations.length > 0 && (
           <div className="mb-3">
-            <div className="text-zinc-500 text-[10px] mb-1.5 flex items-center gap-1">
+            <div className="text-[var(--ip-text-2)] text-[10px] mb-1.5 flex items-center gap-1">
               <Landmark size={12} /> Regulation
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -388,7 +388,7 @@ function ReviewsFirmCard({ firm, onPress, onWriteReview }: {
                 <span key={i} className="text-[9px] bg-green-900/50 text-green-300 px-2 py-1 rounded-full">{reg}</span>
               ))}
               {regulations.length > 2 && (
-                <span className="text-[9px] text-zinc-500">+{regulations.length - 2}</span>
+                <span className="text-[9px] text-[var(--ip-text-2)]">+{regulations.length - 2}</span>
               )}
             </div>
           </div>
@@ -406,7 +406,7 @@ function ReviewsFirmCard({ firm, onPress, onWriteReview }: {
                 </span>
               )}
             </div>
-            <p className="text-white text-xs font-medium mt-0.5">{firm.promotions[0]?.name || "Special Discount"}</p>
+            <p className="text-[var(--ip-text)] text-xs font-medium mt-0.5">{firm.promotions[0]?.name || "Special Discount"}</p>
           </div>
         )}
 
@@ -420,10 +420,10 @@ function ReviewsFirmCard({ firm, onPress, onWriteReview }: {
 
         {/* Action Buttons */}
         <div className="flex gap-2">
-          <button onClick={onPress} className="flex-1 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2">
+          <button onClick={onPress} className="flex-1 py-2.5 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-lg text-sm font-medium flex items-center justify-center gap-2">
             <MessageCircle size={14} /> Reviews ({reviewCount})
           </button>
-          <button onClick={onWriteReview} className="px-3 py-2.5 bg-zinc-800 text-zinc-300 rounded-lg text-sm font-medium flex items-center justify-center gap-1">
+          <button onClick={onWriteReview} className="px-3 py-2.5 bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] rounded-lg text-sm font-medium flex items-center justify-center gap-1">
             <Star size={14} /> Rate
           </button>
         </div>
@@ -597,16 +597,16 @@ export default function MobileReviewsTab() {
 
     return (
       <div>
-        <button onClick={() => setSelectedFirm(null)} className="flex items-center gap-1 text-purple-400 text-sm mb-4">← Back to all firms</button>
+        <button onClick={() => setSelectedFirm(null)} className="flex items-center gap-1 text-blue-400 text-sm mb-4">← Back to all firms</button>
         
-        <div className="bg-zinc-900/80 rounded-xl border border-zinc-800 p-4 mb-4">
+        <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-4 mb-4">
           <div className="flex items-center gap-3">
             <FirmLogo firm={selectedFirm} size="md" />
             <div className="flex-1">
-              <h3 className="text-white font-bold text-base">{selectedFirm.name}</h3>
+              <h3 className="text-[var(--ip-text)] font-bold text-base">{selectedFirm.name}</h3>
               <div className="flex items-center gap-2 mt-1">
                 <StarRating rating={parseFloat(avgRatingValue)} size="sm" />
-                <span className="text-xs text-zinc-500">({firmReviews.length} reviews)</span>
+                <span className="text-xs text-[var(--ip-text-2)]">({firmReviews.length} reviews)</span>
                 {selectedFirm.trustScore > 0 && <TrustScoreBadge score={selectedFirm.trustScore} size="sm" />}
               </div>
             </div>
@@ -615,9 +615,9 @@ export default function MobileReviewsTab() {
 
         <div className="space-y-3">
           {firmReviews.length === 0 ? (
-            <div className="text-center py-12 bg-zinc-900/50 rounded-xl border border-zinc-800">
+            <div className="text-center py-12 bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)]">
               <MessageCircle size={32} className="text-zinc-600 mx-auto mb-3" />
-              <p className="text-zinc-500 text-sm">No reviews yet</p>
+              <p className="text-[var(--ip-text-2)] text-sm">No reviews yet</p>
               <p className="text-zinc-600 text-xs mt-1">Be the first to share your experience</p>
             </div>
           ) : (
@@ -633,7 +633,7 @@ export default function MobileReviewsTab() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto" /><p className="text-xs text-zinc-500 mt-3">Loading reviews...</p></div>
+        <div className="text-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto" /><p className="text-xs text-[var(--ip-text-2)] mt-3">Loading reviews...</p></div>
       </div>
     );
   }
@@ -645,19 +645,19 @@ export default function MobileReviewsTab() {
       {/* Search and Sort */}
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={14} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ip-text-2)]" size={14} />
           <input
             type="text"
             placeholder="Search prop firms..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-            className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl pl-9 pr-4 py-2.5 text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-purple-500"
+            className="w-full bg-[var(--ip-surface)] border border-[var(--ip-border)] rounded-xl pl-9 pr-4 py-2.5 text-[var(--ip-text)] text-sm placeholder-zinc-500 focus:outline-none focus:border-blue-500"
           />
         </div>
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as any)}
-          className="bg-zinc-800 border border-zinc-700 text-white text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-purple-500"
+          className="bg-[var(--ip-surface-2)] border border-[var(--ip-border)] text-[var(--ip-text)] text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-blue-500"
         >
           <option value="rating">Highest Rated</option>
           <option value="reviews">Most Reviews</option>
@@ -667,7 +667,7 @@ export default function MobileReviewsTab() {
       </div>
 
       {/* Results count */}
-      <div className="text-xs text-zinc-500">{filteredFirms.length} firms found</div>
+      <div className="text-xs text-[var(--ip-text-2)]">{filteredFirms.length} firms found</div>
 
       {/* Firm Cards - WITH LOGOS */}
       <div className="space-y-3">
@@ -684,17 +684,17 @@ export default function MobileReviewsTab() {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center gap-2 py-2">
-          <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white text-xs disabled:opacity-50">Prev</button>
-          <span className="px-3 py-1.5 text-zinc-400 text-xs">{currentPage} / {totalPages}</span>
-          <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white text-xs disabled:opacity-50">Next</button>
+          <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className="px-3 py-1.5 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text)] text-xs disabled:opacity-50">Prev</button>
+          <span className="px-3 py-1.5 text-[var(--ip-text-2)] text-xs">{currentPage} / {totalPages}</span>
+          <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} className="px-3 py-1.5 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text)] text-xs disabled:opacity-50">Next</button>
         </div>
       )}
 
       {/* No Results */}
       {filteredFirms.length === 0 && (
-        <div className="text-center py-12 bg-zinc-900/50 rounded-xl border border-zinc-800">
+        <div className="text-center py-12 bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)]">
           <MessageCircle size={32} className="text-zinc-600 mx-auto mb-3" />
-          <p className="text-zinc-500 text-sm">No prop firms found</p>
+          <p className="text-[var(--ip-text-2)] text-sm">No prop firms found</p>
           <p className="text-zinc-600 text-xs mt-1">Try adjusting your search</p>
         </div>
       )}

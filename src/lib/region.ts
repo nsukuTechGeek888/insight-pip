@@ -234,19 +234,11 @@ export function getAvailableRegions(entity: { regions?: string[]; restrictedRegi
     .filter(r => r in REGION_INFO);
 }
 
-export function getRegionEntityName(
-  entity: { entityMapping?: Record<string, string> | null },
-  region: string
-): string | null {
-  if (!entity.entityMapping) return null;
-  
-  if (entity.entityMapping[region]) {
-    return entity.entityMapping[region];
-  }
-  
-  if (entity.entityMapping.GLOBAL) {
-    return entity.entityMapping.GLOBAL;
-  }
-  
-  return null;
+export function getRegionEntityName(entity: { entityMapping?: unknown }, region: string): string | null {
+ let mapping = entity.entityMapping;
+ if (typeof mapping === 'string') { try { mapping = JSON.parse(mapping); } catch { return null; } }
+ if (!mapping || typeof mapping !== 'object' || Array.isArray(mapping)) return null;
+ const record = mapping as Record<string, unknown>;
+ const result = record[region] ?? record.GLOBAL;
+ return typeof result === 'string' ? result : null;
 }

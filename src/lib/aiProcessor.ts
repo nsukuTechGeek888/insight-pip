@@ -1,6 +1,6 @@
-import fs from "fs-extra";
+import fs from "node:fs/promises";
 import path from "path";
-import glob from "glob";
+import {globSync} from "glob";
 import axios from "axios";
 
 // -------------- CONFIG --------------
@@ -13,7 +13,7 @@ const AI_MODEL = "mistral"; // Change to the model you want
 async function main() {
   console.log(`🔍 Scanning files in: ${FOLDER_TO_SCAN}...`);
 
-  const files = glob.sync("**/*.{ts,tsx,js,jsx,json,md,css}", {
+  const files = globSync("**/*.{ts,tsx,js,jsx,json,md,css}", {
     cwd: FOLDER_TO_SCAN,
     absolute: true,
   });
@@ -23,7 +23,7 @@ async function main() {
     process.exit(1);
   }
 
-  await fs.ensureDir(OUTPUT_FOLDER);
+  await fs.mkdir(OUTPUT_FOLDER, {recursive:true});
 
   for (const file of files) {
     console.log(`📄 Processing: ${path.relative(process.cwd(), file)}`);
@@ -38,7 +38,7 @@ async function main() {
       await fs.writeFile(outputPath, aiResponse, "utf-8");
       console.log(`✅ Saved: ${outputPath}`);
     } catch (err) {
-      console.error(`⚠️ Error processing ${file}:`, err.message);
+      console.error(`⚠️ Error processing ${file}:`, err instanceof Error ? err.message : 'Unknown error');
     }
   }
 

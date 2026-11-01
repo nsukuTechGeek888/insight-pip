@@ -14,8 +14,8 @@ import MobileLayout from '@/components/mobile/MobileLayout';
 
 const generateGradient = (name: string) => {
   const gradients = [
-    "from-pink-500 to-purple-500",
-    "from-blue-500 to-purple-500",
+    "from-pink-500 to-blue-500",
+    "from-blue-500 to-blue-500",
     "from-green-500 to-blue-500",
     "from-yellow-500 to-orange-500",
     "from-red-500 to-pink-500",
@@ -74,7 +74,7 @@ export default function MobileMyReviews() {
     return (
       <MobileLayout title="My Reviews" showSearch={false}>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto" />
         </div>
       </MobileLayout>
     );
@@ -91,11 +91,11 @@ export default function MobileMyReviews() {
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-green-500/10 rounded-xl p-3 border border-green-500/20 text-center">
             <div className="text-green-400 font-bold text-xl">{approvedCount}</div>
-            <div className="text-[10px] text-zinc-500">Approved</div>
+            <div className="text-[10px] text-[var(--ip-text-2)]">Approved</div>
           </div>
           <div className="bg-yellow-500/10 rounded-xl p-3 border border-yellow-500/20 text-center">
             <div className="text-yellow-400 font-bold text-xl">{pendingCount}</div>
-            <div className="text-[10px] text-zinc-500">Pending</div>
+            <div className="text-[10px] text-[var(--ip-text-2)]">Pending</div>
           </div>
         </div>
 
@@ -104,7 +104,7 @@ export default function MobileMyReviews() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="flex-1 bg-zinc-900/80 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500"
+            className="flex-1 bg-[var(--ip-surface)] border border-[var(--ip-border)] rounded-xl px-4 py-2.5 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500"
           >
             <option value="all">All Reviews</option>
             <option value="APPROVED">Approved</option>
@@ -115,10 +115,10 @@ export default function MobileMyReviews() {
 
         {/* Reviews List */}
         {reviews.length === 0 ? (
-          <div className="text-center py-12 bg-zinc-900/30 rounded-xl border border-zinc-800">
+          <div className="text-center py-12 bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)]">
             <Star size={32} className="text-zinc-600 mx-auto mb-3" />
-            <p className="text-zinc-500 text-sm">No reviews yet</p>
-            <Link href="/reviews" className="text-purple-400 text-xs mt-2 inline-block">Write your first review →</Link>
+            <p className="text-[var(--ip-text-2)] text-sm">No reviews yet</p>
+            <Link href="/reviews" className="text-blue-400 text-xs mt-2 inline-block">Write your first review →</Link>
           </div>
         ) : (
           <div className="space-y-3">
@@ -132,16 +132,16 @@ export default function MobileMyReviews() {
                   key={review.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-4"
+                  className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-4"
                 >
                   <div className="flex items-start gap-3">
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${generateGradient(entityName)} flex items-center justify-center text-white font-bold text-sm flex-shrink-0`}>
+                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${generateGradient(entityName)} flex items-center justify-center text-[var(--ip-text)] font-bold text-sm flex-shrink-0`}>
                       {entityName.charAt(0)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="text-white font-semibold text-sm truncate">{entityName}</h3>
+                          <h3 className="text-[var(--ip-text)] font-semibold text-sm truncate">{entityName}</h3>
                           <div className="flex items-center gap-1 mt-0.5">
                             <div className="flex gap-0.5">
                               {[1, 2, 3, 4, 5].map((i) => (
@@ -155,10 +155,10 @@ export default function MobileMyReviews() {
                           <span className={`text-[10px] ${statusBadge.color}`}>{statusBadge.text}</span>
                         </div>
                       </div>
-                      <p className="text-zinc-400 text-xs mt-2 line-clamp-2">{review.comment}</p>
-                      <div className="flex items-center gap-3 text-[10px] text-zinc-500 mt-2">
+                      <p className="text-[var(--ip-text-2)] text-xs mt-2 line-clamp-2">{review.comment}</p>
+                      <div className="flex items-center gap-3 text-[10px] text-[var(--ip-text-2)] mt-2">
                         <span className="flex items-center gap-1"><Clock size={8} /> {new Date(review.createdAt).toLocaleDateString()}</span>
-                        <Link href={`/reviews/${review.id}`} className="text-purple-400 flex items-center gap-1"><Eye size={8} /> View</Link>
+                        <Link href={`/reviews/${review.id}`} className="text-blue-400 flex items-center gap-1"><Eye size={8} /> View</Link>
                       </div>
                     </div>
                   </div>

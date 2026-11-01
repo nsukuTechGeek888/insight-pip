@@ -3,15 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "node scripts/dev.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint src",
     "prisma:migrate": "npx prisma migrate dev",
     "prisma:generate": "npx prisma generate",
     "prisma:seed": "tsx prisma/seed-unified.ts",
     "db:reset": "npx prisma migrate reset",
-    "db:setup": "npm run prisma:migrate && npm run prisma:seed"
+    "db:setup": "npm run prisma:migrate && npm run prisma:seed",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "test:smoke": "node scripts/smoke.mjs"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",

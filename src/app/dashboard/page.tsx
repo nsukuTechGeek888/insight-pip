@@ -3,8 +3,8 @@ import { headers } from 'next/headers';
 import MobileDashboard from '@/components/dashboard/MobileDashboard';
 import DesktopDashboard from './DesktopDashboard'; // This needs to point to the actual file
 
-export default function DashboardPage() {
-  const headersList = headers();
+export default async function DashboardPage() {
+  const headersList = await headers();
   const userAgent = headersList.get('user-agent') || '';
   const isMobile = /Mobile|Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
 

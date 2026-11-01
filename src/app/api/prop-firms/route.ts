@@ -1,3 +1,4 @@
+import {requestUser,sameOrigin} from '@/lib/request-user';
 ﻿﻿// app/api/prop-firms/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
@@ -185,7 +186,7 @@ export async function GET(request: NextRequest) {
         userFriendliness: avgUserFriendliness || 0,
         payoutProcess: avgPayoutProcess || 0,
         totalReviews: totalReviews,
-        trustScore: firm.trustScore || 0,
+        trustScore: firm.avgTrustScore || 0,
         avgTrustScore: firm.avgTrustScore || 0,
         isRecommended: firm.isRecommended || false,
         // GFT specific fields
@@ -357,6 +358,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  if(!sameOrigin(request)) return NextResponse.json({error:'Invalid request origin'},{status:403});
+  const admin=await requestUser(request);
+  if(admin?.role!=='ADMIN') return NextResponse.json({error:'Administrator access required'},{status:403});
   try {
     const body = await request.json();
     

@@ -1,0 +1,4 @@
+import {NextRequest,NextResponse} from 'next/server';
+import {prisma} from '@/lib/db';
+import {getRegionFromRequest,isAvailableInRegion} from '@/lib/region';
+export async function GET(request:NextRequest,{params}:{params:Promise<{id:string}>}){try{const id=Number((await params).id);if(!Number.isSafeInteger(id)||id<1)return NextResponse.json({error:'Invalid provider'},{status:400});const broker=await prisma.broker.findUnique({where:{id},include:{bonuses:true}});const region=getRegionFromRequest(request);if(!broker||broker.status!=='ACTIVE'||!isAvailableInRegion(broker,region))return NextResponse.json({error:'Provider unavailable'},{status:404});return NextResponse.json({success:true,data:broker.bonuses.filter(x=>isAvailableInRegion(x,region))})}catch{return NextResponse.json({error:'Offers unavailable'},{status:503})}}

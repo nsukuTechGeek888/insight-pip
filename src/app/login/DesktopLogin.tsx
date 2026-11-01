@@ -95,7 +95,8 @@ export default function DesktopLoginPage() {
           
           // Redirect to homepage after a brief delay
           setTimeout(() => {
-            router.push('/');
+            const destination=new URLSearchParams(window.location.search).get('redirect');
+            router.push(destination?.startsWith('/')&&!destination.startsWith('//')?destination:'/dashboard');
           }, 1500);
         } else {
           // Handle backend errors
@@ -175,16 +176,16 @@ export default function DesktopLoginPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[var(--ip-bg)] text-[var(--ip-text)]">
       {/* Hero Section */}
       <motion.section
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="relative bg-gradient-to-br from-purple-900 via-blue-900 to-zinc-900 text-white py-16 px-6 text-center rounded-b-3xl shadow-lg border-b border-zinc-800 overflow-hidden"
+        className="relative bg-gradient-to-br from-blue-900 via-blue-900 to-zinc-900 text-[var(--ip-text)] py-16 px-6 text-center rounded-b-3xl shadow-lg border-b border-[var(--ip-border)] overflow-hidden"
       >
         <div className="absolute inset-0 bg-black/40"></div>
-        <div className="absolute top-0 left-0 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute top-0 left-0 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
         
         <div className="relative z-10 max-w-4xl mx-auto">
@@ -198,22 +199,22 @@ export default function DesktopLoginPage() {
             Welcome Back Trader
           </motion.div>
 
-          <h1 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <h1 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-blue-400 to-pink-400 bg-clip-text text-transparent">
             Sign In
           </h1>
-          <p className="text-xl sm:text-2xl max-w-2xl mx-auto mb-8 text-zinc-300">
+          <p className="text-xl sm:text-2xl max-w-2xl mx-auto mb-8 text-[var(--ip-text-2)]">
             Access your personalized trading dashboard and continue your journey to success.
           </p>
         </div>
       </motion.section>
 
       {/* Stats Section */}
-      <section className="py-12 bg-zinc-900 border-b border-zinc-800">
+      <section className="py-12 bg-[var(--ip-surface)] border-b border-[var(--ip-border)]">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { number: "10K+", label: "Active Traders", icon: Users, color: "text-blue-400" },
-              { number: "50+", label: "Platforms Tracked", icon: BarChart3, color: "text-purple-400" },
+              { number: "50+", label: "Platforms Tracked", icon: BarChart3, color: "text-blue-400" },
               { number: "4.8/5", label: "Satisfaction Rate", icon: Star, color: "text-yellow-400" },
               { number: "24/7", label: "Secure Access", icon: Shield, color: "text-green-400" }
             ].map((stat, index) => (
@@ -222,11 +223,11 @@ export default function DesktopLoginPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + index * 0.1 }}
-                className="text-center p-6 bg-zinc-800/50 rounded-xl border border-zinc-700 hover:border-zinc-600 transition-all duration-300"
+                className="text-center p-6 bg-[var(--ip-surface-2)] rounded-xl border border-[var(--ip-border)] hover:border-zinc-600 transition-all duration-300"
               >
                 <stat.icon className={`w-8 h-8 ${stat.color} mx-auto mb-4`} />
-                <div className="text-3xl font-bold text-white mb-2">{stat.number}</div>
-                <div className="text-zinc-400">{stat.label}</div>
+                <div className="text-3xl font-bold text-[var(--ip-text)] mb-2">{stat.number}</div>
+                <div className="text-[var(--ip-text-2)]">{stat.label}</div>
               </motion.div>
             ))}
           </div>
@@ -242,12 +243,12 @@ export default function DesktopLoginPage() {
             transition={{ delay: 0.3 }}
             className="w-full"
           >
-            <div className="bg-zinc-900 rounded-2xl p-8 border border-zinc-700 shadow-xl">
+            <div className="bg-[var(--ip-surface)] rounded-2xl p-8 border border-[var(--ip-border)] shadow-xl">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-white mb-2">
+                <h2 className="text-3xl font-bold text-[var(--ip-text)] mb-2">
                   Welcome Back
                 </h2>
-                <p className="text-zinc-400">
+                <p className="text-[var(--ip-text-2)]">
                   Sign in to your Insight Pip account
                 </p>
               </div>
@@ -262,12 +263,12 @@ export default function DesktopLoginPage() {
                     className="text-center py-8"
                   >
                     <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <Check className="text-white" size={32} />
+                      <Check className="text-[var(--ip-text)]" size={32} />
                     </div>
-                    <h3 className="text-2xl font-bold text-white mb-4">
+                    <h3 className="text-2xl font-bold text-[var(--ip-text)] mb-4">
                       Login Successful!
                     </h3>
-                    <p className="text-zinc-300 mb-6">
+                    <p className="text-[var(--ip-text-2)] mb-6">
                       Redirecting you to your dashboard...
                     </p>
                     <div className="flex items-center justify-center gap-2 text-blue-400">
@@ -299,7 +300,7 @@ export default function DesktopLoginPage() {
 
                     {/* Email */}
                     <div>
-                      <label className="block mb-2 font-semibold text-white flex items-center gap-2">
+                      <label className="block mb-2 font-semibold text-[var(--ip-text)] flex items-center gap-2">
                         <Mail className="w-4 h-4 text-blue-400" />
                         Email Address
                       </label>
@@ -309,7 +310,7 @@ export default function DesktopLoginPage() {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="you@example.com"
-                        className={`w-full bg-zinc-800 border-zinc-700 text-white rounded-xl h-12 ${
+                        className={`w-full bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] rounded-xl h-12 ${
                           errors.email ? 'border-red-500' : 'hover:border-zinc-600'
                         }`}
                       />
@@ -327,8 +328,8 @@ export default function DesktopLoginPage() {
 
                     {/* Password */}
                     <div>
-                      <label className="block mb-2 font-semibold text-white flex items-center gap-2">
-                        <Lock className="w-4 h-4 text-purple-400" />
+                      <label className="block mb-2 font-semibold text-[var(--ip-text)] flex items-center gap-2">
+                        <Lock className="w-4 h-4 text-blue-400" />
                         Password
                       </label>
                       <div className="relative">
@@ -338,14 +339,14 @@ export default function DesktopLoginPage() {
                           value={formData.password}
                           onChange={handleChange}
                           placeholder="Enter your password"
-                          className={`w-full bg-zinc-800 border-zinc-700 text-white rounded-xl h-12 pr-10 ${
+                          className={`w-full bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] rounded-xl h-12 pr-10 ${
                             errors.password ? 'border-red-500' : 'hover:border-zinc-600'
                           }`}
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-400 hover:text-white transition-colors"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors"
                         >
                           {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                         </button>
@@ -364,10 +365,10 @@ export default function DesktopLoginPage() {
 
                     {/* Remember Me & Forgot Password */}
                     <div className="flex items-center justify-between">
-                      <label className="flex items-center gap-2 text-zinc-300 cursor-pointer">
+                      <label className="flex items-center gap-2 text-[var(--ip-text-2)] cursor-pointer">
                         <input
                           type="checkbox"
-                          className="w-4 h-4 text-purple-600 bg-zinc-700 border-zinc-600 rounded focus:ring-purple-500 focus:ring-2"
+                          className="w-4 h-4 text-blue-600 bg-zinc-700 border-zinc-600 rounded focus:ring-blue-500 focus:ring-2"
                         />
                         <span className="text-sm">Remember me</span>
                       </label>
@@ -375,7 +376,7 @@ export default function DesktopLoginPage() {
                       <button
                         type="button"
                         onClick={() => setShowForgotModal(true)}
-                        className="text-sm text-purple-400 hover:text-purple-300 transition-colors font-medium"
+                        className="text-sm text-blue-400 hover:text-blue-300 transition-colors font-medium"
                       >
                         Forgot Password?
                       </button>
@@ -385,7 +386,7 @@ export default function DesktopLoginPage() {
                     <Button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-4 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:transform-none disabled:hover:scale-100"
+                      className="w-full bg-gradient-to-r from-blue-600 to-pink-600 hover:from-blue-500 hover:to-pink-500 text-[var(--ip-text)] font-bold py-4 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:transform-none disabled:hover:scale-100"
                     >
                       {isLoading ? (
                         <div className="flex items-center gap-2 justify-center">
@@ -401,11 +402,11 @@ export default function DesktopLoginPage() {
                     </Button>
 
                     {/* Sign Up Link */}
-                    <p className="text-center text-zinc-400">
+                    <p className="text-center text-[var(--ip-text-2)]">
                       Don't have an account?{' '}
                       <Link 
                         href="/signup" 
-                        className="text-purple-400 font-semibold hover:text-purple-300 transition-colors inline-flex items-center gap-1"
+                        className="text-blue-400 font-semibold hover:text-blue-300 transition-colors inline-flex items-center gap-1"
                       >
                         Create one now
                         <ArrowRight className="w-4 h-4" />
@@ -425,8 +426,8 @@ export default function DesktopLoginPage() {
             className="space-y-6"
           >
             {/* Features */}
-            <div className="bg-gradient-to-br from-purple-900/50 to-pink-900/50 rounded-2xl p-8 border border-purple-500/30">
-              <h3 className="text-2xl font-bold text-white mb-6 text-center">
+            <div className="bg-gradient-to-br from-blue-900/50 to-pink-900/50 rounded-2xl p-8 border border-blue-500/30">
+              <h3 className="text-2xl font-bold text-[var(--ip-text)] mb-6 text-center">
                 What's Waiting For You
               </h3>
               
@@ -437,14 +438,14 @@ export default function DesktopLoginPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 + index * 0.1 }}
-                    className="flex items-start gap-4 p-4 bg-zinc-800/30 rounded-xl hover:bg-zinc-800/50 transition-colors group"
+                    className="flex items-start gap-4 p-4 bg-[var(--ip-surface-2)] rounded-xl hover:bg-[var(--ip-surface-2)] transition-colors group"
                   >
-                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                      <feature.icon className="text-white" size={20} />
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                      <feature.icon className="text-[var(--ip-text)]" size={20} />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-white mb-1">{feature.title}</h4>
-                      <p className="text-zinc-400 text-sm">{feature.description}</p>
+                      <h4 className="font-semibold text-[var(--ip-text)] mb-1">{feature.title}</h4>
+                      <p className="text-[var(--ip-text-2)] text-sm">{feature.description}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -459,18 +460,18 @@ export default function DesktopLoginPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 + index * 0.1 }}
-                  className="bg-zinc-900 rounded-2xl p-6 border border-zinc-700 hover:border-zinc-600 transition-colors"
+                  className="bg-[var(--ip-surface)] rounded-2xl p-6 border border-[var(--ip-border)] hover:border-zinc-600 transition-colors"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-500 rounded-full flex items-center justify-center text-[var(--ip-text)] font-bold">
                       {testimonial.avatar}
                     </div>
                     <div>
-                      <h4 className="font-semibold text-white">{testimonial.name}</h4>
-                      <p className="text-zinc-400 text-sm">{testimonial.role}</p>
+                      <h4 className="font-semibold text-[var(--ip-text)]">{testimonial.name}</h4>
+                      <p className="text-[var(--ip-text-2)] text-sm">{testimonial.role}</p>
                     </div>
                   </div>
-                  <p className="text-zinc-300 text-sm italic">
+                  <p className="text-[var(--ip-text-2)] text-sm italic">
                     "{testimonial.text}"
                   </p>
                 </motion.div>
@@ -480,8 +481,8 @@ export default function DesktopLoginPage() {
             {/* Security Badge */}
             <div className="bg-gradient-to-br from-green-900/50 to-teal-900/50 rounded-2xl p-6 border border-green-500/30 text-center">
               <Shield className="w-12 h-12 text-green-400 mx-auto mb-3" />
-              <h4 className="font-semibold text-white mb-2">Secure & Encrypted</h4>
-              <p className="text-zinc-400 text-sm">
+              <h4 className="font-semibold text-[var(--ip-text)] mb-2">Secure & Encrypted</h4>
+              <p className="text-[var(--ip-text-2)] text-sm">
                 Your data is protected with bank-level security encryption.
               </p>
             </div>
@@ -512,10 +513,10 @@ export default function DesktopLoginPage() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-zinc-900 rounded-2xl p-8 w-full max-w-md border border-zinc-700 shadow-2xl relative"
+              className="bg-[var(--ip-surface)] rounded-2xl p-8 w-full max-w-md border border-[var(--ip-border)] shadow-2xl relative"
             >
               <button
-                className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-zinc-800"
+                className="absolute top-4 right-4 text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors p-1 rounded-lg hover:bg-[var(--ip-surface-2)]"
                 onClick={() => {
                   setShowForgotModal(false);
                   setForgotErrors('');
@@ -529,10 +530,10 @@ export default function DesktopLoginPage() {
 
               <div className="text-center mb-6">
                 <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Lock className="text-white" size={24} />
+                  <Lock className="text-[var(--ip-text)]" size={24} />
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-2">Reset Password</h2>
-                <p className="text-zinc-400">
+                <h2 className="text-2xl font-bold text-[var(--ip-text)] mb-2">Reset Password</h2>
+                <p className="text-[var(--ip-text-2)]">
                   Enter your email to receive a password reset link
                 </p>
               </div>
@@ -557,7 +558,7 @@ export default function DesktopLoginPage() {
                           setForgotErrors('');
                         }}
                         placeholder="you@example.com"
-                        className={`w-full bg-zinc-800 border-zinc-700 text-white rounded-xl h-12 ${
+                        className={`w-full bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] rounded-xl h-12 ${
                           forgotErrors ? 'border-red-500' : 'hover:border-zinc-600'
                         }`}
                         required
@@ -575,7 +576,7 @@ export default function DesktopLoginPage() {
                     </div>
                     <Button
                       type="submit"
-                      className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-bold py-3 rounded-xl"
+                      className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-[var(--ip-text)] font-bold py-3 rounded-xl"
                     >
                       Send Reset Link
                     </Button>
@@ -588,12 +589,12 @@ export default function DesktopLoginPage() {
                     className="text-center py-4"
                   >
                     <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                      <Check className="text-white" size={24} />
+                      <Check className="text-[var(--ip-text)]" size={24} />
                     </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">
+                    <h3 className="text-lg font-semibold text-[var(--ip-text)] mb-2">
                       Check Your Email
                     </h3>
-                    <p className="text-zinc-300 text-sm">
+                    <p className="text-[var(--ip-text-2)] text-sm">
                       If this email exists in our system, you'll receive a password reset link shortly.
                     </p>
                   </motion.div>

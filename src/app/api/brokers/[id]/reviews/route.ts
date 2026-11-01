@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 // GET /api/brokers/[id]/reviews - Get all reviews for a specific broker
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { searchParams } = new URL(request.url);
@@ -14,7 +14,7 @@ export async function GET(
     const rating = searchParams.get('rating'); // filter by rating
 
     const skip = (page - 1) * limit;
-    const brokerId = parseInt(params.id);
+    const brokerId = parseInt((await params).id);
 
     // Check if broker exists
     const broker = await prisma.broker.findUnique({
@@ -77,7 +77,7 @@ export async function GET(
           },
           _count: {
             select: {
-              helpfulVotes: true,
+              votes: true,
               replies: true,
             }
           }

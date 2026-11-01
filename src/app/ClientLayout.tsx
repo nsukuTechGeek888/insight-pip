@@ -25,7 +25,7 @@ export default function ClientRootLayout({ children }: { children: React.ReactNo
 
   if (!mounted) {
     return (
-      <div className="bg-black text-white min-h-screen flex items-center justify-center">
+      <div className="bg-[var(--ip-bg)] text-[var(--ip-text)] min-h-screen flex items-center justify-center">
         <div className="animate-pulse">Loading...</div>
       </div>
     );
@@ -34,7 +34,7 @@ export default function ClientRootLayout({ children }: { children: React.ReactNo
   return (
     <UserProvider>
       <NavigationProvider>
-        <div className="flex flex-col min-h-screen bg-black text-white">
+        <div className="flex flex-col min-h-screen bg-[var(--ip-bg)] text-[var(--ip-text)]">
           {isMobile ? (
             <main className="flex-1">{children}</main>
           ) : (

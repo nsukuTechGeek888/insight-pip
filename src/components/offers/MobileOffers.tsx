@@ -58,7 +58,7 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
   
   if (firm.logo) {
     return (
-      <div className={`${sizeClasses[size]} overflow-hidden bg-zinc-800 border border-zinc-700 flex-shrink-0 shadow-lg`}>
+      <div className={`${sizeClasses[size]} overflow-hidden bg-[var(--ip-surface-2)] border border-[var(--ip-border)] flex-shrink-0 shadow-lg`}>
         <img 
           src={firm.logo} 
           alt={firm.name} 
@@ -69,7 +69,7 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
             const parent = target.parentElement;
             if (parent) {
               const fallback = document.createElement('div');
-              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`;
+              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`;
               fallback.textContent = firm.name?.charAt(0) || '?';
               parent.appendChild(fallback);
             }
@@ -80,7 +80,7 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
   }
   
   return (
-    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`}>
+    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`}>
       {firm.name?.charAt(0) || '?'}
     </div>
   );
@@ -102,11 +102,11 @@ function StarRating({ rating, reviewCount = 0, size = "sm" }: { rating: number; 
       </div>
       {hasReviews ? (
         <>
-          <span className="text-xs text-white ml-0.5">{displayRating.toFixed(1)}</span>
-          <span className="text-[10px] text-zinc-500">({reviewCount})</span>
+          <span className="text-xs text-[var(--ip-text)] ml-0.5">{displayRating.toFixed(1)}</span>
+          <span className="text-[10px] text-[var(--ip-text-2)]">({reviewCount})</span>
         </>
       ) : (
-        <span className="text-[10px] text-zinc-500 ml-0.5">No reviews</span>
+        <span className="text-[10px] text-[var(--ip-text-2)] ml-0.5">No reviews</span>
       )}
     </div>
   );
@@ -114,8 +114,8 @@ function StarRating({ rating, reviewCount = 0, size = "sm" }: { rating: number; 
 
 const generateGradient = (name: string) => {
   const gradients = [
-    "from-pink-500 to-purple-500",
-    "from-blue-500 to-purple-500",
+    "from-pink-500 to-blue-500",
+    "from-blue-500 to-blue-500",
     "from-green-500 to-blue-500",
     "from-yellow-500 to-orange-500",
     "from-red-500 to-pink-500",
@@ -153,7 +153,7 @@ const getMinPrice = (firm: any) => {
 function OfferItem({ offer, type, onCopy, copiedId }: { 
   offer: any; 
   type: 'prop' | 'broker';
-  onCopy: (id: string) => void;
+  onCopy: (id: string | null) => void;
   copiedId: string | null;
 }) {
   const isProp = type === 'prop';
@@ -174,16 +174,16 @@ function OfferItem({ offer, type, onCopy, copiedId }: {
   };
 
   return (
-    <div className="bg-zinc-800/50 rounded-lg p-3 border border-zinc-700">
+    <div className="bg-[var(--ip-surface-2)] rounded-lg p-3 border border-[var(--ip-border)]">
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1">
           <div className="flex items-center gap-1.5 mb-1">
             {isProp ? (
               <Rocket size={10} className="text-orange-400" />
             ) : (
-              <Gift size={10} className="text-purple-400" />
+              <Gift size={10} className="text-blue-400" />
             )}
-            <span className="text-xs font-semibold text-white">{name || (isProp ? "Challenge Discount" : "Bonus Offer")}</span>
+            <span className="text-xs font-semibold text-[var(--ip-text)]">{name || (isProp ? "Challenge Discount" : "Bonus Offer")}</span>
           </div>
           
           {(discount || amount) && (
@@ -192,20 +192,20 @@ function OfferItem({ offer, type, onCopy, copiedId }: {
                 <span className="text-xs font-bold text-green-400">{discount}% OFF</span>
               )}
               {amount && (
-                <span className="text-xs font-bold text-purple-400 ml-1">{amount}</span>
+                <span className="text-xs font-bold text-blue-400 ml-1">{amount}</span>
               )}
             </div>
           )}
           
           {offer?.description && (
-            <p className="text-[10px] text-zinc-400">{offer.description}</p>
+            <p className="text-[10px] text-[var(--ip-text-2)]">{offer.description}</p>
           )}
         </div>
         
         {code && (
           <button
             onClick={handleCopy}
-            className="text-zinc-400 hover:text-orange-400 transition-colors p-1.5 bg-zinc-800 rounded-lg flex-shrink-0"
+            className="text-[var(--ip-text-2)] hover:text-orange-400 transition-colors p-1.5 bg-[var(--ip-surface-2)] rounded-lg flex-shrink-0"
           >
             {isCopied ? <CheckCircle2 size={12} /> : <Copy size={12} />}
           </button>
@@ -213,7 +213,7 @@ function OfferItem({ offer, type, onCopy, copiedId }: {
       </div>
       {code && !isCopied && (
         <div className="mt-2">
-          <code className="text-[10px] font-mono bg-zinc-900 px-2 py-1 rounded text-orange-400">
+          <code className="text-[10px] font-mono bg-[var(--ip-surface)] px-2 py-1 rounded text-orange-400">
             Code: {code}
           </code>
         </div>
@@ -226,7 +226,7 @@ function OfferItem({ offer, type, onCopy, copiedId }: {
 function PropFirmOfferCard({ firm, onNavigate, onCopy, copiedId }: { 
   firm: any; 
   onNavigate: (id: number, name: string) => void;
-  onCopy: (id: string) => void;
+  onCopy: (id: string | null) => void;
   copiedId: string | null;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -249,7 +249,7 @@ function PropFirmOfferCard({ firm, onNavigate, onCopy, copiedId }: {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden"
+      className="bg-[var(--ip-surface)] rounded-2xl border border-[var(--ip-border)] overflow-hidden"
     >
       {/* Main Card Content */}
       <div className="p-4" onClick={handleCardClick}>
@@ -259,7 +259,7 @@ function PropFirmOfferCard({ firm, onNavigate, onCopy, copiedId }: {
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <h3 className="text-white font-bold text-base truncate">{firm.name}</h3>
+                <h3 className="text-[var(--ip-text)] font-bold text-base truncate">{firm.name}</h3>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
                   <StarRating rating={firm.rating || 0} reviewCount={firm.totalReviews || 0} size="sm" />
                   {firm.regulated && (
@@ -273,7 +273,7 @@ function PropFirmOfferCard({ firm, onNavigate, onCopy, copiedId }: {
                 </div>
               </div>
               {primaryPromotion?.discount && (
-                <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-2 py-1 rounded-full text-[10px] font-bold flex items-center gap-0.5">
+                <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-[var(--ip-text)] px-2 py-1 rounded-full text-[10px] font-bold flex items-center gap-0.5">
                   <Percent size={8} />
                   {primaryPromotion.discount}% OFF
                 </div>
@@ -284,36 +284,36 @@ function PropFirmOfferCard({ firm, onNavigate, onCopy, copiedId }: {
 
         {/* Key Metrics */}
         <div className="grid grid-cols-2 gap-2 mb-3">
-          <div className="bg-zinc-800/50 rounded-lg p-2 text-center">
-            <div className="text-zinc-500 text-[10px]">Min Account</div>
-            <div className="text-white font-semibold text-xs">{formatCurrency(minAccount)}</div>
+          <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+            <div className="text-[var(--ip-text-2)] text-[10px]">Min Account</div>
+            <div className="text-[var(--ip-text)] font-semibold text-xs">{formatCurrency(minAccount)}</div>
           </div>
-          <div className="bg-zinc-800/50 rounded-lg p-2 text-center">
-            <div className="text-zinc-500 text-[10px]">Payout</div>
-            <div className="text-white font-semibold text-xs">Up to {maxPayout}%</div>
+          <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+            <div className="text-[var(--ip-text-2)] text-[10px]">Payout</div>
+            <div className="text-[var(--ip-text)] font-semibold text-xs">Up to {maxPayout}%</div>
           </div>
-          <div className="bg-zinc-800/50 rounded-lg p-2 text-center">
-            <div className="text-zinc-500 text-[10px]">Starting Price</div>
-            <div className="text-white font-semibold text-xs">{formatCurrency(minPrice)}</div>
+          <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+            <div className="text-[var(--ip-text-2)] text-[10px]">Starting Price</div>
+            <div className="text-[var(--ip-text)] font-semibold text-xs">{formatCurrency(minPrice)}</div>
           </div>
-          <div className="bg-zinc-800/50 rounded-lg p-2 text-center">
-            <div className="text-zinc-500 text-[10px]">Programs</div>
-            <div className="text-white font-semibold text-xs">{firm.programs?.length || 0}</div>
+          <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+            <div className="text-[var(--ip-text-2)] text-[10px]">Programs</div>
+            <div className="text-[var(--ip-text)] font-semibold text-xs">{firm.programs?.length || 0}</div>
           </div>
         </div>
 
         {/* Programs Summary */}
         {firm.programs && firm.programs.length > 0 && (
           <div className="mb-3">
-            <div className="text-zinc-500 text-[10px] mb-1">Available Programs</div>
+            <div className="text-[var(--ip-text-2)] text-[10px] mb-1">Available Programs</div>
             <div className="flex flex-wrap gap-1">
               {firm.programs.slice(0, 3).map((program: any, idx: number) => (
-                <span key={idx} className="text-[9px] bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-full border border-zinc-700">
+                <span key={idx} className="text-[9px] bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] px-2 py-0.5 rounded-full border border-[var(--ip-border)]">
                   {program.type}
                 </span>
               ))}
               {firm.programs.length > 3 && (
-                <span className="text-[9px] text-zinc-500">+{firm.programs.length - 3}</span>
+                <span className="text-[9px] text-[var(--ip-text-2)]">+{firm.programs.length - 3}</span>
               )}
             </div>
           </div>
@@ -326,10 +326,10 @@ function PropFirmOfferCard({ firm, onNavigate, onCopy, copiedId }: {
               <Rocket size={10} className="text-orange-400" />
               <span className="text-[10px] font-semibold text-orange-400 uppercase">Limited Offer</span>
             </div>
-            <p className="text-white text-xs font-medium">{primaryPromotion.name || "Special Challenge Discount"}</p>
+            <p className="text-[var(--ip-text)] text-xs font-medium">{primaryPromotion.name || "Special Challenge Discount"}</p>
             {primaryPromotion.code && (
               <div className="flex items-center gap-2 mt-1">
-                <code className="text-[10px] font-mono bg-zinc-800 px-1.5 py-0.5 rounded text-orange-400">
+                <code className="text-[10px] font-mono bg-[var(--ip-surface-2)] px-1.5 py-0.5 rounded text-orange-400">
                   {primaryPromotion.code}
                 </code>
               </div>
@@ -344,7 +344,7 @@ function PropFirmOfferCard({ firm, onNavigate, onCopy, copiedId }: {
               e.stopPropagation();
               setExpanded(!expanded);
             }}
-            className="w-full flex items-center justify-center gap-1 py-1.5 text-xs text-zinc-400 hover:text-white transition-colors"
+            className="w-full flex items-center justify-center gap-1 py-1.5 text-xs text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors"
           >
             {expanded ? (
               <>Show Less <ChevronUp size={12} /></>
@@ -363,9 +363,9 @@ function PropFirmOfferCard({ firm, onNavigate, onCopy, copiedId }: {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="border-t border-zinc-800"
+            className="border-t border-[var(--ip-border)]"
           >
-            <div className="p-4 space-y-2 bg-zinc-900/50">
+            <div className="p-4 space-y-2 bg-[var(--ip-surface)]">
               {additionalPromotions.map((promo: any, idx: number) => (
                 <OfferItem
                   key={idx}
@@ -387,13 +387,13 @@ function PropFirmOfferCard({ firm, onNavigate, onCopy, copiedId }: {
             onClick={() => {
               window.open(firm.signupLink || firm.affiliateLink || '#', '_blank');
             }}
-            className="flex-1 bg-gradient-to-r from-orange-600 to-red-600 text-white py-2.5 rounded-xl font-semibold text-xs flex items-center justify-center gap-1"
+            className="flex-1 bg-gradient-to-r from-orange-600 to-red-600 text-[var(--ip-text)] py-2.5 rounded-xl font-semibold text-xs flex items-center justify-center gap-1"
           >
             Claim Offer <ArrowRight size={12} />
           </button>
           <button
             onClick={handleCardClick}
-            className="px-3 py-2.5 rounded-xl text-xs font-medium text-zinc-400 hover:text-white border border-zinc-700"
+            className="px-3 py-2.5 rounded-xl text-xs font-medium text-[var(--ip-text-2)] hover:text-[var(--ip-text)] border border-[var(--ip-border)]"
           >
             Details
           </button>
@@ -407,7 +407,7 @@ function PropFirmOfferCard({ firm, onNavigate, onCopy, copiedId }: {
 function BrokerOfferCard({ broker, onNavigate, onCopy, copiedId }: { 
   broker: any; 
   onNavigate: (id: number, name: string) => void;
-  onCopy: (id: string) => void;
+  onCopy: (id: string | null) => void;
   copiedId: string | null;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -428,7 +428,7 @@ function BrokerOfferCard({ broker, onNavigate, onCopy, copiedId }: {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden"
+      className="bg-[var(--ip-surface)] rounded-2xl border border-[var(--ip-border)] overflow-hidden"
     >
       {/* Main Card Content */}
       <div className="p-4" onClick={handleCardClick}>
@@ -438,7 +438,7 @@ function BrokerOfferCard({ broker, onNavigate, onCopy, copiedId }: {
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <h3 className="text-white font-bold text-base truncate">{broker.name}</h3>
+                <h3 className="text-[var(--ip-text)] font-bold text-base truncate">{broker.name}</h3>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
                   <StarRating rating={broker.rating || 0} reviewCount={broker.reviewsCount || broker.reviews || 0} size="sm" />
                   {broker.regulated && (
@@ -452,7 +452,7 @@ function BrokerOfferCard({ broker, onNavigate, onCopy, copiedId }: {
                 </div>
               </div>
               {primaryOffer?.amount && (
-                <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-1 rounded-full text-[10px] font-bold flex items-center gap-0.5">
+                <div className="bg-gradient-to-r from-blue-500 to-pink-500 text-[var(--ip-text)] px-2 py-1 rounded-full text-[10px] font-bold flex items-center gap-0.5">
                   <Gift size={8} />
                   {primaryOffer.amount}
                 </div>
@@ -463,36 +463,36 @@ function BrokerOfferCard({ broker, onNavigate, onCopy, copiedId }: {
 
         {/* Key Metrics */}
         <div className="grid grid-cols-2 gap-2 mb-3">
-          <div className="bg-zinc-800/50 rounded-lg p-2 text-center">
-            <div className="text-zinc-500 text-[10px]">Min Deposit</div>
-            <div className="text-white font-semibold text-xs">{formatCurrency(broker.minDeposit || 0)}</div>
+          <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+            <div className="text-[var(--ip-text-2)] text-[10px]">Min Deposit</div>
+            <div className="text-[var(--ip-text)] font-semibold text-xs">{formatCurrency(broker.minDeposit || 0)}</div>
           </div>
-          <div className="bg-zinc-800/50 rounded-lg p-2 text-center">
-            <div className="text-zinc-500 text-[10px]">Leverage</div>
-            <div className="text-white font-semibold text-xs">{broker.leverage || '1:100'}</div>
+          <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+            <div className="text-[var(--ip-text-2)] text-[10px]">Leverage</div>
+            <div className="text-[var(--ip-text)] font-semibold text-xs">{broker.leverage || '1:100'}</div>
           </div>
-          <div className="bg-zinc-800/50 rounded-lg p-2 text-center">
-            <div className="text-zinc-500 text-[10px]">Spread</div>
-            <div className="text-white font-semibold text-xs">{broker.spreads?.eurusd?.split('-')[0]?.trim() || '0.1'} pips</div>
+          <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+            <div className="text-[var(--ip-text-2)] text-[10px]">Spread</div>
+            <div className="text-[var(--ip-text)] font-semibold text-xs">{broker.spreads?.eurusd?.split('-')[0]?.trim() || '0.1'} pips</div>
           </div>
-          <div className="bg-zinc-800/50 rounded-lg p-2 text-center">
-            <div className="text-zinc-500 text-[10px]">Platforms</div>
-            <div className="text-white font-semibold text-xs">{broker.platform?.length || 0}</div>
+          <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+            <div className="text-[var(--ip-text-2)] text-[10px]">Platforms</div>
+            <div className="text-[var(--ip-text)] font-semibold text-xs">{broker.platform?.length || 0}</div>
           </div>
         </div>
 
         {/* Platforms Summary */}
         {broker.platform && broker.platform.length > 0 && (
           <div className="mb-3">
-            <div className="text-zinc-500 text-[10px] mb-1">Trading Platforms</div>
+            <div className="text-[var(--ip-text-2)] text-[10px] mb-1">Trading Platforms</div>
             <div className="flex flex-wrap gap-1">
               {broker.platform.slice(0, 3).map((platform: string, idx: number) => (
-                <span key={idx} className="text-[9px] bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-full border border-zinc-700">
+                <span key={idx} className="text-[9px] bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] px-2 py-0.5 rounded-full border border-[var(--ip-border)]">
                   {platform}
                 </span>
               ))}
               {broker.platform.length > 3 && (
-                <span className="text-[9px] text-zinc-500">+{broker.platform.length - 3}</span>
+                <span className="text-[9px] text-[var(--ip-text-2)]">+{broker.platform.length - 3}</span>
               )}
             </div>
           </div>
@@ -500,15 +500,15 @@ function BrokerOfferCard({ broker, onNavigate, onCopy, copiedId }: {
 
         {/* Primary Offer Preview */}
         {primaryOffer && (
-          <div className="mb-3 p-2 rounded-lg bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30">
+          <div className="mb-3 p-2 rounded-lg bg-gradient-to-r from-blue-500/10 to-pink-500/10 border border-blue-500/30">
             <div className="flex items-center gap-1.5 mb-1">
-              <Tag size={10} className="text-purple-400" />
-              <span className="text-[10px] font-semibold text-purple-400 uppercase">Welcome Bonus</span>
+              <Tag size={10} className="text-blue-400" />
+              <span className="text-[10px] font-semibold text-blue-400 uppercase">Welcome Bonus</span>
             </div>
-            <p className="text-white text-xs font-medium">{primaryOffer.amount || primaryOffer.name || "Exclusive Bonus"}</p>
+            <p className="text-[var(--ip-text)] text-xs font-medium">{primaryOffer.amount || primaryOffer.name || "Exclusive Bonus"}</p>
             {primaryOffer.code && (
               <div className="flex items-center gap-2 mt-1">
-                <code className="text-[10px] font-mono bg-zinc-800 px-1.5 py-0.5 rounded text-purple-400">
+                <code className="text-[10px] font-mono bg-[var(--ip-surface-2)] px-1.5 py-0.5 rounded text-blue-400">
                   {primaryOffer.code}
                 </code>
               </div>
@@ -523,7 +523,7 @@ function BrokerOfferCard({ broker, onNavigate, onCopy, copiedId }: {
               e.stopPropagation();
               setExpanded(!expanded);
             }}
-            className="w-full flex items-center justify-center gap-1 py-1.5 text-xs text-zinc-400 hover:text-white transition-colors"
+            className="w-full flex items-center justify-center gap-1 py-1.5 text-xs text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors"
           >
             {expanded ? (
               <>Show Less <ChevronUp size={12} /></>
@@ -542,9 +542,9 @@ function BrokerOfferCard({ broker, onNavigate, onCopy, copiedId }: {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="border-t border-zinc-800"
+            className="border-t border-[var(--ip-border)]"
           >
-            <div className="p-4 space-y-2 bg-zinc-900/50">
+            <div className="p-4 space-y-2 bg-[var(--ip-surface)]">
               {additionalOffers.map((offer: any, idx: number) => (
                 <OfferItem
                   key={idx}
@@ -566,13 +566,13 @@ function BrokerOfferCard({ broker, onNavigate, onCopy, copiedId }: {
             onClick={() => {
               window.open(broker.website || broker.affiliateLink || '#', '_blank');
             }}
-            className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2.5 rounded-xl font-semibold text-xs flex items-center justify-center gap-1"
+            className="flex-1 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] py-2.5 rounded-xl font-semibold text-xs flex items-center justify-center gap-1"
           >
             Claim Bonus <ArrowRight size={12} />
           </button>
           <button
             onClick={handleCardClick}
-            className="px-3 py-2.5 rounded-xl text-xs font-medium text-zinc-400 hover:text-white border border-zinc-700"
+            className="px-3 py-2.5 rounded-xl text-xs font-medium text-[var(--ip-text-2)] hover:text-[var(--ip-text)] border border-[var(--ip-border)]"
           >
             Details
           </button>
@@ -672,7 +672,7 @@ export default function MobileOffers() {
     router.push(`/${activeTab === 'prop' ? 'prop-firms' : 'brokers'}/${id}`);
   };
 
-  const handleCopy = (id: string) => {
+  const handleCopy = (id: string | null) => {
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };
@@ -686,10 +686,10 @@ export default function MobileOffers() {
       <MobileLayout title="Exclusive Offers" showSearch={false}>
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
           <Globe size={48} className="text-zinc-600 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">
+          <h2 className="text-xl font-bold text-[var(--ip-text)] mb-2">
             No offers in {regionInfo.flag} {regionInfo.label}
           </h2>
-          <p className="text-zinc-400 text-sm mb-4">
+          <p className="text-[var(--ip-text-2)] text-sm mb-4">
             We don't have any active offers available in {regionInfo.flag} {regionInfo.label} yet.
           </p>
           <button
@@ -699,7 +699,7 @@ export default function MobileOffers() {
                 (regionSelector as HTMLElement).click();
               }
             }}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all text-sm"
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-lg hover:from-blue-500 hover:to-pink-500 transition-all text-sm"
           >
             Change Region
           </button>
@@ -713,8 +713,8 @@ export default function MobileOffers() {
       <MobileLayout title="Exclusive Offers" showSearch={false}>
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto"></div>
-            <p className="mt-3 text-xs text-zinc-500">Loading offers...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="mt-3 text-xs text-[var(--ip-text-2)]">Loading offers...</p>
           </div>
         </div>
       </MobileLayout>
@@ -728,26 +728,26 @@ export default function MobileOffers() {
       <div className="space-y-4 pb-6">
         
         {/* Header Stats */}
-        <div className="bg-gradient-to-r from-purple-600/20 to-orange-600/20 rounded-2xl p-4 border border-purple-500/30">
+        <div className="bg-gradient-to-r from-blue-600/20 to-orange-600/20 rounded-2xl p-4 border border-blue-500/30">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles size={16} className="text-orange-400" />
             <span className="text-xs text-orange-400 font-medium">{totalActiveOffers} Active Offers</span>
           </div>
-          <h1 className="text-xl font-bold text-white">
-            Exclusive <span className="bg-gradient-to-r from-orange-400 to-purple-400 bg-clip-text text-transparent">Trading Offers</span>
+          <h1 className="text-xl font-bold text-[var(--ip-text)]">
+            Exclusive <span className="bg-gradient-to-r from-orange-400 to-blue-400 bg-clip-text text-transparent">Trading Offers</span>
           </h1>
-          <p className="text-xs text-zinc-400 mt-1">Get the best deals on prop firm challenges and broker bonuses</p>
+          <p className="text-xs text-[var(--ip-text-2)] mt-1">Get the best deals on prop firm challenges and broker bonuses</p>
         </div>
 
         {/* Search Bar */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={14} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ip-text-2)]" size={14} />
           <input
             type="text"
             placeholder="Search offers..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl pl-9 pr-4 py-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all text-sm"
+            className="w-full bg-[var(--ip-surface)] border border-[var(--ip-border)] rounded-xl pl-9 pr-4 py-2.5 text-[var(--ip-text)] placeholder-zinc-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all text-sm"
           />
         </div>
 
@@ -760,8 +760,8 @@ export default function MobileOffers() {
             }}
             className={`flex-1 py-2.5 rounded-xl font-medium transition-all flex items-center justify-center gap-1 text-sm ${
               activeTab === "prop"
-                ? "bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-lg"
-                : "bg-zinc-800/50 text-zinc-400"
+                ? "bg-gradient-to-r from-orange-600 to-red-600 text-[var(--ip-text)] shadow-lg"
+                : "bg-[var(--ip-surface-2)] text-[var(--ip-text-2)]"
             }`}
           >
             <Rocket size={14} />
@@ -777,8 +777,8 @@ export default function MobileOffers() {
             }}
             className={`flex-1 py-2.5 rounded-xl font-medium transition-all flex items-center justify-center gap-1 text-sm ${
               activeTab === "broker"
-                ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
-                : "bg-zinc-800/50 text-zinc-400"
+                ? "bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] shadow-lg"
+                : "bg-[var(--ip-surface-2)] text-[var(--ip-text-2)]"
             }`}
           >
             <Gift size={14} />
@@ -792,13 +792,13 @@ export default function MobileOffers() {
         {/* Sort Option */}
         {activeTab === "prop" && (
           <div className="flex items-center justify-between">
-            <span className="text-xs text-zinc-500">
+            <span className="text-xs text-[var(--ip-text-2)]">
               {filteredPropFirms.length} firms with offers
             </span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-zinc-800 border border-zinc-700 text-white text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:border-orange-500"
+              className="bg-[var(--ip-surface-2)] border border-[var(--ip-border)] text-[var(--ip-text)] text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:border-orange-500"
             >
               <option value="discount-desc">Highest Discount</option>
               <option value="rating-desc">Highest Rated</option>
@@ -810,10 +810,10 @@ export default function MobileOffers() {
         <div className="space-y-3">
           {activeTab === "prop" ? (
             filteredPropFirms.length === 0 ? (
-              <div className="text-center py-12 bg-zinc-900/50 rounded-2xl border border-zinc-800">
-                <Percent size={24} className="text-zinc-500 mx-auto mb-2" />
-                <h3 className="text-sm font-semibold text-white mb-1">No Prop Firm Offers</h3>
-                <p className="text-xs text-zinc-400">No active promotions at the moment. Check back soon!</p>
+              <div className="text-center py-12 bg-[var(--ip-surface)] rounded-2xl border border-[var(--ip-border)]">
+                <Percent size={24} className="text-[var(--ip-text-2)] mx-auto mb-2" />
+                <h3 className="text-sm font-semibold text-[var(--ip-text)] mb-1">No Prop Firm Offers</h3>
+                <p className="text-xs text-[var(--ip-text-2)]">No active promotions at the moment. Check back soon!</p>
               </div>
             ) : (
               filteredPropFirms.map((firm) => (
@@ -828,10 +828,10 @@ export default function MobileOffers() {
             )
           ) : (
             filteredBrokers.length === 0 ? (
-              <div className="text-center py-12 bg-zinc-900/50 rounded-2xl border border-zinc-800">
-                <Gift size={24} className="text-zinc-500 mx-auto mb-2" />
-                <h3 className="text-sm font-semibold text-white mb-1">No Broker Bonuses</h3>
-                <p className="text-xs text-zinc-400">No active bonuses at the moment. Check back soon!</p>
+              <div className="text-center py-12 bg-[var(--ip-surface)] rounded-2xl border border-[var(--ip-border)]">
+                <Gift size={24} className="text-[var(--ip-text-2)] mx-auto mb-2" />
+                <h3 className="text-sm font-semibold text-[var(--ip-text)] mb-1">No Broker Bonuses</h3>
+                <p className="text-xs text-[var(--ip-text-2)]">No active bonuses at the moment. Check back soon!</p>
               </div>
             ) : (
               filteredBrokers.map((broker) => (
@@ -854,7 +854,7 @@ export default function MobileOffers() {
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 50 }}
-              className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-3 py-2 rounded-xl shadow-lg z-50"
+              className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-[var(--ip-text)] px-3 py-2 rounded-xl shadow-lg z-50"
             >
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 size={14} />

@@ -29,7 +29,7 @@ const tools = [
     id: 'pip-calculator',
     name: 'Pip Calculator',
     icon: BarChart3,
-    color: 'from-purple-500 to-pink-500',
+    color: 'from-blue-500 to-pink-500',
     description: 'Calculate pip values instantly',
     component: MobilePipCalculator,
     badge: 'Essential',
@@ -94,24 +94,24 @@ export default function MobileToolsPage() {
         <div className="px-4 pt-4 pb-20">
           <button
             onClick={() => setActiveToolId(null)}
-            className="flex items-center gap-1 text-purple-400 text-sm mb-4"
+            className="flex items-center gap-1 text-blue-400 text-sm mb-4"
           >
             <ChevronLeft size={16} /> Back to Tools
           </button>
           
-          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-xl border border-zinc-800 p-4 mb-4">
+          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-xl border border-[var(--ip-border)] p-4 mb-4">
             <div className="flex items-center gap-3">
               <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${activeTool.color} flex items-center justify-center shadow-lg`}>
-                <activeTool.icon size={22} className="text-white" />
+                <activeTool.icon size={22} className="text-[var(--ip-text)]" />
               </div>
               <div>
-                <h2 className="text-white font-bold text-lg">{activeTool.name}</h2>
-                <p className="text-zinc-400 text-xs">{activeTool.description}</p>
+                <h2 className="text-[var(--ip-text)] font-bold text-lg">{activeTool.name}</h2>
+                <p className="text-[var(--ip-text-2)] text-xs">{activeTool.description}</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-4">
+          <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-4">
             <ActiveComponent />
           </div>
         </div>
@@ -124,29 +124,29 @@ export default function MobileToolsPage() {
       <div className="px-4 pt-4 pb-20">
         <div className="space-y-5">
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl p-3 text-center border border-purple-500/30">
-              <div className="text-2xl font-bold text-white">{tools.length}</div>
-              <div className="text-xs text-zinc-400">Tools</div>
+            <div className="bg-gradient-to-br from-blue-500/20 to-pink-500/20 rounded-xl p-3 text-center border border-blue-500/30">
+              <div className="text-2xl font-bold text-[var(--ip-text)]">{tools.length}</div>
+              <div className="text-xs text-[var(--ip-text-2)]">Tools</div>
             </div>
             <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl p-3 text-center border border-blue-500/30">
               <div className="text-2xl font-bold text-blue-400">{favorites.length}</div>
-              <div className="text-xs text-zinc-400">Favorites</div>
+              <div className="text-xs text-[var(--ip-text-2)]">Favorites</div>
             </div>
             <div className="bg-gradient-to-br from-green-500/20 to-teal-500/20 rounded-xl p-3 text-center border border-green-500/30">
               <div className="text-2xl font-bold text-green-400">24/7</div>
-              <div className="text-xs text-zinc-400">Available</div>
+              <div className="text-xs text-[var(--ip-text-2)]">Available</div>
             </div>
           </div>
 
-          <div className="relative overflow-hidden bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-orange-600/20 rounded-2xl p-4 border border-purple-500/30">
-            <div className="absolute -top-10 -right-10 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl" />
+          <div className="relative overflow-hidden bg-gradient-to-r from-blue-600/20 via-pink-600/20 to-orange-600/20 rounded-2xl p-4 border border-blue-500/30">
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl" />
             <div className="relative flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-                <Sparkles size={18} className="text-white" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-pink-500 flex items-center justify-center">
+                <Sparkles size={18} className="text-[var(--ip-text)]" />
               </div>
               <div>
-                <p className="text-white text-sm font-medium">Professional Toolkit</p>
-                <p className="text-zinc-400 text-xs">Select a tool to get started</p>
+                <p className="text-[var(--ip-text)] text-sm font-medium">Professional Toolkit</p>
+                <p className="text-[var(--ip-text-2)] text-xs">Select a tool to get started</p>
               </div>
             </div>
           </div>
@@ -155,7 +155,7 @@ export default function MobileToolsPage() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Clock size={14} className="text-cyan-400" />
-                <h3 className="text-white text-sm font-medium">Recently Used</h3>
+                <h3 className="text-[var(--ip-text)] text-sm font-medium">Recently Used</h3>
               </div>
               <div className="flex flex-wrap gap-2">
                 {recentTools.map(toolId => {
@@ -166,9 +166,9 @@ export default function MobileToolsPage() {
                     <button
                       key={toolId}
                       onClick={() => openTool(toolId)}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800/50 rounded-lg text-xs text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all"
+                      className="flex items-center gap-2 px-3 py-1.5 bg-[var(--ip-surface-2)] rounded-lg text-xs text-[var(--ip-text-2)] hover:text-[var(--ip-text)] hover:bg-zinc-700 transition-all"
                     >
-                      <Icon size={12} className="text-purple-400" />
+                      <Icon size={12} className="text-blue-400" />
                       {tool.name}
                     </button>
                   );
@@ -189,24 +189,24 @@ export default function MobileToolsPage() {
                   animate={{ opacity: 1, y: 0 }}
                   whileHover={{ scale: 1.01 }}
                   onClick={() => openTool(tool.id)}
-                  className="relative bg-zinc-900/80 rounded-xl border border-zinc-800 overflow-hidden active:bg-zinc-800/50 transition-all cursor-pointer"
+                  className="relative bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] overflow-hidden active:bg-[var(--ip-surface-2)] transition-all cursor-pointer"
                 >
                   <div className="p-4">
                     <div className="flex items-start gap-3">
                       <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${tool.color} flex items-center justify-center flex-shrink-0 shadow-md`}>
-                        <Icon size={22} className="text-white" />
+                        <Icon size={22} className="text-[var(--ip-text)]" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <h3 className="text-white font-bold text-base">{tool.name}</h3>
-                            <p className="text-zinc-400 text-xs mt-0.5">{tool.description}</p>
+                            <h3 className="text-[var(--ip-text)] font-bold text-base">{tool.name}</h3>
+                            <p className="text-[var(--ip-text-2)] text-xs mt-0.5">{tool.description}</p>
                           </div>
                           <button
                             onClick={(e) => toggleFavorite(tool.id, e)}
-                            className="p-1.5 rounded-lg bg-zinc-800"
+                            className="p-1.5 rounded-lg bg-[var(--ip-surface-2)]"
                           >
-                            <Star size={14} className={isFavorite ? "text-yellow-400 fill-yellow-400" : "text-zinc-500"} />
+                            <Star size={14} className={isFavorite ? "text-yellow-400 fill-yellow-400" : "text-[var(--ip-text-2)]"} />
                           </button>
                         </div>
                         
@@ -224,8 +224,8 @@ export default function MobileToolsPage() {
           <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-xl p-4 border border-yellow-500/30">
             <div className="flex items-center gap-2">
               <Zap size={14} className="text-yellow-400" />
-              <p className="text-xs text-zinc-400">
-                <span className="text-white font-medium">Pro tip:</span> Star your favorite tools for quick access
+              <p className="text-xs text-[var(--ip-text-2)]">
+                <span className="text-[var(--ip-text)] font-medium">Pro tip:</span> Star your favorite tools for quick access
               </p>
             </div>
           </div>

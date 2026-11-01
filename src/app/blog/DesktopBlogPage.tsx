@@ -71,7 +71,7 @@ export default function BlogPage() {
       setPosts(data.posts || []);
       
       // Extract unique categories
-      const uniqueCategories = [...new Set(data.posts.map((p: BlogPost) => p.category).filter(Boolean))];
+      const uniqueCategories = [...new Set<string>(data.posts.map((p: BlogPost) => p.category).filter(Boolean))];
       setCategories(uniqueCategories);
     } catch (error: any) {
       console.error('Error fetching blog posts:', error);
@@ -97,10 +97,10 @@ export default function BlogPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--ip-bg)] text-[var(--ip-text)] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4" />
-          <p className="text-zinc-400">Loading articles...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4" />
+          <p className="text-[var(--ip-text-2)]">Loading articles...</p>
         </div>
       </div>
     );
@@ -108,14 +108,14 @@ export default function BlogPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
+      <div className="min-h-screen bg-[var(--ip-bg)] text-[var(--ip-text)] flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">Failed to load articles</h2>
-          <p className="text-zinc-400 mb-4">{error}</p>
+          <h2 className="text-2xl font-bold text-[var(--ip-text)] mb-2">Failed to load articles</h2>
+          <p className="text-[var(--ip-text-2)] mb-4">{error}</p>
           <button
             onClick={fetchPosts}
-            className="px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-400 transition-colors"
+            className="px-6 py-2 bg-blue-500 text-[var(--ip-text)] rounded-lg hover:bg-blue-400 transition-colors"
           >
             Try Again
           </button>
@@ -125,29 +125,29 @@ export default function BlogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[var(--ip-bg)] text-[var(--ip-text)]">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-purple-900 via-blue-900 to-cyan-900 py-16 px-6 text-center rounded-b-3xl shadow-lg border-b border-zinc-800">
+      <section className="relative bg-gradient-to-br from-blue-900 via-blue-900 to-cyan-900 py-16 px-6 text-center rounded-b-3xl shadow-lg border-b border-[var(--ip-border)]">
         <div className="absolute inset-0 bg-black/40"></div>
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-500/30 px-4 py-2 rounded-full text-blue-300 text-sm mb-6">
             <BookOpen className="w-4 h-4" />
             Trading Insights & Education
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-green-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-green-400 via-blue-400 to-blue-400 bg-clip-text text-transparent">
             InsightPip Blog
           </h1>
-          <p className="text-lg sm:text-xl text-zinc-300 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-[var(--ip-text-2)] max-w-2xl mx-auto">
             Expert analysis, platform comparisons, and trading strategies to elevate your trading journey.
           </p>
           <div className="mt-6 flex items-center justify-center gap-8">
             <div className="text-center">
-              <div className="text-2xl font-bold text-white">{posts.length}</div>
-              <div className="text-sm text-zinc-400">Articles</div>
+              <div className="text-2xl font-bold text-[var(--ip-text)]">{posts.length}</div>
+              <div className="text-sm text-[var(--ip-text-2)]">Articles</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-white">{categories.length}</div>
-              <div className="text-sm text-zinc-400">Categories</div>
+              <div className="text-2xl font-bold text-[var(--ip-text)]">{categories.length}</div>
+              <div className="text-sm text-[var(--ip-text-2)]">Categories</div>
             </div>
           </div>
         </div>
@@ -158,20 +158,20 @@ export default function BlogPage() {
         {/* Search and Filter */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400" size={20} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--ip-text-2)]" size={20} />
             <input
               type="text"
               placeholder="Search articles..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl pl-10 pr-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500"
+              className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl pl-10 pr-4 py-3 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500"
             />
           </div>
           {categories.length > 0 && (
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500"
+              className="bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-4 py-3 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500"
             >
               <option value="all">All Categories</option>
               {categories.map((category) => (
@@ -185,12 +185,12 @@ export default function BlogPage() {
         {posts.length === 0 ? (
           <div className="text-center py-16">
             <BookOpen className="w-20 h-20 text-zinc-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-2">No articles yet</h2>
-            <p className="text-zinc-400 max-w-md mx-auto">
+            <h2 className="text-2xl font-bold text-[var(--ip-text)] mb-2">No articles yet</h2>
+            <p className="text-[var(--ip-text-2)] max-w-md mx-auto">
               Check back soon for new trading insights and educational content.
             </p>
-            <div className="mt-6 p-4 bg-zinc-800/30 rounded-lg border border-zinc-700 max-w-md mx-auto">
-              <p className="text-sm text-zinc-500">
+            <div className="mt-6 p-4 bg-[var(--ip-surface-2)] rounded-lg border border-[var(--ip-border)] max-w-md mx-auto">
+              <p className="text-sm text-[var(--ip-text-2)]">
                 💡 Tip: Articles are created and published by our admin team.
               </p>
             </div>
@@ -200,7 +200,7 @@ export default function BlogPage() {
             {/* Featured Posts */}
             {featuredPosts.length > 0 && (
               <div className="mb-12">
-                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-[var(--ip-text)] mb-6 flex items-center gap-2">
                   <Star className="w-6 h-6 text-yellow-400" />
                   Featured Articles
                 </h2>
@@ -214,16 +214,16 @@ export default function BlogPage() {
 
             {/* All Posts */}
             <div>
-              <h2 className="text-2xl font-bold text-white mb-6">
+              <h2 className="text-2xl font-bold text-[var(--ip-text)] mb-6">
                 {selectedCategory === 'all' ? 'All Articles' : selectedCategory}
-                <span className="text-sm text-zinc-400 ml-2">({filteredPosts.length} articles)</span>
+                <span className="text-sm text-[var(--ip-text-2)] ml-2">({filteredPosts.length} articles)</span>
               </h2>
               
               {filteredPosts.length === 0 ? (
                 <div className="text-center py-12">
                   <BookOpen className="w-16 h-16 text-zinc-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">No articles found</h3>
-                  <p className="text-zinc-400">
+                  <h3 className="text-xl font-semibold text-[var(--ip-text)] mb-2">No articles found</h3>
+                  <p className="text-[var(--ip-text-2)]">
                     {searchQuery ? 'Try adjusting your search' : 'No articles available in this category'}
                   </p>
                 </div>
@@ -246,7 +246,7 @@ export default function BlogPage() {
 function FeaturedPostCard({ post }: { post: BlogPost }) {
   return (
     <Link href={`/blog/${post.slug}`}>
-      <div className="bg-gradient-to-br from-zinc-900 to-zinc-800 rounded-2xl overflow-hidden border border-zinc-700 hover:border-purple-500/50 transition-all duration-300 group h-full">
+      <div className="bg-gradient-to-br from-zinc-900 to-zinc-800 rounded-2xl overflow-hidden border border-[var(--ip-border)] hover:border-blue-500/50 transition-all duration-300 group h-full">
         {post.imageUrl && (
           <div className="relative overflow-hidden h-48">
             <img 
@@ -263,7 +263,7 @@ function FeaturedPostCard({ post }: { post: BlogPost }) {
           </div>
         )}
         <div className="p-6">
-          <div className="flex items-center gap-3 text-xs text-zinc-400 mb-3">
+          <div className="flex items-center gap-3 text-xs text-[var(--ip-text-2)] mb-3">
             <span className="flex items-center gap-1">
               <Calendar size={12} />
               {format(new Date(post.publishedAt || post.createdAt), 'MMM d, yyyy')}
@@ -273,18 +273,18 @@ function FeaturedPostCard({ post }: { post: BlogPost }) {
               {Math.ceil(post.content?.split(' ').length / 200) || 3} min read
             </span>
           </div>
-          <h3 className="text-xl font-bold text-white mb-3 line-clamp-2 group-hover:text-purple-400 transition-colors">
+          <h3 className="text-xl font-bold text-[var(--ip-text)] mb-3 line-clamp-2 group-hover:text-blue-400 transition-colors">
             {post.title}
           </h3>
-          <p className="text-zinc-400 text-sm line-clamp-3 mb-4">{post.summary}</p>
+          <p className="text-[var(--ip-text-2)] text-sm line-clamp-3 mb-4">{post.summary}</p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-500 rounded-full flex items-center justify-center text-[var(--ip-text)] text-xs font-bold">
                 {post.author?.name?.charAt(0) || 'U'}
               </div>
-              <span className="text-sm text-zinc-400">{post.author?.name || 'Unknown'}</span>
+              <span className="text-sm text-[var(--ip-text-2)]">{post.author?.name || 'Unknown'}</span>
             </div>
-            <div className="flex items-center gap-3 text-zinc-500">
+            <div className="flex items-center gap-3 text-[var(--ip-text-2)]">
               <span className="flex items-center gap-1 text-xs">
                 <ThumbsUp size={14} /> {post.likes || 0}
               </span>
@@ -303,7 +303,7 @@ function FeaturedPostCard({ post }: { post: BlogPost }) {
 function BlogPostCard({ post }: { post: BlogPost }) {
   return (
     <Link href={`/blog/${post.slug}`}>
-      <div className="bg-zinc-900/50 rounded-2xl overflow-hidden border border-zinc-800 hover:border-purple-500/30 transition-all duration-300 group h-full">
+      <div className="bg-[var(--ip-surface)] rounded-2xl overflow-hidden border border-[var(--ip-border)] hover:border-blue-500/30 transition-all duration-300 group h-full">
         {post.imageUrl && (
           <div className="relative overflow-hidden h-48">
             <img 
@@ -312,14 +312,14 @@ function BlogPostCard({ post }: { post: BlogPost }) {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
             <div className="absolute top-3 left-3">
-              <span className="bg-black/80 text-white px-2 py-1 rounded-md text-xs">
+              <span className="bg-black/80 text-[var(--ip-text)] px-2 py-1 rounded-md text-xs">
                 {post.category}
               </span>
             </div>
           </div>
         )}
         <div className="p-5">
-          <div className="flex items-center gap-2 text-xs text-zinc-400 mb-3">
+          <div className="flex items-center gap-2 text-xs text-[var(--ip-text-2)] mb-3">
             <span className="flex items-center gap-1">
               <Calendar size={12} />
               {format(new Date(post.publishedAt || post.createdAt), 'MMM d, yyyy')}
@@ -330,18 +330,18 @@ function BlogPostCard({ post }: { post: BlogPost }) {
               {Math.ceil(post.content?.split(' ').length / 200) || 3} min
             </span>
           </div>
-          <h3 className="text-lg font-bold text-white mb-2 line-clamp-2 group-hover:text-purple-400 transition-colors">
+          <h3 className="text-lg font-bold text-[var(--ip-text)] mb-2 line-clamp-2 group-hover:text-blue-400 transition-colors">
             {post.title}
           </h3>
-          <p className="text-zinc-400 text-sm line-clamp-2 mb-4">{post.summary}</p>
+          <p className="text-[var(--ip-text-2)] text-sm line-clamp-2 mb-4">{post.summary}</p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">
+              <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-blue-500 rounded-full flex items-center justify-center text-[var(--ip-text)] text-[10px] font-bold">
                 {post.author?.name?.charAt(0) || 'U'}
               </div>
-              <span className="text-xs text-zinc-400">{post.author?.name || 'Unknown'}</span>
+              <span className="text-xs text-[var(--ip-text-2)]">{post.author?.name || 'Unknown'}</span>
             </div>
-            <ArrowRight size={16} className="text-zinc-500 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
+            <ArrowRight size={16} className="text-[var(--ip-text-2)] group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
           </div>
         </div>
       </div>

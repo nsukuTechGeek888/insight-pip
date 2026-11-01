@@ -7,11 +7,11 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useRegion } from '@/contexts/RegionContext';
-import { 
+import {
   Star, ArrowLeft, MessageCircle, ThumbsUp, Share2, Copy, Check,
   Flag, Eye, Clock, Users, Shield, AlertTriangle, CheckCircle,
   Image as ImageIcon, X, Send, ChevronDown,
-  ChevronUp, Reply, Building2, Award, Zap, Wallet, CreditCard, 
+  ChevronUp, Reply, Building2, Award, Zap, Wallet, CreditCard,
   Headphones, DollarSign, BarChart3, Activity, Loader2,
   ChevronLeft, ChevronRight, Paperclip, Globe
 } from 'lucide-react';
@@ -110,12 +110,12 @@ function RatingBar({ label, value, icon: Icon }: { label: string; value: number;
     <div className="space-y-1">
       <div className="flex items-center justify-between text-xs">
         <div className="flex items-center gap-1.5">
-          <Icon size={12} className="text-zinc-500" />
-          <span className="text-zinc-400">{label}</span>
+          <Icon size={12} className="text-[var(--ip-text-2)]" />
+          <span className="text-[var(--ip-text-2)]">{label}</span>
         </div>
-        <span className="text-white font-medium">{value.toFixed(1)}</span>
+        <span className="text-[var(--ip-text)] font-medium">{value.toFixed(1)}</span>
       </div>
-      <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+      <div className="w-full h-1.5 bg-[var(--ip-surface-2)] rounded-full overflow-hidden">
         <div className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full" style={{ width: `${percentage}%` }} />
       </div>
     </div>
@@ -124,8 +124,8 @@ function RatingBar({ label, value, icon: Icon }: { label: string; value: number;
 
 const generateGradient = (name: string) => {
   const gradients = [
-    "from-pink-500 to-purple-500",
-    "from-blue-500 to-purple-500",
+    "from-pink-500 to-blue-500",
+    "from-blue-500 to-blue-500",
     "from-green-500 to-blue-500",
     "from-yellow-500 to-orange-500",
     "from-red-500 to-pink-500",
@@ -162,14 +162,14 @@ function LightboxModal({ images, initialIndex, onClose }: { images: string[]; in
       onClick={onClose}
     >
       <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10">
-        <X size={24} className="text-white" />
+        <X size={24} className="text-[var(--ip-text)]" />
       </button>
       {images.length > 1 && (
         <>
           <button onClick={(e) => { e.stopPropagation(); setCurrentIndex(prev => Math.max(0, prev - 1)); }} className="absolute left-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors disabled:opacity-50" disabled={currentIndex === 0}>
-            <ChevronLeft size={24} className="text-white" />
+            <ChevronLeft size={24} className="text-[var(--ip-text)]" />
           </button>
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-white text-sm">
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-[var(--ip-text)] text-sm">
             {currentIndex + 1} / {images.length}
           </div>
         </>
@@ -183,7 +183,7 @@ function LightboxModal({ images, initialIndex, onClose }: { images: string[]; in
       </motion.div>
       {images.length > 1 && (
         <button onClick={(e) => { e.stopPropagation(); setCurrentIndex(prev => Math.min(images.length - 1, prev + 1)); }} className="absolute right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors disabled:opacity-50" disabled={currentIndex === images.length - 1}>
-          <ChevronRight size={24} className="text-white" />
+          <ChevronRight size={24} className="text-[var(--ip-text)]" />
         </button>
       )}
     </motion.div>
@@ -191,17 +191,17 @@ function LightboxModal({ images, initialIndex, onClose }: { images: string[]; in
 }
 
 // Reply Thread Component - WITH OPTIMISTIC UPDATES AND USER PROP
-function ReplyThread({ 
-  reply, 
-  depth = 0, 
-  onReplySubmit, 
+function ReplyThread({
+  reply,
+  depth = 0,
+  onReplySubmit,
   reviewId,
   onUpdateReplyCount,
   onOpenLightbox,
   currentUser
-}: { 
-  reply: Reply; 
-  depth?: number; 
+}: {
+  reply: Reply;
+  depth?: number;
   onReplySubmit: (reviewId: string, parentReplyId: string | null, content: string, mediaFiles: File[]) => Promise<{ success: boolean; reply?: any }>;
   reviewId: string;
   onUpdateReplyCount: (replyId: string, increment: number) => void;
@@ -223,13 +223,13 @@ function ReplyThread({
   const isPropFirmReply = reply.replyType === 'PROP_FIRM';
   const isAdminReply = reply.replyType === 'ADMIN';
   const isVerified = isBrokerReply || isPropFirmReply || isAdminReply;
-  
-  const replyColor = isBrokerReply ? 'from-blue-500 to-cyan-500' : 
-                     isPropFirmReply ? 'from-purple-500 to-pink-500' : 
+
+  const replyColor = isBrokerReply ? 'from-blue-500 to-cyan-500' :
+                     isPropFirmReply ? 'from-blue-500 to-pink-500' :
                      isAdminReply ? 'from-red-500 to-orange-500' : 'from-zinc-600 to-zinc-500';
-  
-  const replyLabel = isBrokerReply ? 'Broker Representative' : 
-                     isPropFirmReply ? 'Prop Firm Representative' : 
+
+  const replyLabel = isBrokerReply ? 'Broker Representative' :
+                     isPropFirmReply ? 'Prop Firm Representative' :
                      isAdminReply ? 'Admin' : 'Trader';
 
   // Update local reply count when prop changes
@@ -243,7 +243,7 @@ function ReplyThread({
       setShowReplies(false);
       return;
     }
-    
+
     setLoadingReplies(true);
     try {
       const response = await fetch(`/api/reviews/${reviewId}/replies?parentId=${reply.id}`, { credentials: 'include' });
@@ -262,9 +262,9 @@ function ReplyThread({
   const handleSubmitReply = async () => {
     if (!replyContent.trim() && replyMedia.length === 0) return;
     if (submitting) return;
-    
+
     setSubmitting(true);
-    
+
     // Create optimistic reply object
     const optimisticReply: Reply = {
       id: `temp-${Date.now()}`,
@@ -284,7 +284,7 @@ function ReplyThread({
       parentReplyId: reply.id,
       helpfulCount: 0
     };
-    
+
     // Optimistically add to UI
     setChildReplies(prev => [...prev, optimisticReply]);
     setLocalReplyCount(prev => prev + 1);
@@ -292,10 +292,10 @@ function ReplyThread({
     setReplyContent('');
     setReplyMedia([]);
     setShowReplyForm(false);
-    
+
     // Update parent reply count in main state
     onUpdateReplyCount(reply.id, 1);
-    
+
     try {
       const result = await onReplySubmit(reviewId, reply.id, replyContent, replyMedia);
       if (result.success && result.reply) {
@@ -339,38 +339,38 @@ function ReplyThread({
   };
 
   return (
-    <div className={`relative ${depth > 0 ? 'ml-8 mt-3 pl-4 border-l-2 border-zinc-800' : 'mt-4'}`}>
-      <div className="bg-zinc-800/30 rounded-xl p-4 border border-zinc-800 hover:border-zinc-700 transition-all">
+    <div className={`relative ${depth > 0 ? 'ml-8 mt-3 pl-4 border-l-2 border-[var(--ip-border)]' : 'mt-4'}`}>
+      <div className="bg-[var(--ip-surface-2)] rounded-xl p-4 border border-[var(--ip-border)] hover:border-[var(--ip-border)] transition-all">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0">
             {reply.user?.avatar ? (
               <img src={reply.user.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
             ) : (
-              <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${replyColor} flex items-center justify-center text-white font-bold`}>
+              <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${replyColor} flex items-center justify-center text-[var(--ip-text)] font-bold`}>
                 {reply.user?.name?.charAt(0) || 'U'}
               </div>
             )}
           </div>
-          
+
           <div className="flex-1">
             <div className="flex items-center gap-2 flex-wrap mb-1">
-              <span className="font-medium text-white text-sm">{reply.user?.name || 'Anonymous'}</span>
+              <span className="font-medium text-[var(--ip-text)] text-sm">{reply.user?.name || 'Anonymous'}</span>
               {isVerified && (
-                <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-gradient-to-r ${replyColor} text-white`}>
+                <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-gradient-to-r ${replyColor} text-[var(--ip-text)]`}>
                   {replyLabel}
                 </span>
               )}
-              <span className="text-xs text-zinc-500">{new Date(reply.createdAt).toLocaleDateString()}</span>
+              <span className="text-xs text-[var(--ip-text-2)]">{new Date(reply.createdAt).toLocaleDateString()}</span>
             </div>
-            <p className="text-zinc-300 text-sm leading-relaxed">{reply.content}</p>
-            
+            <p className="text-[var(--ip-text-2)] text-sm leading-relaxed">{reply.content}</p>
+
             {/* Media Attachments */}
             {reply.mediaUrls && reply.mediaUrls.length > 0 && (
               <div className="flex gap-2 mt-3 flex-wrap">
                 {reply.mediaUrls.map((url, idx) => (
-                  <div 
-                    key={idx} 
-                    className="relative w-20 h-20 rounded-lg overflow-hidden bg-zinc-800 cursor-pointer group"
+                  <div
+                    key={idx}
+                    className="relative w-20 h-20 rounded-lg overflow-hidden bg-[var(--ip-surface-2)] cursor-pointer group"
                     onClick={() => onOpenLightbox(reply.mediaUrls, idx)}
                   >
                     {url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
@@ -379,34 +379,34 @@ function ReplyThread({
                       <video src={url} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-zinc-700">
-                        <Paperclip size={20} className="text-zinc-400" />
+                        <Paperclip size={20} className="text-[var(--ip-text-2)]" />
                       </div>
                     )}
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Eye size={16} className="text-white" />
+                      <Eye size={16} className="text-[var(--ip-text)]" />
                     </div>
                   </div>
                 ))}
               </div>
             )}
-            
+
             <div className="flex items-center gap-3 mt-3">
               {depth < maxDepth && (
-                <button onClick={() => setShowReplyForm(!showReplyForm)} className="flex items-center gap-1 text-xs text-zinc-500 hover:text-purple-400 transition-colors">
+                <button onClick={() => setShowReplyForm(!showReplyForm)} className="flex items-center gap-1 text-xs text-[var(--ip-text-2)] hover:text-blue-400 transition-colors">
                   <Reply size={12} /> Reply
                 </button>
               )}
-              <button onClick={handleHelpful} className={`flex items-center gap-1 text-xs transition-colors ${helpful ? 'text-green-400' : 'text-zinc-500 hover:text-green-400'}`}>
+              <button onClick={handleHelpful} className={`flex items-center gap-1 text-xs transition-colors ${helpful ? 'text-green-400' : 'text-[var(--ip-text-2)] hover:text-green-400'}`}>
                 <ThumbsUp size={12} /> Helpful {reply.helpfulCount > 0 && `(${reply.helpfulCount})`}
               </button>
               {localReplyCount > 0 && (
-                <button onClick={loadChildReplies} className="flex items-center gap-1 text-xs text-zinc-500 hover:text-blue-400 transition-colors">
+                <button onClick={loadChildReplies} className="flex items-center gap-1 text-xs text-[var(--ip-text-2)] hover:text-blue-400 transition-colors">
                   {showReplies ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                   {localReplyCount} {localReplyCount === 1 ? 'reply' : 'replies'}
                 </button>
               )}
             </div>
-            
+
             {/* Reply Form with Media Upload */}
             {showReplyForm && (
               <div className="mt-3">
@@ -414,10 +414,10 @@ function ReplyThread({
                   value={replyContent}
                   onChange={(e) => setReplyContent(e.target.value)}
                   placeholder={`Reply to ${reply.user?.name || 'user'}...`}
-                  className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500"
+                  className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-3 py-2 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500"
                   rows={2}
                 />
-                
+
                 {/* Media Previews */}
                 {replyMedia.length > 0 && (
                   <div className="flex gap-2 mt-2 flex-wrap">
@@ -425,37 +425,37 @@ function ReplyThread({
                       <div key={idx} className="relative">
                         <img src={URL.createObjectURL(file)} alt="" className="w-12 h-12 rounded-lg object-cover" />
                         <button onClick={() => removeFile(idx)} className="absolute -top-1 -right-1 p-0.5 bg-red-500 rounded-full">
-                          <X size={10} className="text-white" />
+                          <X size={10} className="text-[var(--ip-text)]" />
                         </button>
                       </div>
                     ))}
                   </div>
                 )}
-                
+
                 <div className="flex justify-between items-center mt-2">
-                  <label className="cursor-pointer p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition-colors">
-                    <ImageIcon size={14} className="text-zinc-400" />
-                    <input 
-                      type="file" 
-                      multiple 
-                      accept="image/*,video/*" 
-                      className="hidden" 
+                  <label className="cursor-pointer p-1.5 rounded-lg bg-[var(--ip-surface-2)] hover:bg-zinc-700 transition-colors">
+                    <ImageIcon size={14} className="text-[var(--ip-text-2)]" />
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*,video/*"
+                      className="hidden"
                       onChange={(e) => {
                         if (e.target.files) setReplyMedia(Array.from(e.target.files));
-                      }} 
+                      }}
                     />
                   </label>
                   <div className="flex gap-2">
                     <button
                       onClick={() => setShowReplyForm(false)}
-                      className="px-3 py-1 rounded-lg bg-zinc-800 text-white text-xs"
+                      className="px-3 py-1 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text)] text-xs"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleSubmitReply}
                       disabled={(!replyContent.trim() && replyMedia.length === 0) || submitting}
-                      className="px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-xs disabled:opacity-50 flex items-center gap-1"
+                      className="px-3 py-1 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-lg text-xs disabled:opacity-50 flex items-center gap-1"
                     >
                       {submitting ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
                       {submitting ? 'Sending...' : 'Reply'}
@@ -467,7 +467,7 @@ function ReplyThread({
           </div>
         </div>
       </div>
-      
+
       {/* Child Replies */}
       <AnimatePresence>
         {showReplies && (
@@ -479,7 +479,7 @@ function ReplyThread({
           >
             {loadingReplies ? (
               <div className="ml-8 mt-3 p-4 text-center">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500 mx-auto"></div>
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
               </div>
             ) : (
               childReplies.map((childReply) => (
@@ -503,8 +503,8 @@ function ReplyThread({
 }
 
 // Top Level Reply Form
-function TopLevelReplyForm({ reviewId, onSuccess, isPosting, setIsPosting, currentUser }: { 
-  reviewId: string; 
+function TopLevelReplyForm({ reviewId, onSuccess, isPosting, setIsPosting, currentUser }: {
+  reviewId: string;
   onSuccess: (optimisticReply?: any) => Promise<void>;
   isPosting: boolean;
   setIsPosting: (value: boolean) => void;
@@ -564,7 +564,7 @@ function TopLevelReplyForm({ reviewId, onSuccess, isPosting, setIsPosting, curre
     // Clear form immediately
     setContent('');
     setMediaFiles([]);
-    
+
     // Pass optimistic reply to parent for immediate UI update
     await onSuccess(optimisticReply);
 
@@ -586,7 +586,7 @@ function TopLevelReplyForm({ reviewId, onSuccess, isPosting, setIsPosting, curre
       if (!response.ok) {
         throw new Error(data.error || 'Failed to post reply');
       }
-      
+
       // Refresh to get the real reply with correct ID
       await onSuccess();
     } catch (err: any) {
@@ -599,36 +599,36 @@ function TopLevelReplyForm({ reviewId, onSuccess, isPosting, setIsPosting, curre
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4 p-4 bg-zinc-800/30 rounded-xl border border-zinc-800">
+    <form onSubmit={handleSubmit} className="mt-4 p-4 bg-[var(--ip-surface-2)] rounded-xl border border-[var(--ip-border)]">
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="Share your thoughts..."
         rows={3}
-        className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 resize-none text-sm"
+        className="w-full bg-[var(--ip-surface)] border border-[var(--ip-border)] rounded-lg px-4 py-3 text-[var(--ip-text)] placeholder-zinc-500 focus:outline-none focus:border-blue-500 resize-none text-sm"
       />
-      
+
       {/* Media Previews */}
       {mediaFiles.length > 0 && (
         <div className="flex gap-2 mt-3 flex-wrap">
           {mediaFiles.map((file, idx) => (
             <div key={idx} className="relative">
-              <img src={URL.createObjectURL(file)} alt="" className="w-16 h-16 rounded-lg object-cover bg-zinc-800" />
+              <img src={URL.createObjectURL(file)} alt="" className="w-16 h-16 rounded-lg object-cover bg-[var(--ip-surface-2)]" />
               <button type="button" onClick={() => removeFile(idx)} className="absolute -top-1 -right-1 p-0.5 bg-red-500 rounded-full">
-                <X size={10} className="text-white" />
+                <X size={10} className="text-[var(--ip-text)]" />
               </button>
             </div>
           ))}
         </div>
       )}
-      
+
       <div className="flex items-center justify-between mt-3">
-        <label className="cursor-pointer p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white transition-colors">
+        <label className="cursor-pointer p-2 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors">
           <ImageIcon size={16} />
           <input type="file" ref={fileInputRef} onChange={handleFileSelect} multiple accept="image/*,video/*" className="hidden" />
         </label>
-        
-        <button type="submit" disabled={isPosting || (!content.trim() && mediaFiles.length === 0)} className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium disabled:opacity-50 flex items-center gap-2">
+
+        <button type="submit" disabled={isPosting || (!content.trim() && mediaFiles.length === 0)} className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] text-sm font-medium disabled:opacity-50 flex items-center gap-2">
           {isPosting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
           {isPosting ? 'Posting...' : 'Post Reply'}
         </button>
@@ -644,7 +644,7 @@ export default function DesktopReviewDetail() {
   const { user } = useUser();
   const { region } = useRegion(); // ✅ ADDED REGION
   const reviewId = params.id as string;
-  
+
   const [review, setReview] = useState<Review | null>(null);
   const [replies, setReplies] = useState<Reply[]>([]);
   const [loading, setLoading] = useState(true);
@@ -666,11 +666,11 @@ export default function DesktopReviewDetail() {
         fetch(`/api/reviews/${reviewId}`, { credentials: 'include' }),
         fetch(`/api/reviews/${reviewId}/replies`, { credentials: 'include' })
       ]);
-      
+
       if (!reviewRes.ok) throw new Error('Review not found');
       const reviewData = await reviewRes.json();
       setReview(reviewData.review || reviewData);
-      
+
       const repliesData = await repliesRes.json();
       if (repliesData.success) {
         setReplies(repliesData.replies);
@@ -699,7 +699,7 @@ export default function DesktopReviewDetail() {
       router.push('/login');
       return;
     }
-    
+
     try {
       const response = await fetch(`/api/reviews/${reviewId}/helpful`, {
         method: 'POST',
@@ -721,7 +721,7 @@ export default function DesktopReviewDetail() {
       router.push('/login');
       return { success: false };
     }
-    
+
     try {
       const formData = new FormData();
       formData.append('content', content);
@@ -739,11 +739,11 @@ export default function DesktopReviewDetail() {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         return { success: true, reply: data.reply };
       }
-      
+
       return { success: false };
     } catch (error) {
       console.error('Error submitting reply:', error);
@@ -753,9 +753,9 @@ export default function DesktopReviewDetail() {
 
   // Update reply count for a specific parent
   const updateReplyCount = useCallback((replyId: string, increment: number) => {
-    setReplies(prevReplies => 
-      prevReplies.map(reply => 
-        reply.id === replyId 
+    setReplies(prevReplies =>
+      prevReplies.map(reply =>
+        reply.id === replyId
           ? { ...reply, replyCount: Math.max(0, reply.replyCount + increment) }
           : reply
       )
@@ -819,10 +819,10 @@ export default function DesktopReviewDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
-          <p className="mt-4 text-zinc-500">Loading review...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-[var(--ip-text-2)]">Loading review...</p>
         </div>
       </div>
     );
@@ -830,12 +830,12 @@ export default function DesktopReviewDetail() {
 
   if (error || !review) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
         <div className="text-center">
           <AlertTriangle size={48} className="text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">Review Not Found</h1>
-          <p className="text-zinc-400 mb-6">{error || 'The review you\'re looking for doesn\'t exist.'}</p>
-          <button onClick={() => router.back()} className="px-4 py-2 bg-purple-600 rounded-lg text-white hover:bg-purple-500">Go Back</button>
+          <h1 className="text-2xl font-bold text-[var(--ip-text)] mb-2">Review Not Found</h1>
+          <p className="text-[var(--ip-text-2)] mb-6">{error || 'The review you\'re looking for doesn\'t exist.'}</p>
+          <button onClick={() => router.back()} className="px-4 py-2 bg-blue-600 rounded-lg text-[var(--ip-text)] hover:bg-blue-500">Go Back</button>
         </div>
       </div>
     );
@@ -852,86 +852,86 @@ export default function DesktopReviewDetail() {
   ].filter(r => r && r > 0).length;
 
   return (
-    <div className="min-h-screen bg-black pt-20">
+    <div className="min-h-screen bg-[var(--ip-bg)] pt-20">
       {/* ❌ REGION BANNER REMOVED - Users select region in navbar */}
 
       <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Region Context Indicator - Subtle */}
         <div className="flex items-center justify-between mb-6">
-          <button onClick={() => router.back()} className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors">
+          <button onClick={() => router.back()} className="flex items-center gap-2 text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors">
             <ArrowLeft size={18} /> Back
           </button>
-          <div className="flex items-center gap-2 text-xs text-zinc-500">
+          <div className="flex items-center gap-2 text-xs text-[var(--ip-text-2)]">
             <Globe size={12} />
             <span>{regionInfo.flag} {regionInfo.label}</span>
           </div>
         </div>
 
-        <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 overflow-hidden">
-          <div className="p-6 border-b border-zinc-800">
+        <div className="bg-[var(--ip-surface)] rounded-2xl border border-[var(--ip-border)] overflow-hidden">
+          <div className="p-6 border-b border-[var(--ip-border)]">
             <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
               <div className="flex items-center gap-3">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${review.entityType === 'broker' ? 'from-blue-500 to-purple-500' : 'from-purple-500 to-pink-500'} flex items-center justify-center text-white font-bold text-xl`}>
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${review.entityType === 'broker' ? 'from-blue-500 to-blue-500' : 'from-blue-500 to-pink-500'} flex items-center justify-center text-[var(--ip-text)] font-bold text-xl`}>
                   {review.entityName?.charAt(0) || '?'}
                 </div>
                 <div>
-                  <Link href={`/${review.entityType === 'broker' ? 'brokers' : 'prop-firms'}/${review.entitySlug}`} className="text-white font-semibold hover:text-purple-400 transition-colors">
+                  <Link href={`/${review.entityType === 'broker' ? 'brokers' : 'prop-firms'}/${review.entitySlug}`} className="text-[var(--ip-text)] font-semibold hover:text-blue-400 transition-colors">
                     {review.entityName}
                   </Link>
-                  <p className="text-xs text-zinc-500 capitalize">{review.entityType}</p>
+                  <p className="text-xs text-[var(--ip-text-2)] capitalize">{review.entityType}</p>
                 </div>
               </div>
               <div className="flex gap-2">
-                <button onClick={handleShare} className="p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white transition-colors">
+                <button onClick={handleShare} className="p-2 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors">
                   {copied ? <Check size={18} /> : <Share2 size={18} />}
                 </button>
               </div>
             </div>
-            
-            <h1 className="text-2xl font-bold text-white mb-2">{review.title}</h1>
-            <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-500 mb-4">
+
+            <h1 className="text-2xl font-bold text-[var(--ip-text)] mb-2">{review.title}</h1>
+            <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--ip-text-2)] mb-4">
               <span className="flex items-center gap-1"><Clock size={14} /> {new Date(review.createdAt).toLocaleDateString()}</span>
               <span className="flex items-center gap-1"><Users size={14} /> {review.helpfulCount} found helpful</span>
               <span className="flex items-center gap-1"><MessageCircle size={14} /> {review.replyCount} {review.replyCount === 1 ? 'reply' : 'replies'}</span>
             </div>
-            
+
             <div className="flex flex-wrap items-center gap-3 mb-4">
               <StarRating rating={review.rating} size="lg" />
-              <span className="text-white font-bold">{review.rating}.0/5</span>
+              <span className="text-[var(--ip-text)] font-bold">{review.rating}.0/5</span>
               {review.trustScore > 0 && <TrustScoreBadge score={review.trustScore} size="md" />}
               {review.isVerified && <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded-full text-xs flex items-center gap-1"><CheckCircle size={12} /> Verified Trader</span>}
               {review.wouldRecommend === 'Yes' && <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs">Recommended</span>}
             </div>
-            
-            <p className="text-zinc-300 leading-relaxed">{review.content}</p>
+
+            <p className="text-[var(--ip-text-2)] leading-relaxed">{review.content}</p>
           </div>
-          
-          <div className="p-6 border-b border-zinc-800">
+
+          <div className="p-6 border-b border-[var(--ip-border)]">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-white flex items-center gap-2"><Users size={14} /> Trader Profile</h3>
+                <h3 className="text-sm font-semibold text-[var(--ip-text)] flex items-center gap-2"><Users size={14} /> Trader Profile</h3>
                 <div className="grid grid-cols-2 gap-3">
-                  {review.experienceLevel && <div><div className="text-xs text-zinc-500">Experience</div><div className="text-sm text-white">{review.experienceLevel}</div></div>}
-                  {review.yearsTrading && <div><div className="text-xs text-zinc-500">Years Trading</div><div className="text-sm text-white">{review.yearsTrading}</div></div>}
-                  {review.tradingStyle && <div><div className="text-xs text-zinc-500">Trading Style</div><div className="text-sm text-white">{review.tradingStyle}</div></div>}
+                  {review.experienceLevel && <div><div className="text-xs text-[var(--ip-text-2)]">Experience</div><div className="text-sm text-[var(--ip-text)]">{review.experienceLevel}</div></div>}
+                  {review.yearsTrading && <div><div className="text-xs text-[var(--ip-text-2)]">Years Trading</div><div className="text-sm text-[var(--ip-text)]">{review.yearsTrading}</div></div>}
+                  {review.tradingStyle && <div><div className="text-xs text-[var(--ip-text-2)]">Trading Style</div><div className="text-sm text-[var(--ip-text)]">{review.tradingStyle}</div></div>}
                 </div>
               </div>
-              
+
               <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-white flex items-center gap-2"><Shield size={14} /> Trust Signals</h3>
+                <h3 className="text-sm font-semibold text-[var(--ip-text)] flex items-center gap-2"><Shield size={14} /> Trust Signals</h3>
                 <div className="grid grid-cols-2 gap-3">
-                  {review.withdrawalSpeed && <div><div className="text-xs text-zinc-500">Withdrawal Speed</div><div className="text-sm text-white">{review.withdrawalSpeed}</div></div>}
-                  {review.wouldRecommend && <div><div className="text-xs text-zinc-500">Recommendation</div><div className="text-sm text-green-400">{review.wouldRecommend}</div></div>}
-                  {review.pros && <div><div className="text-xs text-zinc-500">Pros</div><div className="text-sm text-green-400">{review.pros}</div></div>}
-                  {review.cons && <div><div className="text-xs text-zinc-500">Cons</div><div className="text-sm text-red-400">{review.cons}</div></div>}
+                  {review.withdrawalSpeed && <div><div className="text-xs text-[var(--ip-text-2)]">Withdrawal Speed</div><div className="text-sm text-[var(--ip-text)]">{review.withdrawalSpeed}</div></div>}
+                  {review.wouldRecommend && <div><div className="text-xs text-[var(--ip-text-2)]">Recommendation</div><div className="text-sm text-green-400">{review.wouldRecommend}</div></div>}
+                  {review.pros && <div><div className="text-xs text-[var(--ip-text-2)]">Pros</div><div className="text-sm text-green-400">{review.pros}</div></div>}
+                  {review.cons && <div><div className="text-xs text-[var(--ip-text-2)]">Cons</div><div className="text-sm text-red-400">{review.cons}</div></div>}
                 </div>
               </div>
             </div>
           </div>
-          
+
           {totalRatings > 0 && (
-            <div className="p-6 border-b border-zinc-800">
-              <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2"><BarChart3 size={14} /> Detailed Ratings</h3>
+            <div className="p-6 border-b border-[var(--ip-border)]">
+              <h3 className="text-sm font-semibold text-[var(--ip-text)] mb-4 flex items-center gap-2"><BarChart3 size={14} /> Detailed Ratings</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.entries(ratingLabels).map(([key, label]) => {
                   const value = review[key as keyof Review] as number;
@@ -942,30 +942,30 @@ export default function DesktopReviewDetail() {
               </div>
             </div>
           )}
-          
+
           <div className="p-6 flex flex-wrap gap-3">
-            <button onClick={handleHelpful} className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${helpful ? 'bg-green-500/20 text-green-400' : 'bg-zinc-800 text-zinc-400 hover:text-white'}`}>
+            <button onClick={handleHelpful} className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${helpful ? 'bg-green-500/20 text-green-400' : 'bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] hover:text-[var(--ip-text)]'}`}>
               <ThumbsUp size={16} /> Helpful ({review.helpfulCount})
             </button>
-            <button onClick={() => setShowReplyForm(!showReplyForm)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white transition-colors">
+            <button onClick={() => setShowReplyForm(!showReplyForm)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors">
               <MessageCircle size={16} /> Reply
             </button>
           </div>
         </div>
-        
+
         {showReplyForm && (
-          <TopLevelReplyForm 
-            reviewId={reviewId} 
+          <TopLevelReplyForm
+            reviewId={reviewId}
             onSuccess={onTopLevelReplySuccess}
             isPosting={isPosting}
             setIsPosting={setIsPosting}
             currentUser={user}
           />
         )}
-        
+
         {replies.length > 0 && (
           <div className="mt-8">
-            <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-[var(--ip-text)] mb-4 flex items-center gap-2">
               <MessageCircle size={18} /> {review.replyCount} {review.replyCount === 1 ? 'Reply' : 'Replies'}
             </h2>
             <div className="space-y-2">

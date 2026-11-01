@@ -11,8 +11,8 @@ const DesktopPropFirmDetail = dynamic(
   { 
     ssr: false,
     loading: () => (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white">Loading desktop version...</div>
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
+        <div className="text-[var(--ip-text)]">Loading desktop version...</div>
       </div>
     )
   }
@@ -23,8 +23,8 @@ const MobilePropFirmDetail = dynamic(
   { 
     ssr: false,
     loading: () => (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white">Loading mobile version...</div>
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
+        <div className="text-[var(--ip-text)]">Loading mobile version...</div>
       </div>
     )
   }
@@ -32,13 +32,13 @@ const MobilePropFirmDetail = dynamic(
 
 // Loading component
 const PropFirmDetailLoading = () => (
-  <div className="min-h-screen bg-black flex items-center justify-center">
-    <div className="text-white text-xl">Loading prop firm details...</div>
+  <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
+    <div className="text-[var(--ip-text)] text-xl">Loading prop firm details...</div>
   </div>
 );
 
 export default function PropFirmDetailPage() {
-  const params = useParams();
+  const params = useParams<{firm:string}>();
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
   useEffect(() => {

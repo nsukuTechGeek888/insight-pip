@@ -1,3 +1,4 @@
+import {sessionSecret} from '@/lib/session-secret';
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
@@ -10,7 +11,7 @@ async function getUserFromToken(request: NextRequest) {
   try {
     const decoded = jwt.verify(
       token, 
-      process.env.JWT_SECRET || "development-secret-key-12345"
+      sessionSecret()
     ) as { userId: string };
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId }

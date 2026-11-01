@@ -1,3 +1,4 @@
+import {sessionSecret} from '@/lib/session-secret';
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
@@ -9,7 +10,7 @@ async function getUserFromToken(request: NextRequest) {
   if (!token) return null;
   
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "development-secret-key-12345") as { userId: string };
+    const decoded = jwt.verify(token, sessionSecret()) as { userId: string };
     return await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: { id: true, email: true, name: true, role: true }
@@ -76,7 +77,9 @@ export async function GET(request: NextRequest) {
 }
 
 // DELETE /api/user/reviews/[id] - Delete a review
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest) {
+  const id = request.nextUrl.searchParams.get('id');
+  if (!id) return NextResponse.json({error:'Review ID is required'},{status:400});
   try {
     const user = await getUserFromToken(request);
     
@@ -85,7 +88,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     const review = await prisma.review.findUnique({
-      where: { id: params.id }
+      where: { id: id }
     });
 
     if (!review) {
@@ -96,7 +99,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    await prisma.review.delete({ where: { id: params.id } });
+    await prisma.review.delete({ where: { id: id } });
 
     return NextResponse.json({ success: true, message: 'Review deleted successfully' });
   } catch (error) {

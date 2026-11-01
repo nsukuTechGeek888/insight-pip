@@ -7,9 +7,9 @@ import {
   isAvailableInRegion, 
   getAvailableRegions,
   getRegionEntityName,
-  getRegionDescription,
-  getRegionPricing,
-  getRegionPaymentMethods
+
+
+
 } from '@/lib/region';
 
 const prisma = new PrismaClient();

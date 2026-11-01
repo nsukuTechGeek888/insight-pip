@@ -114,7 +114,7 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
       setDetectedRegion(newRegion);
       
       // 4. Reload the page to refresh all content
-      window.location.reload();
+      // Context subscribers reload their regional data without a full page refresh.
       
     } catch (error) {
       console.error('Error setting region:', error);

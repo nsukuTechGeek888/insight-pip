@@ -58,7 +58,7 @@ function FirmLogo({ item, size = "md" }: { item: any; size?: "sm" | "md" | "lg" 
   
   if (item.logo) {
     return (
-      <div className={`${sizeClasses[size]} overflow-hidden bg-zinc-800 border border-zinc-700 flex-shrink-0 shadow-lg`}>
+      <div className={`${sizeClasses[size]} overflow-hidden bg-[var(--ip-surface-2)] border border-[var(--ip-border)] flex-shrink-0 shadow-lg`}>
         <img 
           src={item.logo} 
           alt={item.name} 
@@ -69,7 +69,7 @@ function FirmLogo({ item, size = "md" }: { item: any; size?: "sm" | "md" | "lg" 
             const parent = target.parentElement;
             if (parent) {
               const fallback = document.createElement('div');
-              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(item.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`;
+              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(item.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`;
               fallback.textContent = item.name?.charAt(0) || '?';
               parent.appendChild(fallback);
             }
@@ -80,7 +80,7 @@ function FirmLogo({ item, size = "md" }: { item: any; size?: "sm" | "md" | "lg" 
   }
   
   return (
-    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(item.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`}>
+    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(item.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`}>
       {item.name?.charAt(0) || '?'}
     </div>
   );
@@ -89,8 +89,8 @@ function FirmLogo({ item, size = "md" }: { item: any; size?: "sm" | "md" | "lg" 
 // ============ GRADIENT GENERATOR ============
 const generateGradient = (name: string) => {
   const gradients = [
-    "from-pink-500 to-purple-500",
-    "from-blue-500 to-purple-500",
+    "from-pink-500 to-blue-500",
+    "from-blue-500 to-blue-500",
     "from-green-500 to-blue-500",
     "from-yellow-500 to-orange-500",
     "from-red-500 to-pink-500",
@@ -153,7 +153,7 @@ function LightboxModal({ images, initialIndex, onClose }: {
         onClick={onClose}
         className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10"
       >
-        <X size={24} className="text-white" />
+        <X size={24} className="text-[var(--ip-text)]" />
       </button>
       
       {images.length > 1 && (
@@ -163,9 +163,9 @@ function LightboxModal({ images, initialIndex, onClose }: {
             className="absolute left-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors disabled:opacity-50"
             disabled={currentIndex === 0}
           >
-            <ChevronLeft size={24} className="text-white" />
+            <ChevronLeft size={24} className="text-[var(--ip-text)]" />
           </button>
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-white text-xs">
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-[var(--ip-text)] text-xs">
             {currentIndex + 1} / {images.length}
           </div>
         </>
@@ -195,7 +195,7 @@ function LightboxModal({ images, initialIndex, onClose }: {
           className="absolute right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors disabled:opacity-50"
           disabled={currentIndex === images.length - 1}
         >
-          <ChevronRight size={24} className="text-white" />
+          <ChevronRight size={24} className="text-[var(--ip-text)]" />
         </button>
       )}
     </motion.div>
@@ -254,7 +254,7 @@ function ReplyThread({ reply, onReply, onLoadReplies, onOpenLightbox, depth = 0,
     
     // Optimistically add to UI
     setChildReplies(prev => [...prev, optimisticReply]);
-    setLocalReplyCount(prev => prev + 1);
+    setLocalReplyCount((prev: number) => prev + 1);
     setShowReplies(true);
     setReplyContent('');
     setReplyMedia([]);
@@ -270,12 +270,12 @@ function ReplyThread({ reply, onReply, onLoadReplies, onOpenLightbox, depth = 0,
       } else {
         // Remove optimistic reply on failure
         setChildReplies(prev => prev.filter(r => r.id !== optimisticReply.id));
-        setLocalReplyCount(prev => prev - 1);
+        setLocalReplyCount((prev: number) => prev - 1);
       }
     } catch (error) {
       console.error('Error submitting reply:', error);
       setChildReplies(prev => prev.filter(r => r.id !== optimisticReply.id));
-      setLocalReplyCount(prev => prev - 1);
+      setLocalReplyCount((prev: number) => prev - 1);
     } finally {
       setSubmitting(false);
     }
@@ -296,11 +296,11 @@ function ReplyThread({ reply, onReply, onLoadReplies, onOpenLightbox, depth = 0,
       case 'BROKER':
         return { bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-400', label: 'Official Broker Response' };
       case 'PROP_FIRM':
-        return { bg: 'bg-purple-500/10', border: 'border-purple-500/30', text: 'text-purple-400', label: 'Official Prop Firm Response' };
+        return { bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-400', label: 'Official Prop Firm Response' };
       case 'ADMIN':
         return { bg: 'bg-red-500/10', border: 'border-red-500/30', text: 'text-red-400', label: 'Admin Response' };
       default:
-        return { bg: 'bg-zinc-800/50', border: 'border-zinc-700', text: 'text-zinc-400', label: 'User Comment' };
+        return { bg: 'bg-[var(--ip-surface-2)]', border: 'border-[var(--ip-border)]', text: 'text-[var(--ip-text-2)]', label: 'User Comment' };
     }
   };
 
@@ -314,13 +314,13 @@ function ReplyThread({ reply, onReply, onLoadReplies, onOpenLightbox, depth = 0,
     <div className={`ml-${depth > 0 ? '6' : '0'} mt-3`}>
       <div className={`p-3 rounded-xl ${styles.bg} border ${styles.border}`}>
         <div className="flex items-start gap-3">
-          <div className={`w-8 h-8 rounded-full bg-gradient-to-r ${generateGradient(reply.user?.name || reply.broker?.name || reply.propFirm?.name || 'Reply')} flex items-center justify-center text-white font-bold text-xs flex-shrink-0`}>
+          <div className={`w-8 h-8 rounded-full bg-gradient-to-r ${generateGradient(reply.user?.name || reply.broker?.name || reply.propFirm?.name || 'Reply')} flex items-center justify-center text-[var(--ip-text)] font-bold text-xs flex-shrink-0`}>
             {(reply.user?.name?.charAt(0) || reply.broker?.name?.charAt(0) || reply.propFirm?.name?.charAt(0) || 'U').toUpperCase()}
           </div>
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-medium text-white text-sm">
+              <span className="font-medium text-[var(--ip-text)] text-sm">
                 {reply.user?.name || reply.broker?.name || reply.propFirm?.name || 'Anonymous'}
               </span>
               {reply.replyType !== 'USER' && (
@@ -328,11 +328,11 @@ function ReplyThread({ reply, onReply, onLoadReplies, onOpenLightbox, depth = 0,
                   {styles.label}
                 </span>
               )}
-              <span className="text-xs text-zinc-500">
+              <span className="text-xs text-[var(--ip-text-2)]">
                 {new Date(reply.createdAt).toLocaleDateString()}
               </span>
             </div>
-            <p className="text-zinc-300 text-xs mt-1 break-words">{reply.content}</p>
+            <p className="text-[var(--ip-text-2)] text-xs mt-1 break-words">{reply.content}</p>
             
             {/* Media Gallery */}
             {reply.mediaUrls && reply.mediaUrls.length > 0 && (
@@ -340,12 +340,12 @@ function ReplyThread({ reply, onReply, onLoadReplies, onOpenLightbox, depth = 0,
                 {reply.mediaUrls.map((url: string, idx: number) => (
                   <div 
                     key={idx} 
-                    className="relative w-16 h-16 rounded-lg overflow-hidden bg-zinc-800 cursor-pointer group"
+                    className="relative w-16 h-16 rounded-lg overflow-hidden bg-[var(--ip-surface-2)] cursor-pointer group"
                     onClick={() => onOpenLightbox(reply.mediaUrls, idx)}
                   >
                     <img src={url} alt="Uploaded" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Eye size={12} className="text-white" />
+                      <Eye size={12} className="text-[var(--ip-text)]" />
                     </div>
                   </div>
                 ))}
@@ -357,7 +357,7 @@ function ReplyThread({ reply, onReply, onLoadReplies, onOpenLightbox, depth = 0,
               {depth < maxDepth && (
                 <button
                   onClick={() => setShowReplyForm(!showReplyForm)}
-                  className="text-xs text-zinc-500 hover:text-purple-400 transition-colors flex items-center gap-1"
+                  className="text-xs text-[var(--ip-text-2)] hover:text-blue-400 transition-colors flex items-center gap-1"
                 >
                   <Reply size={10} /> Reply
                 </button>
@@ -365,7 +365,7 @@ function ReplyThread({ reply, onReply, onLoadReplies, onOpenLightbox, depth = 0,
               {localReplyCount > 0 && (
                 <button
                   onClick={loadReplies}
-                  className="text-xs text-zinc-500 hover:text-purple-400 transition-colors flex items-center gap-1"
+                  className="text-xs text-[var(--ip-text-2)] hover:text-blue-400 transition-colors flex items-center gap-1"
                 >
                   <MessageCircle size={10} />
                   {showReplies ? 'Hide' : `View ${localReplyCount} replies`}
@@ -380,7 +380,7 @@ function ReplyThread({ reply, onReply, onLoadReplies, onOpenLightbox, depth = 0,
                   value={replyContent}
                   onChange={(e) => setReplyContent(e.target.value)}
                   placeholder="Write a reply..."
-                  className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500"
+                  className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-3 py-2 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500"
                   rows={2}
                 />
                 {replyMedia.length > 0 && (
@@ -389,7 +389,7 @@ function ReplyThread({ reply, onReply, onLoadReplies, onOpenLightbox, depth = 0,
                       <div key={idx} className="relative">
                         <img src={URL.createObjectURL(file)} alt="" className="w-12 h-12 rounded-lg object-cover" />
                         <button onClick={() => removeFile(idx)} className="absolute -top-1 -right-1 p-0.5 bg-red-500 rounded-full">
-                          <X size={10} className="text-white" />
+                          <X size={10} className="text-[var(--ip-text)]" />
                         </button>
                       </div>
                     ))}
@@ -397,8 +397,8 @@ function ReplyThread({ reply, onReply, onLoadReplies, onOpenLightbox, depth = 0,
                 )}
                 <div className="flex justify-between items-center mt-2">
                   <div className="flex gap-2">
-                    <label className="cursor-pointer p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition-colors">
-                      <ImagePlus size={14} className="text-zinc-400" />
+                    <label className="cursor-pointer p-1.5 rounded-lg bg-[var(--ip-surface-2)] hover:bg-zinc-700 transition-colors">
+                      <ImagePlus size={14} className="text-[var(--ip-text-2)]" />
                       <input type="file" multiple accept="image/*,video/*" className="hidden" onChange={(e) => {
                         if (e.target.files) setReplyMedia(Array.from(e.target.files));
                       }} />
@@ -410,14 +410,14 @@ function ReplyThread({ reply, onReply, onLoadReplies, onOpenLightbox, depth = 0,
                   <div className="flex gap-2">
                     <button
                       onClick={() => setShowReplyForm(false)}
-                      className="px-3 py-1 rounded-lg bg-zinc-700 text-white text-xs"
+                      className="px-3 py-1 rounded-lg bg-zinc-700 text-[var(--ip-text)] text-xs"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleSubmitReply}
                       disabled={(!replyContent.trim() && replyMedia.length === 0) || submitting}
-                      className="px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-xs disabled:opacity-50 flex items-center gap-1"
+                      className="px-3 py-1 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-lg text-xs disabled:opacity-50 flex items-center gap-1"
                     >
                       {submitting ? <Loader2 size={10} className="animate-spin" /> : <Send size={10} />}
                       {submitting ? 'Sending...' : 'Reply'}
@@ -435,7 +435,7 @@ function ReplyThread({ reply, onReply, onLoadReplies, onOpenLightbox, depth = 0,
         <div className="mt-2">
           {loading ? (
             <div className="ml-6 mt-2 p-3 text-center">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-500 mx-auto"></div>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mx-auto"></div>
             </div>
           ) : (
             childReplies.map((childReply) => (
@@ -465,7 +465,7 @@ const incidentTypes = [
   { value: 'SLIPPAGE_ISSUES', label: 'Slippage Issues', icon: Activity, color: 'text-yellow-400' },
   { value: 'SPREAD_SPIKE', label: 'Spread Spike', icon: Target, color: 'text-orange-400' },
   { value: 'EXECUTION_DELAY', label: 'Execution Delay', icon: Clock, color: 'text-yellow-400' },
-  { value: 'PLATFORM_FREEZE', label: 'Platform Freeze', icon: Smartphone, color: 'text-purple-400' },
+  { value: 'PLATFORM_FREEZE', label: 'Platform Freeze', icon: Smartphone, color: 'text-blue-400' },
   { value: 'SERVER_DOWN', label: 'Server Down', icon: XCircle, color: 'text-red-400' },
   { value: 'ACCOUNT_SUSPENDED', label: 'Account Suspended', icon: AlertTriangle, color: 'text-orange-400' },
   { value: 'SCAM_WARNING', label: 'Scam Warning', icon: AlertCircle, color: 'text-red-400' },
@@ -633,7 +633,7 @@ export default function MobileReviewsPage() {
       const data = await response.json();
       
       if (response.ok) {
-        setRepliesCache(prev => ({ ...prev, [cacheKey]: data.replies || [] }));
+        setRepliesCache((prev: Record<string,any[]>) => ({ ...prev, [cacheKey]: data.replies || [] }));
         return data.replies || [];
       }
     } catch (error) {
@@ -669,7 +669,7 @@ export default function MobileReviewsPage() {
       if (response.ok) {
         // Clear cache for this parent
         const cacheKey = parentId ? `${reviewId}_parent_${parentId}` : reviewId;
-        setRepliesCache(prev => {
+        setRepliesCache((prev: Record<string,any[]>) => {
           const newCache = { ...prev };
           delete newCache[cacheKey];
           return newCache;
@@ -1050,15 +1050,15 @@ export default function MobileReviewsPage() {
       <MobileLayout title="Reviews" showSearch={false}>
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
           <Globe size={48} className="text-zinc-600 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">
+          <h2 className="text-xl font-bold text-[var(--ip-text)] mb-2">
             No reviews in {regionInfo.flag} {regionInfo.label}
           </h2>
-          <p className="text-zinc-400 text-sm mb-4">
+          <p className="text-[var(--ip-text-2)] text-sm mb-4">
             We don't have any brokers or prop firms available in {regionInfo.flag} {regionInfo.label} yet.
           </p>
           
-          <div className="bg-zinc-900/50 rounded-xl p-4 mb-6 border border-zinc-800">
-            <p className="text-sm text-zinc-400 mb-3">Try these regions instead:</p>
+          <div className="bg-[var(--ip-surface)] rounded-xl p-4 mb-6 border border-[var(--ip-border)]">
+            <p className="text-sm text-[var(--ip-text-2)] mb-3">Try these regions instead:</p>
             <div className="flex flex-wrap justify-center gap-2">
               {suggestions.map((suggestion) => (
                 <button
@@ -1067,7 +1067,7 @@ export default function MobileReviewsPage() {
                     const { setRegion } = useRegion();
                     setRegion(suggestion.key);
                   }}
-                  className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm text-white transition-all duration-200 hover:scale-105"
+                  className="px-4 py-2 bg-[var(--ip-surface-2)] hover:bg-zinc-700 rounded-lg text-sm text-[var(--ip-text)] transition-all duration-200 hover:scale-105"
                 >
                   {suggestion.flag} {suggestion.label}
                 </button>
@@ -1080,7 +1080,7 @@ export default function MobileReviewsPage() {
               const { setRegion } = useRegion();
               setRegion('GLOBAL');
             }}
-            className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all duration-200 shadow-lg hover:shadow-purple-500/25"
+            className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-lg hover:from-blue-500 hover:to-pink-500 transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
           >
             View All Global Reviews
           </button>
@@ -1093,7 +1093,7 @@ export default function MobileReviewsPage() {
     return (
       <MobileLayout title="Reviews" showSearch={false}>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto" /><p className="text-xs text-zinc-500 mt-3">Loading reviews...</p></div>
+          <div className="text-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto" /><p className="text-xs text-[var(--ip-text-2)] mt-3">Loading reviews...</p></div>
         </div>
       </MobileLayout>
     );
@@ -1117,15 +1117,15 @@ export default function MobileReviewsPage() {
       <div className="space-y-4 pb-6">
         
         {/* Hero Stats */}
-        <div className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-2xl p-4 border border-purple-500/30">
+        <div className="bg-gradient-to-r from-blue-600/20 to-pink-600/20 rounded-2xl p-4 border border-blue-500/30">
           <div className="grid grid-cols-2 gap-4 text-center">
             <div>
-              <div className="text-2xl font-bold text-white">{totalReviews}</div>
-              <div className="text-xs text-zinc-400">Reviews</div>
+              <div className="text-2xl font-bold text-[var(--ip-text)]">{totalReviews}</div>
+              <div className="text-xs text-[var(--ip-text-2)]">Reviews</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-red-400">{totalIncidents}</div>
-              <div className="text-xs text-zinc-400">Incidents</div>
+              <div className="text-xs text-[var(--ip-text-2)]">Incidents</div>
             </div>
           </div>
         </div>
@@ -1134,24 +1134,24 @@ export default function MobileReviewsPage() {
         <div className="flex gap-3">
           <button
             onClick={() => user ? setShowReviewForm(true) : router.push('/login')}
-            className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2"
+            className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-xl text-sm font-medium flex items-center justify-center gap-2"
           >
             <Plus size={16} /> Write Review
           </button>
           <button
             onClick={() => user ? setShowIncidentForm(true) : router.push('/login')}
-            className="flex-1 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2"
+            className="flex-1 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-[var(--ip-text)] rounded-xl text-sm font-medium flex items-center justify-center gap-2"
           >
             <AlertTriangle size={16} /> Report
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-zinc-900/50 rounded-xl p-1 border border-zinc-800">
-          <button onClick={() => { setActiveTab('reviews'); setIncidentPagination(prev => ({ ...prev, page: 1 })); }} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'reviews' ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg" : "text-zinc-400"}`}>
+        <div className="flex gap-1 bg-[var(--ip-surface)] rounded-xl p-1 border border-[var(--ip-border)]">
+          <button onClick={() => { setActiveTab('reviews'); setIncidentPagination(prev => ({ ...prev, page: 1 })); }} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'reviews' ? "bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] shadow-lg" : "text-[var(--ip-text-2)]"}`}>
             📝 Reviews
           </button>
-          <button onClick={() => { setActiveTab('incidents'); setPagination(prev => ({ ...prev, page: 1 })); }} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'incidents' ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg" : "text-zinc-400"}`}>
+          <button onClick={() => { setActiveTab('incidents'); setPagination(prev => ({ ...prev, page: 1 })); }} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'incidents' ? "bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] shadow-lg" : "text-[var(--ip-text-2)]"}`}>
             ⚠️ Incidents
           </button>
         </div>
@@ -1163,7 +1163,7 @@ export default function MobileReviewsPage() {
             <div className="space-y-3">
               <div className="flex gap-2">
                 <select
-                  className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-sm"
+                  className="flex-1 bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-3 py-2.5 text-[var(--ip-text)] text-sm"
                   value={filterType}
                   onChange={(e) => { setFilterType(e.target.value as any); setFilterName(''); }}
                 >
@@ -1172,7 +1172,7 @@ export default function MobileReviewsPage() {
                 </select>
                 
                 <select
-                  className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-sm"
+                  className="flex-1 bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-3 py-2.5 text-[var(--ip-text)] text-sm"
                   value={filterName}
                   onChange={(e) => setFilterName(e.target.value)}
                 >
@@ -1185,7 +1185,7 @@ export default function MobileReviewsPage() {
               
               <div className="flex gap-2">
                 <select
-                  className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-sm"
+                  className="flex-1 bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-3 py-2.5 text-[var(--ip-text)] text-sm"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
                 >
@@ -1195,12 +1195,12 @@ export default function MobileReviewsPage() {
                 </select>
                 
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={14} />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ip-text-2)]" size={14} />
                   <input
                     placeholder="Search..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-xl pl-9 pr-3 py-2.5 text-white text-sm"
+                    className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl pl-9 pr-3 py-2.5 text-[var(--ip-text)] text-sm"
                   />
                 </div>
               </div>
@@ -1208,11 +1208,11 @@ export default function MobileReviewsPage() {
 
             {/* Reviews List */}
             {reviewsLoading ? (
-              <div className="text-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto" /></div>
+              <div className="text-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto" /></div>
             ) : reviews.length === 0 ? (
-              <div className="text-center py-12 bg-zinc-900/50 rounded-xl border border-zinc-800">
+              <div className="text-center py-12 bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)]">
                 <MessageCircle size={32} className="text-zinc-600 mx-auto mb-3" />
-                <p className="text-zinc-500 text-sm">No reviews found</p>
+                <p className="text-[var(--ip-text-2)] text-sm">No reviews found</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -1221,28 +1221,28 @@ export default function MobileReviewsPage() {
                   const firmData = getFirmForLogo(review);
                   
                   return (
-                    <div key={review.id} className="bg-zinc-900/80 rounded-xl border border-zinc-800 overflow-hidden">
+                    <div key={review.id} className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] overflow-hidden">
                       <div className="p-4">
                         {/* Header with Logo */}
                         <div className="flex items-start gap-3 mb-3">
                           <FirmLogo item={firmData} size="sm" />
                           <div className="flex-1">
-                            <h3 className="text-white font-semibold text-sm">{review.entityName}</h3>
+                            <h3 className="text-[var(--ip-text)] font-semibold text-sm">{review.entityName}</h3>
                             <div className="flex items-center gap-2 mt-1">
                               <StarRating rating={review.rating || 3} size="sm" />
-                              <span className="text-xs text-zinc-500">by {review.user?.name || 'Anonymous'}</span>
+                              <span className="text-xs text-[var(--ip-text-2)]">by {review.user?.name || 'Anonymous'}</span>
                             </div>
                           </div>
                           {review.trustScore && <TrustScoreBadge score={review.trustScore} size="sm" />}
                         </div>
                         
                         {/* Content */}
-                        <h4 className="text-white font-semibold text-sm mb-2">{review.title}</h4>
-                        <p className="text-zinc-300 text-xs leading-relaxed">
+                        <h4 className="text-[var(--ip-text)] font-semibold text-sm mb-2">{review.title}</h4>
+                        <p className="text-[var(--ip-text-2)] text-xs leading-relaxed">
                           {expandedReviewId === review.id ? review.content : `${review.content?.substring(0, 150)}${review.content?.length > 150 ? '...' : ''}`}
                         </p>
                         {review.content?.length > 150 && expandedReviewId !== review.id && (
-                          <button onClick={() => toggleReviewExpand(review.id)} className="text-purple-400 text-xs mt-1">Read more</button>
+                          <button onClick={() => toggleReviewExpand(review.id)} className="text-blue-400 text-xs mt-1">Read more</button>
                         )}
                         
                         {/* Tags */}
@@ -1252,23 +1252,23 @@ export default function MobileReviewsPage() {
                         </div>
                         
                         {/* Actions */}
-                        <div className="flex items-center gap-4 mt-3 pt-2 border-t border-zinc-800">
-                          <button onClick={() => markHelpful(review.id, 'HELPFUL')} className={`flex items-center gap-1 text-xs ${userVotes[review.id] === 'HELPFUL' ? 'text-green-400' : 'text-zinc-500'}`}>
+                        <div className="flex items-center gap-4 mt-3 pt-2 border-t border-[var(--ip-border)]">
+                          <button onClick={() => markHelpful(review.id, 'HELPFUL')} className={`flex items-center gap-1 text-xs ${userVotes[review.id] === 'HELPFUL' ? 'text-green-400' : 'text-[var(--ip-text-2)]'}`}>
                             <ThumbsUp size={12} /> Helpful ({review.helpfulCount || 0})
                           </button>
-                          <button onClick={() => shareReview(review)} className="flex items-center gap-1 text-xs text-zinc-500">
+                          <button onClick={() => shareReview(review)} className="flex items-center gap-1 text-xs text-[var(--ip-text-2)]">
                             {copiedReviewId === review.id ? <Check size={12} className="text-green-400" /> : <Share2 size={12} />} Share
                           </button>
                           <button
                             onClick={async () => {
                               const isOpen = showReplySection[review.id];
-                              setShowReplySection(prev => ({ ...prev, [review.id]: !isOpen }));
+                              setShowReplySection((prev: Record<string,boolean>) => ({ ...prev, [review.id]: !isOpen }));
                               if (!isOpen && !repliesCache[review.id]) {
                                 const replies = await fetchRepliesForParent(review.id, null);
-                                setRepliesCache(prev => ({ ...prev, [review.id]: replies }));
+                                setRepliesCache((prev: Record<string,any[]>) => ({ ...prev, [review.id]: replies }));
                               }
                             }}
-                            className="flex items-center gap-1 text-xs text-zinc-500 hover:text-green-400 transition-colors"
+                            className="flex items-center gap-1 text-xs text-[var(--ip-text-2)] hover:text-green-400 transition-colors"
                           >
                             <MessageCircle size={12} /> 
                             Comments {review.replyCount > 0 && `(${review.replyCount})`}
@@ -1278,7 +1278,7 @@ export default function MobileReviewsPage() {
 
                       {/* Reply Section */}
                       {showReplySection[review.id] && (
-                        <div className="border-t border-zinc-800 p-4 bg-zinc-900/50">
+                        <div className="border-t border-[var(--ip-border)] p-4 bg-[var(--ip-surface)]">
                           {topLevelReplies.map((reply) => (
                             <ReplyThread
                               key={reply.id}
@@ -1293,7 +1293,7 @@ export default function MobileReviewsPage() {
                           
                           {/* New Reply Form */}
                           <div className="mt-3 flex gap-3">
-                            <div className={`w-8 h-8 rounded-full bg-gradient-to-r ${generateGradient(user?.name || 'User')} flex items-center justify-center text-white font-bold text-xs flex-shrink-0`}>
+                            <div className={`w-8 h-8 rounded-full bg-gradient-to-r ${generateGradient(user?.name || 'User')} flex items-center justify-center text-[var(--ip-text)] font-bold text-xs flex-shrink-0`}>
                               {user?.name?.charAt(0) || 'U'}
                             </div>
                             <div className="flex-1">
@@ -1304,14 +1304,14 @@ export default function MobileReviewsPage() {
                                   setReplyContent(e.target.value);
                                 }}
                                 placeholder="Add a comment..."
-                                className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500"
+                                className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-3 py-2 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500"
                                 rows={2}
                                 onFocus={() => setReplyingToReview(review.id)}
                               />
                               <div className="flex justify-between items-center mt-2">
                                 <div className="flex gap-2">
-                                  <label className="cursor-pointer p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition-colors">
-                                    <ImagePlus size={14} className="text-zinc-400" />
+                                  <label className="cursor-pointer p-1.5 rounded-lg bg-[var(--ip-surface-2)] hover:bg-zinc-700 transition-colors">
+                                    <ImagePlus size={14} className="text-[var(--ip-text-2)]" />
                                     <input 
                                       type="file" 
                                       multiple 
@@ -1336,12 +1336,12 @@ export default function MobileReviewsPage() {
                                         setReplyMedia([]);
                                         setReplyingToReview(null);
                                         const freshReplies = await fetchRepliesForParent(review.id, null);
-                                        setRepliesCache(prev => ({ ...prev, [review.id]: freshReplies }));
+                                        setRepliesCache((prev: Record<string,any[]>) => ({ ...prev, [review.id]: freshReplies }));
                                       }
                                       setReplySubmitting(false);
                                     }}
                                     disabled={replySubmitting}
-                                    className="px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-xs disabled:opacity-50"
+                                    className="px-3 py-1 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-lg text-xs disabled:opacity-50"
                                   >
                                     {replySubmitting ? 'Sending...' : 'Post'}
                                   </button>
@@ -1360,9 +1360,9 @@ export default function MobileReviewsPage() {
             {/* Pagination */}
             {pagination.pages > 1 && (
               <div className="flex justify-center gap-2 py-2">
-                <button disabled={pagination.page === 1} onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white text-xs disabled:opacity-50">Prev</button>
-                <span className="px-3 py-1.5 text-zinc-400 text-xs">{pagination.page} / {pagination.pages}</span>
-                <button disabled={pagination.page === pagination.pages} onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white text-xs disabled:opacity-50">Next</button>
+                <button disabled={pagination.page === 1} onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })} className="px-3 py-1.5 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text)] text-xs disabled:opacity-50">Prev</button>
+                <span className="px-3 py-1.5 text-[var(--ip-text-2)] text-xs">{pagination.page} / {pagination.pages}</span>
+                <button disabled={pagination.page === pagination.pages} onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })} className="px-3 py-1.5 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text)] text-xs disabled:opacity-50">Next</button>
               </div>
             )}
           </>
@@ -1375,7 +1375,7 @@ export default function MobileReviewsPage() {
             <div className="space-y-3">
               <div className="flex gap-2">
                 <select
-                  className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-sm"
+                  className="flex-1 bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-3 py-2.5 text-[var(--ip-text)] text-sm"
                   value={filterType}
                   onChange={(e) => { setFilterType(e.target.value as any); setFilterName(''); }}
                 >
@@ -1384,7 +1384,7 @@ export default function MobileReviewsPage() {
                 </select>
                 
                 <select
-                  className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-sm"
+                  className="flex-1 bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-3 py-2.5 text-[var(--ip-text)] text-sm"
                   value={filterName}
                   onChange={(e) => setFilterName(e.target.value)}
                 >
@@ -1396,7 +1396,7 @@ export default function MobileReviewsPage() {
               </div>
               
               <select
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-sm"
+                className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-3 py-2.5 text-[var(--ip-text)] text-sm"
                 value={incidentDays}
                 onChange={(e) => {
                   setIncidentDays(parseInt(e.target.value));
@@ -1415,23 +1415,23 @@ export default function MobileReviewsPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-red-500/10 rounded-xl p-3 text-center border border-red-500/20">
                 <AlertTriangle size={16} className="text-red-400 mx-auto mb-1" />
-                <div className="text-xl font-bold text-white">{incidents.filter(i => i.resolutionStatus === 'PENDING').length}</div>
-                <div className="text-[10px] text-zinc-500">Unresolved</div>
+                <div className="text-xl font-bold text-[var(--ip-text)]">{incidents.filter(i => i.resolutionStatus === 'PENDING').length}</div>
+                <div className="text-[10px] text-[var(--ip-text-2)]">Unresolved</div>
               </div>
               <div className="bg-green-500/10 rounded-xl p-3 text-center border border-green-500/20">
                 <CheckCircle size={16} className="text-green-400 mx-auto mb-1" />
-                <div className="text-xl font-bold text-white">{incidents.filter(i => i.resolutionStatus === 'RESOLVED').length}</div>
-                <div className="text-[10px] text-zinc-500">Resolved</div>
+                <div className="text-xl font-bold text-[var(--ip-text)]">{incidents.filter(i => i.resolutionStatus === 'RESOLVED').length}</div>
+                <div className="text-[10px] text-[var(--ip-text-2)]">Resolved</div>
               </div>
             </div>
 
             {/* Incidents List */}
             {incidentsLoading ? (
-              <div className="text-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto" /></div>
+              <div className="text-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto" /></div>
             ) : incidents.length === 0 ? (
-              <div className="text-center py-12 bg-zinc-900/50 rounded-xl border border-zinc-800">
+              <div className="text-center py-12 bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)]">
                 <Shield size={32} className="text-zinc-600 mx-auto mb-3" />
-                <p className="text-zinc-500 text-sm">No incidents reported</p>
+                <p className="text-[var(--ip-text-2)] text-sm">No incidents reported</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -1455,14 +1455,14 @@ export default function MobileReviewsPage() {
                   const firmData = { name: entityName, logo: entityLogo };
                   
                   return (
-                    <div key={incident.id} className="bg-zinc-900/80 rounded-xl border border-zinc-800 p-4">
+                    <div key={incident.id} className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-4">
                       <div className="flex items-start gap-3 mb-3">
                         <FirmLogo item={firmData} size="sm" />
                         <div className="flex-1">
-                          <h3 className="text-white font-semibold text-sm">{entityName}</h3>
+                          <h3 className="text-[var(--ip-text)] font-semibold text-sm">{entityName}</h3>
                           <div className="flex items-center gap-2 mt-1">
                             <IconComponent size={12} className={typeColor} />
-                            <span className="text-xs text-zinc-500">{incident.incidentType?.replace(/_/g, ' ')}</span>
+                            <span className="text-xs text-[var(--ip-text-2)]">{incident.incidentType?.replace(/_/g, ' ')}</span>
                           </div>
                         </div>
                         <div className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${incident.resolutionStatus === 'RESOLVED' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
@@ -1470,10 +1470,10 @@ export default function MobileReviewsPage() {
                         </div>
                       </div>
                       
-                      <h4 className="text-white font-semibold text-sm mb-2">{incident.title}</h4>
-                      <p className="text-zinc-300 text-xs leading-relaxed mb-3">{incident.description}</p>
+                      <h4 className="text-[var(--ip-text)] font-semibold text-sm mb-2">{incident.title}</h4>
+                      <p className="text-[var(--ip-text-2)] text-xs leading-relaxed mb-3">{incident.description}</p>
                       
-                      <div className="flex flex-wrap gap-3 text-[10px] text-zinc-500">
+                      <div className="flex flex-wrap gap-3 text-[10px] text-[var(--ip-text-2)]">
                         <span className="flex items-center gap-1"><Calendar size={10} /> {new Date(incident.incidentDate || incident.createdAt).toLocaleDateString()}</span>
                         {incident.withdrawalAmount && <span className="flex items-center gap-1"><DollarSign size={10} /> ${incident.withdrawalAmount}</span>}
                         <span className="flex items-center gap-1"><Users size={10} /> {incident.confirmations || 0} confirmations</span>
@@ -1487,9 +1487,9 @@ export default function MobileReviewsPage() {
             {/* Pagination */}
             {incidentPagination.pages > 1 && (
               <div className="flex justify-center gap-2 py-2">
-                <button disabled={incidentPagination.page === 1} onClick={() => setIncidentPagination({ ...incidentPagination, page: incidentPagination.page - 1 })} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white text-xs disabled:opacity-50">Prev</button>
-                <span className="px-3 py-1.5 text-zinc-400 text-xs">{incidentPagination.page} / {incidentPagination.pages}</span>
-                <button disabled={incidentPagination.page === incidentPagination.pages} onClick={() => setIncidentPagination({ ...incidentPagination, page: incidentPagination.page + 1 })} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white text-xs disabled:opacity-50">Next</button>
+                <button disabled={incidentPagination.page === 1} onClick={() => setIncidentPagination({ ...incidentPagination, page: incidentPagination.page - 1 })} className="px-3 py-1.5 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text)] text-xs disabled:opacity-50">Prev</button>
+                <span className="px-3 py-1.5 text-[var(--ip-text-2)] text-xs">{incidentPagination.page} / {incidentPagination.pages}</span>
+                <button disabled={incidentPagination.page === incidentPagination.pages} onClick={() => setIncidentPagination({ ...incidentPagination, page: incidentPagination.page + 1 })} className="px-3 py-1.5 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text)] text-xs disabled:opacity-50">Next</button>
               </div>
             )}
           </>
@@ -1516,35 +1516,35 @@ export default function MobileReviewsPage() {
           <div className="fixed inset-0 z-50 overflow-y-auto">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowReviewForm(false)} />
             <div className="flex min-h-full items-center justify-center p-4">
-              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative w-full max-w-md bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden">
-                <div className="p-5 border-b border-zinc-800 bg-gradient-to-r from-purple-600/20 to-pink-600/20">
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative w-full max-w-md bg-[var(--ip-surface)] rounded-2xl border border-[var(--ip-border)] overflow-hidden">
+                <div className="p-5 border-b border-[var(--ip-border)] bg-gradient-to-r from-blue-600/20 to-pink-600/20">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-white font-bold text-lg">Write a Review</h3>
-                    <button onClick={() => setShowReviewForm(false)} className="p-1"><X size={20} className="text-zinc-400" /></button>
+                    <h3 className="text-[var(--ip-text)] font-bold text-lg">Write a Review</h3>
+                    <button onClick={() => setShowReviewForm(false)} className="p-1"><X size={20} className="text-[var(--ip-text-2)]" /></button>
                   </div>
                 </div>
                 
                 <form onSubmit={submitReview} className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
                   {/* Type Selection */}
                   <div>
-                    <label className="text-sm text-zinc-400 mb-2 block">What are you reviewing?</label>
+                    <label className="text-sm text-[var(--ip-text-2)] mb-2 block">What are you reviewing?</label>
                     <div className="flex gap-2">
-                      <button type="button" onClick={() => { setReviewFormType('broker'); setSelectedFirmId(null); setSelectedFirmName(''); setSelectedFirmLogo(null); setFirmSearch(''); }} className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${reviewFormType === 'broker' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white' : 'bg-zinc-800 text-zinc-400'}`}>Broker</button>
-                      <button type="button" onClick={() => { setReviewFormType('propFirm'); setSelectedFirmId(null); setSelectedFirmName(''); setSelectedFirmLogo(null); setFirmSearch(''); }} className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${reviewFormType === 'propFirm' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'bg-zinc-800 text-zinc-400'}`}>Prop Firm</button>
+                      <button type="button" onClick={() => { setReviewFormType('broker'); setSelectedFirmId(null); setSelectedFirmName(''); setSelectedFirmLogo(null); setFirmSearch(''); }} className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${reviewFormType === 'broker' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-[var(--ip-text)]' : 'bg-[var(--ip-surface-2)] text-[var(--ip-text-2)]'}`}>Broker</button>
+                      <button type="button" onClick={() => { setReviewFormType('propFirm'); setSelectedFirmId(null); setSelectedFirmName(''); setSelectedFirmLogo(null); setFirmSearch(''); }} className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${reviewFormType === 'propFirm' ? 'bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)]' : 'bg-[var(--ip-surface-2)] text-[var(--ip-text-2)]'}`}>Prop Firm</button>
                     </div>
                   </div>
                   
                   {/* Firm Selection with Logo */}
                   <div>
-                    <label className="text-sm text-zinc-400 mb-2 block">Select Firm *</label>
+                    <label className="text-sm text-[var(--ip-text-2)] mb-2 block">Select Firm *</label>
                     <div className="relative" ref={dropdownRef}>
-                      <input type="text" value={firmSearch} onChange={(e) => { setFirmSearch(e.target.value); setFirmDropdownOpen(true); setSelectedFirmId(null); setSelectedFirmName(''); setSelectedFirmLogo(null); }} onFocus={() => setFirmDropdownOpen(true)} placeholder={`Search ${reviewFormType === 'broker' ? 'broker' : 'prop firm'}...`} className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white text-sm" />
+                      <input type="text" value={firmSearch} onChange={(e) => { setFirmSearch(e.target.value); setFirmDropdownOpen(true); setSelectedFirmId(null); setSelectedFirmName(''); setSelectedFirmLogo(null); }} onFocus={() => setFirmDropdownOpen(true)} placeholder={`Search ${reviewFormType === 'broker' ? 'broker' : 'prop firm'}...`} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-4 py-3 text-[var(--ip-text)] text-sm" />
                       {firmDropdownOpen && filteredFirms.length > 0 && (
-                        <div className="absolute z-20 mt-2 max-h-48 w-full overflow-auto rounded-xl border border-zinc-700 bg-zinc-900">
+                        <div className="absolute z-20 mt-2 max-h-48 w-full overflow-auto rounded-xl border border-[var(--ip-border)] bg-[var(--ip-surface)]">
                           {filteredFirms.map((firm) => (
-                            <div key={firm.id} onClick={() => selectFirm(firm)} className="px-4 py-2 hover:bg-purple-600 cursor-pointer border-b border-zinc-800 flex items-center gap-3">
+                            <div key={firm.id} onClick={() => selectFirm(firm)} className="px-4 py-2 hover:bg-blue-600 cursor-pointer border-b border-[var(--ip-border)] flex items-center gap-3">
                               <FirmLogo item={firm} size="sm" />
-                              <div className="text-white text-sm">{firm.name}</div>
+                              <div className="text-[var(--ip-text)] text-sm">{firm.name}</div>
                             </div>
                           ))}
                         </div>
@@ -1562,7 +1562,7 @@ export default function MobileReviewsPage() {
                   
                   {/* Ratings */}
                   <div>
-                    <label className="text-sm text-zinc-400 mb-2 block">Rate Your Experience</label>
+                    <label className="text-sm text-[var(--ip-text-2)] mb-2 block">Rate Your Experience</label>
                     <div className="space-y-3">
                       {[
                         { key: 'platformStability', label: 'Platform', icon: Smartphone },
@@ -1572,10 +1572,10 @@ export default function MobileReviewsPage() {
                         { key: 'reliability', label: 'Reliability', icon: Shield }
                       ].map((item) => (
                         <div key={item.key} className="flex items-center justify-between">
-                          <span className="text-xs text-zinc-400">{item.label}</span>
+                          <span className="text-xs text-[var(--ip-text-2)]">{item.label}</span>
                           <div className="flex gap-1">
                             {[1,2,3,4,5].map(i => (
-                              <button key={i} type="button" onClick={() => onRatingChange(item.key, i)} className={`w-8 h-8 rounded-lg text-sm ${form[item.key] >= i ? 'bg-yellow-500 text-black' : 'bg-zinc-800 text-zinc-500'}`}>{i}</button>
+                              <button key={i} type="button" onClick={() => onRatingChange(item.key, i)} className={`w-8 h-8 rounded-lg text-sm ${Number(form[item.key as keyof typeof form]) >= i ? 'bg-yellow-500 text-black' : 'bg-[var(--ip-surface-2)] text-[var(--ip-text-2)]'}`}>{i}</button>
                             ))}
                           </div>
                         </div>
@@ -1585,20 +1585,20 @@ export default function MobileReviewsPage() {
                   
                   {/* Review Content */}
                   <div>
-                    <label className="text-sm text-zinc-400 mb-2 block">Review Title *</label>
-                    <input name="title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white text-sm" placeholder="Summarize your experience" />
+                    <label className="text-sm text-[var(--ip-text-2)] mb-2 block">Review Title *</label>
+                    <input name="title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-4 py-3 text-[var(--ip-text)] text-sm" placeholder="Summarize your experience" />
                   </div>
                   
                   <div>
-                    <label className="text-sm text-zinc-400 mb-2 block">Your Experience *</label>
-                    <textarea name="content" value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={4} className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white text-sm resize-none" placeholder="Describe your experience..." />
+                    <label className="text-sm text-[var(--ip-text-2)] mb-2 block">Your Experience *</label>
+                    <textarea name="content" value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={4} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-4 py-3 text-[var(--ip-text)] text-sm resize-none" placeholder="Describe your experience..." />
                   </div>
                   
                   {formErrors && <div className="text-red-400 text-xs">{formErrors}</div>}
                   
                   <div className="flex gap-3">
-                    <button type="button" onClick={() => setShowReviewForm(false)} className="flex-1 py-3 bg-zinc-800 rounded-xl text-white text-sm">Cancel</button>
-                    <button type="submit" disabled={!selectedFirmId || !form.title || !form.content || submitting} className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white text-sm font-medium disabled:opacity-50">Submit</button>
+                    <button type="button" onClick={() => setShowReviewForm(false)} className="flex-1 py-3 bg-[var(--ip-surface-2)] rounded-xl text-[var(--ip-text)] text-sm">Cancel</button>
+                    <button type="submit" disabled={!selectedFirmId || !form.title || !form.content || submitting} className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-pink-600 rounded-xl text-[var(--ip-text)] text-sm font-medium disabled:opacity-50">Submit</button>
                   </div>
                 </form>
               </motion.div>
@@ -1613,30 +1613,30 @@ export default function MobileReviewsPage() {
           <div className="fixed inset-0 z-50 overflow-y-auto">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={() => !incidentSubmitting && setShowIncidentForm(false)} />
             <div className="flex min-h-full items-center justify-center p-4">
-              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative w-full max-w-md bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden">
-                <div className="p-5 border-b border-zinc-800 bg-gradient-to-r from-red-600/20 to-orange-600/20">
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative w-full max-w-md bg-[var(--ip-surface)] rounded-2xl border border-[var(--ip-border)] overflow-hidden">
+                <div className="p-5 border-b border-[var(--ip-border)] bg-gradient-to-r from-red-600/20 to-orange-600/20">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-white font-bold text-lg">Report Incident</h3>
-                    <button onClick={() => setShowIncidentForm(false)} className="p-1"><X size={20} className="text-zinc-400" /></button>
+                    <h3 className="text-[var(--ip-text)] font-bold text-lg">Report Incident</h3>
+                    <button onClick={() => setShowIncidentForm(false)} className="p-1"><X size={20} className="text-[var(--ip-text-2)]" /></button>
                   </div>
                 </div>
                 
                 <form onSubmit={submitIncident} className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
                   <div className="flex gap-2">
-                    <button type="button" onClick={() => { setIncidentType('broker'); setSelectedIncidentFirmId(null); setSelectedIncidentFirmName(''); setIncidentFirmSearch(''); }} className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${incidentType === 'broker' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white' : 'bg-zinc-800 text-zinc-400'}`}>Broker</button>
-                    <button type="button" onClick={() => { setIncidentType('propFirm'); setSelectedIncidentFirmId(null); setSelectedIncidentFirmName(''); setIncidentFirmSearch(''); }} className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${incidentType === 'propFirm' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'bg-zinc-800 text-zinc-400'}`}>Prop Firm</button>
+                    <button type="button" onClick={() => { setIncidentType('broker'); setSelectedIncidentFirmId(null); setSelectedIncidentFirmName(''); setIncidentFirmSearch(''); }} className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${incidentType === 'broker' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-[var(--ip-text)]' : 'bg-[var(--ip-surface-2)] text-[var(--ip-text-2)]'}`}>Broker</button>
+                    <button type="button" onClick={() => { setIncidentType('propFirm'); setSelectedIncidentFirmId(null); setSelectedIncidentFirmName(''); setIncidentFirmSearch(''); }} className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${incidentType === 'propFirm' ? 'bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)]' : 'bg-[var(--ip-surface-2)] text-[var(--ip-text-2)]'}`}>Prop Firm</button>
                   </div>
                   
                   <div>
-                    <label className="text-sm text-zinc-400 mb-2 block">Select Firm *</label>
+                    <label className="text-sm text-[var(--ip-text-2)] mb-2 block">Select Firm *</label>
                     <div className="relative" ref={incidentDropdownRef}>
-                      <input type="text" value={incidentFirmSearch} onChange={(e) => { setIncidentFirmSearch(e.target.value); setIncidentFirmDropdownOpen(true); setSelectedIncidentFirmId(null); setSelectedIncidentFirmName(''); }} placeholder={`Search ${incidentType === 'broker' ? 'broker' : 'prop firm'}...`} className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white text-sm" />
+                      <input type="text" value={incidentFirmSearch} onChange={(e) => { setIncidentFirmSearch(e.target.value); setIncidentFirmDropdownOpen(true); setSelectedIncidentFirmId(null); setSelectedIncidentFirmName(''); }} placeholder={`Search ${incidentType === 'broker' ? 'broker' : 'prop firm'}...`} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-4 py-3 text-[var(--ip-text)] text-sm" />
                       {incidentFirmDropdownOpen && incidentFilteredFirms.length > 0 && (
-                        <div className="absolute z-20 mt-2 max-h-48 w-full overflow-auto rounded-xl border border-zinc-700 bg-zinc-900">
+                        <div className="absolute z-20 mt-2 max-h-48 w-full overflow-auto rounded-xl border border-[var(--ip-border)] bg-[var(--ip-surface)]">
                           {incidentFilteredFirms.map((firm) => (
-                            <div key={firm.id} onClick={() => selectIncidentFirm(firm)} className="px-4 py-2 hover:bg-purple-600 cursor-pointer border-b border-zinc-800 flex items-center gap-3">
+                            <div key={firm.id} onClick={() => selectIncidentFirm(firm)} className="px-4 py-2 hover:bg-blue-600 cursor-pointer border-b border-[var(--ip-border)] flex items-center gap-3">
                               <FirmLogo item={firm} size="sm" />
-                              <div className="text-white text-sm">{firm.name}</div>
+                              <div className="text-[var(--ip-text)] text-sm">{firm.name}</div>
                             </div>
                           ))}
                         </div>
@@ -1646,36 +1646,36 @@ export default function MobileReviewsPage() {
                   </div>
                   
                   <div>
-                    <label className="text-sm text-zinc-400 mb-2 block">Incident Type *</label>
-                    <select value={incidentForm.incidentType} onChange={(e) => setIncidentForm({ ...incidentForm, incidentType: e.target.value })} className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white text-sm">
+                    <label className="text-sm text-[var(--ip-text-2)] mb-2 block">Incident Type *</label>
+                    <select value={incidentForm.incidentType} onChange={(e) => setIncidentForm({ ...incidentForm, incidentType: e.target.value })} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-4 py-3 text-[var(--ip-text)] text-sm">
                       <option value="">Select type</option>
                       {incidentTypes.map(type => <option key={type.value} value={type.value}>{type.label}</option>)}
                     </select>
                   </div>
                   
                   <div>
-                    <label className="text-sm text-zinc-400 mb-2 block">Title *</label>
-                    <input value={incidentForm.title} onChange={(e) => setIncidentForm({ ...incidentForm, title: e.target.value })} className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white text-sm" placeholder="Brief summary" />
+                    <label className="text-sm text-[var(--ip-text-2)] mb-2 block">Title *</label>
+                    <input value={incidentForm.title} onChange={(e) => setIncidentForm({ ...incidentForm, title: e.target.value })} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-4 py-3 text-[var(--ip-text)] text-sm" placeholder="Brief summary" />
                   </div>
                   
                   <div>
-                    <label className="text-sm text-zinc-400 mb-2 block">Description *</label>
-                    <textarea rows={4} value={incidentForm.description} onChange={(e) => setIncidentForm({ ...incidentForm, description: e.target.value })} className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white text-sm resize-none" placeholder="Detailed description..." />
+                    <label className="text-sm text-[var(--ip-text-2)] mb-2 block">Description *</label>
+                    <textarea rows={4} value={incidentForm.description} onChange={(e) => setIncidentForm({ ...incidentForm, description: e.target.value })} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-4 py-3 text-[var(--ip-text)] text-sm resize-none" placeholder="Detailed description..." />
                   </div>
                   
                   <div>
-                    <label className="text-sm text-zinc-400 mb-2 block">Incident Date *</label>
-                    <input type="date" value={incidentForm.incidentDate} onChange={(e) => setIncidentForm({ ...incidentForm, incidentDate: e.target.value })} className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white text-sm" />
+                    <label className="text-sm text-[var(--ip-text-2)] mb-2 block">Incident Date *</label>
+                    <input type="date" value={incidentForm.incidentDate} onChange={(e) => setIncidentForm({ ...incidentForm, incidentDate: e.target.value })} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-4 py-3 text-[var(--ip-text)] text-sm" />
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-sm text-zinc-400 mb-2 block">Withdrawal Amount</label>
-                      <input type="number" value={incidentForm.withdrawalAmount} onChange={(e) => setIncidentForm({ ...incidentForm, withdrawalAmount: e.target.value })} className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white text-sm" placeholder="$0.00" />
+                      <label className="text-sm text-[var(--ip-text-2)] mb-2 block">Withdrawal Amount</label>
+                      <input type="number" value={incidentForm.withdrawalAmount} onChange={(e) => setIncidentForm({ ...incidentForm, withdrawalAmount: e.target.value })} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-4 py-3 text-[var(--ip-text)] text-sm" placeholder="$0.00" />
                     </div>
                     <div>
-                      <label className="text-sm text-zinc-400 mb-2 block">Withdrawal Method</label>
-                      <select value={incidentForm.withdrawalMethod} onChange={(e) => setIncidentForm({ ...incidentForm, withdrawalMethod: e.target.value })} className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white text-sm">
+                      <label className="text-sm text-[var(--ip-text-2)] mb-2 block">Withdrawal Method</label>
+                      <select value={incidentForm.withdrawalMethod} onChange={(e) => setIncidentForm({ ...incidentForm, withdrawalMethod: e.target.value })} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-4 py-3 text-[var(--ip-text)] text-sm">
                         <option value="">Select method</option>
                         <option value="Bank Transfer">Bank Transfer</option>
                         <option value="Crypto">Crypto</option>
@@ -1690,8 +1690,8 @@ export default function MobileReviewsPage() {
                   {incidentError && <div className="text-red-400 text-xs">{incidentError}</div>}
                   
                   <div className="flex gap-3">
-                    <button type="button" onClick={() => setShowIncidentForm(false)} className="flex-1 py-3 bg-zinc-800 rounded-xl text-white text-sm">Cancel</button>
-                    <button type="submit" disabled={!selectedIncidentFirmId || !incidentForm.incidentType || !incidentForm.title || !incidentForm.description || incidentSubmitting} className="flex-1 py-3 bg-gradient-to-r from-red-600 to-orange-600 rounded-xl text-white text-sm font-medium disabled:opacity-50">Submit Report</button>
+                    <button type="button" onClick={() => setShowIncidentForm(false)} className="flex-1 py-3 bg-[var(--ip-surface-2)] rounded-xl text-[var(--ip-text)] text-sm">Cancel</button>
+                    <button type="submit" disabled={!selectedIncidentFirmId || !incidentForm.incidentType || !incidentForm.title || !incidentForm.description || incidentSubmitting} className="flex-1 py-3 bg-gradient-to-r from-red-600 to-orange-600 rounded-xl text-[var(--ip-text)] text-sm font-medium disabled:opacity-50">Submit Report</button>
                   </div>
                 </form>
               </motion.div>

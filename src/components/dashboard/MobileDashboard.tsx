@@ -18,8 +18,8 @@ import MobileLayout from '@/components/mobile/MobileLayout';
 
 const generateGradient = (name: string) => {
   const gradients = [
-    "from-pink-500 to-purple-500",
-    "from-blue-500 to-purple-500",
+    "from-pink-500 to-blue-500",
+    "from-blue-500 to-blue-500",
     "from-green-500 to-blue-500",
     "from-yellow-500 to-orange-500",
     "from-red-500 to-pink-500",
@@ -35,15 +35,15 @@ function StatCard({ title, value, icon: Icon, color, onClick }: any) {
     <motion.div
       whileHover={{ scale: 0.98 }}
       onClick={onClick}
-      className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-xl p-4 border border-zinc-800 active:border-purple-500/50 transition-all"
+      className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-xl p-4 border border-[var(--ip-border)] active:border-blue-500/50 transition-all"
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs text-zinc-500 mb-1">{title}</p>
-          <p className="text-2xl font-bold text-white">{value !== undefined && value !== null ? value : '0'}</p>
+          <p className="text-xs text-[var(--ip-text-2)] mb-1">{title}</p>
+          <p className="text-2xl font-bold text-[var(--ip-text)]">{value !== undefined && value !== null ? value : '0'}</p>
         </div>
         <div className={`p-2 rounded-xl bg-gradient-to-br ${color} bg-opacity-10`}>
-          <Icon size={16} className="text-white" />
+          <Icon size={16} className="text-[var(--ip-text)]" />
         </div>
       </div>
     </motion.div>
@@ -72,15 +72,15 @@ function ActivityItem({ activity, type }: { activity: any; type: 'review' | 'inc
   return (
     <motion.div
       whileTap={{ scale: 0.98 }}
-      className="flex items-center gap-3 p-3 bg-zinc-800/30 rounded-xl border border-zinc-800 active:border-purple-500/30 transition-all cursor-pointer"
+      className="flex items-center gap-3 p-3 bg-[var(--ip-surface-2)] rounded-xl border border-[var(--ip-border)] active:border-blue-500/30 transition-all cursor-pointer"
       onClick={handleClick}
     >
-      <div className={`p-2 rounded-lg ${type === 'review' ? 'bg-purple-500/20' : 'bg-orange-500/20'}`}>
-        {type === 'review' ? <Star size={14} className="text-purple-400" /> : <AlertTriangle size={14} className="text-orange-400" />}
+      <div className={`p-2 rounded-lg ${type === 'review' ? 'bg-blue-500/20' : 'bg-orange-500/20'}`}>
+        {type === 'review' ? <Star size={14} className="text-blue-400" /> : <AlertTriangle size={14} className="text-orange-400" />}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-white text-sm font-medium truncate">{activity.title || 'Untitled'}</p>
-        <div className="flex items-center gap-2 text-[10px] text-zinc-500 mt-0.5 flex-wrap">
+        <p className="text-[var(--ip-text)] text-sm font-medium truncate">{activity.title || 'Untitled'}</p>
+        <div className="flex items-center gap-2 text-[10px] text-[var(--ip-text-2)] mt-0.5 flex-wrap">
           <span className="flex items-center gap-1">
             <Building2 size={8} />
             {getEntityName()}
@@ -98,7 +98,7 @@ function ActivityItem({ activity, type }: { activity: any; type: 'review' | 'inc
           )}
         </div>
       </div>
-      <ChevronRight size={14} className="text-zinc-500" />
+      <ChevronRight size={14} className="text-[var(--ip-text-2)]" />
     </motion.div>
   );
 }
@@ -183,8 +183,8 @@ export default function MobileDashboard() {
       <MobileLayout title="Dashboard" showSearch={false}>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto" />
-            <p className="text-xs text-zinc-500 mt-3">Loading dashboard...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto" />
+            <p className="text-xs text-[var(--ip-text-2)] mt-3">Loading dashboard...</p>
           </div>
         </div>
       </MobileLayout>
@@ -198,15 +198,15 @@ export default function MobileDashboard() {
       <div className="space-y-5 pb-6">
         
         {/* Welcome Header */}
-        <div className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-2xl p-5 border border-purple-500/30">
+        <div className="bg-gradient-to-r from-blue-600/20 to-pink-600/20 rounded-2xl p-5 border border-blue-500/30">
           <div className="flex items-center gap-2 mb-1">
-            <Sparkles size={14} className="text-purple-400" />
-            <span className="text-xs text-purple-400 font-medium">Welcome back</span>
+            <Sparkles size={14} className="text-blue-400" />
+            <span className="text-xs text-blue-400 font-medium">Welcome back</span>
           </div>
-          <h1 className="text-xl font-bold text-white">
+          <h1 className="text-xl font-bold text-[var(--ip-text)]">
             {profile?.name || user.name || 'Trader'}
           </h1>
-          <p className="text-xs text-zinc-400 mt-1 truncate">{user.email}</p>
+          <p className="text-xs text-[var(--ip-text-2)] mt-1 truncate">{user.email}</p>
         </div>
 
         {/* Stats Grid */}
@@ -215,7 +215,7 @@ export default function MobileDashboard() {
             title="Reviews" 
             value={stats.totalReviews} 
             icon={MessageCircle} 
-            color="from-purple-500 to-pink-500"
+            color="from-blue-500 to-pink-500"
             onClick={() => router.push('/dashboard/reviews')}
           />
           <StatCard 
@@ -242,93 +242,93 @@ export default function MobileDashboard() {
         {/* Quick Actions */}
         <div className="flex gap-3">
           <Link href="/reviews" className="flex-1">
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl p-3 text-center">
-              <MessageCircle size={16} className="text-white mx-auto mb-1" />
-              <span className="text-white text-xs font-medium">Write Review</span>
+            <div className="bg-gradient-to-r from-blue-600 to-pink-600 rounded-xl p-3 text-center">
+              <MessageCircle size={16} className="text-[var(--ip-text)] mx-auto mb-1" />
+              <span className="text-[var(--ip-text)] text-xs font-medium">Write Review</span>
             </div>
           </Link>
           <Link href="/reviews?tab=incidents" className="flex-1">
             <div className="bg-gradient-to-r from-orange-600 to-red-600 rounded-xl p-3 text-center">
-              <AlertTriangle size={16} className="text-white mx-auto mb-1" />
-              <span className="text-white text-xs font-medium">Report Issue</span>
+              <AlertTriangle size={16} className="text-[var(--ip-text)] mx-auto mb-1" />
+              <span className="text-[var(--ip-text)] text-xs font-medium">Report Issue</span>
             </div>
           </Link>
           <Link href="/dashboard/profile" className="flex-1">
-            <div className="bg-zinc-800 rounded-xl p-3 text-center">
-              <User size={16} className="text-zinc-300 mx-auto mb-1" />
-              <span className="text-zinc-300 text-xs font-medium">Profile</span>
+            <div className="bg-[var(--ip-surface-2)] rounded-xl p-3 text-center">
+              <User size={16} className="text-[var(--ip-text-2)] mx-auto mb-1" />
+              <span className="text-[var(--ip-text-2)] text-xs font-medium">Profile</span>
             </div>
           </Link>
         </div>
 
         {/* Review Summary */}
-        <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-4">
+        <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <BarChart3 size={14} className="text-purple-400" />
-              <span className="text-sm font-medium text-white">Review Status</span>
+              <BarChart3 size={14} className="text-blue-400" />
+              <span className="text-sm font-medium text-[var(--ip-text)]">Review Status</span>
             </div>
-            <Link href="/dashboard/reviews" className="text-[10px] text-purple-400">View all</Link>
+            <Link href="/dashboard/reviews" className="text-[10px] text-blue-400">View all</Link>
           </div>
           <div className="flex justify-between text-center">
             <div>
               <div className="text-green-400 font-bold text-lg">{stats.approvedReviews}</div>
-              <div className="text-[10px] text-zinc-500">Approved</div>
+              <div className="text-[10px] text-[var(--ip-text-2)]">Approved</div>
             </div>
             <div>
               <div className="text-yellow-400 font-bold text-lg">{stats.pendingReviews}</div>
-              <div className="text-[10px] text-zinc-500">Pending</div>
+              <div className="text-[10px] text-[var(--ip-text-2)]">Pending</div>
             </div>
           </div>
         </div>
 
         {/* Incident Summary */}
-        <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-4">
+        <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <AlertTriangle size={14} className="text-orange-400" />
-              <span className="text-sm font-medium text-white">Incident Status</span>
+              <span className="text-sm font-medium text-[var(--ip-text)]">Incident Status</span>
             </div>
             <Link href="/dashboard/incidents" className="text-[10px] text-orange-400">View all</Link>
           </div>
           <div className="flex justify-between text-center">
             <div>
               <div className="text-green-400 font-bold text-lg">{stats.resolvedIncidents}</div>
-              <div className="text-[10px] text-zinc-500">Resolved</div>
+              <div className="text-[10px] text-[var(--ip-text-2)]">Resolved</div>
             </div>
             <div>
               <div className="text-yellow-400 font-bold text-lg">{stats.pendingIncidents}</div>
-              <div className="text-[10px] text-zinc-500">Pending</div>
+              <div className="text-[10px] text-[var(--ip-text-2)]">Pending</div>
             </div>
           </div>
         </div>
 
         {/* Trust Score Progress */}
         {stats.avgTrustScore > 0 && (
-          <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/20 p-4">
+          <div className="bg-gradient-to-r from-blue-500/10 to-pink-500/10 rounded-xl border border-blue-500/20 p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Shield size={14} className="text-purple-400" />
-              <span className="text-sm font-medium text-white">Your Trust Score</span>
+              <Shield size={14} className="text-blue-400" />
+              <span className="text-sm font-medium text-[var(--ip-text)]">Your Trust Score</span>
             </div>
-            <div className="text-2xl font-bold text-white mb-2">{stats.avgTrustScore}</div>
-            <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" style={{ width: `${stats.avgTrustScore}%` }} />
+            <div className="text-2xl font-bold text-[var(--ip-text)] mb-2">{stats.avgTrustScore}</div>
+            <div className="h-2 bg-[var(--ip-surface-2)] rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-blue-500 to-pink-500 rounded-full" style={{ width: `${stats.avgTrustScore}%` }} />
             </div>
-            <p className="text-[10px] text-zinc-500 mt-2 text-center">
+            <p className="text-[10px] text-[var(--ip-text-2)] mt-2 text-center">
               Based on {stats.approvedReviews} approved review{stats.approvedReviews !== 1 ? 's' : ''}
             </p>
           </div>
         )}
 
         {/* Recent Activity Tabs */}
-        <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 overflow-hidden">
-          <div className="flex border-b border-zinc-800">
+        <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] overflow-hidden">
+          <div className="flex border-b border-[var(--ip-border)]">
             <button
               onClick={() => setActiveTab('reviews')}
               className={`flex-1 py-3 text-sm font-medium transition-all ${
                 activeTab === 'reviews'
-                  ? 'text-purple-400 border-b-2 border-purple-400 bg-purple-500/5'
-                  : 'text-zinc-500'
+                  ? 'text-blue-400 border-b-2 border-blue-400 bg-blue-500/5'
+                  : 'text-[var(--ip-text-2)]'
               }`}
             >
               <div className="flex items-center justify-center gap-1">
@@ -341,7 +341,7 @@ export default function MobileDashboard() {
               className={`flex-1 py-3 text-sm font-medium transition-all ${
                 activeTab === 'incidents'
                   ? 'text-orange-400 border-b-2 border-orange-400 bg-orange-500/5'
-                  : 'text-zinc-500'
+                  : 'text-[var(--ip-text-2)]'
               }`}
             >
               <div className="flex items-center justify-center gap-1">
@@ -356,8 +356,8 @@ export default function MobileDashboard() {
               recentReviews.length === 0 ? (
                 <div className="text-center py-8">
                   <Star size={24} className="text-zinc-600 mx-auto mb-2" />
-                  <p className="text-xs text-zinc-500">No reviews yet</p>
-                  <Link href="/reviews" className="text-purple-400 text-xs mt-1 inline-block">Write your first review →</Link>
+                  <p className="text-xs text-[var(--ip-text-2)]">No reviews yet</p>
+                  <Link href="/reviews" className="text-blue-400 text-xs mt-1 inline-block">Write your first review →</Link>
                 </div>
               ) : (
                 recentReviews.map((review) => (
@@ -368,7 +368,7 @@ export default function MobileDashboard() {
               recentIncidents.length === 0 ? (
                 <div className="text-center py-8">
                   <AlertTriangle size={24} className="text-zinc-600 mx-auto mb-2" />
-                  <p className="text-xs text-zinc-500">No incidents reported</p>
+                  <p className="text-xs text-[var(--ip-text-2)]">No incidents reported</p>
                   <Link href="/reviews?tab=incidents" className="text-orange-400 text-xs mt-1 inline-block">Report an incident →</Link>
                 </div>
               ) : (

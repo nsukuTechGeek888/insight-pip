@@ -32,7 +32,7 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
   
   if (firm.logo) {
     return (
-      <div className={`${sizeClasses[size]} overflow-hidden bg-zinc-800 border border-zinc-700 flex-shrink-0 shadow-lg`}>
+      <div className={`${sizeClasses[size]} overflow-hidden bg-[var(--ip-surface-2)] border border-[var(--ip-border)] flex-shrink-0 shadow-lg`}>
         <img 
           src={firm.logo} 
           alt={firm.name} 
@@ -43,7 +43,7 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
             const parent = target.parentElement;
             if (parent) {
               const fallback = document.createElement('div');
-              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`;
+              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`;
               fallback.textContent = firm.name?.charAt(0) || '?';
               parent.appendChild(fallback);
             }
@@ -54,7 +54,7 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
   }
   
   return (
-    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`}>
+    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`}>
       {firm.name?.charAt(0) || '?'}
     </div>
   );
@@ -83,8 +83,8 @@ function StarRating({ rating, count = 0, size = "sm" }: { rating: number; count?
       </div>
       {hasReviews && (
         <>
-          <span className="text-sm text-white ml-1">{displayRating.toFixed(1)}</span>
-          <span className="text-xs text-zinc-400 ml-1">({count})</span>
+          <span className="text-sm text-[var(--ip-text)] ml-1">{displayRating.toFixed(1)}</span>
+          <span className="text-xs text-[var(--ip-text-2)] ml-1">({count})</span>
         </>
       )}
     </div>
@@ -93,8 +93,8 @@ function StarRating({ rating, count = 0, size = "sm" }: { rating: number; count?
 
 const generateGradient = (name: string): string => {
   const gradients = [
-    "from-pink-500 to-purple-500",
-    "from-blue-500 to-purple-500",
+    "from-pink-500 to-blue-500",
+    "from-blue-500 to-blue-500",
     "from-green-500 to-blue-500",
     "from-yellow-500 to-orange-500",
     "from-red-500 to-pink-500",
@@ -501,10 +501,10 @@ export default function ComparePage() {
 
   if (loading || (enrichedBrokers.length === 0 && enrichedPropFirms.length === 0)) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
-          <p className="mt-4 text-zinc-500">Loading comparison data...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-[var(--ip-text-2)]">Loading comparison data...</p>
         </div>
       </div>
     );
@@ -559,16 +559,16 @@ export default function ComparePage() {
     const suggestions = nearbyRegions[region] || [{ key: 'GLOBAL', label: 'Global', flag: '🌍' }];
 
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
         <div className="text-center max-w-md px-6">
           <Globe size={48} className="text-zinc-600 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">No trading partners in your region</h2>
-          <p className="text-zinc-400 mb-4">
+          <h2 className="text-2xl font-bold text-[var(--ip-text)] mb-2">No trading partners in your region</h2>
+          <p className="text-[var(--ip-text-2)] mb-4">
             We don't have any brokers or prop firms available in {regionInfo.flag} {regionInfo.label} yet.
           </p>
           
-          <div className="bg-zinc-900/50 rounded-xl p-4 mb-6 border border-zinc-800">
-            <p className="text-sm text-zinc-400 mb-3">Try these regions instead:</p>
+          <div className="bg-[var(--ip-surface)] rounded-xl p-4 mb-6 border border-[var(--ip-border)]">
+            <p className="text-sm text-[var(--ip-text-2)] mb-3">Try these regions instead:</p>
             <div className="flex flex-wrap justify-center gap-2">
               {suggestions.map((suggestion) => (
                 <button
@@ -577,7 +577,7 @@ export default function ComparePage() {
                     const { setRegion } = useRegion();
                     setRegion(suggestion.key);
                   }}
-                  className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm text-white transition-all duration-200 hover:scale-105"
+                  className="px-4 py-2 bg-[var(--ip-surface-2)] hover:bg-zinc-700 rounded-lg text-sm text-[var(--ip-text)] transition-all duration-200 hover:scale-105"
                 >
                   {suggestion.flag} {suggestion.label}
                 </button>
@@ -590,7 +590,7 @@ export default function ComparePage() {
               const { setRegion } = useRegion();
               setRegion('GLOBAL');
             }}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all"
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-lg hover:from-blue-500 hover:to-pink-500 transition-all"
           >
             View All Global
           </button>
@@ -600,31 +600,31 @@ export default function ComparePage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-[var(--ip-bg)]">
       {/* ❌ REGION BANNER REMOVED - Users select region in navbar */}
 
       {/* Header */}
-      <div className="border-b border-zinc-800/50 bg-gradient-to-r from-zinc-900/30 via-transparent to-zinc-900/30">
+      <div className="border-b border-[var(--ip-border)] bg-gradient-to-r from-zinc-900/30 via-transparent to-zinc-900/30">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <div className="flex items-center gap-2">
                 <Link 
                   href="/"
-                  className="p-2 rounded-lg bg-zinc-800/50 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                  className="p-2 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] hover:text-[var(--ip-text)] hover:bg-[var(--ip-surface-2)] transition-colors"
                 >
                   <ArrowLeft size={18} />
                 </Link>
-                <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-2">
-                  <GitCompare className="text-purple-400" size={28} />
+                <h1 className="text-2xl md:text-3xl font-bold text-[var(--ip-text)] flex items-center gap-2">
+                  <GitCompare className="text-blue-400" size={28} />
                   Compare {currentLabel}
                 </h1>
               </div>
-              <p className="text-zinc-400 text-sm mt-1 ml-10">Select up to 4 platforms to compare side by side</p>
+              <p className="text-[var(--ip-text-2)] text-sm mt-1 ml-10">Select up to 4 platforms to compare side by side</p>
             </div>
             
             {/* Type Toggle */}
-            <div className="flex gap-2 bg-zinc-900/50 rounded-lg p-1">
+            <div className="flex gap-2 bg-[var(--ip-surface)] rounded-lg p-1">
               <button
                 onClick={() => {
                   setSelectedType('brokers');
@@ -633,8 +633,8 @@ export default function ComparePage() {
                 }}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   selectedType === 'brokers'
-                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg'
-                    : 'text-zinc-400 hover:text-white'
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-[var(--ip-text)] shadow-lg'
+                    : 'text-[var(--ip-text-2)] hover:text-[var(--ip-text)]'
                 }`}
               >
                 <TrendingUp size={14} className="inline mr-2" />
@@ -648,8 +648,8 @@ export default function ComparePage() {
                 }}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   selectedType === 'prop-firms'
-                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
-                    : 'text-zinc-400 hover:text-white'
+                    ? 'bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] shadow-lg'
+                    : 'text-[var(--ip-text-2)] hover:text-[var(--ip-text)]'
                 }`}
               >
                 <Trophy size={14} className="inline mr-2" />
@@ -662,17 +662,17 @@ export default function ComparePage() {
 
       {/* Search & Add Section */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="bg-zinc-900/50 rounded-2xl p-6 border border-zinc-800">
+        <div className="bg-[var(--ip-surface)] rounded-2xl p-6 border border-[var(--ip-border)]">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-              <Plus size={16} className="text-purple-400" />
+            <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+              <Plus size={16} className="text-blue-400" />
             </div>
-            <h2 className="text-white font-semibold">Add {currentLabel} to Compare</h2>
-            <span className="text-xs text-zinc-500">({selectedItems.length}/4 selected)</span>
+            <h2 className="text-[var(--ip-text)] font-semibold">Add {currentLabel} to Compare</h2>
+            <span className="text-xs text-[var(--ip-text-2)]">({selectedItems.length}/4 selected)</span>
           </div>
           
           <div className="relative" ref={searchRef}>
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--ip-text-2)]" size={18} />
             <input
               ref={inputRef}
               type="text"
@@ -680,33 +680,33 @@ export default function ComparePage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onFocus={() => search.length > 1 && setShowSuggestions(true)}
-              className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl pl-11 pr-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
+              className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl pl-11 pr-4 py-3 text-[var(--ip-text)] placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
             />
             {search && (
-              <button onClick={clearSearch} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white">
+              <button onClick={clearSearch} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--ip-text-2)] hover:text-[var(--ip-text)]">
                 <X size={18} />
               </button>
             )}
 
             <AnimatePresence>
               {showSuggestions && searchSuggestions.length > 0 && (
-                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 right-0 mt-2 bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl z-20 overflow-hidden">
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 right-0 mt-2 bg-[var(--ip-surface)] border border-[var(--ip-border)] rounded-xl shadow-xl z-20 overflow-hidden">
                   {searchSuggestions.map((item) => (
                     <button
                       key={item.id}
                       onClick={() => handleAddItem(item)}
                       disabled={selectedItems.length >= 4}
-                      className="w-full px-4 py-3 text-left hover:bg-zinc-800 transition-colors flex items-center gap-3 border-b border-zinc-800 last:border-0 group disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 text-left hover:bg-[var(--ip-surface-2)] transition-colors flex items-center gap-3 border-b border-[var(--ip-border)] last:border-0 group disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <FirmLogo firm={item} size="sm" />
                       <div className="flex-1">
-                        <div className="text-white font-medium">{item.name}</div>
-                        <div className="text-xs text-zinc-500 flex items-center gap-2 mt-0.5">
+                        <div className="text-[var(--ip-text)] font-medium">{item.name}</div>
+                        <div className="text-xs text-[var(--ip-text-2)] flex items-center gap-2 mt-0.5">
                           <span>{item.country || 'International'}</span>
                           <StarRating rating={item.rating || 0} count={item.reviewCount || 0} size="sm" />
                         </div>
                       </div>
-                      <Plus size={16} className="text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <Plus size={16} className="text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </button>
                   ))}
                 </motion.div>
@@ -735,7 +735,7 @@ export default function ComparePage() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-zinc-900/50 rounded-xl border border-zinc-800 hover:border-purple-500/50 transition-all duration-300 group"
+                  className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] hover:border-blue-500/50 transition-all duration-300 group"
                   onMouseEnter={() => setHoveredCard(item.id)}
                   onMouseLeave={() => setHoveredCard(null)}
                 >
@@ -744,12 +744,12 @@ export default function ComparePage() {
                       <div className="flex items-center gap-3">
                         <FirmLogo firm={item} size="md" />
                         <div>
-                          <h3 className="font-semibold text-white text-sm">{item.name}</h3>
+                          <h3 className="font-semibold text-[var(--ip-text)] text-sm">{item.name}</h3>
                           <div className="flex items-center gap-1 mt-0.5">
                             <StarRating rating={rating} count={reviewsCount} size="sm" />
                             <div className="flex items-center gap-0.5 ml-1">
-                              <Shield size={10} className="text-zinc-500" />
-                              <span className="text-[10px] text-zinc-500">{trustScore}</span>
+                              <Shield size={10} className="text-[var(--ip-text-2)]" />
+                              <span className="text-[10px] text-[var(--ip-text-2)]">{trustScore}</span>
                             </div>
                           </div>
                         </div>
@@ -763,19 +763,19 @@ export default function ComparePage() {
                     </div>
                     
                     <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-                      <div className="bg-zinc-800/30 rounded-lg p-2 text-center">
-                        <div className="text-zinc-500 text-[10px] uppercase">Min {selectedType === 'brokers' ? 'Deposit' : 'Account'}</div>
-                        <div className="text-white font-bold text-sm">${getMinAccountSize(item).toLocaleString()}</div>
+                      <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+                        <div className="text-[var(--ip-text-2)] text-[10px] uppercase">Min {selectedType === 'brokers' ? 'Deposit' : 'Account'}</div>
+                        <div className="text-[var(--ip-text)] font-bold text-sm">${getMinAccountSize(item).toLocaleString()}</div>
                       </div>
                       {selectedType === 'prop-firms' ? (
-                        <div className="bg-zinc-800/30 rounded-lg p-2 text-center">
-                          <div className="text-zinc-500 text-[10px] uppercase">Max Payout</div>
+                        <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+                          <div className="text-[var(--ip-text-2)] text-[10px] uppercase">Max Payout</div>
                           <div className="text-green-400 font-bold text-sm">{getMaxPayout(item)}%</div>
                         </div>
                       ) : (
-                        <div className="bg-zinc-800/30 rounded-lg p-2 text-center">
-                          <div className="text-zinc-500 text-[10px] uppercase">Leverage</div>
-                          <div className="text-white font-bold text-sm">{item.leverage || '1:100'}</div>
+                        <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+                          <div className="text-[var(--ip-text-2)] text-[10px] uppercase">Leverage</div>
+                          <div className="text-[var(--ip-text)] font-bold text-sm">{item.leverage || '1:100'}</div>
                         </div>
                       )}
                     </div>
@@ -783,13 +783,13 @@ export default function ComparePage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => router.push(`/${selectedType === 'brokers' ? 'brokers' : 'prop-firms'}/${slugify(item.name)}`)}
-                        className="flex-1 py-1.5 rounded-lg text-xs font-medium bg-zinc-800 text-white hover:bg-zinc-700 transition-colors"
+                        className="flex-1 py-1.5 rounded-lg text-xs font-medium bg-[var(--ip-surface-2)] text-[var(--ip-text)] hover:bg-zinc-700 transition-colors"
                       >
                         <Eye size={10} className="inline mr-1" /> Details
                       </button>
                       <button
                         onClick={() => window.open(item.website || item.signupLink, '_blank')}
-                        className="flex-1 py-1.5 rounded-lg text-xs font-medium bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-500 hover:to-pink-500 transition-all"
+                        className="flex-1 py-1.5 rounded-lg text-xs font-medium bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] hover:from-blue-500 hover:to-pink-500 transition-all"
                       >
                         <ExternalLink size={10} className="inline mr-1" /> Visit
                       </button>
@@ -805,23 +805,23 @@ export default function ComparePage() {
       {/* Comparison Table - USING ENRICHED DATA */}
       {selectedItems.length >= 2 && (
         <div className="max-w-7xl mx-auto px-6 pb-16">
-          <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 overflow-hidden">
-            <div className="p-4 border-b border-zinc-800 bg-zinc-800/30">
-              <h3 className="text-white font-semibold flex items-center gap-2">
-                <BarChart3 size={16} className="text-purple-400" />
+          <div className="bg-[var(--ip-surface)] rounded-2xl border border-[var(--ip-border)] overflow-hidden">
+            <div className="p-4 border-b border-[var(--ip-border)] bg-[var(--ip-surface-2)]">
+              <h3 className="text-[var(--ip-text)] font-semibold flex items-center gap-2">
+                <BarChart3 size={16} className="text-blue-400" />
                 {selectedType === 'prop-firms' ? 'Prop Firm Comparison' : 'Broker Comparison'}
               </h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-zinc-800 bg-zinc-800/20">
-                    <th className="p-4 text-left text-zinc-400 font-medium w-48">Feature</th>
+                  <tr className="border-b border-[var(--ip-border)] bg-[var(--ip-surface-2)]">
+                    <th className="p-4 text-left text-[var(--ip-text-2)] font-medium w-48">Feature</th>
                     {selectedItems.map((item) => (
                       <th key={item.id} className="p-4 text-center min-w-[180px]">
                         <div className="flex flex-col items-center">
                           <FirmLogo firm={item} size="sm" />
-                          <span className="text-sm font-medium text-white mt-1">{item.name}</span>
+                          <span className="text-sm font-medium text-[var(--ip-text)] mt-1">{item.name}</span>
                         </div>
                       </th>
                     ))}
@@ -833,31 +833,31 @@ export default function ComparePage() {
                   {selectedType === 'brokers' && (
                     <>
                       {/* Rating */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
                           <Star size={14} className="text-yellow-500" />
                           Rating
                         </td>
                         {selectedItems.map((item) => (
                           <td key={`rating-${item.id}`} className="p-4 text-center">
                             <div className="flex items-center justify-center gap-1">
-                              <span className="text-white font-medium">{item.avgRating?.toFixed(1) || '0.0'}</span>
-                              <span className="text-xs text-zinc-500">({item.reviewCount || 0})</span>
+                              <span className="text-[var(--ip-text)] font-medium">{item.avgRating?.toFixed(1) || '0.0'}</span>
+                              <span className="text-xs text-[var(--ip-text-2)]">({item.reviewCount || 0})</span>
                             </div>
                           </td>
                         ))}
                       </tr>
                       
                       {/* Trust Score */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
-                          <Shield size={14} className="text-purple-500" />
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
+                          <Shield size={14} className="text-blue-500" />
                           Trust Score
                         </td>
                         {selectedItems.map((item) => (
                           <td key={`trust-${item.id}`} className="p-4 text-center">
                             <div className="flex items-center justify-center gap-1">
-                              <span className="text-white font-medium">{item.trustScore || 0}</span>
+                              <span className="text-[var(--ip-text)] font-medium">{item.trustScore || 0}</span>
                               <TrustScoreBadge score={item.trustScore || 0} size="sm" showLabel={false} />
                             </div>
                           </td>
@@ -865,86 +865,86 @@ export default function ComparePage() {
                       </tr>
                       
                       {/* Trading Conditions */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
                           <Activity size={14} className="text-orange-500" />
                           Trading Conditions
                         </td>
                         {selectedItems.map((item) => (
                           <td key={`trading-${item.id}`} className="p-4 text-center">
-                            <span className="text-white font-medium">{item.avgTradingConditions?.toFixed(1) || '0.0'}/5</span>
+                            <span className="text-[var(--ip-text)] font-medium">{item.avgTradingConditions?.toFixed(1) || '0.0'}/5</span>
                           </td>
                         ))}
                       </tr>
                       
                       {/* Platform Stability */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
                           <Monitor size={14} className="text-blue-500" />
                           Platform Stability
                         </td>
                         {selectedItems.map((item) => (
                           <td key={`platform-${item.id}`} className="p-4 text-center">
-                            <span className="text-white font-medium">{item.avgPlatformStability?.toFixed(1) || '0.0'}/5</span>
+                            <span className="text-[var(--ip-text)] font-medium">{item.avgPlatformStability?.toFixed(1) || '0.0'}/5</span>
                           </td>
                         ))}
                       </tr>
                       
                       {/* Customer Support */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
-                          <Headphones size={14} className="text-purple-500" />
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
+                          <Headphones size={14} className="text-blue-500" />
                           Customer Support
                         </td>
                         {selectedItems.map((item) => (
                           <td key={`support-${item.id}`} className="p-4 text-center">
-                            <span className="text-white font-medium">{item.avgCustomerSupport?.toFixed(1) || '0.0'}/5</span>
+                            <span className="text-[var(--ip-text)] font-medium">{item.avgCustomerSupport?.toFixed(1) || '0.0'}/5</span>
                           </td>
                         ))}
                       </tr>
                       
                       {/* Withdrawal Speed */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
                           <Zap size={14} className="text-green-500" />
                           Withdrawal Speed
                         </td>
                         {selectedItems.map((item) => (
                           <td key={`withdrawal-${item.id}`} className="p-4 text-center">
-                            <span className="text-white font-medium">{item.avgWithdrawalSpeed?.toFixed(1) || '0.0'}/5</span>
+                            <span className="text-[var(--ip-text)] font-medium">{item.avgWithdrawalSpeed?.toFixed(1) || '0.0'}/5</span>
                           </td>
                         ))}
                       </tr>
                       
                       {/* Minimum Deposit */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
                           <DollarSign size={14} className="text-emerald-500" />
                           Min Deposit
                         </td>
                         {selectedItems.map((item) => (
                           <td key={`min-deposit-${item.id}`} className="p-4 text-center">
-                            <span className="text-white font-bold">${getMinAccountSize(item).toLocaleString()}</span>
+                            <span className="text-[var(--ip-text)] font-bold">${getMinAccountSize(item).toLocaleString()}</span>
                           </td>
                         ))}
                       </tr>
                       
                       {/* Max Leverage */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
                           <Gauge size={14} className="text-blue-500" />
                           Max Leverage
                         </td>
                         {selectedItems.map((item) => (
                           <td key={`leverage-${item.id}`} className="p-4 text-center">
-                            <span className="text-white font-bold">{item.leverage || '1:100'}</span>
+                            <span className="text-[var(--ip-text)] font-bold">{item.leverage || '1:100'}</span>
                           </td>
                         ))}
                       </tr>
                       
                       {/* Platforms */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
                           <Layers size={14} className="text-cyan-500" />
                           Platforms
                         </td>
@@ -952,10 +952,10 @@ export default function ComparePage() {
                           <td key={`platforms-${item.id}`} className="p-4 text-center">
                             <div className="flex flex-wrap gap-1 justify-center">
                               {getPlatforms(item).slice(0, 3).map((p: string, idx: number) => (
-                                <span key={idx} className="text-[10px] bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded">{p}</span>
+                                <span key={idx} className="text-[10px] bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] px-2 py-0.5 rounded">{p}</span>
                               ))}
                               {getPlatforms(item).length > 3 && (
-                                <span className="text-[10px] text-zinc-500">+{getPlatforms(item).length - 3}</span>
+                                <span className="text-[10px] text-[var(--ip-text-2)]">+{getPlatforms(item).length - 3}</span>
                               )}
                             </div>
                           </td>
@@ -963,8 +963,8 @@ export default function ComparePage() {
                       </tr>
                       
                       {/* Regulation */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
                           <ShieldCheck size={14} className="text-green-500" />
                           Regulation
                         </td>
@@ -975,10 +975,10 @@ export default function ComparePage() {
                                 <span key={idx} className="text-[10px] bg-green-900/50 text-green-300 px-2 py-0.5 rounded">{reg}</span>
                               ))}
                               {getRegulation(item).length > 2 && (
-                                <span className="text-[10px] text-zinc-500">+{getRegulation(item).length - 2}</span>
+                                <span className="text-[10px] text-[var(--ip-text-2)]">+{getRegulation(item).length - 2}</span>
                               )}
                               {getRegulation(item).length === 0 && (
-                                <span className="text-[10px] text-zinc-500">N/A</span>
+                                <span className="text-[10px] text-[var(--ip-text-2)]">N/A</span>
                               )}
                             </div>
                           </td>
@@ -986,14 +986,14 @@ export default function ComparePage() {
                       </tr>
                       
                       {/* Country */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
                           <Globe size={14} className="text-blue-400" />
                           Country
                         </td>
                         {selectedItems.map((item) => (
                           <td key={`country-${item.id}`} className="p-4 text-center">
-                            <span className="text-white">{item.country || 'International'}</span>
+                            <span className="text-[var(--ip-text)]">{item.country || 'International'}</span>
                           </td>
                         ))}
                       </tr>
@@ -1004,31 +1004,31 @@ export default function ComparePage() {
                   {selectedType === 'prop-firms' && (
                     <>
                       {/* Rating */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
                           <Star size={14} className="text-yellow-500" />
                           Rating
                         </td>
                         {selectedItems.map((item) => (
                           <td key={`rating-${item.id}`} className="p-4 text-center">
                             <div className="flex items-center justify-center gap-1">
-                              <span className="text-white font-medium">{item.avgRating?.toFixed(1) || '0.0'}</span>
-                              <span className="text-xs text-zinc-500">({item.reviewCount || 0})</span>
+                              <span className="text-[var(--ip-text)] font-medium">{item.avgRating?.toFixed(1) || '0.0'}</span>
+                              <span className="text-xs text-[var(--ip-text-2)]">({item.reviewCount || 0})</span>
                             </div>
                           </td>
                         ))}
                       </tr>
                       
                       {/* Trust Score */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
-                          <Shield size={14} className="text-purple-500" />
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
+                          <Shield size={14} className="text-blue-500" />
                           Trust Score
                         </td>
                         {selectedItems.map((item) => (
                           <td key={`trust-${item.id}`} className="p-4 text-center">
                             <div className="flex items-center justify-center gap-1">
-                              <span className="text-white font-medium">{item.trustScore || 0}</span>
+                              <span className="text-[var(--ip-text)] font-medium">{item.trustScore || 0}</span>
                               <TrustScoreBadge score={item.trustScore || 0} size="sm" showLabel={false} />
                             </div>
                           </td>
@@ -1036,60 +1036,60 @@ export default function ComparePage() {
                       </tr>
                       
                       {/* Trading Conditions */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
                           <Activity size={14} className="text-orange-500" />
                           Trading Conditions
                         </td>
                         {selectedItems.map((item) => (
                           <td key={`trading-${item.id}`} className="p-4 text-center">
-                            <span className="text-white font-medium">{item.avgTradingConditions?.toFixed(1) || '0.0'}/5</span>
+                            <span className="text-[var(--ip-text)] font-medium">{item.avgTradingConditions?.toFixed(1) || '0.0'}/5</span>
                           </td>
                         ))}
                       </tr>
                       
                       {/* Customer Care */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
-                          <Headphones size={14} className="text-purple-500" />
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
+                          <Headphones size={14} className="text-blue-500" />
                           Customer Care
                         </td>
                         {selectedItems.map((item) => (
                           <td key={`support-${item.id}`} className="p-4 text-center">
-                            <span className="text-white font-medium">{item.avgCustomerCare?.toFixed(1) || '0.0'}/5</span>
+                            <span className="text-[var(--ip-text)] font-medium">{item.avgCustomerCare?.toFixed(1) || '0.0'}/5</span>
                           </td>
                         ))}
                       </tr>
                       
                       {/* Max Payout */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
                           <Percent size={14} className="text-green-500" />
                           Max Payout
                         </td>
                         {selectedItems.map((item) => (
                           <td key={`payout-${item.id}`} className="p-4 text-center">
-                            <span className="text-white font-bold">{getMaxPayout(item)}%</span>
+                            <span className="text-[var(--ip-text)] font-bold">{getMaxPayout(item)}%</span>
                           </td>
                         ))}
                       </tr>
                       
                       {/* Payout Speed */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
                           <Clock size={14} className="text-cyan-500" />
                           Payout Speed
                         </td>
                         {selectedItems.map((item) => (
                           <td key={`payout-speed-${item.id}`} className="p-4 text-center">
-                            <span className="text-white">{getPayoutSpeed(item)}</span>
+                            <span className="text-[var(--ip-text)]">{getPayoutSpeed(item)}</span>
                           </td>
                         ))}
                       </tr>
                       
                       {/* Platforms */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
                           <Layers size={14} className="text-cyan-500" />
                           Platforms
                         </td>
@@ -1097,10 +1097,10 @@ export default function ComparePage() {
                           <td key={`platforms-${item.id}`} className="p-4 text-center">
                             <div className="flex flex-wrap gap-1 justify-center">
                               {getPlatforms(item).slice(0, 3).map((p: string, idx: number) => (
-                                <span key={idx} className="text-[10px] bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded">{p}</span>
+                                <span key={idx} className="text-[10px] bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] px-2 py-0.5 rounded">{p}</span>
                               ))}
                               {getPlatforms(item).length > 3 && (
-                                <span className="text-[10px] text-zinc-500">+{getPlatforms(item).length - 3}</span>
+                                <span className="text-[10px] text-[var(--ip-text-2)]">+{getPlatforms(item).length - 3}</span>
                               )}
                             </div>
                           </td>
@@ -1108,8 +1108,8 @@ export default function ComparePage() {
                       </tr>
                       
                       {/* Account Options */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
                           <Wallet size={14} className="text-emerald-500" />
                           Account Options
                         </td>
@@ -1120,23 +1120,23 @@ export default function ComparePage() {
                           return (
                             <td key={`costs-${item.id}`} className="p-4">
                               <div className="space-y-2">
-                                {displayOptions.map((acc, idx) => (
-                                  <div key={idx} className="bg-zinc-800/30 rounded-lg p-2 text-center">
-                                    <div className="text-white font-bold text-sm">${acc.size.toLocaleString()}</div>
+                                {displayOptions.map((acc: {name?:string;minDeposit?:number;commission?:string;spreadType?:string;swapFree?:boolean;size:number;price:number;payout?:number}, idx: number) => (
+                                  <div key={idx} className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+                                    <div className="text-[var(--ip-text)] font-bold text-sm">${acc.size.toLocaleString()}</div>
                                     <div className="text-green-400 text-xs">${acc.price.toLocaleString()}</div>
-                                    <div className="text-zinc-500 text-[10px]">{acc.payout}%</div>
+                                    <div className="text-[var(--ip-text-2)] text-[10px]">{acc.payout}%</div>
                                   </div>
                                 ))}
                                 {accountOptions.length > 2 && (
                                   <button
                                     onClick={() => setExpandedProgram(expandedProgram === item.id ? null : item.id)}
-                                    className="text-xs text-purple-400 hover:text-purple-300 w-full text-center py-1"
+                                    className="text-xs text-blue-400 hover:text-blue-300 w-full text-center py-1"
                                   >
                                     {showMore ? 'Show less' : `+${accountOptions.length - 2} more`}
                                   </button>
                                 )}
                                 {accountOptions.length === 0 && (
-                                  <span className="text-zinc-500 text-xs">N/A</span>
+                                  <span className="text-[var(--ip-text-2)] text-xs">N/A</span>
                                 )}
                               </div>
                             </td>
@@ -1145,27 +1145,27 @@ export default function ComparePage() {
                       </tr>
                       
                       {/* Min Account */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
                           <BadgeDollarSign size={14} className="text-blue-500" />
                           Min Account
                         </td>
                         {selectedItems.map((item) => (
                           <td key={`min-account-${item.id}`} className="p-4 text-center">
-                            <span className="text-white font-bold">${getMinAccountSize(item).toLocaleString()}</span>
+                            <span className="text-[var(--ip-text)] font-bold">${getMinAccountSize(item).toLocaleString()}</span>
                           </td>
                         ))}
                       </tr>
                       
                       {/* Country */}
-                      <tr className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="p-4 text-zinc-400 font-medium flex items-center gap-2">
+                      <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
+                        <td className="p-4 text-[var(--ip-text-2)] font-medium flex items-center gap-2">
                           <Globe size={14} className="text-blue-400" />
                           Country
                         </td>
                         {selectedItems.map((item) => (
                           <td key={`country-${item.id}`} className="p-4 text-center">
-                            <span className="text-white">{item.country || 'International'}</span>
+                            <span className="text-[var(--ip-text)]">{item.country || 'International'}</span>
                           </td>
                         ))}
                       </tr>
@@ -1178,14 +1178,14 @@ export default function ComparePage() {
           
           {/* Quick Insights */}
           {selectedItems.length >= 2 && (
-            <div className="mt-6 p-4 bg-gradient-to-r from-purple-500/5 to-pink-500/5 rounded-xl border border-purple-500/20">
+            <div className="mt-6 p-4 bg-gradient-to-r from-blue-500/5 to-pink-500/5 rounded-xl border border-blue-500/20">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <Award className="w-4 h-4 text-purple-400" />
+                <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                  <Award className="w-4 h-4 text-blue-400" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs text-zinc-400">Quick Insights</p>
-                  <p className="text-sm text-white">
+                  <p className="text-xs text-[var(--ip-text-2)]">Quick Insights</p>
+                  <p className="text-sm text-[var(--ip-text)]">
                     {(() => {
                       const highestRated = [...selectedItems].sort((a, b) => (b.avgRating || 0) - (a.avgRating || 0))[0];
                       const bestSupport = [...selectedItems].sort((a, b) => 
@@ -1207,14 +1207,14 @@ export default function ComparePage() {
       {selectedItems.length === 0 && (
         <div className="max-w-7xl mx-auto px-6 py-20 text-center">
           <div className="max-w-md mx-auto">
-            <div className="w-20 h-20 rounded-full bg-zinc-800/50 flex items-center justify-center mx-auto mb-4">
-              <GitCompare className="w-10 h-10 text-zinc-500" />
+            <div className="w-20 h-20 rounded-full bg-[var(--ip-surface-2)] flex items-center justify-center mx-auto mb-4">
+              <GitCompare className="w-10 h-10 text-[var(--ip-text-2)]" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">No Platforms Selected</h3>
-            <p className="text-zinc-400 text-sm mb-6">
+            <h3 className="text-xl font-semibold text-[var(--ip-text)] mb-2">No Platforms Selected</h3>
+            <p className="text-[var(--ip-text-2)] text-sm mb-6">
               Search and select up to 4 {selectedType === 'brokers' ? 'brokers' : 'prop firms'} to compare their features side by side.
             </p>
-            <div className="grid grid-cols-3 gap-4 text-xs text-zinc-500">
+            <div className="grid grid-cols-3 gap-4 text-xs text-[var(--ip-text-2)]">
               <div>1. Search</div>
               <div>2. Select platforms</div>
               <div>3. Compare features</div>
@@ -1224,7 +1224,7 @@ export default function ComparePage() {
       )}
 
       {/* Footer */}
-      <div className="border-t border-zinc-800/50 py-6 px-6 mt-8">
+      <div className="border-t border-[var(--ip-border)] py-6 px-6 mt-8">
         <div className="max-w-7xl mx-auto text-center">
           <p className="text-xs text-zinc-600">Data is community-reported and verified. Compare up to 4 platforms side by side.</p>
         </div>

@@ -1,3 +1,4 @@
+import {sessionSecret} from '@/lib/session-secret';
 // app/api/user/profile/route.ts - UPDATED WITH REGION
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -14,7 +15,7 @@ async function getUserFromToken(request: NextRequest) {
   if (!token) return null;
   
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "development-secret-key-12345") as { userId: string };
+    const decoded = jwt.verify(token, sessionSecret()) as { userId: string };
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: { id: true, email: true, name: true, role: true, avatar: true, region: true, createdAt: true, password: true }

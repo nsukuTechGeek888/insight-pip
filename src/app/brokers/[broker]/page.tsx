@@ -18,8 +18,8 @@ const MobileBrokerDetail = dynamic(
   { 
     ssr: false,
     loading: () => (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
       </div>
     )
   }
@@ -158,10 +158,10 @@ export default function BrokerDetailPage() {
 
   if (!mounted || loading || regionLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
-          <p className="mt-4 text-zinc-500">Loading broker details...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-[var(--ip-text-2)]">Loading broker details...</p>
         </div>
       </div>
     );
@@ -170,7 +170,7 @@ export default function BrokerDetailPage() {
   // Show Not Available page
   if (notAvailable) {
     return (
-      <div className="min-h-screen bg-black pt-20">
+      <div className="min-h-screen bg-[var(--ip-bg)] pt-20">
         <NotAvailableInRegion
           entityName={brokerSlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
           entityType="broker"
@@ -186,13 +186,13 @@ export default function BrokerDetailPage() {
 
   if (!broker) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-2">Broker not found</h1>
-          <p className="text-zinc-400 mb-4">The broker you're looking for doesn't exist.</p>
+          <h1 className="text-2xl font-bold text-[var(--ip-text)] mb-2">Broker not found</h1>
+          <p className="text-[var(--ip-text-2)] mb-4">The broker you're looking for doesn't exist.</p>
           <button
             onClick={() => router.push('/brokers')}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500"
+            className="px-4 py-2 bg-blue-600 text-[var(--ip-text)] rounded-lg hover:bg-blue-500"
           >
             Browse Brokers
           </button>

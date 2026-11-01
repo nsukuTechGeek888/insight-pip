@@ -1,3 +1,4 @@
+import {sessionSecret} from '@/lib/session-secret';
 // app/api/auth/login/route.ts - UPDATED WITH REGION
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
         role: user.role,
         region: userRegion,
       },
-      process.env.JWT_SECRET || "development-secret-key-12345",
+      sessionSecret(),
       { expiresIn: '7d' }
     )
     

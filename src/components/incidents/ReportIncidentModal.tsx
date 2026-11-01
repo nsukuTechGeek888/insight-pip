@@ -186,27 +186,27 @@ export default function ReportIncidentModal({
           initial={{ scale: 0.9, y: 20 }}
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.9, y: 20 }}
-          className="relative w-full max-w-2xl bg-gradient-to-br from-zinc-900 to-zinc-800 rounded-2xl border border-zinc-700 shadow-2xl overflow-hidden"
+          className="relative w-full max-w-2xl bg-gradient-to-br from-zinc-900 to-zinc-800 rounded-2xl border border-[var(--ip-border)] shadow-2xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-zinc-800">
+          <div className="flex items-center justify-between p-6 border-b border-[var(--ip-border)]">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-red-500/20 rounded-xl">
                 <AlertTriangle className="w-5 h-5 text-red-400" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">Report Incident</h2>
-                <p className="text-sm text-zinc-400">
+                <h2 className="text-xl font-bold text-[var(--ip-text)]">Report Incident</h2>
+                <p className="text-sm text-[var(--ip-text-2)]">
                   Help the community by reporting issues with {entityName}
                 </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-zinc-800 transition-colors"
+              className="p-2 rounded-lg hover:bg-[var(--ip-surface-2)] transition-colors"
             >
-              <X className="w-5 h-5 text-zinc-400" />
+              <X className="w-5 h-5 text-[var(--ip-text-2)]" />
             </button>
           </div>
 
@@ -227,18 +227,18 @@ export default function ReportIncidentModal({
                 <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Check className="w-8 h-8 text-green-400" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">Incident Reported!</h3>
-                <p className="text-zinc-400">
+                <h3 className="text-xl font-bold text-[var(--ip-text)] mb-2">Incident Reported!</h3>
+                <p className="text-[var(--ip-text-2)]">
                   Thank you for helping the community. Your report will be reviewed shortly.
                 </p>
               </div>
             ) : step === 'select' ? (
               <div>
-                <p className="text-zinc-300 mb-4">What type of incident are you reporting?</p>
+                <p className="text-[var(--ip-text-2)] mb-4">What type of incident are you reporting?</p>
                 <div className="space-y-4">
                   {categories.map(category => (
                     <div key={category}>
-                      <h3 className="text-sm font-semibold text-zinc-400 mb-2 capitalize">
+                      <h3 className="text-sm font-semibold text-[var(--ip-text-2)] mb-2 capitalize">
                         {category} Issues
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -249,12 +249,12 @@ export default function ReportIncidentModal({
                               setSelectedType(type);
                               setStep('details');
                             }}
-                            className="flex items-center gap-3 p-3 rounded-xl bg-zinc-800/50 border border-zinc-700 hover:border-zinc-600 transition-all text-left group"
+                            className="flex items-center gap-3 p-3 rounded-xl bg-[var(--ip-surface-2)] border border-[var(--ip-border)] hover:border-zinc-600 transition-all text-left group"
                           >
                             <span className="text-xl">{type.icon}</span>
                             <div className="flex-1">
-                              <div className="font-medium text-white text-sm">{type.displayName}</div>
-                              <div className="text-xs text-zinc-400">{type.description}</div>
+                              <div className="font-medium text-[var(--ip-text)] text-sm">{type.displayName}</div>
+                              <div className="text-xs text-[var(--ip-text-2)]">{type.description}</div>
                             </div>
                           </button>
                         ))}
@@ -266,17 +266,17 @@ export default function ReportIncidentModal({
             ) : step === 'details' ? (
               <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Selected Incident Type */}
-                <div className="p-3 bg-zinc-800/50 rounded-xl border border-zinc-700">
+                <div className="p-3 bg-[var(--ip-surface-2)] rounded-xl border border-[var(--ip-border)]">
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">{selectedType?.icon}</span>
                     <div>
-                      <div className="font-medium text-white">{selectedType?.displayName}</div>
-                      <div className="text-xs text-zinc-400">{selectedType?.description}</div>
+                      <div className="font-medium text-[var(--ip-text)]">{selectedType?.displayName}</div>
+                      <div className="text-xs text-[var(--ip-text-2)]">{selectedType?.description}</div>
                     </div>
                     <button
                       type="button"
                       onClick={() => setStep('select')}
-                      className="ml-auto text-xs text-purple-400 hover:underline"
+                      className="ml-auto text-xs text-blue-400 hover:underline"
                     >
                       Change
                     </button>
@@ -285,7 +285,7 @@ export default function ReportIncidentModal({
 
                 {/* Title */}
                 <div>
-                  <label className="block text-sm font-medium text-zinc-300 mb-2">
+                  <label className="block text-sm font-medium text-[var(--ip-text-2)] mb-2">
                     Title *
                   </label>
                   <input
@@ -293,14 +293,14 @@ export default function ReportIncidentModal({
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="Brief summary of the issue"
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500"
+                    className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-4 py-3 text-[var(--ip-text)] placeholder-zinc-500 focus:outline-none focus:border-blue-500"
                     required
                   />
                 </div>
 
                 {/* Description */}
                 <div>
-                  <label className="block text-sm font-medium text-zinc-300 mb-2">
+                  <label className="block text-sm font-medium text-[var(--ip-text-2)] mb-2">
                     Description *
                   </label>
                   <textarea
@@ -308,21 +308,21 @@ export default function ReportIncidentModal({
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="Please provide as much detail as possible..."
                     rows={4}
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 resize-none"
+                    className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-4 py-3 text-[var(--ip-text)] placeholder-zinc-500 focus:outline-none focus:border-blue-500 resize-none"
                     required
                   />
                 </div>
 
                 {/* Incident Date */}
                 <div>
-                  <label className="block text-sm font-medium text-zinc-300 mb-2">
+                  <label className="block text-sm font-medium text-[var(--ip-text-2)] mb-2">
                     When did this happen? *
                   </label>
                   <input
                     type="date"
                     value={formData.incidentDate}
                     onChange={(e) => setFormData({ ...formData, incidentDate: e.target.value })}
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-4 py-3 text-[var(--ip-text)] focus:outline-none focus:border-blue-500"
                     required
                   />
                 </div>
@@ -331,28 +331,28 @@ export default function ReportIncidentModal({
                 {selectedType?.id.includes('WITHDRAWAL') && (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-zinc-300 mb-2">
+                      <label className="block text-sm font-medium text-[var(--ip-text-2)] mb-2">
                         Amount
                       </label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                        <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[var(--ip-text-2)]" />
                         <input
                           type="number"
                           value={formData.withdrawalAmount}
                           onChange={(e) => setFormData({ ...formData, withdrawalAmount: e.target.value })}
                           placeholder="0.00"
-                          className="w-full bg-zinc-800 border border-zinc-700 rounded-xl pl-10 pr-4 py-3 text-white focus:outline-none focus:border-purple-500"
+                          className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl pl-10 pr-4 py-3 text-[var(--ip-text)] focus:outline-none focus:border-blue-500"
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-zinc-300 mb-2">
+                      <label className="block text-sm font-medium text-[var(--ip-text-2)] mb-2">
                         Method
                       </label>
                       <select
                         value={formData.withdrawalMethod}
                         onChange={(e) => setFormData({ ...formData, withdrawalMethod: e.target.value })}
-                        className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500"
+                        className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-4 py-3 text-[var(--ip-text)] focus:outline-none focus:border-blue-500"
                       >
                         <option value="">Select method</option>
                         <option value="Bank Transfer">Bank Transfer</option>
@@ -367,10 +367,10 @@ export default function ReportIncidentModal({
 
                 {/* Proof Upload */}
                 <div>
-                  <label className="block text-sm font-medium text-zinc-300 mb-2">
+                  <label className="block text-sm font-medium text-[var(--ip-text-2)] mb-2">
                     Upload Proof (Optional)
                   </label>
-                  <div className="border-2 border-dashed border-zinc-700 rounded-xl p-4 text-center">
+                  <div className="border-2 border-dashed border-[var(--ip-border)] rounded-xl p-4 text-center">
                     <input
                       type="file"
                       ref={fileInputRef}
@@ -382,14 +382,14 @@ export default function ReportIncidentModal({
                     
                     {formData.proofFiles.length === 0 ? (
                       <div className="space-y-3">
-                        <Upload className="w-10 h-10 text-zinc-500 mx-auto" />
-                        <p className="text-zinc-400 text-sm">
+                        <Upload className="w-10 h-10 text-[var(--ip-text-2)] mx-auto" />
+                        <p className="text-[var(--ip-text-2)] text-sm">
                           Drag files here or click to upload
                         </p>
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="px-4 py-2 text-sm bg-zinc-800 rounded-lg text-white hover:bg-zinc-700 transition-colors"
+                          className="px-4 py-2 text-sm bg-[var(--ip-surface-2)] rounded-lg text-[var(--ip-text)] hover:bg-zinc-700 transition-colors"
                         >
                           Select Files
                         </button>
@@ -397,8 +397,8 @@ export default function ReportIncidentModal({
                     ) : (
                       <div className="space-y-2">
                         {formData.proofFiles.map((file, index) => (
-                          <div key={index} className="flex items-center justify-between bg-zinc-800 rounded-lg p-2">
-                            <span className="text-sm text-zinc-300 truncate">{file.name}</span>
+                          <div key={index} className="flex items-center justify-between bg-[var(--ip-surface-2)] rounded-lg p-2">
+                            <span className="text-sm text-[var(--ip-text-2)] truncate">{file.name}</span>
                             <button
                               type="button"
                               onClick={() => removeFile(index)}
@@ -411,13 +411,13 @@ export default function ReportIncidentModal({
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="text-sm text-purple-400 hover:underline"
+                          className="text-sm text-blue-400 hover:underline"
                         >
                           Add more files
                         </button>
                       </div>
                     )}
-                    <p className="text-xs text-zinc-500 mt-2">
+                    <p className="text-xs text-[var(--ip-text-2)] mt-2">
                       Screenshots of withdrawals, trade history, or account dashboard
                     </p>
                   </div>
@@ -435,17 +435,17 @@ export default function ReportIncidentModal({
                   <button
                     type="button"
                     onClick={() => setStep('select')}
-                    className="flex-1 px-4 py-3 bg-zinc-800 rounded-xl text-white font-medium hover:bg-zinc-700 transition-colors"
+                    className="flex-1 px-4 py-3 bg-[var(--ip-surface-2)] rounded-xl text-[var(--ip-text)] font-medium hover:bg-zinc-700 transition-colors"
                   >
                     Back
                   </button>
                   <button
                     type="submit"
                     disabled={loading || remainingReports === 0}
-                    className={`flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-medium flex items-center justify-center gap-2 transition-all ${
+                    className={`flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-pink-600 rounded-xl text-[var(--ip-text)] font-medium flex items-center justify-center gap-2 transition-all ${
                       loading || remainingReports === 0
                         ? 'opacity-50 cursor-not-allowed'
-                        : 'hover:from-purple-500 hover:to-pink-500'
+                        : 'hover:from-blue-500 hover:to-pink-500'
                     }`}
                   >
                     {loading ? (

@@ -290,12 +290,12 @@ export default function DesktopSignUpPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[var(--ip-bg)] text-[var(--ip-text)]">
       {/* ✅ Region Banner */}
-      <div className="bg-zinc-900/50 border-b border-zinc-800 px-4 py-2 text-center">
-        <p className="text-xs text-zinc-400">
-          You are signing up from <span className="text-white font-medium">{regionInfo.flag} {regionInfo.label}</span>
-          {' '}<span className="text-zinc-500">•</span>{' '}
+      <div className="bg-[var(--ip-surface)] border-b border-[var(--ip-border)] px-4 py-2 text-center">
+        <p className="text-xs text-[var(--ip-text-2)]">
+          You are signing up from <span className="text-[var(--ip-text)] font-medium">{regionInfo.flag} {regionInfo.label}</span>
+          {' '}<span className="text-[var(--ip-text-2)]">•</span>{' '}
           <button
             onClick={() => {
               const regionSelector = document.querySelector('[data-region-selector]');
@@ -303,7 +303,7 @@ export default function DesktopSignUpPage() {
                 (regionSelector as HTMLElement).click();
               }
             }}
-            className="text-purple-400 hover:text-purple-300 transition-colors"
+            className="text-blue-400 hover:text-blue-300 transition-colors"
           >
             Change region
           </button>
@@ -315,10 +315,10 @@ export default function DesktopSignUpPage() {
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="relative bg-gradient-to-br from-purple-900 via-blue-900 to-zinc-900 text-white py-16 px-6 text-center rounded-b-3xl shadow-lg border-b border-zinc-800 overflow-hidden"
+        className="relative bg-gradient-to-br from-blue-900 via-blue-900 to-zinc-900 text-[var(--ip-text)] py-16 px-6 text-center rounded-b-3xl shadow-lg border-b border-[var(--ip-border)] overflow-hidden"
       >
         <div className="absolute inset-0 bg-black/40"></div>
-        <div className="absolute top-0 left-0 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute top-0 left-0 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
         
         <div className="relative z-10 max-w-4xl mx-auto">
@@ -332,22 +332,22 @@ export default function DesktopSignUpPage() {
             Join the Community in {regionInfo.flag} {regionInfo.label}
           </motion.div>
 
-          <h1 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <h1 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-blue-400 to-pink-400 bg-clip-text text-transparent">
             Create Account
           </h1>
-          <p className="text-xl sm:text-2xl max-w-2xl mx-auto mb-8 text-zinc-300">
+          <p className="text-xl sm:text-2xl max-w-2xl mx-auto mb-8 text-[var(--ip-text-2)]">
             Start your journey to smarter trading decisions today in {regionInfo.flag} {regionInfo.label}.
           </p>
         </div>
       </motion.section>
 
       {/* Stats Section */}
-      <section className="py-12 bg-zinc-900 border-b border-zinc-800">
+      <section className="py-12 bg-[var(--ip-surface)] border-b border-[var(--ip-border)]">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { number: "10K+", label: "Active Traders", icon: Users, color: "text-blue-400" },
-              { number: "50+", label: "Platforms Tracked", icon: BarChart3, color: "text-purple-400" },
+              { number: "50+", label: "Platforms Tracked", icon: BarChart3, color: "text-blue-400" },
               { number: "4.8/5", label: "Satisfaction Rate", icon: Star, color: "text-yellow-400" },
               { number: "24/7", label: "Secure Access", icon: Shield, color: "text-green-400" }
             ].map((stat, index) => (
@@ -356,11 +356,11 @@ export default function DesktopSignUpPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + index * 0.1 }}
-                className="text-center p-6 bg-zinc-800/50 rounded-xl border border-zinc-700 hover:border-zinc-600 transition-all duration-300"
+                className="text-center p-6 bg-[var(--ip-surface-2)] rounded-xl border border-[var(--ip-border)] hover:border-zinc-600 transition-all duration-300"
               >
                 <stat.icon className={`w-8 h-8 ${stat.color} mx-auto mb-4`} />
-                <div className="text-3xl font-bold text-white mb-2">{stat.number}</div>
-                <div className="text-zinc-400">{stat.label}</div>
+                <div className="text-3xl font-bold text-[var(--ip-text)] mb-2">{stat.number}</div>
+                <div className="text-[var(--ip-text-2)]">{stat.label}</div>
               </motion.div>
             ))}
           </div>
@@ -376,12 +376,12 @@ export default function DesktopSignUpPage() {
             transition={{ delay: 0.3 }}
             className="w-full"
           >
-            <div className="bg-zinc-900 rounded-2xl p-8 border border-zinc-700 shadow-xl">
+            <div className="bg-[var(--ip-surface)] rounded-2xl p-8 border border-[var(--ip-border)] shadow-xl">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-white mb-2">
+                <h2 className="text-3xl font-bold text-[var(--ip-text)] mb-2">
                   Get Started Free
                 </h2>
-                <p className="text-zinc-400">
+                <p className="text-[var(--ip-text-2)]">
                   Create your account in less than 2 minutes from {regionInfo.flag} {regionInfo.label}
                 </p>
               </div>
@@ -396,12 +396,12 @@ export default function DesktopSignUpPage() {
                     className="text-center py-8"
                   >
                     <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <Check className="text-white" size={32} />
+                      <Check className="text-[var(--ip-text)]" size={32} />
                     </div>
-                    <h3 className="text-2xl font-bold text-white mb-4">
+                    <h3 className="text-2xl font-bold text-[var(--ip-text)] mb-4">
                       Welcome to Insight Pip!
                     </h3>
-                    <p className="text-zinc-300 mb-6">
+                    <p className="text-[var(--ip-text-2)] mb-6">
                       Your account has been created successfully in {regionInfo.flag} {regionInfo.label}.
                     </p>
                     <div className="flex items-center justify-center gap-2 text-blue-400">
@@ -433,7 +433,7 @@ export default function DesktopSignUpPage() {
 
                     {/* Full Name */}
                     <div>
-                      <label className="block mb-2 font-semibold text-white flex items-center gap-2">
+                      <label className="block mb-2 font-semibold text-[var(--ip-text)] flex items-center gap-2">
                         <User className="w-4 h-4 text-blue-400" />
                         Full Name
                       </label>
@@ -444,7 +444,7 @@ export default function DesktopSignUpPage() {
                         onChange={handleChange}
                         placeholder="Enter your full name"
                         disabled={isLoading}
-                        className={`w-full bg-zinc-800 border-zinc-700 text-white rounded-xl h-12 ${
+                        className={`w-full bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] rounded-xl h-12 ${
                           errors.fullName ? 'border-red-500' : 'hover:border-zinc-600'
                         } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                       />
@@ -462,8 +462,8 @@ export default function DesktopSignUpPage() {
 
                     {/* Email */}
                     <div>
-                      <label className="block mb-2 font-semibold text-white flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-purple-400" />
+                      <label className="block mb-2 font-semibold text-[var(--ip-text)] flex items-center gap-2">
+                        <Mail className="w-4 h-4 text-blue-400" />
                         Email Address
                       </label>
                       <Input
@@ -473,7 +473,7 @@ export default function DesktopSignUpPage() {
                         onChange={handleChange}
                         placeholder="you@example.com"
                         disabled={isLoading}
-                        className={`w-full bg-zinc-800 border-zinc-700 text-white rounded-xl h-12 ${
+                        className={`w-full bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] rounded-xl h-12 ${
                           errors.email ? 'border-red-500' : 'hover:border-zinc-600'
                         } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                       />
@@ -491,7 +491,7 @@ export default function DesktopSignUpPage() {
 
                     {/* Password */}
                     <div>
-                      <label className="block mb-2 font-semibold text-white flex items-center gap-2">
+                      <label className="block mb-2 font-semibold text-[var(--ip-text)] flex items-center gap-2">
                         <Lock className="w-4 h-4 text-green-400" />
                         Password
                       </label>
@@ -503,7 +503,7 @@ export default function DesktopSignUpPage() {
                           onChange={handleChange}
                           placeholder="Create a strong password"
                           disabled={isLoading}
-                          className={`w-full bg-zinc-800 border-zinc-700 text-white rounded-xl h-12 pr-10 ${
+                          className={`w-full bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] rounded-xl h-12 pr-10 ${
                             errors.password ? 'border-red-500' : 'hover:border-zinc-600'
                           } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         />
@@ -511,7 +511,7 @@ export default function DesktopSignUpPage() {
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
                           disabled={isLoading}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-400 hover:text-white transition-colors disabled:opacity-50"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors disabled:opacity-50"
                         >
                           {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                         </button>
@@ -525,7 +525,7 @@ export default function DesktopSignUpPage() {
                           className="mt-3"
                         >
                           <div className="flex items-center justify-between text-sm mb-2">
-                            <span className="text-zinc-400">Password strength</span>
+                            <span className="text-[var(--ip-text-2)]">Password strength</span>
                             <span className={`font-medium ${
                               passwordStrength.strength >= 4 ? 'text-green-400' :
                               passwordStrength.strength >= 3 ? 'text-blue-400' :
@@ -558,7 +558,7 @@ export default function DesktopSignUpPage() {
 
                     {/* Confirm Password */}
                     <div>
-                      <label className="block mb-2 font-semibold text-white">
+                      <label className="block mb-2 font-semibold text-[var(--ip-text)]">
                         Confirm Password
                       </label>
                       <div className="relative">
@@ -569,7 +569,7 @@ export default function DesktopSignUpPage() {
                           onChange={handleChange}
                           placeholder="Confirm your password"
                           disabled={isLoading}
-                          className={`w-full bg-zinc-800 border-zinc-700 text-white rounded-xl h-12 pr-10 ${
+                          className={`w-full bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] rounded-xl h-12 pr-10 ${
                             errors.confirmPassword ? 'border-red-500' : 'hover:border-zinc-600'
                           } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         />
@@ -577,7 +577,7 @@ export default function DesktopSignUpPage() {
                           type="button"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                           disabled={isLoading}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-400 hover:text-white transition-colors disabled:opacity-50"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors disabled:opacity-50"
                         >
                           {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                         </button>
@@ -595,22 +595,22 @@ export default function DesktopSignUpPage() {
                     </div>
 
                     {/* Terms Agreement */}
-                    <div className="flex items-start gap-3 p-4 bg-zinc-800/50 rounded-xl">
+                    <div className="flex items-start gap-3 p-4 bg-[var(--ip-surface-2)] rounded-xl">
                       <input
                         type="checkbox"
                         id="terms"
                         checked={agreeTerms}
                         onChange={(e) => setAgreeTerms(e.target.checked)}
                         disabled={isLoading}
-                        className="mt-1 w-4 h-4 text-purple-600 bg-zinc-700 border-zinc-600 rounded focus:ring-purple-500 focus:ring-2 disabled:opacity-50"
+                        className="mt-1 w-4 h-4 text-blue-600 bg-zinc-700 border-zinc-600 rounded focus:ring-blue-500 focus:ring-2 disabled:opacity-50"
                       />
-                      <label htmlFor="terms" className="text-sm text-zinc-300">
+                      <label htmlFor="terms" className="text-sm text-[var(--ip-text-2)]">
                         I agree to the{' '}
-                        <Link href="/terms" className="text-purple-400 hover:text-purple-300 underline">
+                        <Link href="/terms" className="text-blue-400 hover:text-blue-300 underline">
                           Terms of Service
                         </Link>{' '}
                         and{' '}
-                        <Link href="/privacy" className="text-purple-400 hover:text-purple-300 underline">
+                        <Link href="/privacy" className="text-blue-400 hover:text-blue-300 underline">
                           Privacy Policy
                         </Link>
                       </label>
@@ -620,7 +620,7 @@ export default function DesktopSignUpPage() {
                     <Button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-4 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:transform-none disabled:hover:scale-100"
+                      className="w-full bg-gradient-to-r from-blue-600 to-pink-600 hover:from-blue-500 hover:to-pink-500 text-[var(--ip-text)] font-bold py-4 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:transform-none disabled:hover:scale-100"
                     >
                       {isLoading ? (
                         <div className="flex items-center gap-2 justify-center">
@@ -636,11 +636,11 @@ export default function DesktopSignUpPage() {
                     </Button>
 
                     {/* Login Link */}
-                    <p className="text-center text-zinc-400">
+                    <p className="text-center text-[var(--ip-text-2)]">
                       Already have an account?{' '}
                       <Link 
                         href="/login" 
-                        className="text-purple-400 font-semibold hover:text-purple-300 transition-colors inline-flex items-center gap-1"
+                        className="text-blue-400 font-semibold hover:text-blue-300 transition-colors inline-flex items-center gap-1"
                       >
                         Sign in here
                         <ArrowRight className="w-4 h-4" />
@@ -660,8 +660,8 @@ export default function DesktopSignUpPage() {
             className="space-y-6"
           >
             {/* Features */}
-            <div className="bg-gradient-to-br from-purple-900/50 to-pink-900/50 rounded-2xl p-8 border border-purple-500/30">
-              <h3 className="text-2xl font-bold text-white mb-6 text-center">
+            <div className="bg-gradient-to-br from-blue-900/50 to-pink-900/50 rounded-2xl p-8 border border-blue-500/30">
+              <h3 className="text-2xl font-bold text-[var(--ip-text)] mb-6 text-center">
                 What You'll Get in {regionInfo.flag} {regionInfo.label}
               </h3>
               
@@ -672,14 +672,14 @@ export default function DesktopSignUpPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 + index * 0.1 }}
-                    className="flex items-start gap-4 p-4 bg-zinc-800/30 rounded-xl hover:bg-zinc-800/50 transition-colors group"
+                    className="flex items-start gap-4 p-4 bg-[var(--ip-surface-2)] rounded-xl hover:bg-[var(--ip-surface-2)] transition-colors group"
                   >
-                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                      <feature.icon className="text-white" size={20} />
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                      <feature.icon className="text-[var(--ip-text)]" size={20} />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-white mb-1">{feature.title}</h4>
-                      <p className="text-zinc-400 text-sm">{feature.description}</p>
+                      <h4 className="font-semibold text-[var(--ip-text)] mb-1">{feature.title}</h4>
+                      <p className="text-[var(--ip-text-2)] text-sm">{feature.description}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -694,18 +694,18 @@ export default function DesktopSignUpPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 + index * 0.1 }}
-                  className="bg-zinc-900 rounded-2xl p-6 border border-zinc-700 hover:border-zinc-600 transition-colors"
+                  className="bg-[var(--ip-surface)] rounded-2xl p-6 border border-[var(--ip-border)] hover:border-zinc-600 transition-colors"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-500 rounded-full flex items-center justify-center text-[var(--ip-text)] font-bold">
                       {testimonial.avatar}
                     </div>
                     <div>
-                      <h4 className="font-semibold text-white">{testimonial.name}</h4>
-                      <p className="text-zinc-400 text-sm">{testimonial.role}</p>
+                      <h4 className="font-semibold text-[var(--ip-text)]">{testimonial.name}</h4>
+                      <p className="text-[var(--ip-text-2)] text-sm">{testimonial.role}</p>
                     </div>
                   </div>
-                  <p className="text-zinc-300 text-sm italic">
+                  <p className="text-[var(--ip-text-2)] text-sm italic">
                     "{testimonial.text}"
                   </p>
                 </motion.div>
@@ -715,8 +715,8 @@ export default function DesktopSignUpPage() {
             {/* Security Badge */}
             <div className="bg-gradient-to-br from-green-900/50 to-teal-900/50 rounded-2xl p-6 border border-green-500/30 text-center">
               <Shield className="w-12 h-12 text-green-400 mx-auto mb-3" />
-              <h4 className="font-semibold text-white mb-2">Bank-Level Security</h4>
-              <p className="text-zinc-400 text-sm">
+              <h4 className="font-semibold text-[var(--ip-text)] mb-2">Bank-Level Security</h4>
+              <p className="text-[var(--ip-text-2)] text-sm">
                 Your data is encrypted and protected with enterprise-grade security in {regionInfo.flag} {regionInfo.label}.
               </p>
             </div>

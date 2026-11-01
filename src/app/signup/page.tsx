@@ -22,8 +22,8 @@ export default function SignUpPage() {
   // Show loading while detecting
   if (isMobile === null) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-pulse text-white">Loading signup...</div>
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
+        <div className="animate-pulse text-[var(--ip-text)]">Loading signup...</div>
       </div>
     );
   }

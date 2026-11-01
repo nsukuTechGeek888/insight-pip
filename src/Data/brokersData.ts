@@ -8,7 +8,7 @@ export const brokersData = [
     founded: 2015,
     headquarters: "London, UK",
     website: "https://primefx.com",
-    
+
     // Account Information
     accountTypes: [
       {
@@ -35,7 +35,7 @@ export const brokersData = [
     ],
     demoAccount: true,
     demoAccountDuration: "30 days",
-    
+
     // Trading Conditions
     leverage: "1:200",
     minTradeSize: 0.01,
@@ -43,7 +43,7 @@ export const brokersData = [
     orderExecution: "Market Execution",
     marginCall: 100,
     stopOutLevel: 50,
-    
+
     // Spreads & Commissions
     spreads: {
       eurusd: "0.1 - 0.3",
@@ -58,13 +58,13 @@ export const brokersData = [
       ecn: "$2.5 per lot"
     },
     swapFree: true,
-    
+
     // Platforms & Tools
     platforms: ["MT4", "MT5", "cTrader", "WebTrader", "Mobile App"],
     mobileTrading: true,
     chartingTools: ["Advanced charts", "Technical indicators", "Drawing tools", "Market analysis"],
     tradingFeatures: ["One-click trading", "Expert Advisors", "Copy trading", "Hedging allowed"],
-    
+
     // Instruments
     instruments: {
       forex: 60,
@@ -74,14 +74,14 @@ export const brokersData = [
       cryptocurrencies: 25,
       etfs: 30
     },
-    
+
     // Deposits & Withdrawals
     depositMethods: ["Credit/Debit Card", "Bank Transfer", "Skrill", "Neteller", "Crypto"],
     withdrawalMethods: ["Credit/Debit Card", "Bank Transfer", "Skrill", "Neteller", "Crypto"],
     withdrawalProcessingTime: "1-3 business days",
     withdrawalFee: "No fee",
     minWithdrawal: 50,
-    
+
     // Bonuses & Promotions
     bonuses: [
       {
@@ -100,7 +100,7 @@ export const brokersData = [
       }
     ],
     promotions: ["Free VPS", "Trading contests", "Cashback program"],
-    
+
     // Customer Support
     support: {
       languages: ["English", "Spanish", "German", "Arabic", "Chinese"],
@@ -108,13 +108,13 @@ export const brokersData = [
       channels: ["Live Chat", "Email", "Phone", "WhatsApp"],
       responseTime: "Under 5 minutes (live chat)"
     },
-    
+
     // Education & Research
     education: {
       learningMaterials: ["Video tutorials", "Webinars", "E-books", "Courses"],
       researchTools: ["Daily market analysis", "Economic calendar", "Trading signals", "Market news"]
     },
-    
+
     // Regulation & Safety
     regulation: {
       authorities: ["FCA (UK)", "CySEC (Cyprus)", "ASIC (Australia)"],
@@ -122,7 +122,7 @@ export const brokersData = [
       negativeBalanceProtection: true,
       segregatedAccounts: true
     },
-    
+
     // Reviews & Ratings
     rating: 4.5,
     reviewsCount: 128,
@@ -133,13 +133,13 @@ export const brokersData = [
       withdrawalSpeed: 4.5,
       education: 4.4
     },
-    
+
     // Additional Info
     awards: ["Best Forex Broker 2022", "Most Innovative Platform 2021"],
     partnershipProgram: true,
     affiliateProgram: true,
     ibProgram: true,
-    
+
     // Special Features
     features: [
       "Negative balance protection",
@@ -148,10 +148,10 @@ export const brokersData = [
       "Copy trading platform",
       "Economic calendar integration"
     ],
-    
+
     // Target Audience
     suitableFor: ["Beginners", "Advanced traders", "Scalpers", "EA traders"],
-    
+
     // Additional Fields
     socialMedia: {
       twitter: "https://twitter.com/primefx",
@@ -159,7 +159,7 @@ export const brokersData = [
       youtube: "https://youtube.com/primefx",
       linkedin: "https://linkedin.com/company/primefx"
     },
-    
+
     // Original fields (maintained for backward compatibility)
     bonusOffer: "200% Deposit Bonus",
     bonus: "200% Deposit Bonus",
@@ -188,7 +188,7 @@ export const brokersData = [
     founded: 2012,
     headquarters: "Toronto, Canada",
     website: "https://eagletrade.com",
-    
+
     // Account Information
     accountTypes: [
       {
@@ -208,7 +208,7 @@ export const brokersData = [
     ],
     demoAccount: true,
     demoAccountDuration: "Unlimited",
-    
+
     // Trading Conditions
     leverage: "1:500",
     minTradeSize: 0.01,
@@ -216,27 +216,21 @@ export const brokersData = [
     orderExecution: "Instant Execution",
     marginCall: 80,
     stopOutLevel: 40,
-    
+
     // Spreads & Commissions
-    spreads: {
-      eurusd: "0.2 - 0.4",
-      gbpusd: "0.3 - 0.5",
-      usdjpy: "0.4 - 0.6",
-      xauusd: "1.0 - 1.5",
-      us30: "1.5 - 2.0"
-    },
+
     commissions: {
       basic: "No commission",
       advanced: "$2.5 per lot"
     },
     swapFree: true,
-    
+
     // Platforms & Tools
     platforms: ["MT4", "MT5", "TradingView", "WebTrader", "Mobile App"],
     mobileTrading: true,
     chartingTools: ["Basic charts", "Technical indicators", "Market analysis"],
     tradingFeatures: ["One-click trading", "Expert Advisors", "Hedging allowed"],
-    
+
     // Instruments
     instruments: {
       forex: 45,
@@ -246,14 +240,14 @@ export const brokersData = [
       cryptocurrencies: 15,
       etfs: 20
     },
-    
+
     // Deposits & Withdrawals
     depositMethods: ["Credit/Debit Card", "Bank Transfer", "Skrill", "Neteller"],
     withdrawalMethods: ["Credit/Debit Card", "Bank Transfer", "Skrill", "Neteller"],
     withdrawalProcessingTime: "1-5 business days",
     withdrawalFee: "$10 for bank transfer",
     minWithdrawal: 25,
-    
+
     // Bonuses & Promotions
     bonuses: [
       {
@@ -272,7 +266,7 @@ export const brokersData = [
       }
     ],
     promotions: ["Cashback program", "Trading contests"],
-    
+
     // Customer Support
     support: {
       languages: ["English", "French", "Spanish"],
@@ -280,13 +274,13 @@ export const brokersData = [
       channels: ["Live Chat", "Email", "Phone"],
       responseTime: "Under 10 minutes (live chat)"
     },
-    
+
     // Education & Research
     education: {
       learningMaterials: ["Video tutorials", "Webinars", "E-books"],
       researchTools: ["Market analysis", "Economic calendar", "Trading signals"]
     },
-    
+
     // Regulation & Safety
     regulation: {
       authorities: ["IIROC (Canada)"],
@@ -294,7 +288,7 @@ export const brokersData = [
       negativeBalanceProtection: true,
       segregatedAccounts: true
     },
-    
+
     // Reviews & Ratings
     rating: 4.6,
     reviewsCount: 94,
@@ -305,13 +299,13 @@ export const brokersData = [
       withdrawalSpeed: 4.5,
       education: 4.3
     },
-    
+
     // Additional Info
     awards: ["Best Customer Service 2022"],
     partnershipProgram: true,
     affiliateProgram: true,
     ibProgram: false,
-    
+
     // Special Features
     features: [
       "Negative balance protection",
@@ -319,17 +313,17 @@ export const brokersData = [
       "Competitive spreads",
       "Multiple account options"
     ],
-    
+
     // Target Audience
     suitableFor: ["Beginners", "Intermediate traders"],
-    
+
     // Additional Fields
     socialMedia: {
       twitter: "https://twitter.com/eagletrade",
       facebook: "https://facebook.com/eagletrade",
       youtube: "https://youtube.com/eagletrade"
     },
-    
+
     // Original fields (maintained for backward compatibility)
     bonusOffer: "$50 No Deposit Bonus",
     bonus: "$50 No Deposit Bonus",
@@ -363,7 +357,7 @@ export const brokersData = [
     founded: 2018,
     headquarters: "Sydney, Australia",
     website: "https://swiftmarkets.com",
-    
+
     // Account Information
     accountTypes: [
       {
@@ -390,7 +384,7 @@ export const brokersData = [
     ],
     demoAccount: true,
     demoAccountDuration: "90 days",
-    
+
     // Trading Conditions
     leverage: "1:500",
     minTradeSize: 0.01,
@@ -398,28 +392,22 @@ export const brokersData = [
     orderExecution: "Market Execution",
     marginCall: 100,
     stopOutLevel: 50,
-    
+
     // Spreads & Commissions
-    spreads: {
-      eurusd: "0.1 - 0.3",
-      gbpusd: "0.2 - 0.4",
-      usdjpy: "0.3 - 0.5",
-      xauusd: "0.7 - 1.0",
-      us30: "1.0 - 1.5"
-    },
+
     commissions: {
       standard: "No commission",
       ecn: "$2 per lot",
       vip: "$1.5 per lot"
     },
     swapFree: true,
-    
+
     // Platforms & Tools
     platforms: ["MT5", "cTrader", "WebTrader", "Mobile App", "TradingView"],
     mobileTrading: true,
     chartingTools: ["Advanced charts", "Technical indicators", "Drawing tools", "Market analysis", "Trading ideas"],
     tradingFeatures: ["One-click trading", "Expert Advisors", "Copy trading", "Hedging allowed", "Algorithmic trading"],
-    
+
     // Instruments
     instruments: {
       forex: 70,
@@ -430,14 +418,14 @@ export const brokersData = [
       etfs: 40,
       futures: 10
     },
-    
+
     // Deposits & Withdrawals
     depositMethods: ["Credit/Debit Card", "Bank Transfer", "Skrill", "Neteller", "Crypto", "PayPal"],
     withdrawalMethods: ["Credit/Debit Card", "Bank Transfer", "Skrill", "Neteller", "Crypto", "PayPal"],
     withdrawalProcessingTime: "1-2 business days",
     withdrawalFee: "No fee",
     minWithdrawal: 50,
-    
+
     // Bonuses & Promotions
     bonuses: [
       {
@@ -449,7 +437,7 @@ export const brokersData = [
       }
     ],
     promotions: ["Free VPS for ECN accounts", "Trading contests", "Cashback program", "Referral program"],
-    
+
     // Customer Support
     support: {
       languages: ["English", "Spanish", "German", "French", "Arabic", "Chinese"],
@@ -457,13 +445,13 @@ export const brokersData = [
       channels: ["Live Chat", "Email", "Phone", "WhatsApp", "Telegram"],
       responseTime: "Under 3 minutes (live chat)"
     },
-    
+
     // Education & Research
     education: {
       learningMaterials: ["Video tutorials", "Webinars", "E-books", "Courses", "Trading guides"],
       researchTools: ["Daily market analysis", "Economic calendar", "Trading signals", "Market news", "Autochartist"]
     },
-    
+
     // Regulation & Safety
     regulation: {
       authorities: ["ASIC (Australia)", "FSA (Seychelles)"],
@@ -471,7 +459,7 @@ export const brokersData = [
       negativeBalanceProtection: true,
       segregatedAccounts: true
     },
-    
+
     // Reviews & Ratings
     rating: 4.4,
     reviewsCount: 102,
@@ -482,13 +470,13 @@ export const brokersData = [
       withdrawalSpeed: 4.4,
       education: 4.6
     },
-    
+
     // Additional Info
     awards: ["Best Trading Technology 2023", "Most Transparent Broker 2022"],
     partnershipProgram: true,
     affiliateProgram: true,
     ibProgram: true,
-    
+
     // Special Features
     features: [
       "Negative balance protection",
@@ -498,10 +486,10 @@ export const brokersData = [
       "Economic calendar integration",
       "Autochartist integration"
     ],
-    
+
     // Target Audience
     suitableFor: ["Intermediate traders", "Advanced traders", "EA traders", "Algorithmic traders"],
-    
+
     // Additional Fields
     socialMedia: {
       twitter: "https://twitter.com/swiftmarkets",
@@ -509,7 +497,7 @@ export const brokersData = [
       youtube: "https://youtube.com/swiftmarkets",
       instagram: "https://instagram.com/swiftmarkets"
     },
-    
+
     // Original fields (maintained for backward compatibility)
     bonusOffer: "100% Deposit Match",
     bonus: "100% Deposit Match",
@@ -543,7 +531,7 @@ export const brokersData = [
     founded: 2016,
     headquarters: "Vancouver, Canada",
     website: "https://novabrokers.com",
-    
+
     // Account Information
     accountTypes: [
       {
@@ -570,7 +558,7 @@ export const brokersData = [
     ],
     demoAccount: true,
     demoAccountDuration: "30 days",
-    
+
     // Trading Conditions
     leverage: "1:400",
     minTradeSize: 0.01,
@@ -578,28 +566,22 @@ export const brokersData = [
     orderExecution: "Instant Execution",
     marginCall: 80,
     stopOutLevel: 40,
-    
+
     // Spreads & Commissions
-    spreads: {
-      eurusd: "0.3 - 0.5",
-      gbpusd: "0.4 - 0.6",
-      usdjpy: "0.5 - 0.7",
-      xauusd: "1.2 - 1.8",
-      us30: "1.8 - 2.5"
-    },
+
     commissions: {
       starter: "No commission",
       advanced: "$2 per lot",
       professional: "$1 per lot"
     },
     swapFree: true,
-    
+
     // Platforms & Tools
     platforms: ["MT4", "WebTrader", "Mobile App", "Social Trading Platform"],
     mobileTrading: true,
     chartingTools: ["Basic charts", "Technical indicators", "Social trading features"],
     tradingFeatures: ["One-click trading", "Social trading", "Copy trading", "Hedging allowed"],
-    
+
     // Instruments
     instruments: {
       forex: 50,
@@ -609,14 +591,14 @@ export const brokersData = [
       cryptocurrencies: 20,
       etfs: 25
     },
-    
+
     // Deposits & Withdrawals
     depositMethods: ["Credit/Debit Card", "Bank Transfer", "Skrill", "Neteller", "PayPal"],
     withdrawalMethods: ["Credit/Debit Card", "Bank Transfer", "Skrill", "Neteller", "PayPal"],
     withdrawalProcessingTime: "2-4 business days",
     withdrawalFee: "No fee",
     minWithdrawal: 50,
-    
+
     // Bonuses & Promotions
     bonuses: [
       {
@@ -628,7 +610,7 @@ export const brokersData = [
       }
     ],
     promotions: ["Social trading contests", "Cashback program", "Referral program"],
-    
+
     // Customer Support
     support: {
       languages: ["English", "French", "Spanish"],
@@ -636,13 +618,13 @@ export const brokersData = [
       channels: ["Live Chat", "Email", "Phone"],
       responseTime: "Under 15 minutes (live chat)"
     },
-    
+
     // Education & Research
     education: {
       learningMaterials: ["Video tutorials", "Webinars", "Trading guides"],
       researchTools: ["Market analysis", "Economic calendar", "Social trading signals"]
     },
-    
+
     // Regulation & Safety
     regulation: {
       authorities: ["IIROC (Canada)"],
@@ -650,7 +632,7 @@ export const brokersData = [
       negativeBalanceProtection: true,
       segregatedAccounts: true
     },
-    
+
     // Reviews & Ratings
     rating: 4.7,
     reviewsCount: 110,
@@ -661,13 +643,13 @@ export const brokersData = [
       withdrawalSpeed: 4.5,
       education: 4.3
     },
-    
+
     // Additional Info
     awards: ["Best Social Trading Platform 2023"],
     partnershipProgram: true,
     affiliateProgram: true,
     ibProgram: true,
-    
+
     // Special Features
     features: [
       "Negative balance protection",
@@ -676,17 +658,17 @@ export const brokersData = [
       "Copy trading features",
       "Community trading signals"
     ],
-    
+
     // Target Audience
     suitableFor: ["Beginners", "Social traders", "Copy traders"],
-    
+
     // Additional Fields
     socialMedia: {
       twitter: "https://twitter.com/novabrokers",
       facebook: "https://facebook.com/novabrokers",
       youtube: "https://youtube.com/novabrokers"
     },
-    
+
     // Original fields (maintained for backward compatibility)
     bonusOffer: "30% Reload Bonus",
     bonus: "30% Reload Bonus",

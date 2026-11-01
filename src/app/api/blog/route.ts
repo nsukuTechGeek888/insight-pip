@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const exclude = searchParams.get('exclude') || '';
     const page = parseInt(searchParams.get('page') || '1');
     const skip = (page - 1) * limit;
-    const status = searchParams.get('status') || 'PUBLISHED';
+    const status = 'PUBLISHED';
 
     const where: any = {};
     

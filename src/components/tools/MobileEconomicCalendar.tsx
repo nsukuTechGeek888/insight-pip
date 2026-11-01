@@ -72,7 +72,7 @@ export default function MobileEconomicCalendar() {
       case 'high': return 'bg-red-500/20 text-red-400 border-red-500/30';
       case 'medium': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
       case 'low': return 'bg-green-500/20 text-green-400 border-green-500/30';
-      default: return 'bg-gray-500/20 text-gray-400';
+      default: return 'bg-gray-500/20 text-[var(--ip-text-2)]';
     }
   };
 
@@ -102,26 +102,26 @@ export default function MobileEconomicCalendar() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        <span className="ml-3 text-white text-sm">Loading economic data...</span>
+        <span className="ml-3 text-[var(--ip-text)] text-sm">Loading economic data...</span>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800">
+      <div className="bg-[var(--ip-surface)] rounded-xl p-4 border border-[var(--ip-border)]">
         <div className="flex items-center justify-between mb-4">
           <button onClick={() => navigateDate(-1)} className="p-2 hover:bg-white/5 rounded-lg">
-            <ChevronLeft className="text-zinc-400" size={18} />
+            <ChevronLeft className="text-[var(--ip-text-2)]" size={18} />
           </button>
           <div className="text-center">
-            <div className="text-white font-bold text-base">
+            <div className="text-[var(--ip-text)] font-bold text-base">
               {selectedDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
             </div>
-            <div className="text-zinc-500 text-xs">{sortedEvents.length} events</div>
+            <div className="text-[var(--ip-text-2)] text-xs">{sortedEvents.length} events</div>
           </div>
           <button onClick={() => navigateDate(1)} className="p-2 hover:bg-white/5 rounded-lg">
-            <ChevronRight className="text-zinc-400" size={18} />
+            <ChevronRight className="text-[var(--ip-text-2)]" size={18} />
           </button>
         </div>
 
@@ -138,10 +138,10 @@ export default function MobileEconomicCalendar() {
                 onClick={() => setSelectedDate(date)}
                 className={`flex-1 py-2 rounded-lg text-center transition-all ${
                   isSelected
-                    ? 'bg-blue-500 text-white'
+                    ? 'bg-blue-500 text-[var(--ip-text)]'
                     : eventsCount > 0
-                    ? 'bg-blue-500/20 text-white'
-                    : 'bg-zinc-800 text-zinc-400'
+                    ? 'bg-blue-500/20 text-[var(--ip-text)]'
+                    : 'bg-[var(--ip-surface-2)] text-[var(--ip-text-2)]'
                 }`}
               >
                 <div className="text-[10px]">{date.toLocaleDateString('en-US', { weekday: 'short' })}</div>
@@ -163,8 +163,8 @@ export default function MobileEconomicCalendar() {
               onClick={() => setImpactFilter(filter.id as any)}
               className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 impactFilter === filter.id
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-zinc-800 text-zinc-400'
+                  ? 'bg-blue-500 text-[var(--ip-text)]'
+                  : 'bg-[var(--ip-surface-2)] text-[var(--ip-text-2)]'
               }`}
             >
               {filter.label}
@@ -176,11 +176,11 @@ export default function MobileEconomicCalendar() {
       <div className="space-y-2">
         {sortedEvents.length > 0 ? (
           sortedEvents.map((event) => (
-            <div key={event.id} className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800">
+            <div key={event.id} className="bg-[var(--ip-surface)] rounded-xl p-4 border border-[var(--ip-border)]">
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <Clock size={12} className="text-zinc-500" />
-                  <span className="text-white text-sm font-mono">{event.time}</span>
+                  <Clock size={12} className="text-[var(--ip-text-2)]" />
+                  <span className="text-[var(--ip-text)] text-sm font-mono">{event.time}</span>
                 </div>
                 <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${getImpactColor(event.impact)}`}>
                   {getImpactIcon(event.impact)}
@@ -190,25 +190,25 @@ export default function MobileEconomicCalendar() {
               
               <div className="mb-2">
                 <div className="flex items-center gap-2 mb-1">
-                  <MapPin size={12} className="text-zinc-500" />
-                  <span className="text-white text-sm font-medium">{event.currency}</span>
-                  <span className="text-zinc-500 text-xs">{event.country}</span>
+                  <MapPin size={12} className="text-[var(--ip-text-2)]" />
+                  <span className="text-[var(--ip-text)] text-sm font-medium">{event.currency}</span>
+                  <span className="text-[var(--ip-text-2)] text-xs">{event.country}</span>
                 </div>
-                <div className="text-white text-sm font-semibold">{event.event}</div>
+                <div className="text-[var(--ip-text)] text-sm font-semibold">{event.event}</div>
               </div>
               
-              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-zinc-800 text-center">
+              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[var(--ip-border)] text-center">
                 <div>
-                  <div className="text-zinc-500 text-[10px]">Previous</div>
-                  <div className="text-white text-xs font-medium">{event.previous || '--'}</div>
+                  <div className="text-[var(--ip-text-2)] text-[10px]">Previous</div>
+                  <div className="text-[var(--ip-text)] text-xs font-medium">{event.previous || '--'}</div>
                 </div>
                 <div>
-                  <div className="text-zinc-500 text-[10px]">Forecast</div>
+                  <div className="text-[var(--ip-text-2)] text-[10px]">Forecast</div>
                   <div className="text-yellow-400 text-xs font-medium">{event.forecast || '--'}</div>
                 </div>
                 <div>
-                  <div className="text-zinc-500 text-[10px]">Actual</div>
-                  <div className={`text-xs font-medium ${event.actual ? 'text-green-400' : 'text-zinc-500'}`}>
+                  <div className="text-[var(--ip-text-2)] text-[10px]">Actual</div>
+                  <div className={`text-xs font-medium ${event.actual ? 'text-green-400' : 'text-[var(--ip-text-2)]'}`}>
                     {event.actual || 'Pending'}
                   </div>
                 </div>
@@ -216,28 +216,28 @@ export default function MobileEconomicCalendar() {
             </div>
           ))
         ) : (
-          <div className="text-center py-12 text-zinc-500 text-sm">
+          <div className="text-center py-12 text-[var(--ip-text-2)] text-sm">
             No events scheduled for this date
           </div>
         )}
       </div>
 
       <div className="grid grid-cols-2 gap-3 pt-2">
-        <div className="bg-zinc-800/50 rounded-xl p-3 text-center">
-          <div className="text-zinc-500 text-[10px]">Total Events</div>
-          <div className="text-white font-bold text-lg">{events.length}</div>
+        <div className="bg-[var(--ip-surface-2)] rounded-xl p-3 text-center">
+          <div className="text-[var(--ip-text-2)] text-[10px]">Total Events</div>
+          <div className="text-[var(--ip-text)] font-bold text-lg">{events.length}</div>
         </div>
         <div className="bg-red-500/10 rounded-xl p-3 text-center border border-red-500/20">
           <div className="text-red-400 text-[10px]">High Impact</div>
-          <div className="text-white font-bold text-lg">{events.filter(e => e.impact === 'high').length}</div>
+          <div className="text-[var(--ip-text)] font-bold text-lg">{events.filter(e => e.impact === 'high').length}</div>
         </div>
         <div className="bg-yellow-500/10 rounded-xl p-3 text-center border border-yellow-500/20">
           <div className="text-yellow-400 text-[10px]">Medium Impact</div>
-          <div className="text-white font-bold text-lg">{events.filter(e => e.impact === 'medium').length}</div>
+          <div className="text-[var(--ip-text)] font-bold text-lg">{events.filter(e => e.impact === 'medium').length}</div>
         </div>
         <div className="bg-green-500/10 rounded-xl p-3 text-center border border-green-500/20">
           <div className="text-green-400 text-[10px]">Upcoming</div>
-          <div className="text-white font-bold text-lg">{events.filter(e => new Date(e.timestamp) > new Date()).length}</div>
+          <div className="text-[var(--ip-text)] font-bold text-lg">{events.filter(e => new Date(e.timestamp) > new Date()).length}</div>
         </div>
       </div>
     </div>

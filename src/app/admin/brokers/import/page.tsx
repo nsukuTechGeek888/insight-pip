@@ -56,23 +56,23 @@ export default function ImportBrokersPage() {
 
   const handleImport = async () => {
     if (!file) return;
-    
+
     setImporting(true);
     setError(null);
-    
+
     const reader = new FileReader();
     reader.onload = async (e) => {
       try {
         const content = e.target?.result as string;
         const brokers = JSON.parse(content);
-        
+
         const response = await fetch('/api/admin/brokers/import', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify(brokers),
         });
-        
+
         const data = await response.json();
         if (response.ok) {
           setResult(data);
@@ -92,41 +92,41 @@ export default function ImportBrokersPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500" />
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black pt-20">
+    <div className="min-h-screen bg-[var(--ip-bg)] pt-20">
       <div className="max-w-4xl mx-auto px-6 py-8">
         <div className="flex items-center gap-4 mb-6">
-          <Link href="/admin/brokers" className="p-2 rounded-lg bg-zinc-800/50 text-zinc-400 hover:text-white transition-colors">
+          <Link href="/admin/brokers" className="p-2 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors">
             <ArrowLeft size={20} />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-white">Import Brokers</h1>
-            <p className="text-zinc-400 text-sm">Upload a JSON file to bulk import brokers</p>
+            <h1 className="text-2xl font-bold text-[var(--ip-text)]">Import Brokers</h1>
+            <p className="text-[var(--ip-text-2)] text-sm">Upload a JSON file to bulk import brokers</p>
           </div>
         </div>
 
-        <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-8">
+        <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-8">
           <div
             className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
-              dragActive 
-                ? 'border-purple-500 bg-purple-500/10' 
-                : 'border-zinc-700 hover:border-purple-500/50 bg-zinc-800/30'
+              dragActive
+                ? 'border-blue-500 bg-blue-500/10'
+                : 'border-[var(--ip-border)] hover:border-blue-500/50 bg-[var(--ip-surface-2)]'
             }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
           >
-            <FileJson size={48} className="mx-auto text-zinc-500 mb-4" />
-            <p className="text-zinc-400 mb-2">Drag & drop your JSON file here</p>
-            <p className="text-xs text-zinc-500 mb-4">or click to browse</p>
-            
+            <FileJson size={48} className="mx-auto text-[var(--ip-text-2)] mb-4" />
+            <p className="text-[var(--ip-text-2)] mb-2">Drag & drop your JSON file here</p>
+            <p className="text-xs text-[var(--ip-text-2)] mb-4">or click to browse</p>
+
             <input
               ref={fileInputRef}
               type="file"
@@ -137,15 +137,15 @@ export default function ImportBrokersPage() {
             />
             <label
               htmlFor="json-file"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 rounded-lg text-white cursor-pointer hover:bg-purple-500 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 rounded-lg text-[var(--ip-text)] cursor-pointer hover:bg-blue-500 transition-colors"
               onClick={(e) => e.stopPropagation()}
             >
               <Upload size={16} /> Select JSON File
             </label>
-            
+
             {file && (
-              <div className="mt-4 p-3 bg-zinc-800 rounded-lg">
-                <p className="text-white text-sm flex items-center gap-2">
+              <div className="mt-4 p-3 bg-[var(--ip-surface-2)] rounded-lg">
+                <p className="text-[var(--ip-text)] text-sm flex items-center gap-2">
                   <CheckCircle size={16} className="text-green-400" />
                   {file.name}
                 </p>
@@ -160,19 +160,19 @@ export default function ImportBrokersPage() {
           )}
 
           {result && (
-            <div className="mt-4 p-4 bg-zinc-800 rounded-lg">
-              <h3 className="text-white font-semibold mb-2">Import Results:</h3>
+            <div className="mt-4 p-4 bg-[var(--ip-surface-2)] rounded-lg">
+              <h3 className="text-[var(--ip-text)] font-semibold mb-2">Import Results:</h3>
               <div className="flex items-center gap-2 text-green-400 mb-2">
                 <CheckCircle size={16} /> Successfully imported: {result.imported} brokers
               </div>
               {result.errors?.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-zinc-700">
+                <div className="mt-3 pt-3 border-t border-[var(--ip-border)]">
                   <p className="text-red-400 flex items-center gap-2 mb-2">
                     <XCircle size={16} /> Errors: {result.errors.length}
                   </p>
                   <div className="max-h-40 overflow-y-auto space-y-1">
                     {result.errors.map((err: any, i: number) => (
-                      <p key={i} className="text-xs text-zinc-400">
+                      <p key={i} className="text-xs text-[var(--ip-text-2)]">
                         ❌ {err.name}: {err.error}
                       </p>
                     ))}
@@ -181,7 +181,7 @@ export default function ImportBrokersPage() {
               )}
               <button
                 onClick={() => router.push('/admin/brokers')}
-                className="mt-4 px-4 py-2 bg-purple-600 rounded-lg text-white hover:bg-purple-500 transition-colors"
+                className="mt-4 px-4 py-2 bg-blue-600 rounded-lg text-[var(--ip-text)] hover:bg-blue-500 transition-colors"
               >
                 View All Brokers
               </button>
@@ -191,19 +191,19 @@ export default function ImportBrokersPage() {
           <button
             onClick={handleImport}
             disabled={!file || importing}
-            className="w-full mt-6 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:from-purple-500 hover:to-pink-500 transition-all flex items-center justify-center gap-2"
+            className="w-full mt-6 px-4 py-3 bg-gradient-to-r from-blue-600 to-pink-600 rounded-lg text-[var(--ip-text)] font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:from-blue-500 hover:to-pink-500 transition-all flex items-center justify-center gap-2"
           >
             {importing ? <Loader2 size={20} className="animate-spin" /> : <Upload size={20} />}
             {importing ? 'Importing...' : 'Import Brokers'}
           </button>
         </div>
 
-        <div className="mt-6 p-4 bg-zinc-800/30 rounded-lg border border-zinc-800">
-          <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
-            <FileJson size={16} className="text-purple-400" />
+        <div className="mt-6 p-4 bg-[var(--ip-surface-2)] rounded-lg border border-[var(--ip-border)]">
+          <h3 className="text-[var(--ip-text)] font-semibold mb-2 flex items-center gap-2">
+            <FileJson size={16} className="text-blue-400" />
             JSON Format Example:
           </h3>
-          <pre className="text-xs text-zinc-400 bg-zinc-900 p-3 rounded-lg overflow-x-auto">
+          <pre className="text-xs text-[var(--ip-text-2)] bg-[var(--ip-surface)] p-3 rounded-lg overflow-x-auto">
 {`[
   {
     "name": "Deriv",
@@ -231,7 +231,7 @@ export default function ImportBrokersPage() {
   }
 ]`}
           </pre>
-          <p className="text-xs text-zinc-500 mt-3">
+          <p className="text-xs text-[var(--ip-text-2)] mt-3">
             💡 You can import a single broker or multiple brokers in an array. All fields are optional except "name".
           </p>
         </div>

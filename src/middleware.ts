@@ -1,7 +1,8 @@
+import {sessionSecret} from '@/lib/session-secret';
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'development-secret-key-12345');
+
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -19,7 +20,7 @@ export async function middleware(request: NextRequest) {
     
     try {
       // Verify JWT token
-      const { payload } = await jwtVerify(token, JWT_SECRET);
+      const { payload } = await jwtVerify(token, new TextEncoder().encode(sessionSecret()));
       const userRole = (payload as any).role;
       
       console.log('🔐 Middleware - User role:', userRole, 'Path:', pathname);

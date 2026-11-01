@@ -1,3 +1,4 @@
+import {sessionSecret} from '@/lib/session-secret';
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
@@ -9,7 +10,7 @@ async function getAdminUser(request: NextRequest) {
   if (!token) return null;
   
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "development-secret-key-12345") as { userId: string };
+    const decoded = jwt.verify(token, sessionSecret()) as { userId: string };
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: { id: true, email: true, name: true, role: true }
@@ -149,7 +150,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const { userId, role } = body;
 
-    if (!userId || !role) {
+    if (!userId || !['USER','ADMIN'].includes(role)) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -196,21 +197,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Cannot suspend your own account' }, { status: 400 });
     }
 
-    // Note: You'll need to add a 'status' field to your User model in schema.prisma
-    // If you haven't added it yet, you can skip this part or add it
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { 
-        // status: action === 'suspend' ? 'SUSPENDED' : 'ACTIVE' 
-      },
-      select: { id: true, name: true, email: true }
-    });
-
-    return NextResponse.json({
-      success: true,
-      user: updatedUser,
-      message: `User ${action === 'suspend' ? 'suspended' : 'activated'} successfully`
-    });
+    return NextResponse.json({error:'Account suspension is temporarily unavailable. No account changes were made.'},{status:501});
   } catch (error) {
     console.error('Error updating user status:', error);
     return NextResponse.json({ error: 'Failed to update user status' }, { status: 500 });

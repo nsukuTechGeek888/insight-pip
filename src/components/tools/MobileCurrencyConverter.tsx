@@ -74,20 +74,20 @@ export default function MobileCurrencyConverter() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
-        <span className="ml-3 text-white text-sm">Loading rates...</span>
+        <span className="ml-3 text-[var(--ip-text)] text-sm">Loading rates...</span>
       </div>
     );
   }
 
   return (
     <div className="space-y-5">
-      <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800">
-        <label className="text-zinc-400 text-sm mb-2 block">Amount</label>
+      <div className="bg-[var(--ip-surface)] rounded-xl p-4 border border-[var(--ip-border)]">
+        <label className="text-[var(--ip-text-2)] text-sm mb-2 block">Amount</label>
         <input
           type="number"
           value={amount}
           onChange={(e) => setAmount(Number(e.target.value))}
-          className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-4 text-white text-xl font-bold focus:outline-none focus:border-yellow-500"
+          className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl p-4 text-[var(--ip-text)] text-xl font-bold focus:outline-none focus:border-yellow-500"
         />
         <div className="flex gap-2 mt-3">
           {[100, 500, 1000, 5000].map((value) => (
@@ -95,7 +95,7 @@ export default function MobileCurrencyConverter() {
               key={value}
               onClick={() => setAmount(value)}
               className={`flex-1 py-2 rounded-lg text-xs transition-all ${
-                amount === value ? 'bg-yellow-500 text-white' : 'bg-zinc-800 text-zinc-400'
+                amount === value ? 'bg-yellow-500 text-[var(--ip-text)]' : 'bg-[var(--ip-surface-2)] text-[var(--ip-text-2)]'
               }`}
             >
               ${value.toLocaleString()}
@@ -104,14 +104,14 @@ export default function MobileCurrencyConverter() {
         </div>
       </div>
 
-      <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800">
+      <div className="bg-[var(--ip-surface)] rounded-xl p-4 border border-[var(--ip-border)]">
         <div className="grid grid-cols-2 gap-4 relative">
           <div>
-            <label className="text-zinc-400 text-xs mb-1 block">From</label>
+            <label className="text-[var(--ip-text-2)] text-xs mb-1 block">From</label>
             <select
               value={fromCurrency}
               onChange={(e) => setFromCurrency(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white text-sm"
+              className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl p-3 text-[var(--ip-text)] text-sm"
             >
               {popularCurrencies.map(currency => (
                 <option key={currency} value={currency}>{currencyFlags[currency]} {currency}</option>
@@ -120,11 +120,11 @@ export default function MobileCurrencyConverter() {
           </div>
           
           <div>
-            <label className="text-zinc-400 text-xs mb-1 block">To</label>
+            <label className="text-[var(--ip-text-2)] text-xs mb-1 block">To</label>
             <select
               value={toCurrency}
               onChange={(e) => setToCurrency(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white text-sm"
+              className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl p-3 text-[var(--ip-text)] text-sm"
             >
               {popularCurrencies.map(currency => (
                 <option key={currency} value={currency}>{currencyFlags[currency]} {currency}</option>
@@ -136,7 +136,7 @@ export default function MobileCurrencyConverter() {
             onClick={swapCurrencies}
             className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center shadow-lg"
           >
-            <ArrowRightLeft size={14} className="text-white" />
+            <ArrowRightLeft size={14} className="text-[var(--ip-text)]" />
           </button>
         </div>
       </div>
@@ -144,7 +144,7 @@ export default function MobileCurrencyConverter() {
       <div className="bg-gradient-to-br from-yellow-500/10 to-amber-500/20 rounded-xl p-5 border border-yellow-500/30">
         <div className="text-center">
           <div className="text-yellow-400 text-xs mb-1">Converted Amount</div>
-          <div className="text-white text-2xl font-bold mb-2">
+          <div className="text-[var(--ip-text)] text-2xl font-bold mb-2">
             {convertedAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {toCurrency}
           </div>
           <div className="text-yellow-400/80 text-sm">
@@ -153,14 +153,14 @@ export default function MobileCurrencyConverter() {
         </div>
       </div>
 
-      <div className="bg-zinc-800/50 rounded-xl p-4">
+      <div className="bg-[var(--ip-surface-2)] rounded-xl p-4">
         <div className="flex justify-between items-center">
-          <span className="text-zinc-400 text-sm">Exchange Rate</span>
-          <span className="text-white font-bold">1 {fromCurrency} = {getExchangeRate().toFixed(4)} {toCurrency}</span>
+          <span className="text-[var(--ip-text-2)] text-sm">Exchange Rate</span>
+          <span className="text-[var(--ip-text)] font-bold">1 {fromCurrency} = {getExchangeRate().toFixed(4)} {toCurrency}</span>
         </div>
       </div>
 
-      <div className="text-center text-zinc-500 text-xs">
+      <div className="text-center text-[var(--ip-text-2)] text-xs">
         💱 Live rates • Updated: {lastUpdated}
       </div>
     </div>

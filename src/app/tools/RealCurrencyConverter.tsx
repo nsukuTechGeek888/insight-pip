@@ -110,7 +110,7 @@ const RealCurrencyConverter = () => {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
-        <span className="ml-3 text-white">Loading exchange rates...</span>
+        <span className="ml-3 text-[var(--ip-text)]">Loading exchange rates...</span>
       </div>
     );
   }
@@ -124,8 +124,8 @@ const RealCurrencyConverter = () => {
             <DollarSign className="text-yellow-400" size={24} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-white">Currency Converter</h2>
-            <p className="text-zinc-400">Real-time exchange rates</p>
+            <h2 className="text-2xl font-bold text-[var(--ip-text)]">Currency Converter</h2>
+            <p className="text-[var(--ip-text-2)]">Real-time exchange rates</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -135,7 +135,7 @@ const RealCurrencyConverter = () => {
           </div>
           <button
             onClick={fetchRates}
-            className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm text-white transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm text-[var(--ip-text)] transition-colors flex items-center gap-2"
           >
             <RefreshCw size={16} />
             Refresh
@@ -147,17 +147,17 @@ const RealCurrencyConverter = () => {
         {/* Converter Section */}
         <div className="space-y-6">
           {/* Amount Input */}
-          <div className="bg-zinc-900/50 rounded-xl p-6 border border-zinc-800">
-            <label className="block text-zinc-400 text-sm mb-3 font-medium">Amount</label>
+          <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)]">
+            <label className="block text-[var(--ip-text-2)] text-sm mb-3 font-medium">Amount</label>
             <div className="relative">
               <input
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-4 text-white text-2xl font-bold focus:outline-none focus:border-yellow-500"
+                className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg p-4 text-[var(--ip-text)] text-2xl font-bold focus:outline-none focus:border-yellow-500"
                 placeholder="Enter amount"
               />
-              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/60 text-lg">
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[var(--ip-text)]/60 text-lg">
                 {fromCurrency}
               </div>
             </div>
@@ -168,8 +168,8 @@ const RealCurrencyConverter = () => {
                   onClick={() => setAmount(value)}
                   className={`px-3 py-2 rounded-lg text-sm transition-all ${
                     amount === value
-                      ? 'bg-yellow-500 text-white'
-                      : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
+                      ? 'bg-yellow-500 text-[var(--ip-text)]'
+                      : 'bg-[var(--ip-surface-2)] hover:bg-zinc-700 text-[var(--ip-text-2)]'
                   }`}
                 >
                   ${value.toLocaleString()}
@@ -179,14 +179,14 @@ const RealCurrencyConverter = () => {
           </div>
 
           {/* Currency Selection */}
-          <div className="bg-zinc-900/50 rounded-xl p-6 border border-zinc-800">
+          <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)]">
             <div className="grid grid-cols-2 gap-6 relative">
               <div>
-                <label className="block text-zinc-400 text-sm mb-2 font-medium">From</label>
+                <label className="block text-[var(--ip-text-2)] text-sm mb-2 font-medium">From</label>
                 <select
                   value={fromCurrency}
                   onChange={(e) => setFromCurrency(e.target.value)}
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500"
+                  className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg p-3 text-[var(--ip-text)] focus:outline-none focus:border-blue-500"
                 >
                   {popularCurrencies.map(currency => (
                     <option key={currency} value={currency}>
@@ -197,11 +197,11 @@ const RealCurrencyConverter = () => {
               </div>
               
               <div>
-                <label className="block text-zinc-400 text-sm mb-2 font-medium">To</label>
+                <label className="block text-[var(--ip-text-2)] text-sm mb-2 font-medium">To</label>
                 <select
                   value={toCurrency}
                   onChange={(e) => setToCurrency(e.target.value)}
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:outline-none focus:border-green-500"
+                  className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg p-3 text-[var(--ip-text)] focus:outline-none focus:border-green-500"
                 >
                   {popularCurrencies.map(currency => (
                     <option key={currency} value={currency}>
@@ -216,32 +216,32 @@ const RealCurrencyConverter = () => {
                 onClick={swapCurrencies}
                 className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-lg transition-colors"
               >
-                <ArrowRightLeft className="text-white" size={18} />
+                <ArrowRightLeft className="text-[var(--ip-text)]" size={18} />
               </button>
             </div>
           </div>
 
           {/* Rate Information */}
-          <div className="bg-zinc-900/50 rounded-xl p-6 border border-zinc-800">
-            <h3 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+          <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)]">
+            <h3 className="text-[var(--ip-text)] font-bold text-lg mb-4 flex items-center gap-2">
               <Globe size={18} className="text-blue-400" />
               Exchange Rate
             </h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-zinc-400">Current Rate</span>
-                <span className="text-white font-bold">
+                <span className="text-[var(--ip-text-2)]">Current Rate</span>
+                <span className="text-[var(--ip-text)] font-bold">
                   1 {fromCurrency} = {getExchangeRate().toFixed(4)} {toCurrency}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-zinc-400">Inverse Rate</span>
-                <span className="text-white">
+                <span className="text-[var(--ip-text-2)]">Inverse Rate</span>
+                <span className="text-[var(--ip-text)]">
                   1 {toCurrency} = {(1 / getExchangeRate()).toFixed(4)} {fromCurrency}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-zinc-400">Rate Change</span>
+                <span className="text-[var(--ip-text-2)]">Rate Change</span>
                 <span className="text-green-400 flex items-center gap-1">
                   <TrendingUp size={14} />
                   +0.12% today
@@ -257,7 +257,7 @@ const RealCurrencyConverter = () => {
           <div className="bg-gradient-to-br from-yellow-500/10 to-amber-500/20 rounded-xl p-8 border border-yellow-500/30">
             <div className="text-center">
               <div className="text-yellow-400 text-sm mb-2">Converted Amount</div>
-              <div className="text-white text-4xl font-bold mb-4">
+              <div className="text-[var(--ip-text)] text-4xl font-bold mb-4">
                 {convertedAmount.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2
@@ -270,8 +270,8 @@ const RealCurrencyConverter = () => {
           </div>
 
           {/* Popular Conversions */}
-          <div className="bg-zinc-900/50 rounded-xl p-6 border border-zinc-800">
-            <h3 className="text-white font-bold text-lg mb-4">Popular Conversions</h3>
+          <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)]">
+            <h3 className="text-[var(--ip-text)] font-bold text-lg mb-4">Popular Conversions</h3>
             <div className="grid grid-cols-2 gap-3">
               {[
                 { from: 'USD', to: 'EUR' },
@@ -287,15 +287,15 @@ const RealCurrencyConverter = () => {
                     setFromCurrency(pair.from);
                     setToCurrency(pair.to);
                   }}
-                  className="bg-zinc-800 hover:bg-zinc-700 rounded-lg p-3 text-left transition-colors"
+                  className="bg-[var(--ip-surface-2)] hover:bg-zinc-700 rounded-lg p-3 text-left transition-colors"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="text-xl">{currencyFlags[pair.from]}</span>
-                      <span className="text-white">{pair.from}</span>
-                      <ArrowRightLeft size={12} className="text-zinc-500" />
+                      <span className="text-[var(--ip-text)]">{pair.from}</span>
+                      <ArrowRightLeft size={12} className="text-[var(--ip-text-2)]" />
                       <span className="text-xl">{currencyFlags[pair.to]}</span>
-                      <span className="text-white">{pair.to}</span>
+                      <span className="text-[var(--ip-text)]">{pair.to}</span>
                     </div>
                     <span className="text-green-400 text-sm">
                       {pair.from === 'USD' ? (rates?.[pair.to]?.toFixed(4) || '...') : '...'}
@@ -308,22 +308,22 @@ const RealCurrencyConverter = () => {
 
           {/* Actions */}
           <div className="grid grid-cols-3 gap-4">
-            <button className="bg-zinc-800 hover:bg-zinc-700 rounded-lg p-4 flex flex-col items-center justify-center transition-colors">
+            <button className="bg-[var(--ip-surface-2)] hover:bg-zinc-700 rounded-lg p-4 flex flex-col items-center justify-center transition-colors">
               <LineChart className="text-blue-400 mb-2" size={20} />
-              <span className="text-white text-sm">Charts</span>
+              <span className="text-[var(--ip-text)] text-sm">Charts</span>
             </button>
-            <button className="bg-zinc-800 hover:bg-zinc-700 rounded-lg p-4 flex flex-col items-center justify-center transition-colors">
+            <button className="bg-[var(--ip-surface-2)] hover:bg-zinc-700 rounded-lg p-4 flex flex-col items-center justify-center transition-colors">
               <Download className="text-green-400 mb-2" size={20} />
-              <span className="text-white text-sm">Export</span>
+              <span className="text-[var(--ip-text)] text-sm">Export</span>
             </button>
-            <button className="bg-zinc-800 hover:bg-zinc-700 rounded-lg p-4 flex flex-col items-center justify-center transition-colors">
-              <Share className="text-purple-400 mb-2" size={20} />
-              <span className="text-white text-sm">Share</span>
+            <button className="bg-[var(--ip-surface-2)] hover:bg-zinc-700 rounded-lg p-4 flex flex-col items-center justify-center transition-colors">
+              <Share className="text-blue-400 mb-2" size={20} />
+              <span className="text-[var(--ip-text)] text-sm">Share</span>
             </button>
           </div>
 
           {/* Footer Info */}
-          <div className="text-center text-zinc-500 text-sm">
+          <div className="text-center text-[var(--ip-text-2)] text-sm">
             💱 Using real exchange rates • Last updated: {lastUpdated}
           </div>
         </div>

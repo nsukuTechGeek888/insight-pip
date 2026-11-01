@@ -1,19 +1,19 @@
 'use client';
 
 import RegulationsTab from "./RegulationsTab";
-import ReviewsTab from "./ReviewsTab"; 
+import ReviewsTab from "./ReviewsTab";
 import BonusesTab from "./BonusesTab";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRegion } from "@/contexts/RegionContext";
-import { 
-  Star, ShieldCheck, Gift, Globe, Search, TrendingUp, 
-  BarChart3, Users, Zap, Award, X, ExternalLink, ArrowRight, Eye, 
-  Calculator, CheckCircle, AlertTriangle, Building, Clock, MessageCircle, 
-  Heart, DollarSign, CreditCard, Smartphone, BookOpen, 
-  Rocket, Filter, Sparkles, Flame, Crown, Gem, Info, RefreshCw, 
+import {
+  Star, ShieldCheck, Gift, Globe, Search, TrendingUp,
+  BarChart3, Users, Zap, Award, X, ExternalLink, ArrowRight, Eye,
+  Calculator, CheckCircle, AlertTriangle, Building, Clock, MessageCircle,
+  Heart, DollarSign, CreditCard, Smartphone, BookOpen,
+  Rocket, Filter, Sparkles, Flame, Crown, Gem, Info, RefreshCw,
   Activity, Target, XCircle, AlertCircle, Headphones, Gauge,
   Wallet, Landmark, Compass, Trophy, Medal,
   ChevronDown, Shield, ChevronLeft, ChevronRight, LayoutGrid, List, GitCompare,
@@ -31,13 +31,13 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
     md: "w-12 h-12 rounded-xl text-base",
     lg: "w-14 h-14 rounded-xl text-lg"
   };
-  
+
   if (firm.logo) {
     return (
-      <div className={`${sizeClasses[size]} overflow-hidden bg-zinc-800 border border-zinc-700 flex-shrink-0 shadow-lg`}>
-        <img 
-          src={firm.logo} 
-          alt={firm.name} 
+      <div className={`${sizeClasses[size]} overflow-hidden bg-[var(--ip-surface-2)] border border-[var(--ip-border)] flex-shrink-0 shadow-lg`}>
+        <img
+          src={firm.logo}
+          alt={firm.name}
           className="w-full h-full object-cover"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
@@ -45,7 +45,7 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
             const parent = target.parentElement;
             if (parent) {
               const fallback = document.createElement('div');
-              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`;
+              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`;
               fallback.textContent = firm.name?.charAt(0) || '?';
               parent.appendChild(fallback);
             }
@@ -54,9 +54,9 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
       </div>
     );
   }
-  
+
   return (
-    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`}>
+    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`}>
       {firm.name?.charAt(0) || '?'}
     </div>
   );
@@ -73,19 +73,19 @@ function StarRating({ rating, count = 0, size = "sm" }: { rating: number; count?
     <div className="flex items-center gap-1">
       <div className="flex gap-0.5">
         {[1, 2, 3, 4, 5].map((i) => (
-          <Star 
-            key={i} 
-            className={`${sizes[size]} ${i <= roundedRating && hasReviews ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_2px_rgba(250,204,21,0.5)]' : 'text-zinc-700'}`} 
+          <Star
+            key={i}
+            className={`${sizes[size]} ${i <= roundedRating && hasReviews ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_2px_rgba(250,204,21,0.5)]' : 'text-zinc-700'}`}
           />
         ))}
       </div>
       {hasReviews ? (
         <>
-          <span className="text-xs text-white ml-0.5">{displayRating.toFixed(1)}</span>
-          <span className="text-xs text-zinc-500">({count})</span>
+          <span className="text-xs text-[var(--ip-text)] ml-0.5">{displayRating.toFixed(1)}</span>
+          <span className="text-xs text-[var(--ip-text-2)]">({count})</span>
         </>
       ) : (
-        <span className="text-xs text-zinc-500 ml-1">No reviews</span>
+        <span className="text-xs text-[var(--ip-text-2)] ml-1">No reviews</span>
       )}
     </div>
   );
@@ -96,13 +96,13 @@ function TrustTooltip({ score }: { score: number }) {
   const [show, setShow] = useState(false);
   return (
     <div className="relative inline-block">
-      <button onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)} className="text-zinc-600 hover:text-zinc-400 transition-colors">
+      <button onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)} className="text-zinc-600 hover:text-[var(--ip-text-2)] transition-colors">
         <Info size={12} />
       </button>
       {show && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl z-50 text-xs backdrop-blur-sm">
-          <p className="text-white font-medium mb-1">Trust Score: {score}</p>
-          <p className="text-zinc-500 text-xs">Based on withdrawal reliability, execution quality, and community feedback</p>
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-[var(--ip-surface)] border border-[var(--ip-border)] rounded-lg shadow-xl z-50 text-xs backdrop-blur-sm">
+          <p className="text-[var(--ip-text)] font-medium mb-1">Trust Score: {score}</p>
+          <p className="text-[var(--ip-text-2)] text-xs">Based on withdrawal reliability, execution quality, and community feedback</p>
         </div>
       )}
     </div>
@@ -132,7 +132,7 @@ const calculateTrustStatsFromReviews = (reviews: any[]) => {
 
 const generateGradient = (name: string) => {
   const gradients = [
-    "from-pink-500 to-purple-500", "from-blue-500 to-purple-500", 
+    "from-pink-500 to-blue-500", "from-blue-500 to-blue-500",
     "from-green-500 to-blue-500", "from-yellow-500 to-orange-500",
     "from-red-500 to-pink-500", "from-indigo-500 to-blue-500",
     "from-teal-500 to-green-500", "from-orange-500 to-red-500"
@@ -143,45 +143,45 @@ const generateGradient = (name: string) => {
 // Sponsored Card Component
 function SponsoredCard() {
   return (
-    <div className="relative overflow-hidden bg-gradient-to-r from-purple-900/30 via-pink-900/30 to-orange-900/30 rounded-xl border border-purple-500/30 p-6 group">
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 via-pink-600/10 to-orange-600/10 animate-pulse" />
-      <div className="absolute -top-20 -right-20 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl" />
+    <div className="relative overflow-hidden bg-gradient-to-r from-blue-900/30 via-pink-900/30 to-orange-900/30 rounded-xl border border-blue-500/30 p-6 group">
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-pink-600/10 to-orange-600/10 animate-pulse" />
+      <div className="absolute -top-20 -right-20 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl" />
       <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-orange-500/20 rounded-full blur-3xl" />
-      
+
       <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex-1 text-center md:text-left">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-purple-400 text-[10px] font-medium mb-3">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-blue-500/20 to-pink-500/20 border border-blue-500/30 text-blue-400 text-[10px] font-medium mb-3">
             <Crown size={10} /> SPONSORED
           </div>
-          <h3 className="text-white text-xl md:text-2xl font-bold mb-2">
-            Trade with <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Zero Commission</span>
+          <h3 className="text-[var(--ip-text)] text-xl md:text-2xl font-bold mb-2">
+            Trade with <span className="bg-gradient-to-r from-blue-400 to-pink-400 bg-clip-text text-transparent">Zero Commission</span>
           </h3>
-          <p className="text-zinc-400 text-sm mb-4 max-w-md">
+          <p className="text-[var(--ip-text-2)] text-sm mb-4 max-w-md">
             Get $100 bonus on first deposit + 0% commission on all major pairs. Limited time offer.
           </p>
           <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-            <div className="flex items-center gap-1.5 text-xs text-zinc-300">
+            <div className="flex items-center gap-1.5 text-xs text-[var(--ip-text-2)]">
               <CheckCircle size={12} className="text-green-400" />
               Regulated Broker
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-zinc-300">
+            <div className="flex items-center gap-1.5 text-xs text-[var(--ip-text-2)]">
               <Zap size={12} className="text-yellow-400" />
               Instant Execution
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-zinc-300">
+            <div className="flex items-center gap-1.5 text-xs text-[var(--ip-text-2)]">
               <ShieldCheck size={12} className="text-blue-400" />
               Negative Balance Protection
             </div>
           </div>
         </div>
         <div className="flex-shrink-0">
-          <button className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium text-sm hover:from-purple-500 hover:to-pink-500 transition-all shadow-lg hover:shadow-purple-500/25 flex items-center gap-2">
+          <button className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-lg font-medium text-sm hover:from-blue-500 hover:to-pink-500 transition-all shadow-lg hover:shadow-blue-500/25 flex items-center gap-2">
             Claim Offer <ArrowRight size={14} />
           </button>
         </div>
       </div>
-      
-      <div className="absolute top-4 right-4 w-20 h-20 bg-purple-500/10 rounded-full blur-xl" />
+
+      <div className="absolute top-4 right-4 w-20 h-20 bg-blue-500/10 rounded-full blur-xl" />
       <div className="absolute bottom-4 left-4 w-16 h-16 bg-pink-500/10 rounded-full blur-xl" />
     </div>
   );
@@ -192,7 +192,7 @@ export default function BrokersPage() {
   const { region } = useRegion();
   const [brokersData, setBrokersData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [activeTab, setActiveTab] = useState("overview");
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -202,7 +202,7 @@ export default function BrokersPage() {
   const [hoveredBroker, setHoveredBroker] = useState<number | null>(null);
   const [expandedBroker, setExpandedBroker] = useState<number | null>(null);
   const [showFilters, setShowFilters] = useState(false);
-  
+
   // Filter states
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
@@ -210,7 +210,7 @@ export default function BrokersPage() {
   const [leverage, setLeverage] = useState('');
   const [bonusAvailable, setBonusAvailable] = useState(false);
   const [showRegulated, setShowRegulated] = useState<boolean | null>(null);
-  
+
   // Enriched brokers
   const [enrichedBrokers, setEnrichedBrokers] = useState<any[]>([]);
   const [loadingEnriched, setLoadingEnriched] = useState(true);
@@ -241,7 +241,7 @@ export default function BrokersPage() {
   useEffect(() => {
     const fetchIncidentsForBrokers = async () => {
       if (enrichedBrokers.length === 0) return;
-      
+
       const incidentsMap: Record<number, number> = {};
       await Promise.all(
         enrichedBrokers.map(async (broker) => {
@@ -258,7 +258,7 @@ export default function BrokersPage() {
       );
       setBrokerIncidents(incidentsMap);
     };
-    
+
     fetchIncidentsForBrokers();
   }, [enrichedBrokers]);
 
@@ -267,7 +267,7 @@ export default function BrokersPage() {
     const enrichBrokers = async () => {
       if (brokersData.length === 0) return;
       setLoadingEnriched(true);
-      
+
       const enriched = await Promise.all(
         brokersData.map(async (broker) => {
           try {
@@ -281,7 +281,7 @@ export default function BrokersPage() {
           return { ...broker, trustScore: broker.avgTrustScore || 0, reviewCount: broker.reviewsCount || 0 };
         })
       );
-      
+
       setEnrichedBrokers(enriched);
       setLoadingEnriched(false);
     };
@@ -317,7 +317,7 @@ export default function BrokersPage() {
   const avgRating = enrichedBrokers.length > 0 ? (enrichedBrokers.reduce((sum, b) => sum + (b.rating || 0), 0) / enrichedBrokers.length).toFixed(1) : "0.0";
   const regulatedCount = enrichedBrokers.filter(b => b.regulated).length;
   const totalIncidents = Object.values(brokerIncidents).reduce((sum, count) => sum + count, 0);
-  
+
   // Filter brokers
   const filteredBrokers = enrichedBrokers.filter(b => {
     const matchesSearch = search ? b.name?.toLowerCase().includes(search.toLowerCase()) : true;
@@ -327,10 +327,10 @@ export default function BrokersPage() {
     const matchesLeverage = leverage === '' || b.leverage === leverage;
     const matchesBonus = !bonusAvailable || ((b.bonuses && b.bonuses.length > 0) || (b.promotions && b.promotions.length > 0));
     const matchesRegulated = showRegulated === null || b.regulated === showRegulated;
-    
+
     return matchesSearch && matchesCountry && matchesPlatform && matchesDeposit && matchesLeverage && matchesBonus && matchesRegulated;
   });
-  
+
   // Sort brokers
   const sortedBrokers = [...filteredBrokers].sort((a, b) => {
     switch (sortBy) {
@@ -366,10 +366,10 @@ export default function BrokersPage() {
 
   if (loading || loadingEnriched) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto"></div>
-          <p className="mt-4 text-zinc-500">Loading brokers...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-[var(--ip-text-2)]">Loading brokers...</p>
         </div>
       </div>
     );
@@ -424,16 +424,16 @@ export default function BrokersPage() {
     const suggestions = nearbyRegions[region] || [{ key: 'GLOBAL', label: 'Global', flag: '🌍' }];
 
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
         <div className="text-center max-w-md px-6">
           <Globe size={48} className="text-zinc-600 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">No brokers in your region</h2>
-          <p className="text-zinc-400 mb-4">
+          <h2 className="text-2xl font-bold text-[var(--ip-text)] mb-2">No brokers in your region</h2>
+          <p className="text-[var(--ip-text-2)] mb-4">
             We don't have any brokers available in {regionInfo.flag} {regionInfo.label} yet.
           </p>
-          
-          <div className="bg-zinc-900/50 rounded-xl p-4 mb-6 border border-zinc-800">
-            <p className="text-sm text-zinc-400 mb-3">Try these regions instead:</p>
+
+          <div className="bg-[var(--ip-surface)] rounded-xl p-4 mb-6 border border-[var(--ip-border)]">
+            <p className="text-sm text-[var(--ip-text-2)] mb-3">Try these regions instead:</p>
             <div className="flex flex-wrap justify-center gap-2">
               {suggestions.map((suggestion) => (
                 <button
@@ -442,20 +442,20 @@ export default function BrokersPage() {
                     const { setRegion } = useRegion();
                     setRegion(suggestion.key);
                   }}
-                  className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm text-white transition-all duration-200 hover:scale-105"
+                  className="px-4 py-2 bg-[var(--ip-surface-2)] hover:bg-zinc-700 rounded-lg text-sm text-[var(--ip-text)] transition-all duration-200 hover:scale-105"
                 >
                   {suggestion.flag} {suggestion.label}
                 </button>
               ))}
             </div>
           </div>
-          
+
           <button
             onClick={() => {
               const { setRegion } = useRegion();
               setRegion('GLOBAL');
             }}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all"
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-lg hover:from-blue-500 hover:to-pink-500 transition-all"
           >
             View All Global Brokers
           </button>
@@ -465,57 +465,57 @@ export default function BrokersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-[var(--ip-bg)]">
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-6 pt-12 pb-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Building size={20} className="text-purple-400" />
-              <span className="text-sm text-purple-400 font-medium">{enrichedBrokers.length} Brokers Available</span>
+              <Building size={20} className="text-blue-400" />
+              <span className="text-sm text-blue-400 font-medium">{enrichedBrokers.length} Brokers Available</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white">
-              Find a <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Trusted Broker</span> Today
+            <h1 className="text-3xl md:text-4xl font-bold text-[var(--ip-text)]">
+              Find a <span className="bg-gradient-to-r from-blue-400 to-blue-400 bg-clip-text text-transparent">Trusted Broker</span> Today
             </h1>
-            <p className="text-zinc-400 mt-2 max-w-2xl">
+            <p className="text-[var(--ip-text-2)] mt-2 max-w-2xl">
               Compare spreads, leverage, regulations, and real trader reviews to find your perfect trading partner.
             </p>
           </div>
-          
+
           {/* Search Bar */}
           <div className="relative w-full md:w-80" ref={searchRef}>
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ip-text-2)]" size={16} />
             <input
               type="text"
               placeholder="Search brokers..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm"
+              className="w-full bg-[var(--ip-surface)] border border-[var(--ip-border)] rounded-xl pl-10 pr-4 py-2.5 text-[var(--ip-text)] placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
             />
-            
+
             <AnimatePresence>
               {showSearchDropdown && searchResults.length > 0 && (
-                <motion.div 
-                  initial={{ opacity: 0, y: -10 }} 
-                  animate={{ opacity: 1, y: 0 }} 
-                  exit={{ opacity: 0, y: -10 }} 
-                  className="absolute top-full left-0 right-0 mt-2 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl z-20 overflow-hidden"
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute top-full left-0 right-0 mt-2 bg-[var(--ip-surface)] border border-[var(--ip-border)] rounded-xl shadow-2xl z-20 overflow-hidden"
                 >
                   {searchResults.map((result) => (
-                    <button 
-                      key={result.id} 
-                      onClick={() => { 
-                        handleNavigate(result.id, result.name); 
-                        setShowSearchDropdown(false); 
-                      }} 
-                      className="w-full px-4 py-3 text-left hover:bg-zinc-800 transition-all flex items-center gap-3 border-b border-zinc-800 last:border-0 group"
+                    <button
+                      key={result.id}
+                      onClick={() => {
+                        handleNavigate(result.id, result.name);
+                        setShowSearchDropdown(false);
+                      }}
+                      className="w-full px-4 py-3 text-left hover:bg-[var(--ip-surface-2)] transition-all flex items-center gap-3 border-b border-[var(--ip-border)] last:border-0 group"
                     >
                       <FirmLogo firm={result} size="sm" />
                       <div className="flex-1">
-                        <div className="text-white font-medium group-hover:text-purple-400 transition-colors">{result.name}</div>
-                        <div className="text-xs text-zinc-500">{result.country || 'International'}</div>
+                        <div className="text-[var(--ip-text)] font-medium group-hover:text-blue-400 transition-colors">{result.name}</div>
+                        <div className="text-xs text-[var(--ip-text-2)]">{result.country || 'International'}</div>
                       </div>
-                      <ArrowRight size={14} className="text-zinc-500 group-hover:text-purple-400 transition-colors" />
+                      <ArrowRight size={14} className="text-[var(--ip-text-2)] group-hover:text-blue-400 transition-colors" />
                     </button>
                   ))}
                 </motion.div>
@@ -526,12 +526,12 @@ export default function BrokersPage() {
       </div>
 
       {/* Stats Row */}
-      <div className="border-y border-zinc-800/50 bg-gradient-to-r from-zinc-900/30 via-transparent to-zinc-900/30">
+      <div className="border-y border-[var(--ip-border)] bg-gradient-to-r from-zinc-900/30 via-transparent to-zinc-900/30">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center text-sm flex-wrap gap-4">
             <div className="flex items-center gap-6">
-              <span className="text-white font-medium">{enrichedBrokers.length} brokers</span>
-              <span className="text-zinc-400">{totalReviews.toLocaleString()} reviews</span>
+              <span className="text-[var(--ip-text)] font-medium">{enrichedBrokers.length} brokers</span>
+              <span className="text-[var(--ip-text-2)]">{totalReviews.toLocaleString()} reviews</span>
               <span className="text-yellow-400">★ {avgRating} avg rating</span>
               <span className="text-red-400 flex items-center gap-1"><AlertTriangle size={12} /> {totalIncidents} incidents</span>
             </div>
@@ -547,13 +547,13 @@ export default function BrokersPage() {
       {/* Main Content */}
       <div className="px-6 py-6 max-w-7xl mx-auto">
         {/* Tabs with Icons */}
-        <div className="flex gap-2 mb-6 border-b border-zinc-800/50 pb-4">
+        <div className="flex gap-2 mb-6 border-b border-[var(--ip-border)] pb-4">
           <button
             onClick={() => setActiveTab("overview")}
             className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 ${
               activeTab === "overview"
-                ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
-                : "bg-zinc-800/50 text-zinc-400 hover:text-white hover:bg-zinc-700"
+                ? "bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] shadow-lg"
+                : "bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] hover:text-[var(--ip-text)] hover:bg-zinc-700"
             }`}
           >
             <LayoutGrid size={16} /> Overview
@@ -562,8 +562,8 @@ export default function BrokersPage() {
             onClick={() => setActiveTab("bonuses")}
             className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 ${
               activeTab === "bonuses"
-                ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
-                : "bg-zinc-800/50 text-zinc-400 hover:text-white hover:bg-zinc-700"
+                ? "bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] shadow-lg"
+                : "bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] hover:text-[var(--ip-text)] hover:bg-zinc-700"
             }`}
           >
             <Gift size={16} /> Bonuses
@@ -572,8 +572,8 @@ export default function BrokersPage() {
             onClick={() => setActiveTab("reviews")}
             className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 ${
               activeTab === "reviews"
-                ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
-                : "bg-zinc-800/50 text-zinc-400 hover:text-white hover:bg-zinc-700"
+                ? "bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] shadow-lg"
+                : "bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] hover:text-[var(--ip-text)] hover:bg-zinc-700"
             }`}
           >
             <Star size={16} /> Reviews
@@ -582,8 +582,8 @@ export default function BrokersPage() {
             onClick={() => setActiveTab("regulations")}
             className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 ${
               activeTab === "regulations"
-                ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
-                : "bg-zinc-800/50 text-zinc-400 hover:text-white hover:bg-zinc-700"
+                ? "bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] shadow-lg"
+                : "bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] hover:text-[var(--ip-text)] hover:bg-zinc-700"
             }`}
           >
             <ShieldCheck size={16} /> Regulations
@@ -592,39 +592,39 @@ export default function BrokersPage() {
 
         {/* Tab Content */}
         <AnimatePresence mode="wait">
-          <motion.div 
-            key={activeTab} 
-            initial={{ opacity: 0, y: 10 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            exit={{ opacity: 0, y: -10 }} 
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
             {activeTab === "bonuses" && <BonusesTab />}
             {activeTab === "reviews" && <ReviewsTab />}
             {activeTab === "regulations" && <RegulationsTab />}
-            
+
             {activeTab === "overview" && (
               <>
                 {/* Filter Bar */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <button 
-                      onClick={() => setShowFilters(!showFilters)} 
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/50 rounded-lg text-sm text-zinc-400 hover:text-white transition-colors"
+                    <button
+                      onClick={() => setShowFilters(!showFilters)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--ip-surface-2)] rounded-lg text-sm text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors"
                     >
                       <Filter size={14} /> Filters
-                      {(minDeposit || leverage || selectedCountries.length > 0 || selectedPlatforms.length > 0 || bonusAvailable || showRegulated !== null) && 
-                        <span className="w-1.5 h-1.5 bg-purple-500 rounded-full" />
+                      {(minDeposit || leverage || selectedCountries.length > 0 || selectedPlatforms.length > 0 || bonusAvailable || showRegulated !== null) &&
+                        <span className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
                       }
                     </button>
-                    <span className="text-xs text-zinc-500">{filteredBrokers.length} results</span>
+                    <span className="text-xs text-[var(--ip-text-2)]">{filteredBrokers.length} results</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-xs text-zinc-500">Sort by:</span>
-                    <select 
-                      value={sortBy} 
-                      onChange={(e) => setSortBy(e.target.value)} 
-                      className="bg-zinc-800/80 border border-zinc-700 text-white text-sm rounded-xl px-3 py-1.5 focus:outline-none focus:border-purple-500 cursor-pointer"
+                    <span className="text-xs text-[var(--ip-text-2)]">Sort by:</span>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="bg-[var(--ip-surface-2)] border border-[var(--ip-border)] text-[var(--ip-text)] text-sm rounded-xl px-3 py-1.5 focus:outline-none focus:border-blue-500 cursor-pointer"
                     >
                       <option value="rating-desc">Highest Rated</option>
                       <option value="trust-desc">Highest Trust Score</option>
@@ -636,29 +636,29 @@ export default function BrokersPage() {
                 {/* Filters Panel */}
                 <AnimatePresence>
                   {showFilters && (
-                    <motion.div 
-                      initial={{ opacity: 0, height: 0 }} 
-                      animate={{ opacity: 1, height: "auto" }} 
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="mb-6 bg-zinc-900/50 rounded-2xl p-5 border border-zinc-800 overflow-hidden"
+                      className="mb-6 bg-[var(--ip-surface)] rounded-2xl p-5 border border-[var(--ip-border)] overflow-hidden"
                     >
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
-                          <label className="text-xs text-zinc-500 block mb-1">Min Deposit ($)</label>
-                          <input 
-                            type="number" 
-                            placeholder="100" 
-                            value={minDeposit} 
-                            onChange={(e) => setMinDeposit(e.target.value)} 
-                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm" 
+                          <label className="text-xs text-[var(--ip-text-2)] block mb-1">Min Deposit ($)</label>
+                          <input
+                            type="number"
+                            placeholder="100"
+                            value={minDeposit}
+                            onChange={(e) => setMinDeposit(e.target.value)}
+                            className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-3 py-2 text-sm"
                           />
                         </div>
                         <div>
-                          <label className="text-xs text-zinc-500 block mb-1">Leverage</label>
-                          <select 
-                            value={leverage} 
-                            onChange={(e) => setLeverage(e.target.value)} 
-                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+                          <label className="text-xs text-[var(--ip-text-2)] block mb-1">Leverage</label>
+                          <select
+                            value={leverage}
+                            onChange={(e) => setLeverage(e.target.value)}
+                            className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-3 py-2 text-sm"
                           >
                             <option value="">Any</option>
                             {leverageOptions.map(lev => (
@@ -667,11 +667,11 @@ export default function BrokersPage() {
                           </select>
                         </div>
                         <div>
-                          <label className="text-xs text-zinc-500 block mb-1">Country</label>
-                          <select 
-                            value={selectedCountries[0] || ''} 
-                            onChange={(e) => setSelectedCountries(e.target.value ? [e.target.value] : [])} 
-                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+                          <label className="text-xs text-[var(--ip-text-2)] block mb-1">Country</label>
+                          <select
+                            value={selectedCountries[0] || ''}
+                            onChange={(e) => setSelectedCountries(e.target.value ? [e.target.value] : [])}
+                            className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-3 py-2 text-sm"
                           >
                             <option value="">Any</option>
                             {countries.map(c => (
@@ -680,11 +680,11 @@ export default function BrokersPage() {
                           </select>
                         </div>
                         <div>
-                          <label className="text-xs text-zinc-500 block mb-1">Platform</label>
-                          <select 
-                            value={selectedPlatforms[0] || ''} 
-                            onChange={(e) => setSelectedPlatforms(e.target.value ? [e.target.value] : [])} 
-                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+                          <label className="text-xs text-[var(--ip-text-2)] block mb-1">Platform</label>
+                          <select
+                            value={selectedPlatforms[0] || ''}
+                            onChange={(e) => setSelectedPlatforms(e.target.value ? [e.target.value] : [])}
+                            className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-3 py-2 text-sm"
                           >
                             <option value="">Any</option>
                             {platforms.map(p => (
@@ -693,28 +693,28 @@ export default function BrokersPage() {
                           </select>
                         </div>
                         <div>
-                          <label className="text-xs text-zinc-500 block mb-1">Has Bonus/Offer</label>
+                          <label className="text-xs text-[var(--ip-text-2)] block mb-1">Has Bonus/Offer</label>
                           <label className="flex items-center gap-2 mt-2">
-                            <input 
-                              type="checkbox" 
-                              checked={bonusAvailable} 
-                              onChange={(e) => setBonusAvailable(e.target.checked)} 
-                              className="rounded border-zinc-700 bg-zinc-800"
+                            <input
+                              type="checkbox"
+                              checked={bonusAvailable}
+                              onChange={(e) => setBonusAvailable(e.target.checked)}
+                              className="rounded border-[var(--ip-border)] bg-[var(--ip-surface-2)]"
                             />
-                            <span className="text-sm text-zinc-300">Show only with offers</span>
+                            <span className="text-sm text-[var(--ip-text-2)]">Show only with offers</span>
                           </label>
                         </div>
                         <div>
-                          <label className="text-xs text-zinc-500 block mb-1">Regulation Status</label>
-                          <select 
-                            value={showRegulated === null ? '' : (showRegulated ? 'regulated' : 'unregulated')} 
+                          <label className="text-xs text-[var(--ip-text-2)] block mb-1">Regulation Status</label>
+                          <select
+                            value={showRegulated === null ? '' : (showRegulated ? 'regulated' : 'unregulated')}
                             onChange={(e) => {
                               const val = e.target.value;
                               if (val === 'regulated') setShowRegulated(true);
                               else if (val === 'unregulated') setShowRegulated(false);
                               else setShowRegulated(null);
-                            }} 
-                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+                            }}
+                            className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-3 py-2 text-sm"
                           >
                             <option value="">Any</option>
                             <option value="regulated">Regulated Only</option>
@@ -723,9 +723,9 @@ export default function BrokersPage() {
                         </div>
                       </div>
                       <div className="flex justify-end mt-4">
-                        <button 
-                          onClick={clearFilters} 
-                          className="text-xs text-zinc-500 hover:text-white transition-colors"
+                        <button
+                          onClick={clearFilters}
+                          className="text-xs text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors"
                         >
                           Clear All Filters
                         </button>
@@ -743,30 +743,30 @@ export default function BrokersPage() {
                     const offerText = broker.bonuses?.[0]?.amount || broker.promotions?.[0]?.name || "Special Offer";
                     const isTopRated = idx === 0 && broker.rating >= 4.5;
                     const incidentCount = brokerIncidents[broker.id] || 0;
-                    
+
                     const regulations = broker.regulation?.authorities || (typeof broker.regulation === 'string' ? [broker.regulation] : []);
-                    
+
                     return (
                       <motion.div
                         key={broker.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.05 }}
-                        className="group relative bg-zinc-900/50 rounded-xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border-zinc-800 hover:border-purple-500/30"
+                        className="group relative bg-[var(--ip-surface)] rounded-xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border-[var(--ip-border)] hover:border-blue-500/30"
                         onMouseEnter={() => setHoveredBroker(broker.id)}
                         onMouseLeave={() => setHoveredBroker(null)}
                       >
                         {/* Top Rated Badge */}
                         {isTopRated && (
                           <div className="absolute -top-2 -right-2 z-10">
-                            <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-lg flex items-center gap-1">
+                            <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-[var(--ip-text)] px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-lg flex items-center gap-1">
                               <Trophy size={10} /> Top Rated
                             </div>
                           </div>
                         )}
-                        
+
                         {/* View Details Badge on Hover */}
-                        <div className={`absolute -top-2 -left-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-lg z-10 transition-all duration-300 flex items-center gap-1 ${
+                        <div className={`absolute -top-2 -left-2 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-lg z-10 transition-all duration-300 flex items-center gap-1 ${
                           hoveredBroker === broker.id ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
                         }`}>
                           <Eye size={8} /> View Details
@@ -777,7 +777,7 @@ export default function BrokersPage() {
                           <div className="flex items-start gap-3 mb-4">
                             <FirmLogo firm={broker} size="md" />
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-bold text-white text-lg group-hover:text-purple-400 transition-colors truncate">
+                              <h3 className="font-bold text-[var(--ip-text)] text-lg group-hover:text-blue-400 transition-colors truncate">
                                 {broker.name}
                               </h3>
                               <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -787,23 +787,23 @@ export default function BrokersPage() {
                               </div>
                             </div>
                           </div>
-                          
+
                           {/* Key Metrics Grid */}
                           <div className="grid grid-cols-2 gap-3 mb-4">
                             <div className="bg-white/5 p-2.5 rounded-lg text-center hover:bg-white/10 transition-colors">
-                              <div className="text-zinc-500 text-xs mb-1">Min Deposit</div>
-                              <div className="text-white font-bold">{formatCurrency(broker.minDeposit || 100)}</div>
+                              <div className="text-[var(--ip-text-2)] text-xs mb-1">Min Deposit</div>
+                              <div className="text-[var(--ip-text)] font-bold">{formatCurrency(broker.minDeposit || 100)}</div>
                             </div>
                             <div className="bg-white/5 p-2.5 rounded-lg text-center hover:bg-white/10 transition-colors">
-                              <div className="text-zinc-500 text-xs mb-1">Leverage</div>
-                              <div className="text-white font-bold">{broker.leverage || '1:200'}</div>
+                              <div className="text-[var(--ip-text-2)] text-xs mb-1">Leverage</div>
+                              <div className="text-[var(--ip-text)] font-bold">{broker.leverage || '1:200'}</div>
                             </div>
                             <div className="bg-white/5 p-2.5 rounded-lg text-center hover:bg-white/10 transition-colors">
-                              <div className="text-zinc-500 text-xs mb-1">EURUSD Spread</div>
-                              <div className="text-white font-bold">{broker.spreads?.eurusd?.split('-')[0]?.trim() || '0.1'} pips</div>
+                              <div className="text-[var(--ip-text-2)] text-xs mb-1">EURUSD Spread</div>
+                              <div className="text-[var(--ip-text)] font-bold">{broker.spreads?.eurusd?.split('-')[0]?.trim() || '0.1'} pips</div>
                             </div>
                             <div className="bg-white/5 p-2.5 rounded-lg text-center hover:bg-white/10 transition-colors">
-                              <div className="text-zinc-500 text-xs mb-1">Incidents</div>
+                              <div className="text-[var(--ip-text-2)] text-xs mb-1">Incidents</div>
                               <div className={`font-bold flex items-center justify-center gap-1 ${incidentCount > 0 ? 'text-red-400' : 'text-green-400'}`}>
                                 {incidentCount > 0 ? <AlertTriangle size={10} /> : <CheckCircle size={10} />}
                                 {incidentCount} reported
@@ -815,7 +815,7 @@ export default function BrokersPage() {
                           {(broker.platforms || broker.platform || []).length > 0 && (
                             <div className="flex flex-wrap gap-1 mb-4">
                               {(broker.platforms || broker.platform || []).slice(0, 4).map((p: string, i: number) => (
-                                <span key={i} className="text-[10px] bg-zinc-800 text-zinc-300 px-2 py-1 rounded-full">{p}</span>
+                                <span key={i} className="text-[10px] bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] px-2 py-1 rounded-full">{p}</span>
                               ))}
                             </div>
                           )}
@@ -825,7 +825,7 @@ export default function BrokersPage() {
                             {regulations.slice(0, 3).map((reg: string, i: number) => (
                               <span key={i} className="text-[10px] bg-green-900/50 text-green-300 px-2 py-0.5 rounded">{reg.split(' ')[0]}</span>
                             ))}
-                            {regulations.length === 0 && <span className="text-[10px] text-zinc-500">No regulation info</span>}
+                            {regulations.length === 0 && <span className="text-[10px] text-[var(--ip-text-2)]">No regulation info</span>}
                           </div>
 
                           {/* Offer Section */}
@@ -835,14 +835,14 @@ export default function BrokersPage() {
                                 <Gift size={12} className="text-amber-400" />
                                 <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Limited Time Offer</span>
                               </div>
-                              <p className="text-white text-sm font-medium">{offerText}</p>
+                              <p className="text-[var(--ip-text)] text-sm font-medium">{offerText}</p>
                             </div>
                           )}
-                          
+
                           {/* CTA Button */}
-                          <button 
-                            onClick={() => handleNavigate(broker.id, broker.name)} 
-                            className="w-full mt-2 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium text-sm hover:from-purple-500 hover:to-pink-500 transition-all duration-200 shadow-lg hover:shadow-purple-500/25 flex items-center justify-center gap-2"
+                          <button
+                            onClick={() => handleNavigate(broker.id, broker.name)}
+                            className="w-full mt-2 py-2.5 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-lg font-medium text-sm hover:from-blue-500 hover:to-pink-500 transition-all duration-200 shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2"
                           >
                             View Full Details
                             <ArrowRight size={14} />
@@ -856,32 +856,32 @@ export default function BrokersPage() {
                 {/* Pagination */}
                 {totalPages > 1 && (
                   <div className="flex justify-center gap-2 mt-8">
-                    <button 
-                      disabled={currentPage === 1} 
-                      onClick={() => setCurrentPage(p => p - 1)} 
-                      className="px-4 py-2 rounded-xl text-sm text-zinc-400 disabled:opacity-50 hover:text-white border border-zinc-800 hover:border-purple-500/50 transition-all"
+                    <button
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(p => p - 1)}
+                      className="px-4 py-2 rounded-xl text-sm text-[var(--ip-text-2)] disabled:opacity-50 hover:text-[var(--ip-text)] border border-[var(--ip-border)] hover:border-blue-500/50 transition-all"
                     >
                       Previous
                     </button>
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => i + Math.max(1, currentPage - 2))
                       .filter(p => p <= totalPages)
                       .map(p => (
-                        <button 
-                          key={p} 
-                          onClick={() => setCurrentPage(p)} 
+                        <button
+                          key={p}
+                          onClick={() => setCurrentPage(p)}
                           className={`px-3 py-2 rounded-xl text-sm transition-all ${
-                            p === currentPage 
-                              ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' 
-                              : 'text-zinc-400 hover:text-white border border-zinc-800 hover:border-purple-500/50'
+                            p === currentPage
+                              ? 'bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] shadow-lg'
+                              : 'text-[var(--ip-text-2)] hover:text-[var(--ip-text)] border border-[var(--ip-border)] hover:border-blue-500/50'
                           }`}
                         >
                           {p}
                         </button>
                       ))}
-                    <button 
-                      disabled={currentPage === totalPages} 
-                      onClick={() => setCurrentPage(p => p + 1)} 
-                      className="px-4 py-2 rounded-xl text-sm text-zinc-400 disabled:opacity-50 hover:text-white border border-zinc-800 hover:border-purple-500/50 transition-all"
+                    <button
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(p => p + 1)}
+                      className="px-4 py-2 rounded-xl text-sm text-[var(--ip-text-2)] disabled:opacity-50 hover:text-[var(--ip-text)] border border-[var(--ip-border)] hover:border-blue-500/50 transition-all"
                     >
                       Next
                     </button>
@@ -894,22 +894,22 @@ export default function BrokersPage() {
       </div>
 
       {/* Footer CTA */}
-      <div className="border-t border-zinc-800/50 py-10 px-6 mt-6 bg-gradient-to-t from-zinc-900/30 to-transparent">
+      <div className="border-t border-[var(--ip-border)] py-10 px-6 mt-6 bg-gradient-to-t from-zinc-900/30 to-transparent">
         <div className="max-w-3xl mx-auto text-center">
           <div className="flex items-center justify-center gap-2 mb-3">
-            <MessageCircle size={16} className="text-purple-400" />
-            <p className="text-zinc-500 text-sm">Share your trading experience</p>
+            <MessageCircle size={16} className="text-blue-400" />
+            <p className="text-[var(--ip-text-2)] text-sm">Share your trading experience</p>
           </div>
           <div className="flex gap-3 justify-center">
-            <Link 
-              href="/reviews" 
-              className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm rounded-xl hover:shadow-lg hover:shadow-purple-500/25 transition-all flex items-center gap-2 font-medium"
+            <Link
+              href="/reviews"
+              className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] text-sm rounded-xl hover:shadow-lg hover:shadow-blue-500/25 transition-all flex items-center gap-2 font-medium"
             >
               <Star size={14} /> Write a review
             </Link>
-            <Link 
-              href="/reviews?tab=incidents" 
-              className="px-5 py-2.5 bg-zinc-800/80 text-zinc-300 text-sm rounded-xl hover:bg-zinc-700 transition-all flex items-center gap-2 font-medium border border-zinc-700"
+            <Link
+              href="/reviews?tab=incidents"
+              className="px-5 py-2.5 bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] text-sm rounded-xl hover:bg-zinc-700 transition-all flex items-center gap-2 font-medium border border-[var(--ip-border)]"
             >
               <AlertTriangle size={14} /> Report incident
             </Link>

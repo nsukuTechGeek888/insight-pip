@@ -28,7 +28,7 @@ export async function GET(
             description: true,
             timeLimit: true,
             rules: true,
-            profitTarget: true,
+
             accountOptions: true
           }
         },

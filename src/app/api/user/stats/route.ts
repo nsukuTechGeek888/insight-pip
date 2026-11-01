@@ -1,3 +1,4 @@
+import {sessionSecret} from '@/lib/session-secret';
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
@@ -7,31 +8,31 @@ const prisma = new PrismaClient();
 async function getUserFromToken(request: NextRequest) {
   const token = request.cookies.get('auth_token')?.value;
   console.log('🔑 Stats API - Token present:', !!token);
-  
+
   if (!token) return null;
   try {
     const decoded = jwt.verify(
-      token, 
-      process.env.JWT_SECRET || "development-secret-key-12345"
+      token,
+      sessionSecret()
     ) as { userId: string };
     console.log('✅ Stats API - Decoded user ID:', decoded.userId);
-    
-    const user = await prisma.user.findUnique({ 
+
+    const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: { id: true, email: true, name: true, role: true, avatar: true, createdAt: true }
     });
     console.log('✅ Stats API - User found:', user?.email);
     return user;
-  } catch (error) { 
+  } catch (error) {
     console.error('❌ Stats API - Token verification error:', error);
-    return null; 
+    return null;
   }
 }
 
 export async function GET(request: NextRequest) {
   try {
     console.log('🚀 Stats API called');
-    
+
     const user = await getUserFromToken(request);
     if (!user) {
       console.log('❌ Stats API - No user found');
@@ -41,16 +42,16 @@ export async function GET(request: NextRequest) {
     console.log('📊 Stats API - Fetching data for user:', user.id);
 
     // Get user's reviews
-    let reviews = [];
+    let reviews: Array<{id:string;status:string;rating:number;helpfulCount:number;trustScore:number|null;createdAt:Date;title:string;broker:{name:string}|null;propFirm:{name:string}|null}> = [];
     try {
       reviews = await prisma.review.findMany({
         where: { userId: user.id },
-        select: { 
-          id: true, 
-          status: true, 
-          rating: true, 
-          helpfulCount: true, 
-          trustScore: true, 
+        select: {
+          id: true,
+          status: true,
+          rating: true,
+          helpfulCount: true,
+          trustScore: true,
           createdAt: true,
           title: true,
           broker: { select: { name: true } },
@@ -64,19 +65,20 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user's incidents
-    let incidents = [];
+    let incidents: Array<{id:string;status:string;confirmations:number;disputes:number;createdAt:Date;title:string;incidentType:string;resolutionStatus:string;verifiedBadge:boolean}> = [];
     try {
       incidents = await prisma.incident.findMany({
         where: { userId: user.id },
-        select: { 
-          id: true, 
-          status: true, 
-          confirmations: true, 
-          disputes: true, 
+        select: {
+          id: true,
+          status: true,
+          confirmations: true,
+          disputes: true,
           createdAt: true,
           title: true,
           incidentType: true,
-          resolutionStatus: true
+          resolutionStatus: true,
+          verifiedBadge: true
         },
         orderBy: { createdAt: 'desc' }
       });
@@ -99,8 +101,8 @@ export async function GET(request: NextRequest) {
     // Get favorites count
     let totalFavorites = 0;
     try {
-      totalFavorites = await prisma.favorite.count({ 
-        where: { userId: user.id } 
+      totalFavorites = await prisma.favorite.count({
+        where: { userId: user.id }
       });
       console.log(`✅ Stats API - Favorites: ${totalFavorites}`);
     } catch (err) {
@@ -113,13 +115,13 @@ export async function GET(request: NextRequest) {
     const pendingReviews = reviews.filter(r => r.status === 'PENDING').length;
     const rejectedReviews = reviews.filter(r => r.status === 'REJECTED').length;
     const helpfulReceived = reviews.reduce((sum, r) => sum + (r.helpfulCount || 0), 0);
-    
+
     // Calculate incident stats
     const totalIncidents = incidents.length;
     const resolvedIncidents = incidents.filter(i => i.status === 'APPROVED' || i.resolutionStatus === 'RESOLVED').length;
     const pendingIncidents = incidents.filter(i => i.status === 'PENDING').length;
     const verifiedIncidents = incidents.filter(i => i.verifiedBadge === true).length;
-    
+
     // Calculate average trust score
     const approvedReviewsWithTrust = reviews.filter(r => r.status === 'APPROVED' && r.trustScore);
     let avgTrustScore = 0;
@@ -192,11 +194,11 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(responseData);
-    
+
   } catch (error) {
     console.error('❌ Stats API - Fatal error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch user stats', details: error.message }, 
+      { error: 'Failed to fetch user stats', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   } finally {

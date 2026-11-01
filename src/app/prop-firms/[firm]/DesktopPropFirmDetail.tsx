@@ -1,5 +1,6 @@
 "use client";
 
+import {notify} from '@/components/ui/Feedback';
 import React, { useState, useEffect, useRef } from "react";
 import { notFound, useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,7 +13,7 @@ import TrustScoreBadge from "@/components/ui/TrustScoreBadge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { 
+import {
   Star, ExternalLink, Users, Shield, Zap, Clock, DollarSign,
   Check, X, BarChart3, Target, Award, Globe, Copy, CheckCircle,
   Rocket, Network, TrendingUp, ShieldCheck, ArrowLeft,
@@ -20,7 +21,7 @@ import {
   CreditCard, Smartphone, Monitor, Lock as LockIcon, PieChart,
   Wallet, Building, Gift, Mail, Phone, MessageCircle,
   BookOpen, AlertTriangle, ThumbsUp, ThumbsDown,
-  Sparkles, Flame, Crown, Gem, Info, RefreshCw, 
+  Sparkles, Flame, Crown, Gem, Info, RefreshCw,
   Headphones, Activity, Flag, Plus, Send as SendIcon,
   Landmark, Scale, Twitter, Facebook, Youtube, Instagram,
   Linkedin, Send, AlertOctagon, CalendarIcon,
@@ -29,7 +30,7 @@ import {
   ImagePlus, Reply, ChevronLeft, ChevronRight, Loader2,
   Trophy, Medal, Timer, Gauge, ChartNoAxesCombined,
   BadgeDollarSign, Compass, GitCompare, LayoutGrid,
-  Image as ImageIcon, User, Briefcase, AlertCircle, 
+  Image as ImageIcon, User, Briefcase, AlertCircle,
   ThumbsUp as ThumbsUpIcon, ThumbsDown as ThumbsDownIcon,
   FileText, BarChart, TrendingUp as TrendingUpIcon,
   GraduationCap, Sword, Store, Wallet as WalletIcon,
@@ -54,16 +55,16 @@ const REGION_DISPLAY: Record<string, { label: string; flag: string }> = {
   GLOBAL: { label: 'Global', flag: '🌍' },
 };
 
-interface Props { 
-  params: Promise<{ firm: string }>
+interface Props {
+  params: { firm: string }
 }
 
 // Helper function to generate gradient for fallback
 const generateGradient = (name: string) => {
   const gradients = [
-    "from-purple-500 to-pink-500", "from-blue-500 to-cyan-500", 
+    "from-blue-500 to-pink-500", "from-blue-500 to-cyan-500",
     "from-green-500 to-emerald-500", "from-orange-500 to-red-500",
-    "from-indigo-500 to-purple-500", "from-teal-500 to-green-500"
+    "from-indigo-500 to-blue-500", "from-teal-500 to-green-500"
   ];
   return gradients[(name?.length || 0) % gradients.length];
 };
@@ -71,9 +72,9 @@ const generateGradient = (name: string) => {
 // ===================== CONVERSION BUTTON COMPONENTS =====================
 
 // Primary CTA Button
-function PrimaryCTA({ href, text, size = "lg", className = "", showSparkle = true }: { 
-  href: string; 
-  text: string; 
+function PrimaryCTA({ href, text, size = "lg", className = "", showSparkle = true }: {
+  href: string;
+  text: string;
   size?: "sm" | "md" | "lg";
   className?: string;
   showSparkle?: boolean;
@@ -83,16 +84,16 @@ function PrimaryCTA({ href, text, size = "lg", className = "", showSparkle = tru
     md: "px-6 py-3 text-sm",
     lg: "px-8 py-4 text-base"
   };
-  
+
   return (
-    <button 
+    <button
       onClick={() => window.open(href, '_blank')}
-      className={`relative group bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white rounded-xl font-bold hover:from-purple-500 hover:via-pink-500 hover:to-orange-400 transition-all duration-300 shadow-lg hover:shadow-purple-500/50 flex items-center justify-center gap-2 overflow-hidden ${sizes[size]} ${className}`}
+      className={`relative group bg-gradient-to-r from-blue-600 via-pink-600 to-orange-500 text-[var(--ip-text)] rounded-xl font-bold hover:from-blue-500 hover:via-pink-500 hover:to-orange-400 transition-all duration-300 shadow-lg hover:shadow-blue-500/50 flex items-center justify-center gap-2 overflow-hidden ${sizes[size]} ${className}`}
     >
       {showSparkle && (
         <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
       )}
-      {showSparkle && <Sparkle size={size === "sm" ? 14 : size === "md" ? 16 : 18} className="text-white/80" />}
+      {showSparkle && <Sparkle size={size === "sm" ? 14 : size === "md" ? 16 : 18} className="text-[var(--ip-text)]/80" />}
       {text}
       <ExternalLink size={size === "sm" ? 12 : size === "md" ? 14 : 16} />
     </button>
@@ -100,9 +101,9 @@ function PrimaryCTA({ href, text, size = "lg", className = "", showSparkle = tru
 }
 
 // Secondary CTA
-function SecondaryCTA({ href, text, size = "md", className = "" }: { 
-  href: string; 
-  text: string; 
+function SecondaryCTA({ href, text, size = "md", className = "" }: {
+  href: string;
+  text: string;
   size?: "sm" | "md" | "lg";
   className?: string;
 }) {
@@ -111,11 +112,11 @@ function SecondaryCTA({ href, text, size = "md", className = "" }: {
     md: "px-5 py-2.5 text-sm",
     lg: "px-7 py-3 text-base"
   };
-  
+
   return (
-    <button 
+    <button
       onClick={() => window.open(href, '_blank')}
-      className={`bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg font-medium hover:from-amber-400 hover:to-orange-400 transition-all shadow-lg hover:shadow-amber-500/30 flex items-center justify-center gap-2 ${sizes[size]} ${className}`}
+      className={`bg-gradient-to-r from-amber-500 to-orange-500 text-[var(--ip-text)] rounded-lg font-medium hover:from-amber-400 hover:to-orange-400 transition-all shadow-lg hover:shadow-amber-500/30 flex items-center justify-center gap-2 ${sizes[size]} ${className}`}
     >
       <RocketIcon size={size === "sm" ? 12 : size === "md" ? 14 : 16} />
       {text}
@@ -125,9 +126,9 @@ function SecondaryCTA({ href, text, size = "md", className = "" }: {
 }
 
 // Program-specific CTA
-function ProgramCTA({ href, text, size = "sm", className = "" }: { 
-  href: string; 
-  text: string; 
+function ProgramCTA({ href, text, size = "sm", className = "" }: {
+  href: string;
+  text: string;
   size?: "sm" | "md";
   className?: string;
 }) {
@@ -135,14 +136,14 @@ function ProgramCTA({ href, text, size = "sm", className = "" }: {
     sm: "px-3 py-1.5 text-xs",
     md: "px-4 py-2 text-sm"
   };
-  
+
   return (
-    <button 
+    <button
       onClick={(e) => {
         e.stopPropagation();
         window.open(href, '_blank');
       }}
-      className={`bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-medium hover:from-green-500 hover:to-emerald-500 transition-all shadow-md hover:shadow-green-500/20 flex items-center justify-center gap-1.5 ${sizes[size]} ${className}`}
+      className={`bg-gradient-to-r from-green-600 to-emerald-600 text-[var(--ip-text)] rounded-lg font-medium hover:from-green-500 hover:to-emerald-500 transition-all shadow-md hover:shadow-green-500/20 flex items-center justify-center gap-1.5 ${sizes[size]} ${className}`}
     >
       <RocketIcon size={size === "sm" ? 10 : 12} />
       {text}
@@ -151,9 +152,9 @@ function ProgramCTA({ href, text, size = "sm", className = "" }: {
 }
 
 // Star Rating Component
-function StarRating({ rating, count = 0, size = "sm", readonly = true, setRating }: { 
-  rating: number; 
-  count?: number; 
+function StarRating({ rating, count = 0, size = "sm", readonly = true, setRating }: {
+  rating: number;
+  count?: number;
   size?: "sm" | "md" | "lg";
   readonly?: boolean;
   setRating?: (rating: number) => void;
@@ -167,17 +168,17 @@ function StarRating({ rating, count = 0, size = "sm", readonly = true, setRating
     <div className="flex items-center gap-1.5">
       <div className={`flex gap-0.5 ${!readonly ? 'cursor-pointer' : ''}`}>
         {[1, 2, 3, 4, 5].map((i) => (
-          <Star 
-            key={i} 
+          <Star
+            key={i}
             className={`${sizes[size]} ${i <= (setRating ? rating : roundedRating) && (hasReviews || setRating) ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-600'} ${!readonly ? 'hover:text-yellow-400 hover:fill-yellow-400 transition-colors' : ''}`}
             onClick={() => !readonly && setRating && setRating(i)}
           />
         ))}
       </div>
       {hasReviews && (
-        <span className="text-sm text-white">{displayRating.toFixed(1)}</span>
+        <span className="text-sm text-[var(--ip-text)]">{displayRating.toFixed(1)}</span>
       )}
-      {count > 0 && <span className="text-xs text-zinc-500">({count} reviews)</span>}
+      {count > 0 && <span className="text-xs text-[var(--ip-text-2)]">({count} reviews)</span>}
     </div>
   );
 }
@@ -187,12 +188,12 @@ function TrustScoreDisplay({ score }: { score: number }) {
   let bgColor = 'bg-red-500/20', textColor = 'text-red-400', text = 'Low';
   if (score >= 80) { bgColor = 'bg-green-500/20'; textColor = 'text-green-400'; text = 'High'; }
   else if (score >= 60) { bgColor = 'bg-yellow-500/20'; textColor = 'text-yellow-400'; text = 'Medium'; }
-  
+
   return (
     <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${bgColor}`}>
       <Shield size={14} className={textColor} />
       <span className={`text-sm font-medium ${textColor}`}>{text} Trust</span>
-      <span className="text-white text-sm font-bold">{score}</span>
+      <span className="text-[var(--ip-text)] text-sm font-bold">{score}</span>
     </div>
   );
 }
@@ -202,7 +203,7 @@ function InfoCard({ icon: Icon, label, value, color = "blue", badge, href, ctaTe
   const colors: Record<string, string> = {
     blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
     green: "bg-green-500/10 text-green-400 border-green-500/20",
-    purple: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+    purple: "bg-blue-500/10 text-blue-400 border-blue-500/20",
     orange: "bg-orange-500/10 text-orange-400 border-orange-500/20",
     red: "bg-red-500/10 text-red-400 border-red-500/20",
     yellow: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
@@ -211,26 +212,26 @@ function InfoCard({ icon: Icon, label, value, color = "blue", badge, href, ctaTe
     pink: "bg-pink-500/10 text-pink-400 border-pink-500/20",
     teal: "bg-teal-500/10 text-teal-400 border-teal-500/20",
   };
-  
+
   const displayValue = (value !== undefined && value !== null && value !== '') ? value : '—';
-  const cleanValue = typeof displayValue === 'string' && displayValue.startsWith('$$') 
-    ? displayValue.substring(1) 
+  const cleanValue = typeof displayValue === 'string' && displayValue.startsWith('$$')
+    ? displayValue.substring(1)
     : displayValue;
-  
+
   return (
     <div className={`p-3 rounded-xl border ${colors[color] || colors.blue} group hover:scale-105 transition-all duration-300`}>
       <div className="flex items-center gap-2 mb-1">
         <Icon size={14} />
-        <span className="text-xs text-zinc-500">{label}</span>
+        <span className="text-xs text-[var(--ip-text-2)]">{label}</span>
       </div>
-      <div className="text-white font-semibold text-sm flex items-center gap-2">
+      <div className="text-[var(--ip-text)] font-semibold text-sm flex items-center gap-2">
         {cleanValue}
-        {badge && <span className="text-[8px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded-full">{badge}</span>}
+        {badge && <span className="text-[8px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded-full">{badge}</span>}
       </div>
       {href && (
-        <button 
+        <button
           onClick={() => window.open(href, '_blank')}
-          className="mt-2 text-[10px] text-purple-400 hover:text-purple-300 flex items-center gap-1 transition-colors opacity-0 group-hover:opacity-100"
+          className="mt-2 text-[10px] text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors opacity-0 group-hover:opacity-100"
         >
           {ctaText || 'Claim Now'} →
         </button>
@@ -242,9 +243,9 @@ function InfoCard({ icon: Icon, label, value, color = "blue", badge, href, ctaTe
 // Offer Card Component
 function OfferCard({ promotion, affiliateLink }: { promotion: any; affiliateLink: string }) {
   if (!promotion) return null;
-  
+
   const cleanDescription = promotion.description?.replace(/\$\$/g, '$') || '';
-  
+
   return (
     <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl p-4 border border-amber-500/30 hover:border-amber-500/50 transition-all">
       <div className="flex items-start justify-between gap-4">
@@ -253,12 +254,12 @@ function OfferCard({ promotion, affiliateLink }: { promotion: any; affiliateLink
             <Gift size={16} className="text-amber-400" />
             <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">Limited Offer</span>
             {promotion.code && (
-              <span className="text-[10px] bg-zinc-800 px-2 py-0.5 rounded-full text-zinc-400">Code: {promotion.code}</span>
+              <span className="text-[10px] bg-[var(--ip-surface-2)] px-2 py-0.5 rounded-full text-[var(--ip-text-2)]">Code: {promotion.code}</span>
             )}
           </div>
-          <h4 className="text-white font-semibold text-base">{promotion.name || 'Special Offer'}</h4>
+          <h4 className="text-[var(--ip-text)] font-semibold text-base">{promotion.name || 'Special Offer'}</h4>
           {cleanDescription && (
-            <p className="text-xs text-zinc-400 mt-1">{cleanDescription}</p>
+            <p className="text-xs text-[var(--ip-text-2)] mt-1">{cleanDescription}</p>
           )}
           {promotion.discount && (
             <div className="mt-2 inline-flex items-center gap-1 bg-green-500/20 px-2 py-0.5 rounded-full">
@@ -275,9 +276,9 @@ function OfferCard({ promotion, affiliateLink }: { promotion: any; affiliateLink
         <div className="flex-shrink-0">
           {promotion.code ? (
             <div className="flex flex-col gap-2">
-              <button 
+              <button
                 onClick={() => navigator.clipboard.writeText(promotion.code)}
-                className="px-3 py-1.5 bg-zinc-800 rounded-lg text-white text-xs hover:bg-zinc-700 transition-colors flex items-center gap-1"
+                className="px-3 py-1.5 bg-[var(--ip-surface-2)] rounded-lg text-[var(--ip-text)] text-xs hover:bg-zinc-700 transition-colors flex items-center gap-1"
               >
                 <Copy size={10} /> Copy Code
               </button>
@@ -336,7 +337,7 @@ const getMinAccountSize = (firm: any) => {
 const isAvailableInRegion = (firm: any, region: string) => {
   if (!firm) return false;
   if (firm.regions) {
-    return firm.regions.includes(region) || 
+    return firm.regions.includes(region) ||
            firm.regions.includes('GLOBAL') ||
            firm.regions.length === 0;
   }
@@ -347,13 +348,13 @@ const isAvailableInRegion = (firm: any, region: string) => {
 };
 
 // ===================== LIGHTBOX MODAL =====================
-function LightboxModal({ images, initialIndex, onClose }: { 
-  images: string[]; 
-  initialIndex: number; 
+function LightboxModal({ images, initialIndex, onClose }: {
+  images: string[];
+  initialIndex: number;
   onClose: () => void;
 }) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -380,9 +381,9 @@ function LightboxModal({ images, initialIndex, onClose }: {
         onClick={onClose}
         className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10"
       >
-        <X size={24} className="text-white" />
+        <X size={24} className="text-[var(--ip-text)]" />
       </button>
-      
+
       {images.length > 1 && (
         <>
           <button
@@ -390,14 +391,14 @@ function LightboxModal({ images, initialIndex, onClose }: {
             className="absolute left-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors disabled:opacity-50"
             disabled={currentIndex === 0}
           >
-            <ChevronLeft size={24} className="text-white" />
+            <ChevronLeft size={24} className="text-[var(--ip-text)]" />
           </button>
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-white text-sm">
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-[var(--ip-text)] text-sm">
             {currentIndex + 1} / {images.length}
           </div>
         </>
       )}
-      
+
       <motion.div
         key={currentIndex}
         initial={{ opacity: 0, scale: 0.9 }}
@@ -408,25 +409,25 @@ function LightboxModal({ images, initialIndex, onClose }: {
         {images[currentIndex].match(/\.(mp4|webm|mov)$/i) ? (
           <video src={images[currentIndex]} controls autoPlay className="max-w-full max-h-[90vh] rounded-lg" />
         ) : (
-          <img 
-            src={images[currentIndex]} 
-            alt="Full size view" 
+          <img
+            src={images[currentIndex]}
+            alt="Full size view"
             className="max-w-full max-h-[90vh] object-contain rounded-lg"
           />
         )}
       </motion.div>
-      
+
       {images.length > 1 && (
         <button
           onClick={(e) => { e.stopPropagation(); setCurrentIndex(prev => Math.min(images.length - 1, prev + 1)); }}
           className="absolute right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors disabled:opacity-50"
           disabled={currentIndex === images.length - 1}
         >
-          <ChevronRight size={24} className="text-white" />
+          <ChevronRight size={24} className="text-[var(--ip-text)]" />
         </button>
       )}
-      
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-xs bg-black/50 px-3 py-1 rounded-full">
+
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-[var(--ip-text)] text-xs bg-black/50 px-3 py-1 rounded-full">
         Click outside to close
       </div>
     </motion.div>
@@ -434,8 +435,8 @@ function LightboxModal({ images, initialIndex, onClose }: {
 }
 
 // ===================== REPLY THREAD COMPONENT =====================
-function ReplyThread({ reply, onReply, onLoadChildReplies, onOpenLightbox, depth = 0, currentUser }: { 
-  reply: any; 
+function ReplyThread({ reply, onReply, onLoadChildReplies, onOpenLightbox, depth = 0, currentUser }: {
+  reply: any;
   onReply: (parentId: string, content: string, mediaFiles: File[]) => Promise<boolean>;
   onLoadChildReplies: (replyId: string) => Promise<any[]>;
   onOpenLightbox: (images: string[], index: number) => void;
@@ -457,9 +458,9 @@ function ReplyThread({ reply, onReply, onLoadChildReplies, onOpenLightbox, depth
       setIsExpanded(false);
       return;
     }
-    
+
     setIsExpanded(true);
-    
+
     if (!hasLoaded && reply.replyCount > 0) {
       setIsLoading(true);
       const children = await onLoadChildReplies(reply.id);
@@ -471,16 +472,16 @@ function ReplyThread({ reply, onReply, onLoadChildReplies, onOpenLightbox, depth
 
   const handleSubmitReply = async () => {
     if ((!replyContent.trim() && replyMedia.length === 0) || isSubmitting) return;
-    
+
     setIsSubmitting(true);
     try {
       const success = await onReply(reply.id, replyContent, replyMedia);
-      
+
       if (success) {
         setReplyContent('');
         setReplyMedia([]);
         setShowReplyForm(false);
-        
+
         setTimeout(async () => {
           setIsLoading(true);
           const children = await onLoadChildReplies(reply.id);
@@ -502,11 +503,11 @@ function ReplyThread({ reply, onReply, onLoadChildReplies, onOpenLightbox, depth
       case 'BROKER':
         return { bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-400', label: 'Official Broker Response' };
       case 'PROP_FIRM':
-        return { bg: 'bg-purple-500/10', border: 'border-purple-500/30', text: 'text-purple-400', label: 'Official Prop Firm Response' };
+        return { bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-400', label: 'Official Prop Firm Response' };
       case 'ADMIN':
         return { bg: 'bg-red-500/10', border: 'border-red-500/30', text: 'text-red-400', label: 'Admin Response' };
       default:
-        return { bg: 'bg-zinc-800/50', border: 'border-zinc-700', text: 'text-zinc-400', label: 'User Comment' };
+        return { bg: 'bg-[var(--ip-surface-2)]', border: 'border-[var(--ip-border)]', text: 'text-[var(--ip-text-2)]', label: 'User Comment' };
     }
   };
 
@@ -520,13 +521,13 @@ function ReplyThread({ reply, onReply, onLoadChildReplies, onOpenLightbox, depth
     <div className={`${depth > 0 ? 'ml-8 mt-3' : 'mt-3'}`}>
       <div className={`p-3 rounded-xl ${styles.bg} border ${styles.border}`}>
         <div className="flex items-start gap-3">
-          <div className={`w-8 h-8 rounded-full bg-gradient-to-r ${generateGradient(reply.user?.name || reply.broker?.name || reply.propFirm?.name || 'Reply')} flex items-center justify-center text-white font-bold text-sm flex-shrink-0`}>
+          <div className={`w-8 h-8 rounded-full bg-gradient-to-r ${generateGradient(reply.user?.name || reply.broker?.name || reply.propFirm?.name || 'Reply')} flex items-center justify-center text-[var(--ip-text)] font-bold text-sm flex-shrink-0`}>
             {(reply.user?.name?.charAt(0) || reply.broker?.name?.charAt(0) || reply.propFirm?.name?.charAt(0) || 'U').toUpperCase()}
           </div>
-          
+
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-medium text-white text-sm">
+              <span className="font-medium text-[var(--ip-text)] text-sm">
                 {reply.user?.name || reply.broker?.name || reply.propFirm?.name || 'Anonymous'}
               </span>
               {reply.replyType !== 'USER' && (
@@ -534,34 +535,34 @@ function ReplyThread({ reply, onReply, onLoadChildReplies, onOpenLightbox, depth
                   {styles.label}
                 </span>
               )}
-              <span className="text-xs text-zinc-500">
+              <span className="text-xs text-[var(--ip-text-2)]">
                 {new Date(reply.createdAt).toLocaleDateString()}
               </span>
             </div>
-            <p className="text-zinc-300 text-sm mt-1 break-words">{reply.content}</p>
-            
+            <p className="text-[var(--ip-text-2)] text-sm mt-1 break-words">{reply.content}</p>
+
             {reply.mediaUrls && reply.mediaUrls.length > 0 && (
               <div className="flex gap-2 mt-2 flex-wrap">
                 {reply.mediaUrls.map((url: string, idx: number) => (
-                  <div 
-                    key={idx} 
-                    className="relative w-20 h-20 rounded-lg overflow-hidden bg-zinc-800 cursor-pointer group"
+                  <div
+                    key={idx}
+                    className="relative w-20 h-20 rounded-lg overflow-hidden bg-[var(--ip-surface-2)] cursor-pointer group"
                     onClick={() => onOpenLightbox(reply.mediaUrls, idx)}
                   >
                     <img src={url} alt="Uploaded" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Eye size={16} className="text-white" />
+                      <Eye size={16} className="text-[var(--ip-text)]" />
                     </div>
                   </div>
                 ))}
               </div>
             )}
-            
+
             <div className="flex items-center gap-3 mt-2">
               {depth < maxDepth && (
                 <button
                   onClick={() => setShowReplyForm(!showReplyForm)}
-                  className="text-xs text-zinc-500 hover:text-purple-400 transition-colors flex items-center gap-1"
+                  className="text-xs text-[var(--ip-text-2)] hover:text-blue-400 transition-colors flex items-center gap-1"
                 >
                   <Reply size={10} /> Reply
                 </button>
@@ -569,21 +570,21 @@ function ReplyThread({ reply, onReply, onLoadChildReplies, onOpenLightbox, depth
               {reply.replyCount > 0 && (
                 <button
                   onClick={handleToggleExpand}
-                  className="text-xs text-zinc-500 hover:text-purple-400 transition-colors flex items-center gap-1"
+                  className="text-xs text-[var(--ip-text-2)] hover:text-blue-400 transition-colors flex items-center gap-1"
                 >
                   <MessageCircle size={10} />
                   {isExpanded ? 'Hide' : `View ${reply.replyCount} ${reply.replyCount === 1 ? 'reply' : 'replies'}`}
                 </button>
               )}
             </div>
-            
+
             {showReplyForm && (
               <div className="mt-3">
                 <textarea
                   value={replyContent}
                   onChange={(e) => setReplyContent(e.target.value)}
                   placeholder={`Reply to ${reply.user?.name || 'user'}...`}
-                  className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500"
+                  className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-3 py-2 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500"
                   rows={2}
                 />
                 {replyMedia.length > 0 && (
@@ -592,36 +593,36 @@ function ReplyThread({ reply, onReply, onLoadChildReplies, onOpenLightbox, depth
                       <div key={idx} className="relative">
                         <img src={URL.createObjectURL(file)} alt="" className="w-12 h-12 rounded-lg object-cover" />
                         <button onClick={() => removeFile(idx)} className="absolute -top-1 -right-1 p-0.5 bg-red-500 rounded-full">
-                          <X size={10} className="text-white" />
+                          <X size={10} className="text-[var(--ip-text)]" />
                         </button>
                       </div>
                     ))}
                   </div>
                 )}
                 <div className="flex justify-between items-center mt-2">
-                  <label className="cursor-pointer p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition-colors">
-                    <ImagePlus size={14} className="text-zinc-400" />
-                    <input 
-                      type="file" 
-                      multiple 
-                      accept="image/*,video/*" 
-                      className="hidden" 
+                  <label className="cursor-pointer p-1.5 rounded-lg bg-[var(--ip-surface-2)] hover:bg-zinc-700 transition-colors">
+                    <ImagePlus size={14} className="text-[var(--ip-text-2)]" />
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*,video/*"
+                      className="hidden"
                       onChange={(e) => {
                         if (e.target.files) setReplyMedia(Array.from(e.target.files));
-                      }} 
+                      }}
                     />
                   </label>
                   <div className="flex gap-2">
                     <button
                       onClick={() => setShowReplyForm(false)}
-                      className="px-3 py-1 rounded-lg bg-zinc-700 text-white text-xs"
+                      className="px-3 py-1 rounded-lg bg-zinc-700 text-[var(--ip-text)] text-xs"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleSubmitReply}
                       disabled={(!replyContent.trim() && replyMedia.length === 0) || isSubmitting}
-                      className="px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-xs disabled:opacity-50 flex items-center gap-1"
+                      className="px-3 py-1 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-lg text-xs disabled:opacity-50 flex items-center gap-1"
                     >
                       {isSubmitting ? <Loader2 size={10} className="animate-spin" /> : <Send size={10} />}
                       {isSubmitting ? 'Sending...' : 'Reply'}
@@ -633,12 +634,12 @@ function ReplyThread({ reply, onReply, onLoadChildReplies, onOpenLightbox, depth
           </div>
         </div>
       </div>
-      
+
       {isExpanded && (
         <div className="mt-2">
           {isLoading ? (
             <div className="ml-8 mt-3 p-4 text-center">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-500 mx-auto"></div>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mx-auto"></div>
             </div>
           ) : (
             childReplies.map((childReply) => (
@@ -660,20 +661,20 @@ function ReplyThread({ reply, onReply, onLoadChildReplies, onOpenLightbox, depth
 }
 
 // ===================== REVIEW FORM MODAL =====================
-function ReviewFormModal({ isOpen, onClose, firm, onSuccess }: { 
-  isOpen: boolean; 
-  onClose: () => void; 
-  firm: any; 
+function ReviewFormModal({ isOpen, onClose, firm, onSuccess }: {
+  isOpen: boolean;
+  onClose: () => void;
+  firm: any;
   onSuccess: () => void;
 }) {
   const { user } = useUser();
   const router = useRouter();
-  
+
   const [withdrawalExperience, setWithdrawalExperience] = useState(0);
   const [executionQuality, setExecutionQuality] = useState(0);
   const [reliability, setReliability] = useState(0);
   const [customerSupport, setCustomerSupport] = useState(0);
-  
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [pros, setPros] = useState("");
@@ -690,13 +691,13 @@ function ReviewFormModal({ isOpen, onClose, firm, onSuccess }: {
   if (!user) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
-        <div className="bg-zinc-900 rounded-2xl p-6 text-center max-w-sm mx-auto" onClick={(e) => e.stopPropagation()}>
-          <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4"><LockIcon size={28} className="text-white" /></div>
-          <h3 className="text-xl font-bold text-white mb-2">Login Required</h3>
-          <p className="text-zinc-400 mb-6">Please login to write a review.</p>
+        <div className="bg-[var(--ip-surface)] rounded-2xl p-6 text-center max-w-sm mx-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4"><LockIcon size={28} className="text-[var(--ip-text)]" /></div>
+          <h3 className="text-xl font-bold text-[var(--ip-text)] mb-2">Login Required</h3>
+          <p className="text-[var(--ip-text-2)] mb-6">Please login to write a review.</p>
           <div className="flex gap-3">
-            <button onClick={onClose} className="flex-1 py-2 rounded-lg bg-zinc-800 text-white">Cancel</button>
-            <button onClick={() => { router.push('/login'); onClose(); }} className="flex-1 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white">Login</button>
+            <button onClick={onClose} className="flex-1 py-2 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text)]">Cancel</button>
+            <button onClick={() => { router.push('/login'); onClose(); }} className="flex-1 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)]">Login</button>
           </div>
         </div>
       </div>
@@ -715,7 +716,7 @@ function ReviewFormModal({ isOpen, onClose, firm, onSuccess }: {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    
+
     if (!title.trim()) { setError("Please enter a title"); return; }
     if (!content.trim()) { setError("Please enter your review"); return; }
     if (!agreeTerms) { setError("Please agree to the terms"); return; }
@@ -727,7 +728,7 @@ function ReviewFormModal({ isOpen, onClose, firm, onSuccess }: {
     setIsSubmitting(true);
     try {
       const totalRating = [withdrawalExperience, executionQuality, reliability, customerSupport]
-        .filter(r => r > 0).reduce((a, b) => a + b, 0) / 
+        .filter(r => r > 0).reduce((a, b) => a + b, 0) /
         [withdrawalExperience, executionQuality, reliability, customerSupport].filter(r => r > 0).length;
 
       const payload: any = {
@@ -740,7 +741,7 @@ function ReviewFormModal({ isOpen, onClose, firm, onSuccess }: {
         cons: cons.trim() || undefined,
         verifiedTrader,
       };
-      
+
       if (withdrawalExperience > 0) payload.withdrawalExperience = withdrawalExperience;
       if (executionQuality > 0) payload.executionQuality = executionQuality;
       if (reliability > 0) payload.reliability = reliability;
@@ -754,7 +755,7 @@ function ReviewFormModal({ isOpen, onClose, firm, onSuccess }: {
       });
 
       if (!response.ok) throw new Error('Failed to submit review');
-      
+
       setSuccess(true);
       setTimeout(() => { onSuccess(); onClose(); }, 2000);
     } catch (err) {
@@ -765,8 +766,8 @@ function ReviewFormModal({ isOpen, onClose, firm, onSuccess }: {
   };
 
   const RatingRow = ({ label, value, setValue, icon }: any) => (
-    <div className="flex items-center justify-between gap-3 p-2 bg-zinc-800/30 rounded-lg">
-      <div className="flex items-center gap-2 text-xs text-zinc-300 min-w-[100px]">{icon}{label}</div>
+    <div className="flex items-center justify-between gap-3 p-2 bg-[var(--ip-surface-2)] rounded-lg">
+      <div className="flex items-center gap-2 text-xs text-[var(--ip-text-2)] min-w-[100px]">{icon}{label}</div>
       <div className="flex gap-1">
         {[1,2,3,4,5].map(star => (
           <button key={star} type="button" onClick={() => setValue(star)} onMouseEnter={() => setHoverRating({ ...hoverRating, [label]: star })} onMouseLeave={() => setHoverRating({ ...hoverRating, [label]: 0 })} className="focus:outline-none">
@@ -781,55 +782,55 @@ function ReviewFormModal({ isOpen, onClose, firm, onSuccess }: {
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative w-full max-w-md bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden">
-          <div className="sticky top-0 bg-zinc-900 border-b border-zinc-800 px-5 py-4 flex justify-between items-center">
+        <div className="relative w-full max-w-md bg-[var(--ip-surface)] rounded-2xl border border-[var(--ip-border)] overflow-hidden">
+          <div className="sticky top-0 bg-[var(--ip-surface)] border-b border-[var(--ip-border)] px-5 py-4 flex justify-between items-center">
             <div className="flex items-center gap-2">
               {firm?.logo ? (
-                <div className="w-8 h-8 rounded-lg overflow-hidden bg-zinc-800 border border-zinc-700">
+                <div className="w-8 h-8 rounded-lg overflow-hidden bg-[var(--ip-surface-2)] border border-[var(--ip-border)]">
                   <img src={firm.logo} alt={firm.name} className="w-full h-full object-cover" />
                 </div>
               ) : (
-                <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${generateGradient(firm?.name)} flex items-center justify-center text-white font-bold text-sm`}>
+                <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${generateGradient(firm?.name)} flex items-center justify-center text-[var(--ip-text)] font-bold text-sm`}>
                   {firm?.name?.charAt(0) || 'P'}
                 </div>
               )}
-              <h2 className="text-white font-bold">Write a Review</h2>
+              <h2 className="text-[var(--ip-text)] font-bold">Write a Review</h2>
             </div>
-            <button onClick={onClose} className="p-1 rounded-lg hover:bg-zinc-800"><X size={18} className="text-zinc-400" /></button>
+            <button onClick={onClose} className="p-1 rounded-lg hover:bg-[var(--ip-surface-2)]"><X size={18} className="text-[var(--ip-text-2)]" /></button>
           </div>
 
           {success ? (
             <div className="p-8 text-center">
               <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4"><CheckCircle className="w-8 h-8 text-green-400" /></div>
-              <h3 className="text-xl font-bold text-white mb-2">Review Submitted!</h3>
-              <p className="text-zinc-400">Thank you for sharing your experience.</p>
+              <h3 className="text-xl font-bold text-[var(--ip-text)] mb-2">Review Submitted!</h3>
+              <p className="text-[var(--ip-text-2)]">Thank you for sharing your experience.</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
               <div className="space-y-2">
-                <label className="text-xs font-medium text-zinc-300">Rate Your Experience</label>
+                <label className="text-xs font-medium text-[var(--ip-text-2)]">Rate Your Experience</label>
                 <RatingRow label="Withdrawal" value={withdrawalExperience} setValue={setWithdrawalExperience} icon={<Wallet size={12} className="text-green-400" />} />
                 <RatingRow label="Execution" value={executionQuality} setValue={setExecutionQuality} icon={<Zap size={12} className="text-yellow-400" />} />
                 <RatingRow label="Reliability" value={reliability} setValue={setReliability} icon={<Shield size={12} className="text-blue-400" />} />
-                <RatingRow label="Support" value={customerSupport} setValue={setCustomerSupport} icon={<Headphones size={12} className="text-purple-400" />} />
+                <RatingRow label="Support" value={customerSupport} setValue={setCustomerSupport} icon={<Headphones size={12} className="text-blue-400" />} />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="text-xs text-zinc-400 mb-1 block">Pros (Optional)</label><Textarea placeholder="What you liked" value={pros} onChange={(e) => setPros(e.target.value)} rows={2} className="bg-zinc-800 border-zinc-700 text-white text-sm" /></div>
-                <div><label className="text-xs text-zinc-400 mb-1 block">Cons (Optional)</label><Textarea placeholder="What could improve" value={cons} onChange={(e) => setCons(e.target.value)} rows={2} className="bg-zinc-800 border-zinc-700 text-white text-sm" /></div>
+                <div><label className="text-xs text-[var(--ip-text-2)] mb-1 block">Pros (Optional)</label><Textarea placeholder="What you liked" value={pros} onChange={(e) => setPros(e.target.value)} rows={2} className="bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] text-sm" /></div>
+                <div><label className="text-xs text-[var(--ip-text-2)] mb-1 block">Cons (Optional)</label><Textarea placeholder="What could improve" value={cons} onChange={(e) => setCons(e.target.value)} rows={2} className="bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] text-sm" /></div>
               </div>
 
-              <div><label className="text-xs font-medium text-zinc-300 mb-1 block">Review Title *</label><Input placeholder="Summarize your experience" value={title} onChange={(e) => setTitle(e.target.value)} className="bg-zinc-800 border-zinc-700 text-white" /></div>
-              <div><label className="text-xs font-medium text-zinc-300 mb-1 block">Detailed Review *</label><Textarea placeholder="Share your experience..." value={content} onChange={(e) => setContent(e.target.value)} rows={3} className="bg-zinc-800 border-zinc-700 text-white resize-none" /></div>
+              <div><label className="text-xs font-medium text-[var(--ip-text-2)] mb-1 block">Review Title *</label><Input placeholder="Summarize your experience" value={title} onChange={(e) => setTitle(e.target.value)} className="bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)]" /></div>
+              <div><label className="text-xs font-medium text-[var(--ip-text-2)] mb-1 block">Detailed Review *</label><Textarea placeholder="Share your experience..." value={content} onChange={(e) => setContent(e.target.value)} rows={3} className="bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] resize-none" /></div>
 
-              <div className="flex items-center gap-2 p-2 bg-zinc-800/30 rounded-lg"><Checkbox checked={verifiedTrader} onCheckedChange={(c) => setVerifiedTrader(c as boolean)} className="border-zinc-600" /><span className="text-xs text-zinc-300">I am a verified funded trader</span></div>
-              <div className="flex items-center gap-2 p-2 bg-purple-500/10 rounded-lg border border-purple-500/20"><Checkbox checked={agreeTerms} onCheckedChange={(c) => setAgreeTerms(c as boolean)} className="border-purple-500" /><span className="text-xs text-zinc-300">I confirm this is based on my genuine experience *</span></div>
+              <div className="flex items-center gap-2 p-2 bg-[var(--ip-surface-2)] rounded-lg"><Checkbox checked={verifiedTrader} onCheckedChange={(c) => setVerifiedTrader(c as boolean)} className="border-zinc-600" /><span className="text-xs text-[var(--ip-text-2)]">I am a verified funded trader</span></div>
+              <div className="flex items-center gap-2 p-2 bg-blue-500/10 rounded-lg border border-blue-500/20"><Checkbox checked={agreeTerms} onCheckedChange={(c) => setAgreeTerms(c as boolean)} className="border-blue-500" /><span className="text-xs text-[var(--ip-text-2)]">I confirm this is based on my genuine experience *</span></div>
 
               {error && <div className="bg-red-500/20 rounded-lg p-2"><p className="text-red-400 text-xs">{error}</p></div>}
 
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={onClose} className="flex-1 py-2 rounded-lg bg-zinc-800 text-white text-sm">Cancel</button>
-                <button type="submit" disabled={isSubmitting || !agreeTerms || !title.trim() || !content.trim()} className="flex-1 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium disabled:opacity-50">Submit Review</button>
+                <button type="button" onClick={onClose} className="flex-1 py-2 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text)] text-sm">Cancel</button>
+                <button type="submit" disabled={isSubmitting || !agreeTerms || !title.trim() || !content.trim()} className="flex-1 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] text-sm font-medium disabled:opacity-50">Submit Review</button>
               </div>
             </form>
           )}
@@ -840,10 +841,10 @@ function ReviewFormModal({ isOpen, onClose, firm, onSuccess }: {
 }
 
 // Incident Form Modal
-function IncidentFormModal({ isOpen, onClose, firm, onSuccess }: { 
-  isOpen: boolean; 
-  onClose: () => void; 
-  firm: any; 
+function IncidentFormModal({ isOpen, onClose, firm, onSuccess }: {
+  isOpen: boolean;
+  onClose: () => void;
+  firm: any;
   onSuccess: () => void;
 }) {
   const { user } = useUser();
@@ -863,13 +864,13 @@ function IncidentFormModal({ isOpen, onClose, firm, onSuccess }: {
   if (!user) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
-        <div className="bg-zinc-900 rounded-2xl p-6 text-center max-w-sm mx-auto" onClick={(e) => e.stopPropagation()}>
-          <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4"><LockIcon size={28} className="text-white" /></div>
-          <h3 className="text-xl font-bold text-white mb-2">Login Required</h3>
-          <p className="text-zinc-400 mb-6">Please login to report an incident.</p>
+        <div className="bg-[var(--ip-surface)] rounded-2xl p-6 text-center max-w-sm mx-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4"><LockIcon size={28} className="text-[var(--ip-text)]" /></div>
+          <h3 className="text-xl font-bold text-[var(--ip-text)] mb-2">Login Required</h3>
+          <p className="text-[var(--ip-text-2)] mb-6">Please login to report an incident.</p>
           <div className="flex gap-3">
-            <button onClick={onClose} className="flex-1 py-2 rounded-lg bg-zinc-800 text-white">Cancel</button>
-            <button onClick={() => { router.push('/login'); onClose(); }} className="flex-1 py-2 rounded-lg bg-gradient-to-r from-red-600 to-orange-600 text-white">Login</button>
+            <button onClick={onClose} className="flex-1 py-2 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text)]">Cancel</button>
+            <button onClick={() => { router.push('/login'); onClose(); }} className="flex-1 py-2 rounded-lg bg-gradient-to-r from-red-600 to-orange-600 text-[var(--ip-text)]">Login</button>
           </div>
         </div>
       </div>
@@ -905,7 +906,7 @@ function IncidentFormModal({ isOpen, onClose, firm, onSuccess }: {
       });
 
       if (!response.ok) throw new Error('Failed to submit incident');
-      
+
       setSuccess(true);
       setTimeout(() => { onSuccess(); onClose(); }, 2000);
     } catch (err) {
@@ -922,34 +923,34 @@ function IncidentFormModal({ isOpen, onClose, firm, onSuccess }: {
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative w-full max-w-md bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden">
-          <div className="sticky top-0 bg-zinc-900 border-b border-zinc-800 px-5 py-4 flex justify-between items-center">
+        <div className="relative w-full max-w-md bg-[var(--ip-surface)] rounded-2xl border border-[var(--ip-border)] overflow-hidden">
+          <div className="sticky top-0 bg-[var(--ip-surface)] border-b border-[var(--ip-border)] px-5 py-4 flex justify-between items-center">
             <div className="flex items-center gap-2">
               {firm?.logo ? (
-                <div className="w-8 h-8 rounded-lg overflow-hidden bg-zinc-800 border border-zinc-700">
+                <div className="w-8 h-8 rounded-lg overflow-hidden bg-[var(--ip-surface-2)] border border-[var(--ip-border)]">
                   <img src={firm.logo} alt={firm.name} className="w-full h-full object-cover" />
                 </div>
               ) : (
-                <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${generateGradient(firm?.name)} flex items-center justify-center text-white font-bold text-sm`}>
+                <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${generateGradient(firm?.name)} flex items-center justify-center text-[var(--ip-text)] font-bold text-sm`}>
                   {firm?.name?.charAt(0) || 'P'}
                 </div>
               )}
-              <h2 className="text-white font-bold">Report Incident</h2>
+              <h2 className="text-[var(--ip-text)] font-bold">Report Incident</h2>
             </div>
-            <button onClick={onClose} className="p-1 rounded-lg hover:bg-zinc-800"><X size={18} className="text-zinc-400" /></button>
+            <button onClick={onClose} className="p-1 rounded-lg hover:bg-[var(--ip-surface-2)]"><X size={18} className="text-[var(--ip-text-2)]" /></button>
           </div>
 
           {success ? (
             <div className="p-8 text-center">
               <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4"><CheckCircle className="w-8 h-8 text-green-400" /></div>
-              <h3 className="text-xl font-bold text-white mb-2">Incident Reported!</h3>
-              <p className="text-zinc-400">Thank you for helping the community.</p>
+              <h3 className="text-xl font-bold text-[var(--ip-text)] mb-2">Incident Reported!</h3>
+              <p className="text-[var(--ip-text-2)]">Thank you for helping the community.</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
               <div>
-                <label className="text-xs font-medium text-zinc-300 mb-1 block">Incident Type *</label>
-                <select value={incidentType} onChange={(e) => setIncidentType(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-white text-sm">
+                <label className="text-xs font-medium text-[var(--ip-text-2)] mb-1 block">Incident Type *</label>
+                <select value={incidentType} onChange={(e) => setIncidentType(e.target.value)} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-3 py-2 text-[var(--ip-text)] text-sm">
                   <option value="">Select incident type</option>
                   {incidentTypes.map(type => (<option key={type.value} value={type.value}>{type.label}</option>))}
                 </select>
@@ -958,24 +959,24 @@ function IncidentFormModal({ isOpen, onClose, firm, onSuccess }: {
               {incidentType && selectedTypeInfo && (
                 <div className="flex items-center gap-2 p-2 bg-red-500/10 rounded-lg border border-red-500/20">
                   <IconComponent size={14} className={selectedTypeInfo.color} />
-                  <span className="text-xs text-zinc-300">Reporting: <span className="text-white">{selectedTypeInfo.label}</span></span>
+                  <span className="text-xs text-[var(--ip-text-2)]">Reporting: <span className="text-[var(--ip-text)]">{selectedTypeInfo.label}</span></span>
                 </div>
               )}
 
-              <div><label className="text-xs font-medium text-zinc-300 mb-1 block">Title *</label><Input placeholder="Brief summary" value={title} onChange={(e) => setTitle(e.target.value)} className="bg-zinc-800 border-zinc-700 text-white" /></div>
-              <div><label className="text-xs font-medium text-zinc-300 mb-1 block">Description *</label><Textarea placeholder="Detailed description" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="bg-zinc-800 border-zinc-700 text-white resize-none" /></div>
-              <div><label className="text-xs font-medium text-zinc-300 mb-1 block">Incident Date *</label><input type="date" value={incidentDate} onChange={(e) => setIncidentDate(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-white text-sm" /></div>
+              <div><label className="text-xs font-medium text-[var(--ip-text-2)] mb-1 block">Title *</label><Input placeholder="Brief summary" value={title} onChange={(e) => setTitle(e.target.value)} className="bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)]" /></div>
+              <div><label className="text-xs font-medium text-[var(--ip-text-2)] mb-1 block">Description *</label><Textarea placeholder="Detailed description" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] resize-none" /></div>
+              <div><label className="text-xs font-medium text-[var(--ip-text-2)] mb-1 block">Incident Date *</label><input type="date" value={incidentDate} onChange={(e) => setIncidentDate(e.target.value)} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-3 py-2 text-[var(--ip-text)] text-sm" /></div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="text-xs text-zinc-400 mb-1 block">Withdrawal Amount</label><input type="number" placeholder="$0.00" value={withdrawalAmount} onChange={(e) => setWithdrawalAmount(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-white text-sm" /></div>
-                <div><label className="text-xs text-zinc-400 mb-1 block">Withdrawal Method</label><select value={withdrawalMethod} onChange={(e) => setWithdrawalMethod(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-white text-sm"><option value="">Select</option><option value="Bank Transfer">Bank Transfer</option><option value="Crypto">Crypto</option><option value="Card">Card</option><option value="Skrill">Skrill</option><option value="Neteller">Neteller</option></select></div>
+                <div><label className="text-xs text-[var(--ip-text-2)] mb-1 block">Withdrawal Amount</label><input type="number" placeholder="$0.00" value={withdrawalAmount} onChange={(e) => setWithdrawalAmount(e.target.value)} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-3 py-2 text-[var(--ip-text)] text-sm" /></div>
+                <div><label className="text-xs text-[var(--ip-text-2)] mb-1 block">Withdrawal Method</label><select value={withdrawalMethod} onChange={(e) => setWithdrawalMethod(e.target.value)} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl px-3 py-2 text-[var(--ip-text)] text-sm"><option value="">Select</option><option value="Bank Transfer">Bank Transfer</option><option value="Crypto">Crypto</option><option value="Card">Card</option><option value="Skrill">Skrill</option><option value="Neteller">Neteller</option></select></div>
               </div>
 
               {error && <div className="bg-red-500/20 rounded-lg p-2"><p className="text-red-400 text-xs">{error}</p></div>}
 
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={onClose} className="flex-1 py-2 rounded-lg bg-zinc-800 text-white text-sm">Cancel</button>
-                <button type="submit" disabled={isSubmitting || !incidentType || !title.trim() || !description.trim()} className="flex-1 py-2 rounded-lg bg-gradient-to-r from-red-600 to-orange-600 text-white text-sm font-medium disabled:opacity-50">Submit Report</button>
+                <button type="button" onClick={onClose} className="flex-1 py-2 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text)] text-sm">Cancel</button>
+                <button type="submit" disabled={isSubmitting || !incidentType || !title.trim() || !description.trim()} className="flex-1 py-2 rounded-lg bg-gradient-to-r from-red-600 to-orange-600 text-[var(--ip-text)] text-sm font-medium disabled:opacity-50">Submit Report</button>
               </div>
             </form>
           )}
@@ -992,7 +993,7 @@ const incidentTypes = [
   { value: 'SLIPPAGE_ISSUES', label: 'Slippage Issues', icon: Zap, color: 'text-yellow-400' },
   { value: 'SPREAD_SPIKE', label: 'Spread Spike', icon: Target, color: 'text-orange-400' },
   { value: 'EXECUTION_DELAY', label: 'Execution Delay', icon: Clock, color: 'text-yellow-400' },
-  { value: 'PLATFORM_FREEZE', label: 'Platform Freeze', icon: Smartphone, color: 'text-purple-400' },
+  { value: 'PLATFORM_FREEZE', label: 'Platform Freeze', icon: Smartphone, color: 'text-blue-400' },
   { value: 'SERVER_DOWN', label: 'Server Down', icon: X, color: 'text-red-400' },
   { value: 'ACCOUNT_SUSPENDED', label: 'Account Suspended', icon: AlertTriangle, color: 'text-red-400' },
   { value: 'SCAM_WARNING', label: 'Scam Warning', icon: AlertTriangle, color: 'text-red-400' },
@@ -1028,7 +1029,7 @@ export default function PropFirmPage({ params }: Props) {
   const [replySubmitting, setReplySubmitting] = useState(false);
   const [showReplySection, setShowReplySection] = useState<Record<string, boolean>>({});
   const [repliesCache, setRepliesCache] = useState<Record<string, any[]>>({});
-  
+
   // Lightbox state
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState<string[]>([]);
@@ -1048,37 +1049,37 @@ export default function PropFirmPage({ params }: Props) {
         const resolvedParams = await params;
         const firmId = parseInt(resolvedParams.firm);
         let foundFirm = null;
-        
+
         if (!isNaN(firmId)) {
           const response = await api.getPropFirmById(firmId);
           if (response.success && response.data) foundFirm = response.data;
         }
-        
+
         if (!foundFirm) {
           const response = await api.getPropFirmBySlug(resolvedParams.firm);
           if (response.success && response.data) foundFirm = response.data;
         }
-        
+
         if (!foundFirm) {
           const allFirmsResponse = await api.getPropFirms();
           if (allFirmsResponse.success && allFirmsResponse.data) {
             const slugifiedParam = slugify(resolvedParams.firm);
             foundFirm = allFirmsResponse.data.find((f: any) => {
-              return f.id?.toString() === resolvedParams.firm || 
-                     f.slug === slugifiedParam || 
+              return f.id?.toString() === resolvedParams.firm ||
+                     f.slug === slugifiedParam ||
                      (f.name && slugify(f.name) === slugifiedParam) ||
                      f.name?.toLowerCase() === resolvedParams.firm.toLowerCase();
             });
           }
         }
-        
+
         if (foundFirm) {
           setFirm(foundFirm);
-          
+
           // Check region availability
           const available = isAvailableInRegion(foundFirm, region);
           setRegionUnavailable(!available);
-          
+
           if (typeof window !== 'undefined') {
             const bookmarks = JSON.parse(localStorage.getItem('propFirmBookmarks') || '[]');
             setBookmarked(bookmarks.includes(resolvedParams.firm));
@@ -1131,17 +1132,17 @@ export default function PropFirmPage({ params }: Props) {
   // Fetch replies for a specific parent
   const fetchRepliesForParent = async (reviewId: string, parentId: string | null = null): Promise<any[]> => {
     const cacheKey = parentId ? `${reviewId}_parent_${parentId}` : reviewId;
-    
+
     if (repliesCache[cacheKey]) return repliesCache[cacheKey];
-    
+
     try {
-      const url = parentId 
+      const url = parentId
         ? `/api/reviews/${reviewId}/replies?parentId=${parentId}`
         : `/api/reviews/${reviewId}/replies`;
-        
+
       const response = await fetch(url, { credentials: 'include' });
       const data = await response.json();
-      
+
       if (response.ok) {
         setRepliesCache(prev => ({ ...prev, [cacheKey]: data.replies || [] }));
         return data.replies || [];
@@ -1158,12 +1159,12 @@ export default function PropFirmPage({ params }: Props) {
       router.push('/login');
       return false;
     }
-    
+
     const formData = new FormData();
     formData.append('content', content);
     if (parentId) formData.append('parentReplyId', parentId);
     mediaFiles.forEach(file => formData.append('media', file));
-    
+
     try {
       const response = await fetch(`/api/reviews/${reviewId}/replies`, {
         method: 'POST',
@@ -1190,7 +1191,7 @@ export default function PropFirmPage({ params }: Props) {
   // Handle reply submission from UI
   const handleSubmitReply = async (reviewId: string, parentId: string | null = null) => {
     if (!replyContent.trim() && replyMedia.length === 0) return;
-    
+
     setReplySubmitting(true);
     const success = await submitReply(reviewId, parentId, replyContent, replyMedia);
     if (success) {
@@ -1227,8 +1228,8 @@ export default function PropFirmPage({ params }: Props) {
       if (res.ok) {
         const data = await res.json();
         setUserVotes(prev => ({ ...prev, [reviewId]: data.userVote }));
-        setFirmReviews(firmReviews.map(review => 
-          review.id === reviewId 
+        setFirmReviews(firmReviews.map(review =>
+          review.id === reviewId
             ? { ...review, helpfulCount: data.helpfulCount }
             : review
         ));
@@ -1252,7 +1253,7 @@ export default function PropFirmPage({ params }: Props) {
   const calculateReviewTrustScore = (review: any) => {
     let score = 0;
     let totalWeight = 0;
-    
+
     if (review.payoutProcess > 0) {
       score += (review.payoutProcess / 5) * 40;
       totalWeight += 40;
@@ -1269,7 +1270,7 @@ export default function PropFirmPage({ params }: Props) {
       score += (review.userFriendliness / 5) * 20;
       totalWeight += 20;
     }
-    
+
     if (totalWeight === 0) return null;
     return Math.round((score / totalWeight) * 100);
   };
@@ -1289,7 +1290,7 @@ export default function PropFirmPage({ params }: Props) {
       } catch (error) { console.log('Error sharing:', error); }
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard!');
+      notify('Link copied to clipboard!');
     }
   };
 
@@ -1309,10 +1310,10 @@ export default function PropFirmPage({ params }: Props) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto" />
-          <p className="mt-4 text-zinc-500">Loading prop firm details...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto" />
+          <p className="mt-4 text-[var(--ip-text-2)]">Loading prop firm details...</p>
         </div>
       </div>
     );
@@ -1322,19 +1323,19 @@ export default function PropFirmPage({ params }: Props) {
 
   // ===== CALCULATE DERIVED VALUES =====
   const hasReviews = firmReviews.length > 0;
-  const avgRating = hasReviews 
-    ? firmReviews.reduce((sum, r) => sum + r.rating, 0) / firmReviews.length 
+  const avgRating = hasReviews
+    ? firmReviews.reduce((sum, r) => sum + r.rating, 0) / firmReviews.length
     : firm.rating || 0;
   const reviewCount = hasReviews ? firmReviews.length : firm.reviewsCount || 0;
   const affiliateLink = firm.signupLink || firm.website || '#';
-  
+
   const maxPayout = getMaxPayout(firm);
   const minPrice = getMinPrice(firm);
   const minAccount = getMinAccountSize(firm);
   const hasWarnings = firm.warnings?.length > 0 || firm.regulatoryWarnings?.length > 0;
   const hasOffers = firm.promotions?.length > 0;
   const hasIncidents = incidentCount > 0;
-  
+
   const programTypes = firm.programs?.map((p: any) => p.type) || [];
   const uniqueProgramTypes = [...new Set(programTypes)];
   const allPlatforms = firm.platforms || [];
@@ -1342,7 +1343,7 @@ export default function PropFirmPage({ params }: Props) {
   const regionInfo = REGION_DISPLAY[region] || REGION_DISPLAY['GLOBAL'];
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-[var(--ip-bg)]">
       {/* ❌ REGION BANNER REMOVED - Users select region in navbar */}
 
       {/* Region Unavailable Warning */}
@@ -1353,8 +1354,8 @@ export default function PropFirmPage({ params }: Props) {
               <div className="flex items-center gap-3">
                 <AlertTriangle size={20} className="text-red-400 flex-shrink-0" />
                 <div>
-                  <h4 className="text-white font-semibold text-sm">Not Available in Your Region</h4>
-                  <p className="text-sm text-zinc-400">
+                  <h4 className="text-[var(--ip-text)] font-semibold text-sm">Not Available in Your Region</h4>
+                  <p className="text-sm text-[var(--ip-text-2)]">
                     {firm?.name} is not available in {regionInfo.flag} {regionInfo.label}
                   </p>
                 </div>
@@ -1364,7 +1365,7 @@ export default function PropFirmPage({ params }: Props) {
                   const selector = document.querySelector('[data-region-selector]');
                   if (selector) (selector as HTMLElement).click();
                 }}
-                className="sm:ml-auto px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm text-white transition-colors whitespace-nowrap"
+                className="sm:ml-auto px-4 py-2 bg-[var(--ip-surface-2)] hover:bg-zinc-700 rounded-lg text-sm text-[var(--ip-text)] transition-colors whitespace-nowrap"
               >
                 Change Region
               </button>
@@ -1374,18 +1375,18 @@ export default function PropFirmPage({ params }: Props) {
       )}
 
       {/* Hero Section */}
-      <div className="border-b border-zinc-800/50 bg-zinc-900/20">
+      <div className="border-b border-[var(--ip-border)] bg-[var(--ip-surface)]">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between mb-6">
-            <button onClick={() => router.back()} className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors group">
+            <button onClick={() => router.back()} className="flex items-center gap-2 text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors group">
               <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
               Back
             </button>
             <div className="flex items-center gap-2">
-              <button onClick={toggleBookmark} className={`p-2 rounded-xl transition-colors ${bookmarked ? 'text-yellow-400 bg-yellow-500/10' : 'text-zinc-400 hover:text-yellow-400 hover:bg-yellow-500/10'}`}>
+              <button onClick={toggleBookmark} className={`p-2 rounded-xl transition-colors ${bookmarked ? 'text-yellow-400 bg-yellow-500/10' : 'text-[var(--ip-text-2)] hover:text-yellow-400 hover:bg-yellow-500/10'}`}>
                 <Bookmark size={18} fill={bookmarked ? "currentColor" : "none"} />
               </button>
-              <button onClick={handleShare} className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
+              <button onClick={handleShare} className="p-2 rounded-xl text-[var(--ip-text-2)] hover:text-[var(--ip-text)] hover:bg-[var(--ip-surface-2)] transition-colors">
                 <Share2 size={18} />
               </button>
             </div>
@@ -1394,10 +1395,10 @@ export default function PropFirmPage({ params }: Props) {
           <div className="flex flex-col lg:flex-row justify-between gap-6">
             <div className="flex gap-5">
               {firm.logo ? (
-                <div className="w-20 h-20 rounded-2xl overflow-hidden bg-zinc-800 border border-zinc-700 shadow-lg flex-shrink-0">
-                  <img 
-                    src={firm.logo} 
-                    alt={firm.name} 
+                <div className="w-20 h-20 rounded-2xl overflow-hidden bg-[var(--ip-surface-2)] border border-[var(--ip-border)] shadow-lg flex-shrink-0">
+                  <img
+                    src={firm.logo}
+                    alt={firm.name}
                     className="w-full h-full object-cover object-center"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
@@ -1405,7 +1406,7 @@ export default function PropFirmPage({ params }: Props) {
                       const parent = target.parentElement;
                       if (parent) {
                         const fallback = document.createElement('div');
-                        fallback.className = `w-20 h-20 rounded-2xl bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-white text-2xl font-bold shadow-lg flex-shrink-0`;
+                        fallback.className = `w-20 h-20 rounded-2xl bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-[var(--ip-text)] text-2xl font-bold shadow-lg flex-shrink-0`;
                         fallback.textContent = getInitials(firm.name);
                         parent.appendChild(fallback);
                         target.remove();
@@ -1414,17 +1415,17 @@ export default function PropFirmPage({ params }: Props) {
                   />
                 </div>
               ) : (
-                <div className={`w-20 h-20 rounded-2xl bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-white text-2xl font-bold shadow-lg flex-shrink-0`}>
+                <div className={`w-20 h-20 rounded-2xl bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-[var(--ip-text)] text-2xl font-bold shadow-lg flex-shrink-0`}>
                   {firm.name?.charAt(0) || 'P'}
                 </div>
               )}
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">{firm.name}</h1>
+                <h1 className="text-3xl md:text-4xl font-bold text-[var(--ip-text)] mb-2">{firm.name}</h1>
                 <div className="flex flex-wrap items-center gap-3 mb-3">
                   {hasReviews ? (
                     <StarRating rating={avgRating} count={reviewCount} size="md" />
                   ) : (
-                    <span className="text-sm text-zinc-500">No reviews yet</span>
+                    <span className="text-sm text-[var(--ip-text-2)]">No reviews yet</span>
                   )}
                   {firm.trustScore > 0 && <TrustScoreDisplay score={firm.trustScore || firm.avgTrustScore || 0} />}
                   {firm.regulated && (
@@ -1432,33 +1433,33 @@ export default function PropFirmPage({ params }: Props) {
                       <ShieldCheck size={12} /> Regulated
                     </span>
                   )}
-                  <div className="flex items-center gap-1 text-zinc-400 text-sm">
+                  <div className="flex items-center gap-1 text-[var(--ip-text-2)] text-sm">
                     <Globe size={12} /> {firm.country || 'International'}
                   </div>
-                  <div className="flex items-center gap-1 text-zinc-400 text-sm">
+                  <div className="flex items-center gap-1 text-[var(--ip-text-2)] text-sm">
                     <CalendarIcon size={12} /> Est. {firm.founded || '—'}
                   </div>
                   {firm.yearsInOperation && (
-                    <div className="flex items-center gap-1 text-zinc-400 text-sm">
+                    <div className="flex items-center gap-1 text-[var(--ip-text-2)] text-sm">
                       <Clock size={12} /> {firm.yearsInOperation} years
                     </div>
                   )}
                   {firm.totalTradersServed && (
-                    <div className="flex items-center gap-1 text-zinc-400 text-sm">
+                    <div className="flex items-center gap-1 text-[var(--ip-text-2)] text-sm">
                       <Users size={12} /> {firm.totalTradersServed.toLocaleString()} traders
                     </div>
                   )}
                 </div>
-                <p className="text-zinc-400 max-w-2xl">{firm.shortDescription || firm.description?.substring(0, 200)}</p>
+                <p className="text-[var(--ip-text-2)] max-w-2xl">{firm.shortDescription || firm.description?.substring(0, 200)}</p>
               </div>
             </div>
             <div className="flex-shrink-0 flex flex-col items-end gap-3">
               <PrimaryCTA href={affiliateLink} text="Start Challenge →" size="lg" />
-              <div className="flex items-center gap-2 text-xs text-zinc-500">
+              <div className="flex items-center gap-2 text-xs text-[var(--ip-text-2)]">
                 <CheckCircle2 size={12} className="text-green-400" />
                 <span>Join {firm.totalTradersServed ? firm.totalTradersServed.toLocaleString() : '10,000+'}+ traders</span>
                 <span className="w-1 h-1 bg-zinc-700 rounded-full" />
-                <Shield size={12} className="text-purple-400" />
+                <Shield size={12} className="text-blue-400" />
                 <span>Secure platform</span>
               </div>
             </div>
@@ -1472,12 +1473,12 @@ export default function PropFirmPage({ params }: Props) {
             <InfoCard icon={Smartphone} label="Platforms" value={allPlatforms.length} color="cyan" />
             <InfoCard icon={Clock} label="Payout Frequency" value={firm.payoutFrequency || '—'} color="yellow" />
             <InfoCard icon={Target} label="Min Payout" value={firm.minimumPayout ? `${formatCurrency(firm.minimumPayout)}` : '—'} color="amber" />
-            <div className={`p-3 rounded-xl border bg-gradient-to-r from-purple-600/20 to-pink-600/20 border-purple-500/30 hover:border-purple-500/60 transition-all cursor-pointer group`}>
+            <div className={`p-3 rounded-xl border bg-gradient-to-r from-blue-600/20 to-pink-600/20 border-blue-500/30 hover:border-blue-500/60 transition-all cursor-pointer group`}>
               <div className="flex flex-col items-center justify-center h-full">
-                <div className="text-[10px] text-zinc-400 mb-1">Ready to Start?</div>
-                <button 
+                <div className="text-[10px] text-[var(--ip-text-2)] mb-1">Ready to Start?</div>
+                <button
                   onClick={() => window.open(affiliateLink, '_blank')}
-                  className="text-white font-semibold text-sm flex items-center gap-1 group-hover:text-purple-400 transition-colors"
+                  className="text-[var(--ip-text)] font-semibold text-sm flex items-center gap-1 group-hover:text-blue-400 transition-colors"
                 >
                   Get Funded <ArrowRightIcon size={12} className="group-hover:translate-x-1 transition-transform" />
                 </button>
@@ -1496,7 +1497,7 @@ export default function PropFirmPage({ params }: Props) {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="border-b border-zinc-800 bg-zinc-900/10 sticky top-0 z-30 backdrop-blur-sm">
+      <div className="border-b border-[var(--ip-border)] bg-[var(--ip-surface)] sticky top-0 z-30 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex overflow-x-auto gap-1 py-3">
             {[
@@ -1517,11 +1518,11 @@ export default function PropFirmPage({ params }: Props) {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 whitespace-nowrap ${
-                    isActive 
-                      ? isIncidentTab 
-                        ? "bg-red-600 text-white shadow-lg" 
-                        : "bg-purple-600 text-white shadow-lg"
-                      : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                    isActive
+                      ? isIncidentTab
+                        ? "bg-red-600 text-[var(--ip-text)] shadow-lg"
+                        : "bg-blue-600 text-[var(--ip-text)] shadow-lg"
+                      : "text-[var(--ip-text-2)] hover:text-[var(--ip-text)] hover:bg-[var(--ip-surface-2)]"
                   }`}
                 >
                   <Icon size={14} />
@@ -1537,16 +1538,16 @@ export default function PropFirmPage({ params }: Props) {
       <div className="max-w-7xl mx-auto px-6 py-8">
         <AnimatePresence mode="wait">
           <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
-            
+
             {/* ==================== OVERVIEW TAB ==================== */}
             {activeTab === "overview" && (
               <div className="grid lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-6">
-                  <div className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800">
-                    <h2 className="text-xl font-semibold text-white mb-3">About {firm.name}</h2>
-                    <p className="text-zinc-400 leading-relaxed whitespace-pre-line">{firm.description}</p>
+                  <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)]">
+                    <h2 className="text-xl font-semibold text-[var(--ip-text)] mb-3">About {firm.name}</h2>
+                    <p className="text-[var(--ip-text-2)] leading-relaxed whitespace-pre-line">{firm.description}</p>
                   </div>
-                  
+
                   {(firm.warnings?.length > 0 || firm.regulatoryWarnings?.length > 0) && (
                     <div className="bg-red-500/10 rounded-xl p-4 border border-red-500/20">
                       <div className="flex items-center gap-2 mb-3">
@@ -1563,40 +1564,40 @@ export default function PropFirmPage({ params }: Props) {
                       </ul>
                     </div>
                   )}
-                  
+
                   {firm.riskLevel && (
-                    <div className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800">
-                      <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                        <Shield size={20} className="text-purple-400" />
+                    <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)]">
+                      <h2 className="text-xl font-semibold text-[var(--ip-text)] mb-4 flex items-center gap-2">
+                        <Shield size={20} className="text-blue-400" />
                         Risk Assessment
                       </h2>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-zinc-800/30 rounded-lg p-3 text-center">
-                          <div className="text-zinc-500 text-xs">Risk Level</div>
+                        <div className="bg-[var(--ip-surface-2)] rounded-lg p-3 text-center">
+                          <div className="text-[var(--ip-text-2)] text-xs">Risk Level</div>
                           <div className={`text-lg font-bold ${
-                            firm.riskLevel === 'Low' ? 'text-green-400' : 
+                            firm.riskLevel === 'Low' ? 'text-green-400' :
                             firm.riskLevel === 'Medium' ? 'text-yellow-400' : 'text-red-400'
                           }`}>{firm.riskLevel}</div>
                         </div>
                         {firm.riskScore && (
-                          <div className="bg-zinc-800/30 rounded-lg p-3 text-center">
-                            <div className="text-zinc-500 text-xs">Risk Score</div>
-                            <div className="text-white text-lg font-bold">{firm.riskScore}/100</div>
+                          <div className="bg-[var(--ip-surface-2)] rounded-lg p-3 text-center">
+                            <div className="text-[var(--ip-text-2)] text-xs">Risk Score</div>
+                            <div className="text-[var(--ip-text)] text-lg font-bold">{firm.riskScore}/100</div>
                           </div>
                         )}
                         {firm.recommendation && (
-                          <div className="bg-zinc-800/30 rounded-lg p-3 text-center col-span-2">
-                            <div className="text-zinc-500 text-xs">Recommendation</div>
-                            <div className="text-white text-sm font-medium">{firm.recommendation}</div>
+                          <div className="bg-[var(--ip-surface-2)] rounded-lg p-3 text-center col-span-2">
+                            <div className="text-[var(--ip-text-2)] text-xs">Recommendation</div>
+                            <div className="text-[var(--ip-text)] text-sm font-medium">{firm.recommendation}</div>
                           </div>
                         )}
                       </div>
                       {firm.riskFactors?.length > 0 && (
                         <div className="mt-4">
-                          <h4 className="text-xs text-zinc-500 mb-2">Risk Factors</h4>
+                          <h4 className="text-xs text-[var(--ip-text-2)] mb-2">Risk Factors</h4>
                           <ul className="space-y-1">
                             {firm.riskFactors.map((factor: string, i: number) => (
-                              <li key={i} className="text-xs text-zinc-400 flex items-start gap-2">
+                              <li key={i} className="text-xs text-[var(--ip-text-2)] flex items-start gap-2">
                                 <AlertCircle size={10} className="text-yellow-400 mt-0.5" />
                                 {factor}
                               </li>
@@ -1606,10 +1607,10 @@ export default function PropFirmPage({ params }: Props) {
                       )}
                     </div>
                   )}
-                  
-                  <div className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800">
+
+                  <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)]">
                     <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                      <h2 className="text-xl font-semibold text-[var(--ip-text)] flex items-center gap-2">
                         <TrendingUp size={20} className="text-green-400" />
                         Programs Overview
                       </h2>
@@ -1617,9 +1618,9 @@ export default function PropFirmPage({ params }: Props) {
                     </div>
                     <div className="grid md:grid-cols-2 gap-4">
                       {firm.programs?.slice(0, 4).map((program: any, idx: number) => (
-                        <div key={idx} className="bg-zinc-800/30 rounded-lg p-3 border border-zinc-700">
-                          <h4 className="text-white font-medium text-sm">{program.type}</h4>
-                          <p className="text-xs text-zinc-400 mt-1">{program.description?.substring(0, 60)}...</p>
+                        <div key={idx} className="bg-[var(--ip-surface-2)] rounded-lg p-3 border border-[var(--ip-border)]">
+                          <h4 className="text-[var(--ip-text)] font-medium text-sm">{program.type}</h4>
+                          <p className="text-xs text-[var(--ip-text-2)] mt-1">{program.description?.substring(0, 60)}...</p>
                           <div className="flex flex-wrap gap-2 mt-2">
                             <span className="text-[10px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded-full">
                               {program.accountOptions?.length || 0} options
@@ -1636,15 +1637,15 @@ export default function PropFirmPage({ params }: Props) {
                   </div>
 
                   {(firm.totalPayoutsPaid || firm.totalTradersServed || firm.countriesServed) && (
-                    <div className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800">
-                      <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                    <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)]">
+                      <h2 className="text-xl font-semibold text-[var(--ip-text)] mb-4 flex items-center gap-2">
                         <BarChart size={20} className="text-green-400" />
                         Financial Performance
                       </h2>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {firm.totalPayoutsPaid && (
-                          <div className="bg-zinc-800/30 rounded-lg p-3 text-center">
-                            <div className="text-zinc-500 text-xs">Total Payouts</div>
+                          <div className="bg-[var(--ip-surface-2)] rounded-lg p-3 text-center">
+                            <div className="text-[var(--ip-text-2)] text-xs">Total Payouts</div>
                             <div className="text-green-400 text-lg font-bold">{firm.totalPayoutsPaid}</div>
                             {firm.totalPayoutsVerified && (
                               <span className="text-[8px] bg-green-500/20 text-green-400 px-1 py-0.5 rounded-full">Verified</span>
@@ -1652,93 +1653,93 @@ export default function PropFirmPage({ params }: Props) {
                           </div>
                         )}
                         {firm.totalTradersServed && (
-                          <div className="bg-zinc-800/30 rounded-lg p-3 text-center">
-                            <div className="text-zinc-500 text-xs">Traders Served</div>
-                            <div className="text-white text-lg font-bold">{firm.totalTradersServed.toLocaleString()}</div>
+                          <div className="bg-[var(--ip-surface-2)] rounded-lg p-3 text-center">
+                            <div className="text-[var(--ip-text-2)] text-xs">Traders Served</div>
+                            <div className="text-[var(--ip-text)] text-lg font-bold">{firm.totalTradersServed.toLocaleString()}</div>
                           </div>
                         )}
                         {firm.countriesServed && (
-                          <div className="bg-zinc-800/30 rounded-lg p-3 text-center">
-                            <div className="text-zinc-500 text-xs">Countries</div>
-                            <div className="text-white text-lg font-bold">{firm.countriesServed}+</div>
+                          <div className="bg-[var(--ip-surface-2)] rounded-lg p-3 text-center">
+                            <div className="text-[var(--ip-text-2)] text-xs">Countries</div>
+                            <div className="text-[var(--ip-text)] text-lg font-bold">{firm.countriesServed}+</div>
                           </div>
                         )}
                         {firm.dailyTradeCount && (
-                          <div className="bg-zinc-800/30 rounded-lg p-3 text-center">
-                            <div className="text-zinc-500 text-xs">Daily Trades</div>
-                            <div className="text-white text-lg font-bold">{firm.dailyTradeCount.toLocaleString()}</div>
+                          <div className="bg-[var(--ip-surface-2)] rounded-lg p-3 text-center">
+                            <div className="text-[var(--ip-text-2)] text-xs">Daily Trades</div>
+                            <div className="text-[var(--ip-text)] text-lg font-bold">{firm.dailyTradeCount.toLocaleString()}</div>
                           </div>
                         )}
                       </div>
                     </div>
                   )}
                 </div>
-                
+
                 <div className="space-y-6">
-                  <div className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800">
-                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2"><Building size={18} className="text-purple-400" />Company Info</h3>
+                  <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)]">
+                    <h3 className="text-lg font-semibold text-[var(--ip-text)] mb-4 flex items-center gap-2"><Building size={18} className="text-blue-400" />Company Info</h3>
                     <div className="space-y-3 text-sm">
-                      {firm.legalName && <div><span className="text-zinc-500">Legal Name:</span> <span className="text-white">{firm.legalName}</span></div>}
-                      {firm.ceo && <div><span className="text-zinc-500">CEO:</span> <span className="text-white">{firm.ceo}</span></div>}
-                      {firm.headquarters && <div><span className="text-zinc-500">Headquarters:</span> <span className="text-white">{firm.headquarters}</span></div>}
-                      {firm.corporateAddress && <div><span className="text-zinc-500">Corporate Address:</span> <span className="text-white">{firm.corporateAddress}</span></div>}
-                      {firm.founded && <div><span className="text-zinc-500">Founded:</span> <span className="text-white">{firm.founded}</span></div>}
-                      {firm.foundedMonth && <div><span className="text-zinc-500">Founded Month:</span> <span className="text-white">{firm.foundedMonth}</span></div>}
-                      {firm.yearsInOperation && <div><span className="text-zinc-500">Years in Operation:</span> <span className="text-white">{firm.yearsInOperation} years</span></div>}
-                      {firm.contactEmail && <div><span className="text-zinc-500">Email:</span> <span className="text-white">{firm.contactEmail}</span></div>}
-                      {firm.contactPhone && <div><span className="text-zinc-500">Phone:</span> <span className="text-white">{firm.contactPhone}</span></div>}
-                      {firm.regulation && <div><span className="text-zinc-500">Regulation:</span> <span className="text-white">{firm.regulation}</span></div>}
+                      {firm.legalName && <div><span className="text-[var(--ip-text-2)]">Legal Name:</span> <span className="text-[var(--ip-text)]">{firm.legalName}</span></div>}
+                      {firm.ceo && <div><span className="text-[var(--ip-text-2)]">CEO:</span> <span className="text-[var(--ip-text)]">{firm.ceo}</span></div>}
+                      {firm.headquarters && <div><span className="text-[var(--ip-text-2)]">Headquarters:</span> <span className="text-[var(--ip-text)]">{firm.headquarters}</span></div>}
+                      {firm.corporateAddress && <div><span className="text-[var(--ip-text-2)]">Corporate Address:</span> <span className="text-[var(--ip-text)]">{firm.corporateAddress}</span></div>}
+                      {firm.founded && <div><span className="text-[var(--ip-text-2)]">Founded:</span> <span className="text-[var(--ip-text)]">{firm.founded}</span></div>}
+                      {firm.foundedMonth && <div><span className="text-[var(--ip-text-2)]">Founded Month:</span> <span className="text-[var(--ip-text)]">{firm.foundedMonth}</span></div>}
+                      {firm.yearsInOperation && <div><span className="text-[var(--ip-text-2)]">Years in Operation:</span> <span className="text-[var(--ip-text)]">{firm.yearsInOperation} years</span></div>}
+                      {firm.contactEmail && <div><span className="text-[var(--ip-text-2)]">Email:</span> <span className="text-[var(--ip-text)]">{firm.contactEmail}</span></div>}
+                      {firm.contactPhone && <div><span className="text-[var(--ip-text-2)]">Phone:</span> <span className="text-[var(--ip-text)]">{firm.contactPhone}</span></div>}
+                      {firm.regulation && <div><span className="text-[var(--ip-text-2)]">Regulation:</span> <span className="text-[var(--ip-text)]">{firm.regulation}</span></div>}
                       {firm.regulatoryBodies?.length > 0 && (
-                        <div><span className="text-zinc-500">Regulatory Bodies:</span> <span className="text-white">{firm.regulatoryBodies.join(', ')}</span></div>
+                        <div><span className="text-[var(--ip-text-2)]">Regulatory Bodies:</span> <span className="text-[var(--ip-text)]">{firm.regulatoryBodies.join(', ')}</span></div>
                       )}
-                      {firm.companyNumber && <div><span className="text-zinc-500">Company Number:</span> <span className="text-white">{firm.companyNumber}</span></div>}
-                      {firm.registrationCountry && <div><span className="text-zinc-500">Registered In:</span> <span className="text-white">{firm.registrationCountry}</span></div>}
+                      {firm.companyNumber && <div><span className="text-[var(--ip-text-2)]">Company Number:</span> <span className="text-[var(--ip-text)]">{firm.companyNumber}</span></div>}
+                      {firm.registrationCountry && <div><span className="text-[var(--ip-text-2)]">Registered In:</span> <span className="text-[var(--ip-text)]">{firm.registrationCountry}</span></div>}
                     </div>
                   </div>
-                  
+
                   {firm.supportedCountries?.length > 0 && (
-                    <div className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800">
-                      <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><Globe size={18} className="text-blue-400" />Countries</h3>
+                    <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)]">
+                      <h3 className="text-lg font-semibold text-[var(--ip-text)] mb-3 flex items-center gap-2"><Globe size={18} className="text-blue-400" />Countries</h3>
                       <div className="flex flex-wrap gap-1">
                         {firm.supportedCountries.map((c: string) => (
-                          <span key={c} className="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-full">{c}</span>
+                          <span key={c} className="text-xs bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] px-2 py-0.5 rounded-full">{c}</span>
                         ))}
                       </div>
                     </div>
                   )}
 
                   {firm.socialMedia && Object.keys(firm.socialMedia).filter(k => firm.socialMedia[k]).length > 0 && (
-                    <div className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800">
-                      <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><Share2 size={18} className="text-blue-400" />Social Media</h3>
+                    <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)]">
+                      <h3 className="text-lg font-semibold text-[var(--ip-text)] mb-3 flex items-center gap-2"><Share2 size={18} className="text-blue-400" />Social Media</h3>
                       <div className="flex flex-wrap gap-2">
                         {firm.socialMedia.twitter && (
-                          <a href={firm.socialMedia.twitter} target="_blank" rel="noopener noreferrer" className="p-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
+                          <a href={firm.socialMedia.twitter} target="_blank" rel="noopener noreferrer" className="p-2 bg-[var(--ip-surface-2)] rounded-lg hover:bg-zinc-700 transition-colors">
                             <Twitter size={16} className="text-blue-400" />
                           </a>
                         )}
                         {firm.socialMedia.linkedin && (
-                          <a href={firm.socialMedia.linkedin} target="_blank" rel="noopener noreferrer" className="p-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
+                          <a href={firm.socialMedia.linkedin} target="_blank" rel="noopener noreferrer" className="p-2 bg-[var(--ip-surface-2)] rounded-lg hover:bg-zinc-700 transition-colors">
                             <Linkedin size={16} className="text-blue-400" />
                           </a>
                         )}
                         {firm.socialMedia.youtube && (
-                          <a href={firm.socialMedia.youtube} target="_blank" rel="noopener noreferrer" className="p-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
+                          <a href={firm.socialMedia.youtube} target="_blank" rel="noopener noreferrer" className="p-2 bg-[var(--ip-surface-2)] rounded-lg hover:bg-zinc-700 transition-colors">
                             <Youtube size={16} className="text-red-400" />
                           </a>
                         )}
                         {firm.socialMedia.instagram && (
-                          <a href={firm.socialMedia.instagram} target="_blank" rel="noopener noreferrer" className="p-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
+                          <a href={firm.socialMedia.instagram} target="_blank" rel="noopener noreferrer" className="p-2 bg-[var(--ip-surface-2)] rounded-lg hover:bg-zinc-700 transition-colors">
                             <Instagram size={16} className="text-pink-400" />
                           </a>
                         )}
                         {firm.socialMedia.facebook && (
-                          <a href={firm.socialMedia.facebook} target="_blank" rel="noopener noreferrer" className="p-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
+                          <a href={firm.socialMedia.facebook} target="_blank" rel="noopener noreferrer" className="p-2 bg-[var(--ip-surface-2)] rounded-lg hover:bg-zinc-700 transition-colors">
                             <Facebook size={16} className="text-blue-400" />
                           </a>
                         )}
                         {firm.socialMedia.discord && (
-                          <a href={firm.socialMedia.discord} target="_blank" rel="noopener noreferrer" className="p-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
-                            <MessageCircle size={16} className="text-purple-400" />
+                          <a href={firm.socialMedia.discord} target="_blank" rel="noopener noreferrer" className="p-2 bg-[var(--ip-surface-2)] rounded-lg hover:bg-zinc-700 transition-colors">
+                            <MessageCircle size={16} className="text-blue-400" />
                           </a>
                         )}
                       </div>
@@ -1752,8 +1753,8 @@ export default function PropFirmPage({ params }: Props) {
             {activeTab === "programs" && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <Layers size={24} className="text-purple-400" />
+                  <h2 className="text-2xl font-bold text-[var(--ip-text)] flex items-center gap-2">
+                    <Layers size={24} className="text-blue-400" />
                     Trading Programs
                   </h2>
                   <PrimaryCTA href={affiliateLink} text="View All Programs" size="sm" />
@@ -1761,16 +1762,16 @@ export default function PropFirmPage({ params }: Props) {
                 {firm.programs?.map((program: any, idx: number) => {
                   const options = program.accountOptions || [];
                   const maxPayout = options.length > 0 ? Math.max(...options.map((o: any) => o.payoutPercentage || 0)) : 0;
-                  
+
                   return (
-                    <div key={idx} className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800 hover:border-purple-500/30 transition-all">
+                    <div key={idx} className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)] hover:border-blue-500/30 transition-all">
                       <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
                         <div>
-                          <h3 className="text-xl font-bold text-white">{program.type}</h3>
-                          {program.name && <p className="text-sm text-zinc-400">{program.name}</p>}
+                          <h3 className="text-xl font-bold text-[var(--ip-text)]">{program.type}</h3>
+                          {program.name && <p className="text-sm text-[var(--ip-text-2)]">{program.name}</p>}
                         </div>
                         <div className="flex gap-2">
-                          <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-full">
+                          <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">
                             {options.length} Options
                           </span>
                           <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">
@@ -1778,54 +1779,54 @@ export default function PropFirmPage({ params }: Props) {
                           </span>
                         </div>
                       </div>
-                      
+
                       {program.description && (
-                        <p className="text-zinc-400 text-sm mb-4">{program.description}</p>
+                        <p className="text-[var(--ip-text-2)] text-sm mb-4">{program.description}</p>
                       )}
-                      
+
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 text-xs">
-                        <div className="bg-zinc-800/30 rounded-lg p-2 text-center">
-                          <div className="text-zinc-500">Profit Target</div>
-                          <div className="text-white font-semibold">{formatProfitTarget(program.rules?.profitTarget)}</div>
+                        <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+                          <div className="text-[var(--ip-text-2)]">Profit Target</div>
+                          <div className="text-[var(--ip-text)] font-semibold">{formatProfitTarget(program.rules?.profitTarget)}</div>
                         </div>
-                        <div className="bg-zinc-800/30 rounded-lg p-2 text-center">
-                          <div className="text-zinc-500">Max Drawdown</div>
-                          <div className="text-white font-semibold">{program.rules?.maxDrawdown || 0}%</div>
+                        <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+                          <div className="text-[var(--ip-text-2)]">Max Drawdown</div>
+                          <div className="text-[var(--ip-text)] font-semibold">{program.rules?.maxDrawdown || 0}%</div>
                         </div>
-                        <div className="bg-zinc-800/30 rounded-lg p-2 text-center">
-                          <div className="text-zinc-500">Daily Drawdown</div>
-                          <div className="text-white font-semibold">{program.rules?.dailyDrawdown || 0}%</div>
+                        <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+                          <div className="text-[var(--ip-text-2)]">Daily Drawdown</div>
+                          <div className="text-[var(--ip-text)] font-semibold">{program.rules?.dailyDrawdown || 0}%</div>
                         </div>
-                        <div className="bg-zinc-800/30 rounded-lg p-2 text-center">
-                          <div className="text-zinc-500">Min Days</div>
-                          <div className="text-white font-semibold">{program.rules?.minTradingDays || 0}</div>
+                        <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+                          <div className="text-[var(--ip-text-2)]">Min Days</div>
+                          <div className="text-[var(--ip-text)] font-semibold">{program.rules?.minTradingDays || 0}</div>
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                         {options.map((option: any, oi: number) => (
-                          <div key={oi} className="bg-zinc-800/30 rounded-lg p-2 text-center border border-zinc-700 hover:border-purple-500/30 transition-all">
+                          <div key={oi} className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center border border-[var(--ip-border)] hover:border-blue-500/30 transition-all">
                             {option.popular && (
                               <span className="text-[8px] bg-yellow-500/20 text-yellow-400 px-1 py-0.5 rounded-full">Popular</span>
                             )}
-                            <div className="text-xs text-zinc-500">{formatCurrency(option.accountSize)}</div>
-                            <div className="text-white font-semibold text-sm">{formatCurrency(option.price)}</div>
+                            <div className="text-xs text-[var(--ip-text-2)]">{formatCurrency(option.accountSize)}</div>
+                            <div className="text-[var(--ip-text)] font-semibold text-sm">{formatCurrency(option.price)}</div>
                             <div className="text-green-400 text-xs">{option.payoutPercentage || 0}% split</div>
                             {option.maxAllocation && (
-                              <div className="text-[10px] text-zinc-500">Max: {formatCurrency(option.maxAllocation)}</div>
+                              <div className="text-[10px] text-[var(--ip-text-2)]">Max: {formatCurrency(option.maxAllocation)}</div>
                             )}
                           </div>
                         ))}
                       </div>
-                      
-                      <div className="mt-4 flex items-center justify-end gap-3 pt-4 border-t border-zinc-700">
-                        <div className="text-xs text-zinc-500">
+
+                      <div className="mt-4 flex items-center justify-end gap-3 pt-4 border-t border-[var(--ip-border)]">
+                        <div className="text-xs text-[var(--ip-text-2)]">
                           {options.length} options available
                         </div>
-                        <ProgramCTA 
-                          href={affiliateLink} 
-                          text={`Start ${program.type} →`} 
-                          size="md" 
+                        <ProgramCTA
+                          href={affiliateLink}
+                          text={`Start ${program.type} →`}
+                          size="md"
                         />
                       </div>
                     </div>
@@ -1838,7 +1839,7 @@ export default function PropFirmPage({ params }: Props) {
             {activeTab === "offers" && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                  <h2 className="text-2xl font-bold text-[var(--ip-text)] flex items-center gap-2">
                     <Gift size={24} className="text-amber-400" />
                     Exclusive Offers & Discounts
                   </h2>
@@ -1851,10 +1852,10 @@ export default function PropFirmPage({ params }: Props) {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-12 bg-zinc-900/30 rounded-xl border border-zinc-800">
+                  <div className="text-center py-12 bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)]">
                     <Gift size={48} className="text-zinc-600 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-white mb-2">No Active Offers</h3>
-                    <p className="text-zinc-400">Check back later for exclusive promotions and discounts.</p>
+                    <h3 className="text-xl font-semibold text-[var(--ip-text)] mb-2">No Active Offers</h3>
+                    <p className="text-[var(--ip-text-2)]">Check back later for exclusive promotions and discounts.</p>
                     <div className="mt-4">
                       <PrimaryCTA href={affiliateLink} text="Start Trading" size="sm" />
                     </div>
@@ -1867,62 +1868,62 @@ export default function PropFirmPage({ params }: Props) {
             {activeTab === "rules" && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <Scale size={24} className="text-purple-400" />
+                  <h2 className="text-2xl font-bold text-[var(--ip-text)] flex items-center gap-2">
+                    <Scale size={24} className="text-blue-400" />
                     Challenge Rules
                   </h2>
                   <PrimaryCTA href={affiliateLink} text="Start Challenge" size="sm" />
                 </div>
                 {firm.programs?.map((program: any, idx: number) => (
-                  <div key={idx} className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800 hover:border-purple-500/30 transition-all">
-                    <h3 className="text-lg font-bold text-white mb-4">{program.type} Rules</h3>
+                  <div key={idx} className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)] hover:border-blue-500/30 transition-all">
+                    <h3 className="text-lg font-bold text-[var(--ip-text)] mb-4">{program.type} Rules</h3>
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                      <div className="bg-zinc-800/30 rounded-lg p-3">
-                        <div className="text-zinc-500 text-xs mb-1">Profit Target</div>
-                        <div className="text-white font-medium">{formatProfitTarget(program.rules?.profitTarget)}</div>
+                      <div className="bg-[var(--ip-surface-2)] rounded-lg p-3">
+                        <div className="text-[var(--ip-text-2)] text-xs mb-1">Profit Target</div>
+                        <div className="text-[var(--ip-text)] font-medium">{formatProfitTarget(program.rules?.profitTarget)}</div>
                       </div>
-                      <div className="bg-zinc-800/30 rounded-lg p-3">
-                        <div className="text-zinc-500 text-xs mb-1">Max Drawdown</div>
-                        <div className="text-white font-medium">{program.rules?.maxDrawdown || 0}%</div>
+                      <div className="bg-[var(--ip-surface-2)] rounded-lg p-3">
+                        <div className="text-[var(--ip-text-2)] text-xs mb-1">Max Drawdown</div>
+                        <div className="text-[var(--ip-text)] font-medium">{program.rules?.maxDrawdown || 0}%</div>
                       </div>
-                      <div className="bg-zinc-800/30 rounded-lg p-3">
-                        <div className="text-zinc-500 text-xs mb-1">Daily Drawdown</div>
-                        <div className="text-white font-medium">{program.rules?.dailyDrawdown || 0}%</div>
+                      <div className="bg-[var(--ip-surface-2)] rounded-lg p-3">
+                        <div className="text-[var(--ip-text-2)] text-xs mb-1">Daily Drawdown</div>
+                        <div className="text-[var(--ip-text)] font-medium">{program.rules?.dailyDrawdown || 0}%</div>
                       </div>
-                      <div className="bg-zinc-800/30 rounded-lg p-3">
-                        <div className="text-zinc-500 text-xs mb-1">Min Trading Days</div>
-                        <div className="text-white font-medium">{program.rules?.minTradingDays || 0}</div>
+                      <div className="bg-[var(--ip-surface-2)] rounded-lg p-3">
+                        <div className="text-[var(--ip-text-2)] text-xs mb-1">Min Trading Days</div>
+                        <div className="text-[var(--ip-text)] font-medium">{program.rules?.minTradingDays || 0}</div>
                       </div>
-                      <div className="bg-zinc-800/30 rounded-lg p-3">
-                        <div className="text-zinc-500 text-xs mb-1">Weekend Holding</div>
-                        <div className="text-white font-medium">{program.rules?.weekendHolding ? '✅ Allowed' : '❌ Not Allowed'}</div>
+                      <div className="bg-[var(--ip-surface-2)] rounded-lg p-3">
+                        <div className="text-[var(--ip-text-2)] text-xs mb-1">Weekend Holding</div>
+                        <div className="text-[var(--ip-text)] font-medium">{program.rules?.weekendHolding ? '✅ Allowed' : '❌ Not Allowed'}</div>
                       </div>
-                      <div className="bg-zinc-800/30 rounded-lg p-3">
-                        <div className="text-zinc-500 text-xs mb-1">EA Trading</div>
-                        <div className="text-white font-medium">{program.rules?.eaTrading ? '✅ Allowed' : '❌ Not Allowed'}</div>
+                      <div className="bg-[var(--ip-surface-2)] rounded-lg p-3">
+                        <div className="text-[var(--ip-text-2)] text-xs mb-1">EA Trading</div>
+                        <div className="text-[var(--ip-text)] font-medium">{program.rules?.eaTrading ? '✅ Allowed' : '❌ Not Allowed'}</div>
                       </div>
-                      <div className="bg-zinc-800/30 rounded-lg p-3">
-                        <div className="text-zinc-500 text-xs mb-1">News Trading</div>
-                        <div className="text-white font-medium">{program.rules?.newsTrading || 'Allowed'}</div>
+                      <div className="bg-[var(--ip-surface-2)] rounded-lg p-3">
+                        <div className="text-[var(--ip-text-2)] text-xs mb-1">News Trading</div>
+                        <div className="text-[var(--ip-text)] font-medium">{program.rules?.newsTrading || 'Allowed'}</div>
                       </div>
-                      <div className="bg-zinc-800/30 rounded-lg p-3">
-                        <div className="text-zinc-500 text-xs mb-1">Consistency Rule</div>
-                        <div className="text-white font-medium">{program.rules?.consistencyRule || 'None'}</div>
+                      <div className="bg-[var(--ip-surface-2)] rounded-lg p-3">
+                        <div className="text-[var(--ip-text-2)] text-xs mb-1">Consistency Rule</div>
+                        <div className="text-[var(--ip-text)] font-medium">{program.rules?.consistencyRule || 'None'}</div>
                       </div>
                     </div>
-                    
+
                     {firm.newsTradingRestrictions && (
                       <div className="mt-4 p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
                         <div className="flex items-start gap-2">
                           <AlertCircle size={14} className="text-yellow-400 mt-0.5" />
                           <div>
                             <span className="text-xs font-semibold text-yellow-400">News Trading:</span>
-                            <span className="text-xs text-zinc-300 ml-1">{firm.newsTradingRestrictions}</span>
+                            <span className="text-xs text-[var(--ip-text-2)] ml-1">{firm.newsTradingRestrictions}</span>
                           </div>
                         </div>
                       </div>
                     )}
-                    
+
                     {firm.prohibitedStrategies?.length > 0 && (
                       <div className="mt-4 p-3 bg-red-500/10 rounded-lg border border-red-500/20">
                         <div className="flex items-start gap-2">
@@ -1938,7 +1939,7 @@ export default function PropFirmPage({ params }: Props) {
                         </div>
                       </div>
                     )}
-                    
+
                     <div className="mt-4 flex justify-end">
                       <ProgramCTA href={affiliateLink} text={`Start ${program.type}`} size="sm" />
                     </div>
@@ -1950,39 +1951,39 @@ export default function PropFirmPage({ params }: Props) {
             {/* ==================== PAYOUTS TAB ==================== */}
             {activeTab === "payouts" && (
               <div className="grid lg:grid-cols-2 gap-6">
-                <div className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800">
-                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2"><DollarSign size={18} className="text-green-400" />Payout Details</h3>
+                <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)]">
+                  <h3 className="text-lg font-semibold text-[var(--ip-text)] mb-4 flex items-center gap-2"><DollarSign size={18} className="text-green-400" />Payout Details</h3>
                   <div className="space-y-3">
-                    <div className="flex justify-between py-2 border-b border-zinc-800"><span className="text-zinc-400">Max Payout</span><span className="text-white font-medium">{maxPayout}%</span></div>
-                    <div className="flex justify-between py-2 border-b border-zinc-800"><span className="text-zinc-400">Payout Frequency</span><span className="text-white font-medium">{firm.payoutFrequency || '—'}</span></div>
-                    <div className="flex justify-between py-2 border-b border-zinc-800"><span className="text-zinc-400">Minimum Payout</span><span className="text-white font-medium">{formatCurrency(firm.minimumPayout)}</span></div>
-                    <div className="flex justify-between py-2 border-b border-zinc-800"><span className="text-zinc-400">Payout Methods</span><span className="text-white font-medium">{firm.payoutMethods?.join(', ') || '—'}</span></div>
+                    <div className="flex justify-between py-2 border-b border-[var(--ip-border)]"><span className="text-[var(--ip-text-2)]">Max Payout</span><span className="text-[var(--ip-text)] font-medium">{maxPayout}%</span></div>
+                    <div className="flex justify-between py-2 border-b border-[var(--ip-border)]"><span className="text-[var(--ip-text-2)]">Payout Frequency</span><span className="text-[var(--ip-text)] font-medium">{firm.payoutFrequency || '—'}</span></div>
+                    <div className="flex justify-between py-2 border-b border-[var(--ip-border)]"><span className="text-[var(--ip-text-2)]">Minimum Payout</span><span className="text-[var(--ip-text)] font-medium">{formatCurrency(firm.minimumPayout)}</span></div>
+                    <div className="flex justify-between py-2 border-b border-[var(--ip-border)]"><span className="text-[var(--ip-text-2)]">Payout Methods</span><span className="text-[var(--ip-text)] font-medium">{firm.payoutMethods?.join(', ') || '—'}</span></div>
                     {firm.payoutProcessingTime && (
-                      <div className="flex justify-between py-2 border-b border-zinc-800"><span className="text-zinc-400">Processing Time</span><span className="text-white font-medium">{firm.payoutProcessingTime}</span></div>
+                      <div className="flex justify-between py-2 border-b border-[var(--ip-border)]"><span className="text-[var(--ip-text-2)]">Processing Time</span><span className="text-[var(--ip-text)] font-medium">{firm.payoutProcessingTime}</span></div>
                     )}
                     {firm.totalPayoutsPaid && (
-                      <div className="flex justify-between py-2 border-b border-zinc-800"><span className="text-zinc-400">Total Paid</span><span className="text-green-400 font-medium">{firm.totalPayoutsPaid}</span></div>
+                      <div className="flex justify-between py-2 border-b border-[var(--ip-border)]"><span className="text-[var(--ip-text-2)]">Total Paid</span><span className="text-green-400 font-medium">{firm.totalPayoutsPaid}</span></div>
                     )}
                   </div>
-                  <div className="mt-6 pt-6 border-t border-zinc-800">
+                  <div className="mt-6 pt-6 border-t border-[var(--ip-border)]">
                     <PrimaryCTA href={affiliateLink} text="Start Earning Now" size="sm" className="w-full" />
                   </div>
                 </div>
                 <div className="space-y-6">
-                  <div className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800">
-                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2"><TrendingUp size={18} className="text-purple-400" />Profit Split Options</h3>
+                  <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)]">
+                    <h3 className="text-lg font-semibold text-[var(--ip-text)] mb-4 flex items-center gap-2"><TrendingUp size={18} className="text-blue-400" />Profit Split Options</h3>
                     <div className="space-y-3">
                       {firm.programs?.map((program: any, idx: number) => {
                         const options = program.accountOptions || [];
                         const maxSplit = options.length > 0 ? Math.max(...options.map((o: any) => o.payoutPercentage || 0)) : 0;
                         const avgSplit = options.length > 0 ? Math.round(options.reduce((a: any, o: any) => a + (o.payoutPercentage || 0), 0) / options.length) : 0;
                         return (
-                          <div key={idx} className="bg-zinc-800/30 rounded-lg p-3 border border-zinc-700">
+                          <div key={idx} className="bg-[var(--ip-surface-2)] rounded-lg p-3 border border-[var(--ip-border)]">
                             <div className="flex justify-between items-center">
-                              <span className="text-white font-medium">{program.type}</span>
+                              <span className="text-[var(--ip-text)] font-medium">{program.type}</span>
                               <div className="flex gap-2">
                                 <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">Avg {avgSplit}%</span>
-                                <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-full">Max {maxSplit}%</span>
+                                <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">Max {maxSplit}%</span>
                               </div>
                             </div>
                           </div>
@@ -1992,32 +1993,32 @@ export default function PropFirmPage({ params }: Props) {
                   </div>
 
                   {firm.scalingPlan && (
-                    <div className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800">
-                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2"><Award size={18} className="text-yellow-400" />Scaling Plan</h3>
+                    <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)]">
+                      <h3 className="text-lg font-semibold text-[var(--ip-text)] mb-4 flex items-center gap-2"><Award size={18} className="text-yellow-400" />Scaling Plan</h3>
                       <div className="space-y-3">
                         {firm.scalingPlan.levels?.map((level: any, idx: number) => (
-                          <div key={idx} className="bg-zinc-800/30 rounded-lg p-3 border border-zinc-700">
+                          <div key={idx} className="bg-[var(--ip-surface-2)] rounded-lg p-3 border border-[var(--ip-border)]">
                             <div className="flex justify-between items-center">
                               <div>
-                                <span className="text-white font-medium">{level.name}</span>
-                                <div className="text-xs text-zinc-400">{level.monthsRequired} months · {level.payoutsRequired} payouts</div>
+                                <span className="text-[var(--ip-text)] font-medium">{level.name}</span>
+                                <div className="text-xs text-[var(--ip-text-2)]">{level.monthsRequired} months · {level.payoutsRequired} payouts</div>
                               </div>
                               <div className="text-right">
                                 <div className="text-green-400 font-bold">{level.profitSplit}% split</div>
-                                <div className="text-xs text-zinc-400">+{level.capitalBoost}% boost</div>
+                                <div className="text-xs text-[var(--ip-text-2)]">+{level.capitalBoost}% boost</div>
                               </div>
                             </div>
                             {level.benefits?.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-2">
                                 {level.benefits.map((benefit: string, i: number) => (
-                                  <span key={i} className="text-[8px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded-full">{benefit}</span>
+                                  <span key={i} className="text-[8px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded-full">{benefit}</span>
                                 ))}
                               </div>
                             )}
                           </div>
                         ))}
                       </div>
-                      <div className="mt-4 pt-4 border-t border-zinc-800">
+                      <div className="mt-4 pt-4 border-t border-[var(--ip-border)]">
                         <PrimaryCTA href={affiliateLink} text="Start Scaling" size="sm" className="w-full" />
                       </div>
                     </div>
@@ -2030,27 +2031,27 @@ export default function PropFirmPage({ params }: Props) {
             {activeTab === "reputation" && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <Shield size={24} className="text-purple-400" />
+                  <h2 className="text-2xl font-bold text-[var(--ip-text)] flex items-center gap-2">
+                    <Shield size={24} className="text-blue-400" />
                     Reputation & Trust
                   </h2>
                   <PrimaryCTA href={affiliateLink} text="Join Trusted Community" size="sm" />
                 </div>
-                
+
                 {(firm.trustpilotRating > 0 || firm.trustpilotReviews > 0) && (
-                  <div className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800">
-                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)]">
+                    <h3 className="text-lg font-semibold text-[var(--ip-text)] mb-4 flex items-center gap-2">
                       <Star size={18} className="text-yellow-400" />
                       Trustpilot Reviews
                     </h3>
                     <div className="flex items-center gap-6">
                       <div className="text-center">
-                        <div className="text-4xl font-bold text-white">{firm.trustpilotRating.toFixed(1)}</div>
+                        <div className="text-4xl font-bold text-[var(--ip-text)]">{firm.trustpilotRating.toFixed(1)}</div>
                         <StarRating rating={firm.trustpilotRating} count={firm.trustpilotReviews} size="md" />
-                        <div className="text-xs text-zinc-500 mt-1">{firm.trustpilotReviews} reviews</div>
+                        <div className="text-xs text-[var(--ip-text-2)] mt-1">{firm.trustpilotReviews} reviews</div>
                       </div>
                       {firm.trustpilotUrl && (
-                        <a href={firm.trustpilotUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-purple-400 hover:text-purple-300 transition-colors">
+                        <a href={firm.trustpilotUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
                           View on Trustpilot →
                         </a>
                       )}
@@ -2061,11 +2062,11 @@ export default function PropFirmPage({ params }: Props) {
                 {(firm.positiveReviewThemes?.length > 0 || firm.negativeReviewThemes?.length > 0) && (
                   <div className="grid md:grid-cols-2 gap-6">
                     {firm.positiveReviewThemes?.length > 0 && (
-                      <div className="bg-zinc-900/30 rounded-xl p-6 border border-green-500/20">
+                      <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-green-500/20">
                         <h4 className="text-sm font-semibold text-green-400 mb-3 flex items-center gap-2"><ThumbsUpIcon size={16} /> Positive Themes</h4>
                         <ul className="space-y-1">
                           {firm.positiveReviewThemes.map((theme: string, i: number) => (
-                            <li key={i} className="text-xs text-zinc-300 flex items-start gap-2">
+                            <li key={i} className="text-xs text-[var(--ip-text-2)] flex items-start gap-2">
                               <CheckCircle size={10} className="text-green-400 mt-0.5" />
                               {theme}
                             </li>
@@ -2074,11 +2075,11 @@ export default function PropFirmPage({ params }: Props) {
                       </div>
                     )}
                     {firm.negativeReviewThemes?.length > 0 && (
-                      <div className="bg-zinc-900/30 rounded-xl p-6 border border-red-500/20">
+                      <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-red-500/20">
                         <h4 className="text-sm font-semibold text-red-400 mb-3 flex items-center gap-2"><ThumbsDownIcon size={16} /> Negative Themes</h4>
                         <ul className="space-y-1">
                           {firm.negativeReviewThemes.map((theme: string, i: number) => (
-                            <li key={i} className="text-xs text-zinc-300 flex items-start gap-2">
+                            <li key={i} className="text-xs text-[var(--ip-text-2)] flex items-start gap-2">
                               <XCircle size={10} className="text-red-400 mt-0.5" />
                               {theme}
                             </li>
@@ -2090,33 +2091,33 @@ export default function PropFirmPage({ params }: Props) {
                 )}
 
                 {firm.supportAgents?.length > 0 && (
-                  <div className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800">
-                    <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2"><Headphones size={16} className="text-purple-400" />Support Team</h4>
+                  <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-[var(--ip-border)]">
+                    <h4 className="text-sm font-semibold text-[var(--ip-text)] mb-3 flex items-center gap-2"><Headphones size={16} className="text-blue-400" />Support Team</h4>
                     <div className="flex flex-wrap gap-2">
                       {firm.supportAgents.map((agent: string, i: number) => (
-                        <span key={i} className="text-xs bg-zinc-800 text-zinc-300 px-2 py-1 rounded-full">{agent}</span>
+                        <span key={i} className="text-xs bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] px-2 py-1 rounded-full">{agent}</span>
                       ))}
                     </div>
                   </div>
                 )}
 
                 {firm.knownIssues?.length > 0 && (
-                  <div className="bg-zinc-900/30 rounded-xl p-6 border border-yellow-500/20">
+                  <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-yellow-500/20">
                     <h4 className="text-sm font-semibold text-yellow-400 mb-3 flex items-center gap-2"><AlertTriangle size={16} /> Known Issues</h4>
                     <div className="space-y-3">
                       {firm.knownIssues.map((issue: any, i: number) => (
-                        <div key={i} className="bg-zinc-800/30 rounded-lg p-3 border border-yellow-500/10">
+                        <div key={i} className="bg-[var(--ip-surface-2)] rounded-lg p-3 border border-yellow-500/10">
                           <div className="flex justify-between items-start">
-                            <span className="text-white font-medium text-sm">{issue.issue}</span>
+                            <span className="text-[var(--ip-text)] font-medium text-sm">{issue.issue}</span>
                             <span className={`text-[10px] px-2 py-0.5 rounded-full ${
                               issue.severity === 'High' ? 'bg-red-500/20 text-red-400' :
                               issue.severity === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' :
                               'bg-blue-500/20 text-blue-400'
                             }`}>{issue.severity}</span>
                           </div>
-                          <p className="text-xs text-zinc-400 mt-1">{issue.description}</p>
+                          <p className="text-xs text-[var(--ip-text-2)] mt-1">{issue.description}</p>
                           {issue.affectedUsers && (
-                            <div className="text-[10px] text-zinc-500 mt-1">Affected: {issue.affectedUsers}</div>
+                            <div className="text-[10px] text-[var(--ip-text-2)] mt-1">Affected: {issue.affectedUsers}</div>
                           )}
                         </div>
                       ))}
@@ -2125,7 +2126,7 @@ export default function PropFirmPage({ params }: Props) {
                 )}
 
                 {firm.systemBugs?.length > 0 && (
-                  <div className="bg-zinc-900/30 rounded-xl p-6 border border-red-500/20">
+                  <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-red-500/20">
                     <h4 className="text-sm font-semibold text-red-400 mb-3 flex items-center gap-2"><AlertCircle size={16} /> Reported System Bugs</h4>
                     <div className="flex flex-wrap gap-2">
                       {firm.systemBugs.map((bug: string, i: number) => (
@@ -2136,7 +2137,7 @@ export default function PropFirmPage({ params }: Props) {
                 )}
 
                 {(firm.payoutDelaysReported || firm.slippageReported || firm.hiddenRulesReported || firm.retroactiveRuleChanges || firm.withdrawalDenials) && (
-                  <div className="bg-zinc-900/30 rounded-xl p-6 border border-red-500/20">
+                  <div className="bg-[var(--ip-surface)] rounded-xl p-6 border border-red-500/20">
                     <h4 className="text-sm font-semibold text-red-400 mb-3 flex items-center gap-2"><AlertOctagon size={16} /> Warning Flags</h4>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                       {firm.payoutDelaysReported && (
@@ -2166,21 +2167,21 @@ export default function PropFirmPage({ params }: Props) {
                 {/* Header */}
                 <div className="flex flex-wrap justify-between items-center gap-4">
                   {hasReviews ? (
-                    <div className="bg-zinc-900/30 rounded-xl p-6 text-center flex-1 min-w-[200px]">
-                      <div className="text-4xl font-bold text-white mb-2">{avgRating.toFixed(1)}</div>
+                    <div className="bg-[var(--ip-surface)] rounded-xl p-6 text-center flex-1 min-w-[200px]">
+                      <div className="text-4xl font-bold text-[var(--ip-text)] mb-2">{avgRating.toFixed(1)}</div>
                       <StarRating rating={avgRating} count={reviewCount} size="md" />
-                      <p className="text-zinc-500 text-sm mt-2">Based on {reviewCount} reviews</p>
+                      <p className="text-[var(--ip-text-2)] text-sm mt-2">Based on {reviewCount} reviews</p>
                     </div>
                   ) : (
-                    <div className="bg-zinc-900/30 rounded-xl p-6 text-center flex-1 min-w-[200px]">
-                      <div className="text-2xl text-zinc-500 mb-2">No Reviews Yet</div>
-                      <p className="text-zinc-500 text-sm">Be the first to share your funded trading experience</p>
+                    <div className="bg-[var(--ip-surface)] rounded-xl p-6 text-center flex-1 min-w-[200px]">
+                      <div className="text-2xl text-[var(--ip-text-2)] mb-2">No Reviews Yet</div>
+                      <p className="text-[var(--ip-text-2)] text-sm">Be the first to share your funded trading experience</p>
                     </div>
                   )}
                   <div className="flex flex-col sm:flex-row gap-3 items-center">
-                    <button 
-                      onClick={() => setShowReviewForm(true)} 
-                      className="px-5 py-2.5 rounded-lg text-sm font-medium bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg hover:from-green-500 hover:to-emerald-500 transition-all flex items-center gap-2"
+                    <button
+                      onClick={() => setShowReviewForm(true)}
+                      className="px-5 py-2.5 rounded-lg text-sm font-medium bg-gradient-to-r from-green-600 to-emerald-600 text-[var(--ip-text)] shadow-lg hover:from-green-500 hover:to-emerald-500 transition-all flex items-center gap-2"
                     >
                       <Plus size={16} /> Write a Review
                     </button>
@@ -2191,7 +2192,7 @@ export default function PropFirmPage({ params }: Props) {
                 {/* Review List */}
                 {reviewsLoading ? (
                   <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto" />
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto" />
                   </div>
                 ) : firmReviews.length > 0 ? (
                   <div className="space-y-4">
@@ -2199,29 +2200,29 @@ export default function PropFirmPage({ params }: Props) {
                       const reviewTrustScore = review.trustScore || calculateReviewTrustScore(review);
                       const isExpanded = expandedReviewId === review.id;
                       const topLevelReplies = repliesCache[review.id] || [];
-                      
+
                       return (
-                        <div key={review.id} className="bg-zinc-900/30 rounded-xl p-5 border border-zinc-800 hover:border-purple-500/30 transition-all">
+                        <div key={review.id} className="bg-[var(--ip-surface)] rounded-xl p-5 border border-[var(--ip-border)] hover:border-blue-500/30 transition-all">
                           <div className="flex flex-col md:flex-row gap-4">
                             {/* Left Column */}
                             <div className="md:w-32 flex-shrink-0">
                               <div className="flex items-center gap-3 mb-2">
-                                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-pink-500 flex items-center justify-center text-[var(--ip-text)] font-bold text-xs">
                                   {review.user?.name?.charAt(0) || 'U'}
                                 </div>
                                 <div>
-                                  <div className="text-white text-sm font-medium">{review.user?.name || 'Anonymous'}</div>
-                                  <div className="text-xs text-zinc-500">{new Date(review.createdAt).toLocaleDateString()}</div>
+                                  <div className="text-[var(--ip-text)] text-sm font-medium">{review.user?.name || 'Anonymous'}</div>
+                                  <div className="text-xs text-[var(--ip-text-2)]">{new Date(review.createdAt).toLocaleDateString()}</div>
                                 </div>
                               </div>
-                              <div className="text-center p-2 bg-zinc-800/30 rounded-lg">
-                                <div className="text-lg font-bold text-white">{review.rating}.0</div>
+                              <div className="text-center p-2 bg-[var(--ip-surface-2)] rounded-lg">
+                                <div className="text-lg font-bold text-[var(--ip-text)]">{review.rating}.0</div>
                                 <StarRating rating={review.rating} size="sm" />
                               </div>
                               {reviewTrustScore && (
-                                <div className="mt-2 p-2 bg-purple-500/10 rounded-lg text-center">
-                                  <div className="text-xs text-zinc-400">Trust Score</div>
-                                  <div className="text-sm font-bold text-purple-400">{reviewTrustScore}</div>
+                                <div className="mt-2 p-2 bg-blue-500/10 rounded-lg text-center">
+                                  <div className="text-xs text-[var(--ip-text-2)]">Trust Score</div>
+                                  <div className="text-sm font-bold text-blue-400">{reviewTrustScore}</div>
                                 </div>
                               )}
                               {review.verifiedTrader && (
@@ -2232,19 +2233,19 @@ export default function PropFirmPage({ params }: Props) {
                                 </div>
                               )}
                             </div>
-                            
+
                             {/* Right Column */}
                             <div className="flex-1">
                               <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
-                                <h4 className="text-lg font-semibold text-white">{review.title}</h4>
+                                <h4 className="text-lg font-semibold text-[var(--ip-text)]">{review.title}</h4>
                                 <div className="flex gap-1">
-                                  <button onClick={() => markHelpful(review.id, 'HELPFUL')} className={`p-1.5 rounded-lg transition-colors ${userVotes[review.id] === 'HELPFUL' ? 'bg-green-500/20 text-green-400' : 'text-zinc-500 hover:text-green-400'}`}>
+                                  <button onClick={() => markHelpful(review.id, 'HELPFUL')} className={`p-1.5 rounded-lg transition-colors ${userVotes[review.id] === 'HELPFUL' ? 'bg-green-500/20 text-green-400' : 'text-[var(--ip-text-2)] hover:text-green-400'}`}>
                                     <ThumbsUp size={14} />
                                   </button>
-                                  <button onClick={() => shareReview(review)} className="p-1.5 rounded-lg text-zinc-500 hover:text-blue-400 transition-colors">
+                                  <button onClick={() => shareReview(review)} className="p-1.5 rounded-lg text-[var(--ip-text-2)] hover:text-blue-400 transition-colors">
                                     {copiedReviewId === review.id ? <Check size={14} /> : <Share2 size={14} />}
                                   </button>
-                                  <button onClick={() => toggleReviewExpand(review.id)} className="p-1.5 rounded-lg text-zinc-500 hover:text-purple-400 transition-colors">
+                                  <button onClick={() => toggleReviewExpand(review.id)} className="p-1.5 rounded-lg text-[var(--ip-text-2)] hover:text-blue-400 transition-colors">
                                     <Eye size={14} />
                                   </button>
                                   <button
@@ -2256,100 +2257,100 @@ export default function PropFirmPage({ params }: Props) {
                                         setRepliesCache(prev => ({ ...prev, [review.id]: replies }));
                                       }
                                     }}
-                                    className="relative p-1.5 rounded-lg text-zinc-500 hover:text-green-400 transition-colors"
+                                    className="relative p-1.5 rounded-lg text-[var(--ip-text-2)] hover:text-green-400 transition-colors"
                                   >
                                     <MessageCircle size={14} />
                                     {review.replyCount > 0 && (
-                                      <span className="absolute -top-1 -right-1 text-[10px] bg-green-500 text-white rounded-full px-1 min-w-[16px] h-4 flex items-center justify-center">
+                                      <span className="absolute -top-1 -right-1 text-[10px] bg-green-500 text-[var(--ip-text)] rounded-full px-1 min-w-[16px] h-4 flex items-center justify-center">
                                         {review.replyCount}
                                       </span>
                                     )}
                                   </button>
                                 </div>
                               </div>
-                              
-                              <p className="text-zinc-300 text-sm leading-relaxed">
+
+                              <p className="text-[var(--ip-text-2)] text-sm leading-relaxed">
                                 {isExpanded ? review.content : `${review.content.substring(0, 250)}${review.content.length > 250 ? '...' : ''}`}
                               </p>
                               {review.content.length > 250 && !isExpanded && (
-                                <button onClick={() => toggleReviewExpand(review.id)} className="text-purple-400 text-xs mt-1 hover:underline">
+                                <button onClick={() => toggleReviewExpand(review.id)} className="text-blue-400 text-xs mt-1 hover:underline">
                                   Read more
                                 </button>
                               )}
-                              
+
                               {(review.pros || review.cons) && (
                                 <div className="mt-3 flex flex-wrap gap-3">
                                   {review.pros && (
                                     <div className="bg-green-500/10 rounded-lg px-3 py-1.5 border border-green-500/20">
                                       <span className="text-xs text-green-400 font-medium">✅ Pro</span>
-                                      <p className="text-xs text-zinc-300 mt-0.5">{review.pros}</p>
+                                      <p className="text-xs text-[var(--ip-text-2)] mt-0.5">{review.pros}</p>
                                     </div>
                                   )}
                                   {review.cons && (
                                     <div className="bg-red-500/10 rounded-lg px-3 py-1.5 border border-red-500/20">
                                       <span className="text-xs text-red-400 font-medium">⚠️ Con</span>
-                                      <p className="text-xs text-zinc-300 mt-0.5">{review.cons}</p>
+                                      <p className="text-xs text-[var(--ip-text-2)] mt-0.5">{review.cons}</p>
                                     </div>
                                   )}
                                 </div>
                               )}
-                              
+
                               {isExpanded && (
-                                <div className="mt-4 p-3 bg-zinc-800/30 rounded-lg">
-                                  <h5 className="text-xs text-zinc-500 mb-2">Detailed Ratings</h5>
+                                <div className="mt-4 p-3 bg-[var(--ip-surface-2)] rounded-lg">
+                                  <h5 className="text-xs text-[var(--ip-text-2)] mb-2">Detailed Ratings</h5>
                                   <div className="grid grid-cols-2 gap-3">
                                     {review.tradingConditions && (
                                       <div className="flex items-center justify-between">
-                                        <span className="text-xs text-zinc-500">Trading</span>
-                                        <span className="text-white text-sm">{review.tradingConditions}/5</span>
+                                        <span className="text-xs text-[var(--ip-text-2)]">Trading</span>
+                                        <span className="text-[var(--ip-text)] text-sm">{review.tradingConditions}/5</span>
                                       </div>
                                     )}
                                     {review.customerCare && (
                                       <div className="flex items-center justify-between">
-                                        <span className="text-xs text-zinc-500">Support</span>
-                                        <span className="text-white text-sm">{review.customerCare}/5</span>
+                                        <span className="text-xs text-[var(--ip-text-2)]">Support</span>
+                                        <span className="text-[var(--ip-text)] text-sm">{review.customerCare}/5</span>
                                       </div>
                                     )}
                                     {review.userFriendliness && (
                                       <div className="flex items-center justify-between">
-                                        <span className="text-xs text-zinc-500">Usability</span>
-                                        <span className="text-white text-sm">{review.userFriendliness}/5</span>
+                                        <span className="text-xs text-[var(--ip-text-2)]">Usability</span>
+                                        <span className="text-[var(--ip-text)] text-sm">{review.userFriendliness}/5</span>
                                       </div>
                                     )}
                                     {review.payoutProcess && (
                                       <div className="flex items-center justify-between">
-                                        <span className="text-xs text-zinc-500">Payouts</span>
-                                        <span className="text-white text-sm">{review.payoutProcess}/5</span>
+                                        <span className="text-xs text-[var(--ip-text-2)]">Payouts</span>
+                                        <span className="text-[var(--ip-text)] text-sm">{review.payoutProcess}/5</span>
                                       </div>
                                     )}
                                     {review.executionQuality && (
                                       <div className="flex items-center justify-between">
-                                        <span className="text-xs text-zinc-500">Execution</span>
-                                        <span className="text-white text-sm">{review.executionQuality}/5</span>
+                                        <span className="text-xs text-[var(--ip-text-2)]">Execution</span>
+                                        <span className="text-[var(--ip-text)] text-sm">{review.executionQuality}/5</span>
                                       </div>
                                     )}
                                     {review.reliability && (
                                       <div className="flex items-center justify-between">
-                                        <span className="text-xs text-zinc-500">Reliability</span>
-                                        <span className="text-white text-sm">{review.reliability}/5</span>
+                                        <span className="text-xs text-[var(--ip-text-2)]">Reliability</span>
+                                        <span className="text-[var(--ip-text)] text-sm">{review.reliability}/5</span>
                                       </div>
                                     )}
                                   </div>
                                 </div>
                               )}
-                              
-                              <div className="flex items-center gap-4 mt-3 pt-2 border-t border-zinc-800">
-                                <button 
-                                  onClick={() => markHelpful(review.id, 'HELPFUL')} 
-                                  className={`flex items-center gap-1 text-xs ${userVotes[review.id] === 'HELPFUL' ? 'text-green-400' : 'text-zinc-500 hover:text-white'}`}
+
+                              <div className="flex items-center gap-4 mt-3 pt-2 border-t border-[var(--ip-border)]">
+                                <button
+                                  onClick={() => markHelpful(review.id, 'HELPFUL')}
+                                  className={`flex items-center gap-1 text-xs ${userVotes[review.id] === 'HELPFUL' ? 'text-green-400' : 'text-[var(--ip-text-2)] hover:text-[var(--ip-text)]'}`}
                                 >
                                   <ThumbsUp size={12} /> Helpful ({review.helpfulCount || 0})
                                 </button>
-                                <button 
-                                  onClick={() => shareReview(review)} 
-                                  className="flex items-center gap-1 text-xs text-zinc-500 hover:text-white transition-colors"
+                                <button
+                                  onClick={() => shareReview(review)}
+                                  className="flex items-center gap-1 text-xs text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors"
                                 >
-                                  {copiedReviewId === review.id ? <CheckCircle size={12} className="text-green-400" /> : <Share2 size={12} />} 
+                                  {copiedReviewId === review.id ? <CheckCircle size={12} className="text-green-400" /> : <Share2 size={12} />}
                                   {copiedReviewId === review.id ? 'Copied!' : 'Share'}
                                 </button>
                                 {review.verifiedTrader && (
@@ -2363,10 +2364,10 @@ export default function PropFirmPage({ params }: Props) {
                                   </span>
                                 )}
                               </div>
-                              
+
                               {/* ====== REPLY / COMMENT SECTION ====== */}
                               {showReplySection[review.id] && (
-                                <div className="mt-4 border-t border-zinc-800 pt-4">
+                                <div className="mt-4 border-t border-[var(--ip-border)] pt-4">
                                   {/* Existing Replies */}
                                   {topLevelReplies.map((reply) => (
                                     <ReplyThread
@@ -2378,10 +2379,10 @@ export default function PropFirmPage({ params }: Props) {
                                       currentUser={user}
                                     />
                                   ))}
-                                  
+
                                   {/* New Reply Form */}
                                   <div className="mt-3 flex gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-pink-500 flex items-center justify-center text-[var(--ip-text)] font-bold text-sm flex-shrink-0">
                                       {user?.name?.charAt(0) || 'U'}
                                     </div>
                                     <div className="flex-1">
@@ -2392,22 +2393,22 @@ export default function PropFirmPage({ params }: Props) {
                                           setReplyContent(e.target.value);
                                         }}
                                         placeholder="Add a comment..."
-                                        className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500"
+                                        className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-3 py-2 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500"
                                         rows={2}
                                         onFocus={() => setReplyingToReview(review.id)}
                                       />
                                       <div className="flex justify-between items-center mt-2">
                                         <div className="flex gap-2">
-                                          <label className="cursor-pointer p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition-colors">
-                                            <ImagePlus size={14} className="text-zinc-400" />
-                                            <input 
-                                              type="file" 
-                                              multiple 
-                                              accept="image/*,video/*" 
-                                              className="hidden" 
+                                          <label className="cursor-pointer p-1.5 rounded-lg bg-[var(--ip-surface-2)] hover:bg-zinc-700 transition-colors">
+                                            <ImagePlus size={14} className="text-[var(--ip-text-2)]" />
+                                            <input
+                                              type="file"
+                                              multiple
+                                              accept="image/*,video/*"
+                                              className="hidden"
                                               onChange={(e) => {
                                                 if (e.target.files) setReplyMedia(Array.from(e.target.files));
-                                              }} 
+                                              }}
                                             />
                                           </label>
                                           {replyMedia.length > 0 && (
@@ -2415,11 +2416,11 @@ export default function PropFirmPage({ params }: Props) {
                                               {replyMedia.map((file, idx) => (
                                                 <div key={idx} className="relative">
                                                   <img src={URL.createObjectURL(file)} alt="" className="w-8 h-8 rounded object-cover" />
-                                                  <button 
+                                                  <button
                                                     onClick={() => setReplyMedia(prev => prev.filter((_, i) => i !== idx))}
                                                     className="absolute -top-1 -right-1 p-0.5 bg-red-500 rounded-full"
                                                   >
-                                                    <X size={8} className="text-white" />
+                                                    <X size={8} className="text-[var(--ip-text)]" />
                                                   </button>
                                                 </div>
                                               ))}
@@ -2430,7 +2431,7 @@ export default function PropFirmPage({ params }: Props) {
                                           <button
                                             onClick={() => handleSubmitReply(review.id, null)}
                                             disabled={replySubmitting}
-                                            className="px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-xs disabled:opacity-50 flex items-center gap-1"
+                                            className="px-3 py-1 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-lg text-xs disabled:opacity-50 flex items-center gap-1"
                                           >
                                             {replySubmitting ? <Loader2 size={10} className="animate-spin" /> : <Send size={10} />}
                                             {replySubmitting ? 'Sending...' : 'Post'}
@@ -2448,14 +2449,14 @@ export default function PropFirmPage({ params }: Props) {
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-12 bg-zinc-900/30 rounded-xl border border-zinc-800">
+                  <div className="text-center py-12 bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)]">
                     <MessageCircle className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
-                    <p className="text-zinc-400">No reviews yet for this prop firm</p>
-                    <p className="text-zinc-500 text-sm mt-1">Be the first to share your funded trading experience</p>
+                    <p className="text-[var(--ip-text-2)]">No reviews yet for this prop firm</p>
+                    <p className="text-[var(--ip-text-2)] text-sm mt-1">Be the first to share your funded trading experience</p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center mt-4">
-                      <button 
-                        onClick={() => setShowReviewForm(true)} 
-                        className="px-5 py-2.5 rounded-lg text-sm font-medium bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg hover:from-green-500 hover:to-emerald-500 transition-all flex items-center gap-2"
+                      <button
+                        onClick={() => setShowReviewForm(true)}
+                        className="px-5 py-2.5 rounded-lg text-sm font-medium bg-gradient-to-r from-green-600 to-emerald-600 text-[var(--ip-text)] shadow-lg hover:from-green-500 hover:to-emerald-500 transition-all flex items-center gap-2"
                       >
                         <Plus size={16} /> Write a Review
                       </button>
@@ -2463,13 +2464,13 @@ export default function PropFirmPage({ params }: Props) {
                     </div>
                   </div>
                 )}
-                
+
                 {/* Bottom CTA */}
-                <div className="mt-8 p-6 bg-gradient-to-r from-purple-600/10 to-pink-600/10 rounded-2xl border border-purple-500/30 text-center">
-                  <h3 className="text-lg font-semibold text-white mb-2">
+                <div className="mt-8 p-6 bg-gradient-to-r from-blue-600/10 to-pink-600/10 rounded-2xl border border-blue-500/30 text-center">
+                  <h3 className="text-lg font-semibold text-[var(--ip-text)] mb-2">
                     Join thousands of funded traders
                   </h3>
-                  <p className="text-zinc-400 text-sm mb-4 max-w-md mx-auto">
+                  <p className="text-[var(--ip-text-2)] text-sm mb-4 max-w-md mx-auto">
                     {firm.totalTradersServed ? `${firm.totalTradersServed.toLocaleString()}+ traders` : '10,000+ traders'} have already started their journey
                   </p>
                   <PrimaryCTA href={affiliateLink} text="Start Your Challenge Today" size="md" />
@@ -2481,14 +2482,14 @@ export default function PropFirmPage({ params }: Props) {
             {activeTab === "incidents" && (
               <div className="space-y-6">
                 <div className="flex flex-wrap justify-between items-center gap-4">
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                  <h2 className="text-2xl font-bold text-[var(--ip-text)] flex items-center gap-2">
                     <AlertOctagon size={24} className="text-red-400" />
                     Incidents & Reports
                   </h2>
                   <div className="flex gap-3">
-                    <button 
-                      onClick={() => setShowIncidentForm(true)} 
-                      className="px-5 py-2.5 rounded-lg text-sm font-medium bg-gradient-to-r from-red-600 to-orange-600 text-white shadow-lg hover:from-red-500 hover:to-orange-500 transition-all flex items-center gap-2"
+                    <button
+                      onClick={() => setShowIncidentForm(true)}
+                      className="px-5 py-2.5 rounded-lg text-sm font-medium bg-gradient-to-r from-red-600 to-orange-600 text-[var(--ip-text)] shadow-lg hover:from-red-500 hover:to-orange-500 transition-all flex items-center gap-2"
                     >
                       <Flag size={16} /> Report Incident
                     </button>
@@ -2500,25 +2501,25 @@ export default function PropFirmPage({ params }: Props) {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="bg-red-500/10 rounded-xl p-4 text-center border border-red-500/20">
                     <AlertTriangle size={20} className="text-red-400 mx-auto mb-1" />
-                    <div className="text-2xl font-bold text-white">{incidentCount}</div>
-                    <div className="text-xs text-zinc-500">Total Reports</div>
+                    <div className="text-2xl font-bold text-[var(--ip-text)]">{incidentCount}</div>
+                    <div className="text-xs text-[var(--ip-text-2)]">Total Reports</div>
                   </div>
                   <div className="bg-yellow-500/10 rounded-xl p-4 text-center border border-yellow-500/20">
                     <Clock size={20} className="text-yellow-400 mx-auto mb-1" />
-                    <div className="text-2xl font-bold text-white">{firmIncidents.filter(i => i.resolutionStatus === 'PENDING').length}</div>
-                    <div className="text-xs text-zinc-500">Unresolved</div>
+                    <div className="text-2xl font-bold text-[var(--ip-text)]">{firmIncidents.filter(i => i.resolutionStatus === 'PENDING').length}</div>
+                    <div className="text-xs text-[var(--ip-text-2)]">Unresolved</div>
                   </div>
                   <div className="bg-green-500/10 rounded-xl p-4 text-center border border-green-500/20">
                     <CheckCircle size={20} className="text-green-400 mx-auto mb-1" />
-                    <div className="text-2xl font-bold text-white">{firmIncidents.filter(i => i.resolutionStatus === 'RESOLVED').length}</div>
-                    <div className="text-xs text-zinc-500">Resolved</div>
+                    <div className="text-2xl font-bold text-[var(--ip-text)]">{firmIncidents.filter(i => i.resolutionStatus === 'RESOLVED').length}</div>
+                    <div className="text-xs text-[var(--ip-text-2)]">Resolved</div>
                   </div>
                 </div>
 
                 {/* Incident List */}
                 {incidentsLoading ? (
                   <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto" />
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto" />
                   </div>
                 ) : firmIncidents.length > 0 ? (
                   <div className="space-y-4">
@@ -2527,16 +2528,16 @@ export default function PropFirmPage({ params }: Props) {
                       const IconComponent = typeInfo?.icon || AlertTriangle;
                       const typeColor = typeInfo?.color || 'text-red-400';
                       const isResolved = incident.resolutionStatus === 'RESOLVED' || incident.resolutionStatus === 'CONFIRMED';
-                      
+
                       return (
-                        <div key={incident.id} className="bg-zinc-900/30 rounded-xl p-5 border border-red-500/20 hover:border-red-500/40 transition-all">
+                        <div key={incident.id} className="bg-[var(--ip-surface)] rounded-xl p-5 border border-red-500/20 hover:border-red-500/40 transition-all">
                           <div className="flex items-start gap-4">
                             <div className={`p-2 rounded-lg ${typeColor.replace('text', 'bg')}/10 flex-shrink-0`}>
                               <IconComponent size={20} className={typeColor} />
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-4 flex-wrap">
-                                <h4 className="text-white font-semibold">{incident.title}</h4>
+                                <h4 className="text-[var(--ip-text)] font-semibold">{incident.title}</h4>
                                 <div className="flex gap-2 flex-shrink-0">
                                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${isResolved ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
                                     {isResolved ? 'RESOLVED' : (incident.resolutionStatus || 'PENDING')}
@@ -2548,8 +2549,8 @@ export default function PropFirmPage({ params }: Props) {
                                   )}
                                 </div>
                               </div>
-                              <p className="text-zinc-300 text-sm mt-2">{incident.description}</p>
-                              <div className="flex flex-wrap gap-4 mt-3 text-xs text-zinc-500">
+                              <p className="text-[var(--ip-text-2)] text-sm mt-2">{incident.description}</p>
+                              <div className="flex flex-wrap gap-4 mt-3 text-xs text-[var(--ip-text-2)]">
                                 <span className="flex items-center gap-1">
                                   <CalendarIcon size={12} /> {new Date(incident.incidentDate || incident.createdAt).toLocaleDateString()}
                                 </span>
@@ -2586,10 +2587,10 @@ export default function PropFirmPage({ params }: Props) {
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-12 bg-zinc-900/30 rounded-xl border border-zinc-800">
+                  <div className="text-center py-12 bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)]">
                     <Shield className="w-12 h-12 text-green-400 mx-auto mb-3" />
-                    <p className="text-zinc-400">No incidents reported for this prop firm</p>
-                    <p className="text-zinc-500 text-sm mt-1">This firm has a clean record</p>
+                    <p className="text-[var(--ip-text-2)]">No incidents reported for this prop firm</p>
+                    <p className="text-[var(--ip-text-2)] text-sm mt-1">This firm has a clean record</p>
                     <div className="mt-4">
                       <PrimaryCTA href={affiliateLink} text="Start with Confidence" size="sm" />
                     </div>
@@ -2602,7 +2603,7 @@ export default function PropFirmPage({ params }: Props) {
       </div>
 
       {/* Floating CTA */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-zinc-900/95 border-t border-zinc-800 backdrop-blur-sm md:hidden">
+      <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-[var(--ip-surface)] border-t border-[var(--ip-border)] backdrop-blur-sm md:hidden">
         <PrimaryCTA href={affiliateLink} text="Start Challenge Now" size="md" className="w-full" />
       </div>
 

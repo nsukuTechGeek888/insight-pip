@@ -1,5 +1,6 @@
 'use client';
 
+import {notify} from '@/components/ui/Feedback';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -20,7 +21,7 @@ const SimpleEditor = ({ value, onChange, placeholder }: any) => {
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full min-h-[400px] bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500 resize-y"
+      className="w-full min-h-[400px] bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-4 py-3 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500 resize-y"
     />
   );
 };
@@ -42,12 +43,12 @@ const TagInput = ({ tags, onAdd, onRemove }: any) => {
         {tags.map((tag: string) => (
           <span
             key={tag}
-            className="inline-flex items-center gap-1 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm"
+            className="inline-flex items-center gap-1 px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm"
           >
             {tag}
             <button
               onClick={() => onRemove(tag)}
-              className="hover:text-purple-100"
+              className="hover:text-blue-100"
             >
               <X size={14} />
             </button>
@@ -60,7 +61,7 @@ const TagInput = ({ tags, onAdd, onRemove }: any) => {
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Add a tag and press Enter..."
-        className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-purple-500"
+        className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-4 py-2 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500"
       />
     </div>
   );
@@ -93,7 +94,7 @@ const ImageUpload = ({ onUpload, existingImage }: any) => {
       onUpload(data.url);
     } catch (error) {
       console.error('Error uploading image:', error);
-      alert('Failed to upload image');
+      notify('Failed to upload image');
     } finally {
       setUploading(false);
     }
@@ -106,11 +107,11 @@ const ImageUpload = ({ onUpload, existingImage }: any) => {
           <img
             src={existingImage}
             alt="Featured image"
-            className="w-full h-48 object-cover rounded-lg border border-zinc-700"
+            className="w-full h-48 object-cover rounded-lg border border-[var(--ip-border)]"
           />
           <button
             onClick={() => onUpload('')}
-            className="absolute top-2 right-2 p-1 bg-red-500/80 rounded-full hover:bg-red-500 text-white"
+            className="absolute top-2 right-2 p-1 bg-red-500/80 rounded-full hover:bg-red-500 text-[var(--ip-text)]"
           >
             <X size={16} />
           </button>
@@ -118,9 +119,9 @@ const ImageUpload = ({ onUpload, existingImage }: any) => {
       )}
       <div className="flex items-center gap-4">
         <label className="cursor-pointer">
-          <div className="flex items-center gap-2 px-4 py-2 bg-zinc-800/50 border border-zinc-700 rounded-lg hover:bg-zinc-700 transition-colors">
+          <div className="flex items-center gap-2 px-4 py-2 bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg hover:bg-zinc-700 transition-colors">
             <Upload size={16} />
-            <span className="text-sm text-white">
+            <span className="text-sm text-[var(--ip-text)]">
               {existingImage ? 'Change Image' : 'Upload Image'}
             </span>
           </div>
@@ -133,13 +134,13 @@ const ImageUpload = ({ onUpload, existingImage }: any) => {
           />
         </label>
         {uploading && (
-          <div className="flex items-center gap-2 text-zinc-400">
+          <div className="flex items-center gap-2 text-[var(--ip-text-2)]">
             <Loader2 size={16} className="animate-spin" />
             <span className="text-sm">Uploading...</span>
           </div>
         )}
       </div>
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-[var(--ip-text-2)]">
         Recommended: 1200x630px, JPG/PNG, max 2MB
       </p>
     </div>
@@ -242,7 +243,7 @@ export default function NewBlogPostPage() {
       router.push('/admin/blog');
     } catch (error: any) {
       console.error('Error saving post:', error);
-      alert(error.message || 'Failed to save post');
+      notify(error.message || 'Failed to save post');
     } finally {
       setSaving(false);
     }
@@ -259,8 +260,8 @@ export default function NewBlogPostPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500" />
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
       </div>
     );
   }
@@ -268,24 +269,24 @@ export default function NewBlogPostPage() {
   if (!user || user.role !== 'ADMIN') return null;
 
   return (
-    <div className="min-h-screen bg-black pt-20">
+    <div className="min-h-screen bg-[var(--ip-bg)] pt-20">
       <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <Link href="/admin/blog" className="p-2 rounded-lg bg-zinc-800/50 text-zinc-400 hover:text-white">
+            <Link href="/admin/blog" className="p-2 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] hover:text-[var(--ip-text)]">
               <ArrowLeft size={20} />
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-white">Create New Post</h1>
-              <p className="text-zinc-400 text-sm">Write and publish a new blog post</p>
+              <h1 className="text-2xl font-bold text-[var(--ip-text)]">Create New Post</h1>
+              <p className="text-[var(--ip-text-2)] text-sm">Write and publish a new blog post</p>
             </div>
           </div>
           <div className="flex gap-3">
             <button
               onClick={() => handleSave('DRAFT')}
               disabled={saving}
-              className="px-4 py-2 bg-zinc-800 text-zinc-300 rounded-lg hover:bg-zinc-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+              className="px-4 py-2 bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] rounded-lg hover:bg-zinc-700 transition-colors flex items-center gap-2 disabled:opacity-50"
             >
               <Save size={16} />
               Save Draft
@@ -293,7 +294,7 @@ export default function NewBlogPostPage() {
             <button
               onClick={() => handleSave('PUBLISHED')}
               disabled={saving}
-              className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50"
+              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-pink-500 text-[var(--ip-text)] rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50"
             >
               {saving ? (
                 <Loader2 size={16} className="animate-spin" />
@@ -309,7 +310,7 @@ export default function NewBlogPostPage() {
         <div className="space-y-6">
           {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className="block text-sm font-medium text-[var(--ip-text-2)] mb-2">
               Title <span className="text-red-400">*</span>
             </label>
             <input
@@ -323,7 +324,7 @@ export default function NewBlogPostPage() {
                 });
               }}
               placeholder="Enter post title..."
-              className={`w-full bg-zinc-800/50 border ${errors.title ? 'border-red-500' : 'border-zinc-700'} rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500`}
+              className={`w-full bg-[var(--ip-surface-2)] border ${errors.title ? 'border-red-500' : 'border-[var(--ip-border)]'} rounded-lg px-4 py-3 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500`}
             />
             {errors.title && (
               <p className="mt-1 text-xs text-red-400">{errors.title}</p>
@@ -332,21 +333,21 @@ export default function NewBlogPostPage() {
 
           {/* Slug */}
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
-              Slug <span className="text-zinc-500 text-xs">(URL-friendly name)</span>
+            <label className="block text-sm font-medium text-[var(--ip-text-2)] mb-2">
+              Slug <span className="text-[var(--ip-text-2)] text-xs">(URL-friendly name)</span>
             </label>
             <div className="flex gap-2">
-              <span className="text-zinc-500 text-sm py-3">/blog/</span>
+              <span className="text-[var(--ip-text-2)] text-sm py-3">/blog/</span>
               <input
                 type="text"
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                 placeholder="auto-generated-from-title"
-                className="flex-1 bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500"
+                className="flex-1 bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-4 py-3 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500"
               />
               <button
                 onClick={() => setFormData({ ...formData, slug: generateSlug(formData.title) })}
-                className="px-4 py-2 bg-zinc-800 text-zinc-300 rounded-lg hover:bg-zinc-700 transition-colors text-sm"
+                className="px-4 py-2 bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] rounded-lg hover:bg-zinc-700 transition-colors text-sm"
               >
                 Auto
               </button>
@@ -355,7 +356,7 @@ export default function NewBlogPostPage() {
 
           {/* Summary */}
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className="block text-sm font-medium text-[var(--ip-text-2)] mb-2">
               Summary <span className="text-red-400">*</span>
             </label>
             <textarea
@@ -363,7 +364,7 @@ export default function NewBlogPostPage() {
               onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
               placeholder="Write a brief summary of the post..."
               rows={3}
-              className={`w-full bg-zinc-800/50 border ${errors.summary ? 'border-red-500' : 'border-zinc-700'} rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500 resize-y`}
+              className={`w-full bg-[var(--ip-surface-2)] border ${errors.summary ? 'border-red-500' : 'border-[var(--ip-border)]'} rounded-lg px-4 py-3 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500 resize-y`}
             />
             {errors.summary && (
               <p className="mt-1 text-xs text-red-400">{errors.summary}</p>
@@ -372,7 +373,7 @@ export default function NewBlogPostPage() {
 
           {/* Content */}
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className="block text-sm font-medium text-[var(--ip-text-2)] mb-2">
               Content <span className="text-red-400">*</span>
             </label>
             <SimpleEditor
@@ -388,7 +389,7 @@ export default function NewBlogPostPage() {
           {/* Category & Tags */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-zinc-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--ip-text-2)] mb-2">
                 Category <span className="text-red-400">*</span>
               </label>
               {showCategoryInput ? (
@@ -398,17 +399,17 @@ export default function NewBlogPostPage() {
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
                     placeholder="New category name..."
-                    className="flex-1 bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-purple-500"
+                    className="flex-1 bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-4 py-2 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500"
                   />
                   <button
                     onClick={handleAddCategory}
-                    className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-400 transition-colors"
+                    className="px-4 py-2 bg-blue-500 text-[var(--ip-text)] rounded-lg hover:bg-blue-400 transition-colors"
                   >
                     <Plus size={16} />
                   </button>
                   <button
                     onClick={() => setShowCategoryInput(false)}
-                    className="px-4 py-2 bg-zinc-800 text-zinc-300 rounded-lg hover:bg-zinc-700 transition-colors"
+                    className="px-4 py-2 bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] rounded-lg hover:bg-zinc-700 transition-colors"
                   >
                     <X size={16} />
                   </button>
@@ -418,7 +419,7 @@ export default function NewBlogPostPage() {
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className={`flex-1 bg-zinc-800/50 border ${errors.category ? 'border-red-500' : 'border-zinc-700'} rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-purple-500`}
+                    className={`flex-1 bg-[var(--ip-surface-2)] border ${errors.category ? 'border-red-500' : 'border-[var(--ip-border)]'} rounded-lg px-4 py-2 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500`}
                   >
                     {categories.map((cat) => (
                       <option key={cat} value={cat}>{cat}</option>
@@ -426,7 +427,7 @@ export default function NewBlogPostPage() {
                   </select>
                   <button
                     onClick={() => setShowCategoryInput(true)}
-                    className="px-4 py-2 bg-zinc-800 text-zinc-300 rounded-lg hover:bg-zinc-700 transition-colors"
+                    className="px-4 py-2 bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] rounded-lg hover:bg-zinc-700 transition-colors"
                   >
                     <Plus size={16} />
                   </button>
@@ -438,7 +439,7 @@ export default function NewBlogPostPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--ip-text-2)] mb-2">
                 Tags
               </label>
               <TagInput
@@ -460,7 +461,7 @@ export default function NewBlogPostPage() {
 
           {/* Featured Image */}
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className="block text-sm font-medium text-[var(--ip-text-2)] mb-2">
               Featured Image
             </label>
             <ImageUpload
@@ -470,7 +471,7 @@ export default function NewBlogPostPage() {
           </div>
 
           {/* Options */}
-          <div className="bg-zinc-900/30 rounded-lg p-4 border border-zinc-800">
+          <div className="bg-[var(--ip-surface)] rounded-lg p-4 border border-[var(--ip-border)]">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -478,17 +479,17 @@ export default function NewBlogPostPage() {
                 onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
                 className="w-4 h-4 accent-purple-500"
               />
-              <span className="text-white text-sm">Feature this post</span>
-              <span className="text-zinc-500 text-xs">(Featured posts appear at the top of the blog)</span>
+              <span className="text-[var(--ip-text)] text-sm">Feature this post</span>
+              <span className="text-[var(--ip-text-2)] text-xs">(Featured posts appear at the top of the blog)</span>
             </label>
           </div>
 
           {/* Preview */}
-          <div className="bg-zinc-900/30 rounded-lg p-4 border border-zinc-800">
-            <h3 className="text-sm font-medium text-zinc-300 mb-3">Preview</h3>
-            <div className="bg-zinc-800/50 rounded-lg p-4">
-              <h4 className="text-xl font-bold text-white mb-2">{formData.title || 'Post Title'}</h4>
-              <p className="text-zinc-400 text-sm">{formData.summary || 'Post summary will appear here...'}</p>
+          <div className="bg-[var(--ip-surface)] rounded-lg p-4 border border-[var(--ip-border)]">
+            <h3 className="text-sm font-medium text-[var(--ip-text-2)] mb-3">Preview</h3>
+            <div className="bg-[var(--ip-surface-2)] rounded-lg p-4">
+              <h4 className="text-xl font-bold text-[var(--ip-text)] mb-2">{formData.title || 'Post Title'}</h4>
+              <p className="text-[var(--ip-text-2)] text-sm">{formData.summary || 'Post summary will appear here...'}</p>
               {formData.imageUrl && (
                 <div className="mt-3">
                   <img
@@ -499,9 +500,9 @@ export default function NewBlogPostPage() {
                 </div>
               )}
               <div className="mt-3 flex gap-2">
-                <span className="text-xs text-zinc-500">{formData.category || 'Category'}</span>
+                <span className="text-xs text-[var(--ip-text-2)]">{formData.category || 'Category'}</span>
                 {formData.tags.map((tag: string) => (
-                  <span key={tag} className="text-xs text-purple-400">#{tag}</span>
+                  <span key={tag} className="text-xs text-blue-400">#{tag}</span>
                 ))}
               </div>
             </div>

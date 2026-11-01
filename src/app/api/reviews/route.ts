@@ -1,3 +1,4 @@
+import {sessionSecret} from '@/lib/session-secret';
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
@@ -15,7 +16,7 @@ async function getUserFromToken(request: NextRequest) {
   try {
     const decoded = jwt.verify(
       token, 
-      process.env.JWT_SECRET || "development-secret-key-12345"
+      sessionSecret()
     ) as { userId: string; email: string };
     
     console.log('✅ Token verified for user:', decoded.email);
@@ -161,7 +162,7 @@ async function updateBrokerStats(brokerId: number) {
         withdrawalStats: JSON.stringify(withdrawalStats),
         accountIssueStats: JSON.stringify(accountIssueStats),
         avgWithdrawalExperience: avgWithdrawalSuccess,
-        avgReliability: avgReliability,
+
         avgCustomerSupport: reviews
           .filter(r => r.customerSupport)
           .reduce((sum, r) => sum + (r.customerSupport || 0), 0) / 
@@ -226,12 +227,12 @@ async function updatePropFirmStats(propFirmId: number) {
       where: { id: propFirmId },
       data: {
         avgTrustScore,
-        avgWithdrawalSuccess,
+        avgPayoutProcess: avgWithdrawalSuccess,
         avgExecutionQuality,
         avgReliability,
         recommendationRate,
-        withdrawalStats: JSON.stringify(withdrawalStats),
-        accountIssueStats: JSON.stringify(accountIssueStats),
+
+
       }
     });
     
@@ -273,7 +274,14 @@ export async function GET(request: NextRequest) {
     }
     
     if (userId) where.userId = userId;
-    if (status) where.status = status;
+    const viewer = await getUserFromToken(request);
+    if (viewer?.role === 'ADMIN') { if(status) where.status=status; }
+    else { where.status='APPROVED'; where.isHidden=false; }
+    const minRating = Number(searchParams.get('minRating'));
+    if(minRating>=1 && minRating<=5) where.rating={gte:minRating};
+    if(searchParams.get('verified')==='true') where.isVerified=true;
+    const firmName=searchParams.get('firmName');
+    if(firmName) { if(type==='propFirm') where.propFirm={name:firmName}; else where.broker={name:firmName}; }
     
     if (search) {
       where.OR = [
@@ -303,6 +311,7 @@ export async function GET(request: NextRequest) {
       case 'lowest':
         orderBy = { rating: 'asc' };
         break;
+      case 'mostHelpful':
       case 'most-helpful':
         orderBy = { helpfulCount: 'desc' };
         break;
@@ -474,7 +483,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate overall rating from provided ratings
-    let overallRating = 3; // Default rating
+    if (body.brokerId && body.propFirmId) return NextResponse.json({error:'Select one provider only'},{status:400});
+    let overallRating = Number(body.rating) || 0;
     
     const ratingValues = [
       body.platformStability,
@@ -486,9 +496,11 @@ export async function POST(request: NextRequest) {
       body.value
     ].filter(r => r && r > 0 && r <= 5);
     
-    if (ratingValues.length > 0) {
+    if (!overallRating && ratingValues.length > 0) {
       overallRating = Math.round(ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length);
     }
+
+    if (!Number.isInteger(overallRating)||overallRating<1||overallRating>5) return NextResponse.json({error:'Choose an overall rating from 1 to 5'},{status:400});
 
     // Calculate trust score
     const trustScore = calculateTrustScore(body);
@@ -500,7 +512,10 @@ export async function POST(request: NextRequest) {
       rating: overallRating,
       trustScore: trustScore,
       userId: user.id,
-      status: 'APPROVED',
+      status: 'PENDING',
+      isApproved: false,
+      isVerified: false,
+      verifiedTrader: false,
     };
     
     // Add entity ID (broker or prop firm)
@@ -611,19 +626,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('❌ Error in POST /api/reviews:', error);
     
-    // Check for Prisma errors
-    if (error.code) {
-      console.error('Prisma error code:', error.code);
-      return NextResponse.json(
-        { error: `Database error: ${error.message}` },
-        { status: 500 }
-      );
-    }
-    
-    return NextResponse.json(
-      { error: error.message || 'Failed to create review' },
-      { status: 500 }
-    );
+    return NextResponse.json({error:'Unable to submit your review. Please try again.'},{status:500});
   } finally {
     await prisma.$disconnect();
   }

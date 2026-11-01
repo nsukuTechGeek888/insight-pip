@@ -86,7 +86,8 @@ export default function MobileLoginPage() {
           
           // Redirect to homepage after a brief delay
           setTimeout(() => {
-            router.push('/');
+            const destination=new URLSearchParams(window.location.search).get('redirect');
+            router.push(destination?.startsWith('/')&&!destination.startsWith('//')?destination:'/dashboard');
           }, 1000);
         } else {
           // Login failed - error is already set in context, but we'll add a general error
@@ -126,19 +127,19 @@ export default function MobileLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[var(--ip-bg)] text-[var(--ip-text)]">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-black/80 backdrop-blur-lg border-b border-zinc-800 px-4 py-3">
+      <div className="sticky top-0 z-40 bg-black/80 backdrop-blur-lg border-b border-[var(--ip-border)] px-4 py-3">
         <div className="flex items-center gap-4">
           <button 
             onClick={() => router.back()}
-            className="p-2 hover:bg-zinc-800 rounded-lg transition-colors"
+            className="p-2 hover:bg-[var(--ip-surface-2)] rounded-lg transition-colors"
           >
-            <ArrowLeft size={20} className="text-white" />
+            <ArrowLeft size={20} className="text-[var(--ip-text)]" />
           </button>
           <div>
-            <h1 className="text-lg font-bold text-white">Sign In</h1>
-            <p className="text-zinc-400 text-sm">Welcome back to InsightPip</p>
+            <h1 className="text-lg font-bold text-[var(--ip-text)]">Sign In</h1>
+            <p className="text-[var(--ip-text-2)] text-sm">Welcome back to InsightPip</p>
           </div>
         </div>
       </div>
@@ -151,13 +152,13 @@ export default function MobileLoginPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Zap size={24} className="text-white" />
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 via-blue-600 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Zap size={24} className="text-[var(--ip-text)]" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">
+          <h2 className="text-2xl font-bold text-[var(--ip-text)] mb-2">
             Welcome Back
           </h2>
-          <p className="text-zinc-400">
+          <p className="text-[var(--ip-text-2)]">
             Sign in to access your trading dashboard
           </p>
         </motion.div>
@@ -167,7 +168,7 @@ export default function MobileLoginPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800"
+          className="bg-[var(--ip-surface)] rounded-2xl p-6 border border-[var(--ip-border)]"
         >
           <AnimatePresence>
             {submitted ? (
@@ -177,12 +178,12 @@ export default function MobileLoginPage() {
                 className="text-center py-8"
               >
                 <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 className="text-white" size={32} />
+                  <CheckCircle2 className="text-[var(--ip-text)]" size={32} />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">
+                <h3 className="text-xl font-bold text-[var(--ip-text)] mb-2">
                   Login Successful!
                 </h3>
-                <p className="text-zinc-300 mb-4">
+                <p className="text-[var(--ip-text-2)] mb-4">
                   Redirecting to your dashboard...
                 </p>
                 <div className="flex items-center justify-center gap-2 text-blue-400">
@@ -208,7 +209,7 @@ export default function MobileLoginPage() {
 
                 {/* Email */}
                 <div>
-                  <label className="block mb-2 font-medium text-white flex items-center gap-2">
+                  <label className="block mb-2 font-medium text-[var(--ip-text)] flex items-center gap-2">
                     <Mail className="w-4 h-4 text-blue-400" />
                     Email Address
                   </label>
@@ -219,7 +220,7 @@ export default function MobileLoginPage() {
                     onChange={handleChange}
                     placeholder="you@example.com"
                     disabled={isLoading}
-                    className={`w-full bg-zinc-800 border-zinc-700 text-white rounded-xl h-12 ${
+                    className={`w-full bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] rounded-xl h-12 ${
                       errors.email ? 'border-red-500' : 'hover:border-zinc-600'
                     } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   />
@@ -237,8 +238,8 @@ export default function MobileLoginPage() {
 
                 {/* Password */}
                 <div>
-                  <label className="block mb-2 font-medium text-white flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-purple-400" />
+                  <label className="block mb-2 font-medium text-[var(--ip-text)] flex items-center gap-2">
+                    <Lock className="w-4 h-4 text-blue-400" />
                     Password
                   </label>
                   <div className="relative">
@@ -249,7 +250,7 @@ export default function MobileLoginPage() {
                       onChange={handleChange}
                       placeholder="Enter your password"
                       disabled={isLoading}
-                      className={`w-full bg-zinc-800 border-zinc-700 text-white rounded-xl h-12 pr-10 ${
+                      className={`w-full bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] rounded-xl h-12 pr-10 ${
                         errors.password ? 'border-red-500' : 'hover:border-zinc-600'
                       } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     />
@@ -257,7 +258,7 @@ export default function MobileLoginPage() {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       disabled={isLoading}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-400 hover:text-white transition-colors disabled:opacity-50"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors disabled:opacity-50"
                     >
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
@@ -276,10 +277,10 @@ export default function MobileLoginPage() {
 
                 {/* Remember Me & Forgot Password */}
                 <div className="flex items-center justify-between">
-                  <label className="flex items-center gap-2 text-zinc-300 cursor-pointer">
+                  <label className="flex items-center gap-2 text-[var(--ip-text-2)] cursor-pointer">
                     <input
                       type="checkbox"
-                      className="w-4 h-4 text-purple-600 bg-zinc-700 border-zinc-600 rounded focus:ring-purple-500 focus:ring-2"
+                      className="w-4 h-4 text-blue-600 bg-zinc-700 border-zinc-600 rounded focus:ring-blue-500 focus:ring-2"
                     />
                     <span className="text-sm">Remember me</span>
                   </label>
@@ -287,7 +288,7 @@ export default function MobileLoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowForgotModal(true)}
-                    className="text-sm text-purple-400 hover:text-purple-300 transition-colors font-medium"
+                    className="text-sm text-blue-400 hover:text-blue-300 transition-colors font-medium"
                   >
                     Forgot Password?
                   </button>
@@ -297,7 +298,7 @@ export default function MobileLoginPage() {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-4 rounded-xl text-base transition-all duration-200 disabled:opacity-50"
+                  className="w-full bg-gradient-to-r from-blue-600 to-pink-600 hover:from-blue-500 hover:to-pink-500 text-[var(--ip-text)] font-bold py-4 rounded-xl text-base transition-all duration-200 disabled:opacity-50"
                 >
                   {isLoading ? (
                     <div className="flex items-center gap-2 justify-center">
@@ -310,11 +311,11 @@ export default function MobileLoginPage() {
                 </Button>
 
                 {/* Sign Up Link */}
-                <p className={`text-center text-zinc-400 text-sm ${isLoading ? 'opacity-50' : ''}`}>
+                <p className={`text-center text-[var(--ip-text-2)] text-sm ${isLoading ? 'opacity-50' : ''}`}>
                   Don't have an account?{' '}
                   <Link 
                     href="/signup" 
-                    className={`text-purple-400 font-semibold hover:text-purple-300 transition-colors ${isLoading ? 'pointer-events-none' : ''}`}
+                    className={`text-blue-400 font-semibold hover:text-blue-300 transition-colors ${isLoading ? 'pointer-events-none' : ''}`}
                   >
                     Create one now
                   </Link>
@@ -331,17 +332,17 @@ export default function MobileLoginPage() {
           transition={{ delay: 0.2 }}
           className="grid grid-cols-3 gap-3 mt-6"
         >
-          <div className="bg-zinc-900 rounded-xl p-3 text-center border border-zinc-800">
-            <div className="text-white font-bold text-sm">10K+</div>
-            <div className="text-zinc-400 text-xs">Traders</div>
+          <div className="bg-[var(--ip-surface)] rounded-xl p-3 text-center border border-[var(--ip-border)]">
+            <div className="text-[var(--ip-text)] font-bold text-sm">10K+</div>
+            <div className="text-[var(--ip-text-2)] text-xs">Traders</div>
           </div>
-          <div className="bg-zinc-900 rounded-xl p-3 text-center border border-zinc-800">
-            <div className="text-white font-bold text-sm">99.9%</div>
-            <div className="text-zinc-400 text-xs">Uptime</div>
+          <div className="bg-[var(--ip-surface)] rounded-xl p-3 text-center border border-[var(--ip-border)]">
+            <div className="text-[var(--ip-text)] font-bold text-sm">99.9%</div>
+            <div className="text-[var(--ip-text-2)] text-xs">Uptime</div>
           </div>
-          <div className="bg-zinc-900 rounded-xl p-3 text-center border border-zinc-800">
-            <div className="text-white font-bold text-sm">256-bit</div>
-            <div className="text-zinc-400 text-xs">Security</div>
+          <div className="bg-[var(--ip-surface)] rounded-xl p-3 text-center border border-[var(--ip-border)]">
+            <div className="text-[var(--ip-text)] font-bold text-sm">256-bit</div>
+            <div className="text-[var(--ip-text-2)] text-xs">Security</div>
           </div>
         </motion.div>
 
@@ -354,9 +355,9 @@ export default function MobileLoginPage() {
         >
           <div className="flex items-center justify-center gap-2 mb-2">
             <Shield className="w-5 h-5 text-green-400" />
-            <span className="text-white font-semibold text-sm">Secure & Encrypted</span>
+            <span className="text-[var(--ip-text)] font-semibold text-sm">Secure & Encrypted</span>
           </div>
-          <p className="text-zinc-400 text-xs">
+          <p className="text-[var(--ip-text-2)] text-xs">
             Your data is protected with bank-level security
           </p>
         </motion.div>
@@ -377,12 +378,12 @@ export default function MobileLoginPage() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700 shadow-2xl"
+              className="bg-[var(--ip-surface)] rounded-2xl p-6 w-full max-w-sm border border-[var(--ip-border)] shadow-2xl"
             >
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-lg font-bold text-white">Reset Password</h2>
-                  <p className="text-zinc-400 text-sm">
+                  <h2 className="text-lg font-bold text-[var(--ip-text)]">Reset Password</h2>
+                  <p className="text-[var(--ip-text-2)] text-sm">
                     Enter your email to receive a reset link
                   </p>
                 </div>
@@ -393,7 +394,7 @@ export default function MobileLoginPage() {
                     setForgotEmail('');
                     setForgotSuccess(false);
                   }}
-                  className="text-zinc-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-zinc-800"
+                  className="text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors p-1 rounded-lg hover:bg-[var(--ip-surface-2)]"
                   aria-label="Close modal"
                 >
                   <X className="w-5 h-5" />
@@ -420,7 +421,7 @@ export default function MobileLoginPage() {
                           setForgotErrors('');
                         }}
                         placeholder="you@example.com"
-                        className={`w-full bg-zinc-800 border-zinc-700 text-white rounded-xl h-12 ${
+                        className={`w-full bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] rounded-xl h-12 ${
                           forgotErrors ? 'border-red-500' : 'hover:border-zinc-600'
                         }`}
                         required
@@ -438,7 +439,7 @@ export default function MobileLoginPage() {
                     </div>
                     <Button
                       type="submit"
-                      className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-bold py-3 rounded-xl"
+                      className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-[var(--ip-text)] font-bold py-3 rounded-xl"
                     >
                       Send Reset Link
                     </Button>
@@ -451,12 +452,12 @@ export default function MobileLoginPage() {
                     className="text-center py-4"
                   >
                     <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                      <CheckCircle2 className="text-white" size={24} />
+                      <CheckCircle2 className="text-[var(--ip-text)]" size={24} />
                     </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">
+                    <h3 className="text-lg font-semibold text-[var(--ip-text)] mb-2">
                       Check Your Email
                     </h3>
-                    <p className="text-zinc-300 text-sm">
+                    <p className="text-[var(--ip-text-2)] text-sm">
                       If this email exists in our system, you'll receive a password reset link shortly.
                     </p>
                   </motion.div>

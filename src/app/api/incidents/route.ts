@@ -1,5 +1,6 @@
+import {sessionSecret} from '@/lib/session-secret';
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, IncidentType } from '@prisma/client';
 import { z } from 'zod';
 import jwt from 'jsonwebtoken';
 import { updateBrokerMetrics, updatePropFirmMetrics } from '@/lib/incident-metrics';
@@ -9,20 +10,20 @@ const prisma = new PrismaClient();
 // Helper function to verify custom JWT token
 async function getUserFromToken(request: NextRequest) {
   const token = request.cookies.get('auth_token')?.value;
-  
+
   if (!token) return null;
-  
+
   try {
     const decoded = jwt.verify(
-      token, 
-      process.env.JWT_SECRET || "development-secret-key-12345"
+      token,
+      sessionSecret()
     ) as { userId: string; email: string };
-    
+
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: { id: true, email: true, name: true, role: true }
     });
-    
+
     return user;
   } catch (error) {
     console.error('❌ Token verification failed:', error);
@@ -57,24 +58,24 @@ const incidentSchema = z.object({
   title: z.string().min(3).max(100),
   description: z.string().min(3).max(2000), // ✅ CHANGED: min 3 instead of 20
   incidentDate: z.string().datetime(),
-  
+
   // Optional fields
   withdrawalAmount: z.number().positive().optional(),
   withdrawalMethod: z.enum(['Bank Transfer', 'Crypto', 'Card', 'Skrill', 'Neteller', 'Other']).optional(),
-  
+
   // User context
   userExperience: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'PROFESSIONAL']).optional(),
   userTradingStyle: z.enum(['SCALPER', 'DAY_TRADER', 'SWING_TRADER', 'EA_TRADER', 'NEWS_TRADER']).optional(),
 });
 
 // Helper function to check for automated alerts
-async function checkForAlerts(entityType: string, entityId: number, incidentType: string) {
+async function checkForAlerts(entityType: string, entityId: number, incidentType: IncidentType) {
   const timeWindow = 48; // hours
   const threshold = 5;
-  
+
   const cutoffTime = new Date();
   cutoffTime.setHours(cutoffTime.getHours() - timeWindow);
-  
+
   const recentCount = await prisma.incident.count({
     where: {
       entityType,
@@ -84,24 +85,24 @@ async function checkForAlerts(entityType: string, entityId: number, incidentType
       status: 'APPROVED'
     }
   });
-  
+
   if (recentCount >= threshold) {
     // Get the entity
-    const entity = entityType === 'broker' 
+    const entity = entityType === 'broker'
       ? await prisma.broker.findUnique({ where: { id: entityId } })
       : await prisma.propFirm.findUnique({ where: { id: entityId } });
-      
+
     if (entity) {
       // Update incidentTrends JSON
       const trends = entity.incidentTrends ? JSON.parse(entity.incidentTrends as string) : { alerts: [] };
       trends.alerts = trends.alerts || [];
-      
+
       // Check if this alert already exists and is active
-      const existingAlert = trends.alerts.find((a: any) => 
-        a.type === incidentType && 
+      const existingAlert = trends.alerts.find((a: any) =>
+        a.type === incidentType &&
         new Date(a.triggeredAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
       );
-      
+
       if (!existingAlert) {
         trends.alerts.push({
           type: incidentType,
@@ -111,7 +112,7 @@ async function checkForAlerts(entityType: string, entityId: number, incidentType
           message: `${recentCount} ${incidentType.toLowerCase().replace(/_/g, ' ')} reports in last ${timeWindow}h`,
           severity: recentCount >= 10 ? 'critical' : recentCount >= 7 ? 'warning' : 'info'
         });
-        
+
         if (entityType === 'broker') {
           await prisma.broker.update({
             where: { id: entityId },
@@ -123,7 +124,7 @@ async function checkForAlerts(entityType: string, entityId: number, incidentType
             data: { incidentTrends: JSON.stringify(trends) }
           });
         }
-        
+
         console.log(`🚨 ALERT CREATED: ${recentCount} ${incidentType} incidents for ${entityType} ${entityId}`);
       }
     }
@@ -132,127 +133,127 @@ async function checkForAlerts(entityType: string, entityId: number, incidentType
 
 // Incident type definitions with display names and categories
 const INCIDENT_TYPE_DEFINITIONS = {
-  WITHDRAWAL_PAID: { 
-    displayName: 'Withdrawal Paid', 
+  WITHDRAWAL_PAID: {
+    displayName: 'Withdrawal Paid',
     category: 'withdrawal',
     severity: 1,
     icon: '💰',
     description: 'Successful withdrawal processed'
   },
-  WITHDRAWAL_DELAY: { 
-    displayName: 'Withdrawal Delay', 
+  WITHDRAWAL_DELAY: {
+    displayName: 'Withdrawal Delay',
     category: 'withdrawal',
     severity: 3,
     icon: '⏳',
     description: 'Withdrawal taking longer than stated policy'
   },
-  WITHDRAWAL_REJECTED: { 
-    displayName: 'Withdrawal Rejected', 
+  WITHDRAWAL_REJECTED: {
+    displayName: 'Withdrawal Rejected',
     category: 'withdrawal',
     severity: 4,
     icon: '❌',
     description: 'Withdrawal request rejected without valid reason'
   },
-  SLIPPAGE_ISSUES: { 
-    displayName: 'Slippage Issues', 
+  SLIPPAGE_ISSUES: {
+    displayName: 'Slippage Issues',
     category: 'execution',
     severity: 3,
     icon: '📉',
     description: 'Excessive slippage during order execution'
   },
-  SPREAD_SPIKE: { 
-    displayName: 'Spread Spike', 
+  SPREAD_SPIKE: {
+    displayName: 'Spread Spike',
     category: 'execution',
     severity: 2,
     icon: '📈',
     description: 'Unusual spread widening during trading'
   },
-  EXECUTION_DELAY: { 
-    displayName: 'Execution Delay', 
+  EXECUTION_DELAY: {
+    displayName: 'Execution Delay',
     category: 'execution',
     severity: 3,
     icon: '⏱️',
     description: 'Orders taking too long to execute'
   },
-  TRADE_MANIPULATION_SUSPECTED: { 
-    displayName: 'Trade Manipulation', 
+  TRADE_MANIPULATION_SUSPECTED: {
+    displayName: 'Trade Manipulation',
     category: 'execution',
     severity: 5,
     icon: '🎭',
     description: 'Suspicious trade manipulation suspected'
   },
-  PLATFORM_FREEZE: { 
-    displayName: 'Platform Freeze', 
+  PLATFORM_FREEZE: {
+    displayName: 'Platform Freeze',
     category: 'platform',
     severity: 4,
     icon: '❄️',
     description: 'Platform freezing during trading'
   },
-  SERVER_DOWN: { 
-    displayName: 'Server Down', 
+  SERVER_DOWN: {
+    displayName: 'Server Down',
     category: 'platform',
     severity: 5,
     icon: '⚠️',
     description: 'Server unavailable during trading hours'
   },
-  LOGIN_ISSUES: { 
-    displayName: 'Login Issues', 
+  LOGIN_ISSUES: {
+    displayName: 'Login Issues',
     category: 'platform',
     severity: 3,
     icon: '🔑',
     description: 'Unable to log into trading account'
   },
-  ORDER_EXECUTION_FAILURE: { 
-    displayName: 'Order Execution Failure', 
+  ORDER_EXECUTION_FAILURE: {
+    displayName: 'Order Execution Failure',
     category: 'platform',
     severity: 4,
     icon: '❌',
     description: 'Orders failing to execute'
   },
-  ACCOUNT_SUSPENDED: { 
-    displayName: 'Account Suspended', 
+  ACCOUNT_SUSPENDED: {
+    displayName: 'Account Suspended',
     category: 'account',
     severity: 4,
     icon: '🔒',
     description: 'Account suspended without explanation'
   },
-  ACCOUNT_BANNED: { 
-    displayName: 'Account Banned', 
+  ACCOUNT_BANNED: {
+    displayName: 'Account Banned',
     category: 'account',
     severity: 5,
     icon: '🚫',
     description: 'Account permanently banned'
   },
-  WITHDRAWAL_DENIED_AFTER_PROFIT: { 
-    displayName: 'Withdrawal Denied After Profit', 
+  WITHDRAWAL_DENIED_AFTER_PROFIT: {
+    displayName: 'Withdrawal Denied After Profit',
     category: 'withdrawal',
     severity: 5,
     icon: '💸',
     description: 'Withdrawal denied after profitable trading'
   },
-  RULE_VIOLATION_DISPUTE: { 
-    displayName: 'Rule Violation Dispute', 
+  RULE_VIOLATION_DISPUTE: {
+    displayName: 'Rule Violation Dispute',
     category: 'account',
     severity: 3,
     icon: '⚖️',
     description: 'Disputing alleged rule violation'
   },
-  SUSPICIOUS_BROKER_ACTIVITY: { 
-    displayName: 'Suspicious Activity', 
+  SUSPICIOUS_BROKER_ACTIVITY: {
+    displayName: 'Suspicious Activity',
     category: 'compliance',
     severity: 4,
     icon: '🕵️',
     description: 'Suspicious broker behavior detected'
   },
-  SCAM_WARNING: { 
-    displayName: 'Scam Warning', 
+  SCAM_WARNING: {
+    displayName: 'Scam Warning',
     category: 'compliance',
     severity: 5,
     icon: '🚨',
     description: 'Potential scam activity'
   },
-  OTHER: { 
-    displayName: 'Other Issue', 
+  OTHER: {
+    displayName: 'Other Issue',
     category: 'other',
     severity: 1,
     icon: '📌',
@@ -265,7 +266,7 @@ export async function POST(request: NextRequest) {
   try {
     // Get authenticated user
     const user = await getUserFromToken(request);
-    
+
     if (!user) {
       return NextResponse.json(
         { error: 'You must be logged in to report an incident' },
@@ -348,16 +349,16 @@ export async function POST(request: NextRequest) {
         title: validatedData.title,
         description: validatedData.description,
         incidentDate: new Date(validatedData.incidentDate),
-        
+
         // Optional fields
         withdrawalAmount: validatedData.withdrawalAmount,
         withdrawalMethod: validatedData.withdrawalMethod,
-        
+
         // User context
         userId: user.id,
         userExperience: validatedData.userExperience,
         userTradingStyle: validatedData.userTradingStyle,
-        
+
         // Default values
         proofUrls: [],
         proofVerified: false,
@@ -384,7 +385,7 @@ export async function POST(request: NextRequest) {
     await checkForAlerts(validatedData.entityType, validatedData.entityId, validatedData.incidentType);
 
     // Calculate display status for frontend
-    const displayStatus = incident.verifiedBadge ? 'VERIFIED' : 
+    const displayStatus = incident.verifiedBadge ? 'VERIFIED' :
                          incident.proofUrls?.length > 0 ? 'PROOF_SUBMITTED' :
                          incident.disputes > incident.confirmations ? 'DISPUTED' : 'UNVERIFIED';
 
@@ -407,12 +408,12 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ 
-        error: 'Validation failed', 
-        details: error.errors 
+      return NextResponse.json({
+        error: 'Validation failed',
+        details: error.issues
       }, { status: 400 });
     }
-    
+
     console.error('❌ Error reporting incident:', error);
     return NextResponse.json(
       { error: 'Failed to report incident' },
@@ -427,11 +428,13 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    
+
     const entityType = searchParams.get('entityType');
     const entityId = searchParams.get('entityId');
     const incidentType = searchParams.get('incidentType');
     const statusParam = searchParams.get('status');
+    const viewer=await getUserFromToken(request);
+    const isAdmin=viewer?.role==='ADMIN';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     const days = parseInt(searchParams.get('days') || '30'); // Default to last 30 days
@@ -440,29 +443,35 @@ export async function GET(request: NextRequest) {
 
     // Build where clause
     const where: any = {};
-    
+
     // Date filter
     if (days) {
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - days);
       where.createdAt = { gte: cutoffDate };
     }
-    
+
     // Only add status filter if not 'ALL'
     if (statusParam && statusParam !== 'ALL') {
       where.status = statusParam;
     }
-    
+
     if (entityType && entityId) {
       where.entityType = entityType;
       where.entityId = parseInt(entityId);
     }
-    
+
     if (incidentType) {
       where.incidentType = incidentType;
     }
 
     console.log('📡 Fetching incidents with where:', where);
+
+    if(!isAdmin) { where.status='APPROVED'; where.visibility='PUBLIC'; }
+    const search=searchParams.get('search');
+    if(search) where.OR=[{title:{contains:search.slice(0,100),mode:'insensitive'}},{description:{contains:search.slice(0,100),mode:'insensitive'}}];
+    const type=searchParams.get('type');
+    if(type==='broker'||type==='propFirm') where.entityType=type;
 
     // Get incidents with pagination
     const [incidents, total] = await Promise.all([
@@ -489,12 +498,16 @@ export async function GET(request: NextRequest) {
     // Calculate display status for each incident
     const incidentsWithStatus = incidents.map(incident => ({
       ...incident,
-      displayStatus: incident.verifiedBadge ? 'VERIFIED' : 
+      proofUrls: isAdmin ? incident.proofUrls : [],
+      auditLog: isAdmin ? incident.auditLog : null,
+      moderationNote: isAdmin ? incident.moderationNote : null,
+      userId: isAdmin ? incident.userId : undefined,
+      displayStatus: incident.verifiedBadge ? 'VERIFIED' :
                      incident.proofUrls?.length > 0 ? 'PROOF_SUBMITTED' :
                      incident.disputes > incident.confirmations ? 'DISPUTED' : 'UNVERIFIED',
       proofProvided: incident.proofUrls?.length > 0,
       confirmVsDispute: incident.confirmations - incident.disputes,
-      trustScore: incident.confirmations + incident.disputes > 0 
+      trustScore: incident.confirmations + incident.disputes > 0
         ? Math.round((incident.confirmations / (incident.confirmations + incident.disputes)) * 100)
         : 0
     }));
@@ -505,7 +518,7 @@ export async function GET(request: NextRequest) {
       const entity = entityType === 'broker'
         ? await prisma.broker.findUnique({ where: { id: parseInt(entityId) } })
         : await prisma.propFirm.findUnique({ where: { id: parseInt(entityId) } });
-      
+
       if (entity && entity.incidentTrends) {
         const trends = JSON.parse(entity.incidentTrends as string);
         alerts = trends.alerts || [];
@@ -543,4 +556,3 @@ export async function GET(request: NextRequest) {
 }
 
 // GET /api/incidents/types - Get incident type definitions
-export { INCIDENT_TYPE_DEFINITIONS };

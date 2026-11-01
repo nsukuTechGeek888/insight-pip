@@ -1,22 +1,19 @@
 // app/layout.tsx - UPDATED WITH REGION PROVIDER
 
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+
 import "./globals.css";
+import "./platform.css";
 import ClientRootLayout from "./ClientRootLayout";
 import { Analytics } from "@vercel/analytics/react";
 import { RegionProvider } from "@/contexts/RegionContext";
 
 // ✅ CHANGE 1: added variable + display
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
+
 
 // Site Configuration
 const SITE_NAME = "InsightPip";
-const SITE_DESCRIPTION = "Compare prop firms, forex brokers, and trading platforms with real trader reviews, trust scores, and verified payouts.";
+const SITE_DESCRIPTION = "Compare prop firms, forex brokers, and trading platforms with trader reviews, provider information, and transparent research.";
 const SITE_URL = "https://insightpip.com";
 const OG_IMAGE = "https://insightpip.com/images/og-image.png";
 const LOGO_PATH = "/images/insightpip-logo.png";
@@ -28,7 +25,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#000000",
+  themeColor: [{ media: "(prefers-color-scheme: light)", color: "#F6F8FC" }, { media: "(prefers-color-scheme: dark)", color: "#07111f" }],
 };
 
 export const metadata: Metadata = {
@@ -168,7 +165,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className="insightpip-font">
       <head>
         {/* Preconnect to critical third-party domains */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -183,7 +180,7 @@ export default function RootLayout({
         {/* JSON-LD Structured Data */}
         <JsonLdSchemas />
       </head>
-      <body className={inter.variable}>
+      <body className="insightpip-font">
         <RegionProvider>
           <ClientRootLayout>{children}</ClientRootLayout>
         </RegionProvider>

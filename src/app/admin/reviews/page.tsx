@@ -1,5 +1,6 @@
 'use client';
 
+import {notify} from '@/components/ui/Feedback';
 import React, { useState, useEffect, Fragment } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -117,7 +118,7 @@ export default function AdminReviewsPage() {
       }
     } catch (error) {
       console.error('Error updating review:', error);
-      alert('Failed to update review');
+      notify('Failed to update review');
     }
     setActionMenu(null);
   };
@@ -143,7 +144,7 @@ export default function AdminReviewsPage() {
       }
     } catch (error) {
       console.error('Error deleting review:', error);
-      alert('Failed to delete review');
+      notify('Failed to delete review');
     } finally {
       setDeleting(false);
     }
@@ -170,7 +171,7 @@ export default function AdminReviewsPage() {
       }
     } catch (error) {
       console.error('Error deleting reply:', error);
-      alert('Failed to delete reply');
+      notify('Failed to delete reply');
     } finally {
       setDeleting(false);
     }
@@ -196,7 +197,7 @@ export default function AdminReviewsPage() {
       }
     } catch (error) {
       console.error('Error updating reply:', error);
-      alert('Failed to update reply');
+      notify('Failed to update reply');
     }
   };
 
@@ -205,7 +206,7 @@ export default function AdminReviewsPage() {
       case 'APPROVED': return { text: 'Approved', color: 'text-green-400', bg: 'bg-green-500/20', icon: CheckCircle };
       case 'PENDING': return { text: 'Pending', color: 'text-yellow-400', bg: 'bg-yellow-500/20', icon: Clock };
       case 'REJECTED': return { text: 'Rejected', color: 'text-red-400', bg: 'bg-red-500/20', icon: XCircle };
-      default: return { text: status, color: 'text-zinc-400', bg: 'bg-zinc-500/20', icon: Eye };
+      default: return { text: status, color: 'text-[var(--ip-text-2)]', bg: 'bg-zinc-500/20', icon: Eye };
     }
   };
 
@@ -213,16 +214,16 @@ export default function AdminReviewsPage() {
     switch(type) {
       case 'USER': return { icon: User, color: 'text-blue-400' };
       case 'BROKER': return { icon: Building2, color: 'text-green-400' };
-      case 'PROP_FIRM': return { icon: Building2, color: 'text-purple-400' };
+      case 'PROP_FIRM': return { icon: Building2, color: 'text-blue-400' };
       case 'ADMIN': return { icon: Shield, color: 'text-red-400' };
-      default: return { icon: MessageSquare, color: 'text-zinc-400' };
+      default: return { icon: MessageSquare, color: 'text-[var(--ip-text-2)]' };
     }
   };
 
   if (isLoading || loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500" />
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
       </div>
     );
   }
@@ -230,16 +231,16 @@ export default function AdminReviewsPage() {
   if (!user || user.role !== 'ADMIN') return null;
 
   return (
-    <div className="min-h-screen bg-black pt-20">
+    <div className="min-h-screen bg-[var(--ip-bg)] pt-20">
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
-          <Link href="/admin" className="p-2 rounded-lg bg-zinc-800/50 text-zinc-400 hover:text-white">
+          <Link href="/admin" className="p-2 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] hover:text-[var(--ip-text)]">
             <ArrowLeft size={20} />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-white">Review Moderation</h1>
-            <p className="text-zinc-400 text-sm">Approve, reject, or feature user reviews and manage comments</p>
+            <h1 className="text-2xl font-bold text-[var(--ip-text)]">Review Moderation</h1>
+            <p className="text-[var(--ip-text-2)] text-sm">Approve, reject, or feature user reviews and manage comments</p>
           </div>
         </div>
 
@@ -253,36 +254,36 @@ export default function AdminReviewsPage() {
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ip-text-2)]" size={16} />
             <input
               type="text"
               placeholder="Search reviews..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg pl-10 pr-4 py-2 text-white text-sm focus:outline-none focus:border-purple-500"
+              className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg pl-10 pr-4 py-2 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500"
             />
           </div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-2 text-white text-sm"
+            className="bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-4 py-2 text-[var(--ip-text)] text-sm"
           >
             <option value="all">All Status</option>
             <option value="PENDING">Pending</option>
             <option value="APPROVED">Approved</option>
             <option value="REJECTED">Rejected</option>
           </select>
-          <button onClick={fetchReviews} className="p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white">
+          <button onClick={fetchReviews} className="p-2 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] hover:text-[var(--ip-text)]">
             <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
           </button>
         </div>
 
         {/* Reviews Table */}
-        <div className="bg-zinc-900/30 rounded-2xl border border-zinc-800 overflow-hidden">
+        <div className="bg-[var(--ip-surface)] rounded-2xl border border-[var(--ip-border)] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-zinc-800/50 border-b border-zinc-800">
-                <tr className="text-left text-xs text-zinc-400">
+              <thead className="bg-[var(--ip-surface-2)] border-b border-[var(--ip-border)]">
+                <tr className="text-left text-xs text-[var(--ip-text-2)]">
                   <th className="px-4 py-3">Review</th>
                   <th className="px-4 py-3">User</th>
                   <th className="px-4 py-3">Rating</th>
@@ -295,7 +296,7 @@ export default function AdminReviewsPage() {
               <tbody className="divide-y divide-zinc-800">
                 {reviews.length === 0 ? (
                   <tr key="no-reviews">
-                    <td colSpan={7} className="px-4 py-12 text-center text-zinc-500">No reviews found</td>
+                    <td colSpan={7} className="px-4 py-12 text-center text-[var(--ip-text-2)]">No reviews found</td>
                   </tr>
                 ) : (
                   reviews.map((review) => {
@@ -307,18 +308,18 @@ export default function AdminReviewsPage() {
                     return (
                       <Fragment key={review.id}>
                         {/* Main Review Row */}
-                        <tr className="hover:bg-zinc-800/30 transition-colors">
+                        <tr className="hover:bg-[var(--ip-surface-2)] transition-colors">
                           <td className="px-4 py-3">
                             <div className="flex items-start gap-2">
                               <button
                                 onClick={() => setExpandedReview(isExpanded ? null : review.id)}
-                                className="mt-0.5 text-zinc-500 hover:text-zinc-300 transition-colors"
+                                className="mt-0.5 text-[var(--ip-text-2)] hover:text-[var(--ip-text-2)] transition-colors"
                               >
                                 {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                               </button>
                               <div className="flex-1 min-w-0">
-                                <p className="text-white text-sm font-medium line-clamp-1">{review.title}</p>
-                                <p className="text-zinc-500 text-xs mt-1 line-clamp-2">{review.content.substring(0, 100)}...</p>
+                                <p className="text-[var(--ip-text)] text-sm font-medium line-clamp-1">{review.title}</p>
+                                <p className="text-[var(--ip-text-2)] text-xs mt-1 line-clamp-2">{review.content.substring(0, 100)}...</p>
                                 <p className="text-xs text-zinc-600 mt-1">{entityName}</p>
                                 {review.reportCount > 0 && (
                                   <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-xs bg-red-500/20 text-red-400">
@@ -329,13 +330,13 @@ export default function AdminReviewsPage() {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <p className="text-white text-sm">{review.user?.name || 'Anonymous'}</p>
-                            <p className="text-zinc-500 text-xs">{review.user?.email}</p>
+                            <p className="text-[var(--ip-text)] text-sm">{review.user?.name || 'Anonymous'}</p>
+                            <p className="text-[var(--ip-text-2)] text-xs">{review.user?.email}</p>
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-1">
                               <Star size={14} className="text-yellow-400" />
-                              <span className="text-white">{review.rating}.0</span>
+                              <span className="text-[var(--ip-text)]">{review.rating}.0</span>
                             </div>
                           </td>
                           <td className="px-4 py-3">
@@ -344,7 +345,7 @@ export default function AdminReviewsPage() {
                                 <StatusIcon size={10} /> {statusBadge.text}
                               </span>
                               {review.isFeatured && (
-                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-purple-500/20 text-purple-400">
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-blue-500/20 text-blue-400">
                                   <Star size={10} /> Featured
                                 </span>
                               )}
@@ -356,7 +357,7 @@ export default function AdminReviewsPage() {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="flex gap-2 text-xs text-zinc-500">
+                            <div className="flex gap-2 text-xs text-[var(--ip-text-2)]">
                               <span className="flex items-center gap-1">
                                 <ThumbsUp size={10} /> {review.helpfulCount}
                               </span>
@@ -365,25 +366,25 @@ export default function AdminReviewsPage() {
                               </span>
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-zinc-400 text-xs">
+                          <td className="px-4 py-3 text-[var(--ip-text-2)] text-xs">
                             {new Date(review.createdAt).toLocaleDateString()}
                           </td>
                           <td className="px-4 py-3">
                             <div className="relative">
                               <button 
                                 onClick={() => setActionMenu(actionMenu === review.id ? null : review.id)} 
-                                className="p-1.5 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white"
+                                className="p-1.5 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] hover:text-[var(--ip-text)]"
                               >
                                 <MoreVertical size={14} />
                               </button>
                               {actionMenu === review.id && (
-                                <div className="absolute right-0 mt-1 w-40 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl z-10">
+                                <div className="absolute right-0 mt-1 w-40 bg-[var(--ip-surface)] border border-[var(--ip-border)] rounded-lg shadow-xl z-10">
                                   <button 
                                     onClick={() => {
                                       updateReviewStatus(review.id, 'approve');
                                       setActionMenu(null);
                                     }} 
-                                    className="w-full px-3 py-2 text-left text-xs text-green-400 hover:bg-zinc-800 flex items-center gap-2"
+                                    className="w-full px-3 py-2 text-left text-xs text-green-400 hover:bg-[var(--ip-surface-2)] flex items-center gap-2"
                                   >
                                     <CheckCircle size={12} /> Approve
                                   </button>
@@ -392,7 +393,7 @@ export default function AdminReviewsPage() {
                                       updateReviewStatus(review.id, 'reject');
                                       setActionMenu(null);
                                     }} 
-                                    className="w-full px-3 py-2 text-left text-xs text-red-400 hover:bg-zinc-800 flex items-center gap-2"
+                                    className="w-full px-3 py-2 text-left text-xs text-red-400 hover:bg-[var(--ip-surface-2)] flex items-center gap-2"
                                   >
                                     <XCircle size={12} /> Reject
                                   </button>
@@ -401,7 +402,7 @@ export default function AdminReviewsPage() {
                                       updateReviewStatus(review.id, review.isFeatured ? 'unfeature' : 'feature');
                                       setActionMenu(null);
                                     }} 
-                                    className="w-full px-3 py-2 text-left text-xs text-purple-400 hover:bg-zinc-800 flex items-center gap-2"
+                                    className="w-full px-3 py-2 text-left text-xs text-blue-400 hover:bg-[var(--ip-surface-2)] flex items-center gap-2"
                                   >
                                     <Star size={12} /> {review.isFeatured ? 'Unfeature' : 'Feature'}
                                   </button>
@@ -410,18 +411,18 @@ export default function AdminReviewsPage() {
                                       updateReviewStatus(review.id, review.isHidden ? 'unhide' : 'hide');
                                       setActionMenu(null);
                                     }} 
-                                    className="w-full px-3 py-2 text-left text-xs text-yellow-400 hover:bg-zinc-800 flex items-center gap-2"
+                                    className="w-full px-3 py-2 text-left text-xs text-yellow-400 hover:bg-[var(--ip-surface-2)] flex items-center gap-2"
                                   >
                                     <Eye size={12} /> {review.isHidden ? 'Unhide' : 'Hide'}
                                   </button>
-                                  <div className="border-t border-zinc-800 my-1"></div>
+                                  <div className="border-t border-[var(--ip-border)] my-1"></div>
                                   <button 
                                     onClick={() => {
                                       setDeleteTarget({ type: 'review', id: review.id });
                                       setShowDeleteModal(true);
                                       setActionMenu(null);
                                     }} 
-                                    className="w-full px-3 py-2 text-left text-xs text-red-400 hover:bg-zinc-800 flex items-center gap-2"
+                                    className="w-full px-3 py-2 text-left text-xs text-red-400 hover:bg-[var(--ip-surface-2)] flex items-center gap-2"
                                   >
                                     <Trash2 size={12} /> Delete Review
                                   </button>
@@ -433,16 +434,16 @@ export default function AdminReviewsPage() {
                         
                         {/* Expanded replies section - using a single row with colspan */}
                         {isExpanded && (
-                          <tr className="bg-zinc-800/20">
+                          <tr className="bg-[var(--ip-surface-2)]">
                             <td colSpan={7} className="px-4 py-3">
-                              <div className="pl-8 border-l-2 border-zinc-700/50">
+                              <div className="pl-8 border-l-2 border-[var(--ip-border)]">
                                 <div className="flex items-center gap-2 mb-3">
                                   <MessageSquare size={14} className="text-blue-400" />
-                                  <span className="text-xs text-zinc-400 font-medium">
+                                  <span className="text-xs text-[var(--ip-text-2)] font-medium">
                                     Comments ({review.replies?.length || 0})
                                   </span>
                                   {review.replyCount > 0 && (
-                                    <span className="text-xs text-zinc-500">
+                                    <span className="text-xs text-[var(--ip-text-2)]">
                                       ({review.replyCount} total)
                                     </span>
                                   )}
@@ -455,12 +456,12 @@ export default function AdminReviewsPage() {
                                       const replyAuthor = reply.user?.name || reply.broker?.name || reply.propFirm?.name || 'Unknown';
                                       
                                       return (
-                                        <div key={reply.id} className="bg-zinc-800/30 rounded-lg p-3 border border-zinc-700/30">
+                                        <div key={reply.id} className="bg-[var(--ip-surface-2)] rounded-lg p-3 border border-[var(--ip-border)]">
                                           <div className="flex items-start justify-between">
                                             <div className="flex-1">
                                               <div className="flex items-center gap-2 mb-1 flex-wrap">
                                                 <ReplyIcon size={12} className={replyColor} />
-                                                <span className="text-xs font-medium text-white">{replyAuthor}</span>
+                                                <span className="text-xs font-medium text-[var(--ip-text)]">{replyAuthor}</span>
                                                 <span className={`text-xs ${replyColor}`}>
                                                   ({reply.replyType})
                                                 </span>
@@ -478,19 +479,19 @@ export default function AdminReviewsPage() {
                                                     <Eye size={10} /> Hidden
                                                   </span>
                                                 )}
-                                                <span className="text-xs text-zinc-500 flex items-center gap-1">
+                                                <span className="text-xs text-[var(--ip-text-2)] flex items-center gap-1">
                                                   <ThumbsUp size={10} /> {reply.helpfulCount}
                                                 </span>
-                                                <span className="text-xs text-zinc-500">
+                                                <span className="text-xs text-[var(--ip-text-2)]">
                                                   {new Date(reply.createdAt).toLocaleDateString()}
                                                 </span>
                                               </div>
-                                              <p className="text-zinc-300 text-sm">{reply.content}</p>
+                                              <p className="text-[var(--ip-text-2)] text-sm">{reply.content}</p>
                                             </div>
                                             <div className="flex gap-1 ml-4 flex-shrink-0">
                                               <button
                                                 onClick={() => toggleReplyApproval(reply.id, !reply.isApproved)}
-                                                className="p-1 rounded bg-zinc-700/50 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors"
+                                                className="p-1 rounded bg-zinc-700/50 text-[var(--ip-text-2)] hover:text-[var(--ip-text)] hover:bg-zinc-700 transition-colors"
                                                 title={reply.isApproved ? 'Unapprove' : 'Approve'}
                                               >
                                                 {reply.isApproved ? (
@@ -515,7 +516,7 @@ export default function AdminReviewsPage() {
                                       );
                                     })
                                   ) : (
-                                    <p className="text-zinc-500 text-sm text-center py-2">No comments yet</p>
+                                    <p className="text-[var(--ip-text-2)] text-sm text-center py-2">No comments yet</p>
                                   )}
                                 </div>
                               </div>
@@ -535,24 +536,24 @@ export default function AdminReviewsPage() {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && deleteTarget && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-zinc-900 rounded-2xl border border-zinc-800 max-w-md w-full">
-            <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
+          <div className="bg-[var(--ip-surface)] rounded-2xl border border-[var(--ip-border)] max-w-md w-full">
+            <div className="p-6 border-b border-[var(--ip-border)] flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <AlertTriangle size={20} className="text-red-400" />
-                <h3 className="text-lg font-bold text-white">Confirm Delete</h3>
+                <h3 className="text-lg font-bold text-[var(--ip-text)]">Confirm Delete</h3>
               </div>
-              <button onClick={() => setShowDeleteModal(false)} className="text-zinc-400 hover:text-white">
+              <button onClick={() => setShowDeleteModal(false)} className="text-[var(--ip-text-2)] hover:text-[var(--ip-text)]">
                 <X size={20} />
               </button>
             </div>
             <div className="p-6">
-              <p className="text-zinc-400 text-sm mb-4">
+              <p className="text-[var(--ip-text-2)] text-sm mb-4">
                 Are you sure you want to delete this {deleteTarget.type}? This action cannot be undone.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 px-4 py-2 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white text-sm"
+                  className="flex-1 px-4 py-2 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] hover:text-[var(--ip-text)] text-sm"
                 >
                   Cancel
                 </button>

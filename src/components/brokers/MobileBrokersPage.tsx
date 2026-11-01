@@ -33,7 +33,7 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
   
   if (firm.logo) {
     return (
-      <div className={`${sizeClasses[size]} overflow-hidden bg-zinc-800 border border-zinc-700 flex-shrink-0 shadow-lg`}>
+      <div className={`${sizeClasses[size]} overflow-hidden bg-[var(--ip-surface-2)] border border-[var(--ip-border)] flex-shrink-0 shadow-lg`}>
         <img 
           src={firm.logo} 
           alt={firm.name} 
@@ -44,7 +44,7 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
             const parent = target.parentElement;
             if (parent) {
               const fallback = document.createElement('div');
-              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`;
+              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`;
               fallback.textContent = firm.name?.charAt(0) || '?';
               parent.appendChild(fallback);
             }
@@ -55,7 +55,7 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
   }
   
   return (
-    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`}>
+    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`}>
       {firm.name?.charAt(0) || '?'}
     </div>
   );
@@ -84,9 +84,9 @@ const getPlatforms = (broker: any) => {
 
 const generateGradient = (name: string) => {
   const gradients = [
-    "from-blue-500 to-cyan-500", "from-purple-500 to-pink-500",
+    "from-blue-500 to-cyan-500", "from-blue-500 to-pink-500",
     "from-green-500 to-teal-500", "from-yellow-500 to-orange-500",
-    "from-red-500 to-pink-500", "from-indigo-500 to-purple-500"
+    "from-red-500 to-pink-500", "from-indigo-500 to-blue-500"
   ];
   return gradients[(name?.length || 0) % gradients.length];
 };
@@ -104,7 +104,7 @@ function StarRating({ rating, count = 0, size = "sm" }: { rating: number; count?
           <Star key={i} className={`${sizes[size]} ${i <= Math.floor(displayRating) && hasReviews ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-600'}`} />
         ))}
       </div>
-      {hasReviews && <span className="text-xs text-zinc-500">({count})</span>}
+      {hasReviews && <span className="text-xs text-[var(--ip-text-2)]">({count})</span>}
     </div>
   );
 }
@@ -112,18 +112,18 @@ function StarRating({ rating, count = 0, size = "sm" }: { rating: number; count?
 // ============ SPONSORED CARD ============
 function SponsoredCard() {
   return (
-    <div className="relative overflow-hidden bg-gradient-to-r from-blue-900/30 via-purple-900/30 to-pink-900/30 rounded-xl border border-purple-500/30 p-4">
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10" />
+    <div className="relative overflow-hidden bg-gradient-to-r from-blue-900/30 via-blue-900/30 to-pink-900/30 rounded-xl border border-blue-500/30 p-4">
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-blue-600/10 to-pink-600/10" />
       <div className="relative z-10">
-        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-purple-400 text-[10px] font-medium mb-2">
+        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gradient-to-r from-blue-500/20 to-pink-500/20 border border-blue-500/30 text-blue-400 text-[10px] font-medium mb-2">
           <Crown size={10} /> SPONSORED
         </div>
         <div className="flex items-center justify-between gap-3">
           <div className="flex-1">
-            <h3 className="text-white text-sm font-bold mb-1">Trade with <span className="text-blue-400">Zero Commission</span></h3>
-            <p className="text-zinc-400 text-[10px]">Get $100 bonus on first deposit. Limited time offer.</p>
+            <h3 className="text-[var(--ip-text)] text-sm font-bold mb-1">Trade with <span className="text-blue-400">Zero Commission</span></h3>
+            <p className="text-[var(--ip-text-2)] text-[10px]">Get $100 bonus on first deposit. Limited time offer.</p>
           </div>
-          <button className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg text-[10px] font-medium whitespace-nowrap">
+          <button className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-blue-600 text-[var(--ip-text)] rounded-lg text-[10px] font-medium whitespace-nowrap">
             Claim Offer →
           </button>
         </div>
@@ -146,35 +146,35 @@ function BrokerCard({ firm, onPress }: { firm: any; onPress: () => void }) {
   const spread = getSpread(firm);
 
   return (
-    <div className="bg-zinc-900/80 rounded-xl border border-zinc-800 overflow-hidden active:bg-zinc-800/50 transition-all">
+    <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] overflow-hidden active:bg-[var(--ip-surface-2)] transition-all">
       <div className="p-4">
         <div className="flex items-start gap-3">
           <FirmLogo firm={firm} size="md" />
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <h3 className="text-white font-bold text-base truncate">{firm.name}</h3>
+                <h3 className="text-[var(--ip-text)] font-bold text-base truncate">{firm.name}</h3>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
                   <StarRating rating={rating} count={reviewCount} />
                   {trustScore > 0 && <TrustScoreBadge score={trustScore} size="sm" />}
                 </div>
               </div>
-              <button onClick={() => setExpanded(!expanded)} className="p-1.5 rounded-lg bg-zinc-800">
+              <button onClick={() => setExpanded(!expanded)} className="p-1.5 rounded-lg bg-[var(--ip-surface-2)]">
                 {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               </button>
             </div>
             <div className="grid grid-cols-3 gap-2 mt-3">
-              <div className="bg-zinc-800/50 rounded-lg p-1.5 text-center">
-                <div className="text-zinc-500 text-[9px]">Min Deposit</div>
-                <div className="text-white font-bold text-xs">{formatCurrency(minDeposit)}</div>
+              <div className="bg-[var(--ip-surface-2)] rounded-lg p-1.5 text-center">
+                <div className="text-[var(--ip-text-2)] text-[9px]">Min Deposit</div>
+                <div className="text-[var(--ip-text)] font-bold text-xs">{formatCurrency(minDeposit)}</div>
               </div>
-              <div className="bg-zinc-800/50 rounded-lg p-1.5 text-center">
-                <div className="text-zinc-500 text-[9px]">Leverage</div>
-                <div className="text-white font-bold text-xs">{leverage}</div>
+              <div className="bg-[var(--ip-surface-2)] rounded-lg p-1.5 text-center">
+                <div className="text-[var(--ip-text-2)] text-[9px]">Leverage</div>
+                <div className="text-[var(--ip-text)] font-bold text-xs">{leverage}</div>
               </div>
-              <div className="bg-zinc-800/50 rounded-lg p-1.5 text-center">
-                <div className="text-zinc-500 text-[9px]">Spread</div>
-                <div className="text-white font-bold text-xs">{spread} pips</div>
+              <div className="bg-[var(--ip-surface-2)] rounded-lg p-1.5 text-center">
+                <div className="text-[var(--ip-text-2)] text-[9px]">Spread</div>
+                <div className="text-[var(--ip-text)] font-bold text-xs">{spread} pips</div>
               </div>
             </div>
             {incidentCount > 0 && (
@@ -193,20 +193,20 @@ function BrokerCard({ firm, onPress }: { firm: any; onPress: () => void }) {
       </div>
       <AnimatePresence>
         {expanded && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-t border-zinc-800">
-            <div className="p-4 space-y-3 bg-zinc-900/50">
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-t border-[var(--ip-border)]">
+            <div className="p-4 space-y-3 bg-[var(--ip-surface)]">
               {platforms.length > 0 && (
                 <div>
-                  <div className="text-zinc-500 text-[10px] mb-1.5">Platforms</div>
+                  <div className="text-[var(--ip-text-2)] text-[10px] mb-1.5">Platforms</div>
                   <div className="flex flex-wrap gap-1.5">
                     {platforms.map((p: string, i: number) => (
-                      <span key={i} className="text-[10px] bg-zinc-800 text-zinc-300 px-2 py-1 rounded-full">{p}</span>
+                      <span key={i} className="text-[10px] bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] px-2 py-1 rounded-full">{p}</span>
                     ))}
                   </div>
                 </div>
               )}
               {firm.country && (
-                <div className="flex items-center gap-1 text-zinc-500 text-[10px]">
+                <div className="flex items-center gap-1 text-[var(--ip-text-2)] text-[10px]">
                   <Globe size={10} /> {firm.country}
                 </div>
               )}
@@ -215,7 +215,7 @@ function BrokerCard({ firm, onPress }: { firm: any; onPress: () => void }) {
         )}
       </AnimatePresence>
       <div className="p-4 pt-0">
-        <button onClick={onPress} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2">
+        <button onClick={onPress} className="w-full bg-gradient-to-r from-blue-600 to-blue-600 text-[var(--ip-text)] py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2">
           View Details <ArrowRight size={14} />
         </button>
       </div>
@@ -236,9 +236,9 @@ function OffersTab({ brokers }: { brokers: any[] }) {
 
   if (brokersWithBonuses.length === 0) {
     return (
-      <div className="text-center py-12 bg-zinc-900/50 rounded-xl border border-zinc-800">
+      <div className="text-center py-12 bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)]">
         <Gift size={32} className="text-zinc-600 mx-auto mb-3" />
-        <p className="text-zinc-500 text-sm">No active bonuses</p>
+        <p className="text-[var(--ip-text-2)] text-sm">No active bonuses</p>
         <p className="text-zinc-600 text-xs mt-1">Check back soon!</p>
       </div>
     );
@@ -246,8 +246,8 @@ function OffersTab({ brokers }: { brokers: any[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={14} /><input type="text" placeholder="Search bonuses..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl pl-9 pr-4 py-2.5 text-white text-sm" /></div>
-      <div className="text-xs text-zinc-500">{filteredBrokers.length} brokers with offers</div>
+      <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ip-text-2)]" size={14} /><input type="text" placeholder="Search bonuses..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full bg-[var(--ip-surface)] border border-[var(--ip-border)] rounded-xl pl-9 pr-4 py-2.5 text-[var(--ip-text)] text-sm" /></div>
+      <div className="text-xs text-[var(--ip-text-2)]">{filteredBrokers.length} brokers with offers</div>
       <div className="space-y-3">
         {filteredBrokers.map((broker) => {
           const bonuses = broker.bonuses || [];
@@ -260,36 +260,36 @@ function OffersTab({ brokers }: { brokers: any[] }) {
           const leverage = getMaxLeverage(broker);
 
           return (
-            <div key={broker.id} className="bg-zinc-900/80 rounded-xl border border-zinc-800 overflow-hidden">
+            <div key={broker.id} className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] overflow-hidden">
               <div className="p-4">
                 <div className="flex items-center gap-3 mb-3">
                   <FirmLogo firm={broker} size="sm" />
                   <div className="flex-1">
-                    <h3 className="text-white font-bold text-sm">{broker.name}</h3>
+                    <h3 className="text-[var(--ip-text)] font-bold text-sm">{broker.name}</h3>
                     <div className="flex items-center gap-2 mt-1">
                       <StarRating rating={broker.rating || 0} count={broker.reviewCount || 0} />
                       {broker.trustScore > 0 && <TrustScoreBadge score={broker.trustScore} size="sm" />}
                     </div>
                   </div>
-                  {primary?.amount && (<div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-1 rounded-full text-[10px] font-bold">{primary.amount}</div>)}
+                  {primary?.amount && (<div className="bg-gradient-to-r from-blue-500 to-pink-500 text-[var(--ip-text)] px-2 py-1 rounded-full text-[10px] font-bold">{primary.amount}</div>)}
                 </div>
                 <div className="grid grid-cols-2 gap-2 mb-3">
-                  <div className="bg-zinc-800/50 rounded-lg p-2 text-center">
-                    <div className="text-zinc-500 text-[10px]">Min Deposit</div>
-                    <div className="text-white font-bold text-sm">{formatCurrency(minDeposit)}</div>
+                  <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+                    <div className="text-[var(--ip-text-2)] text-[10px]">Min Deposit</div>
+                    <div className="text-[var(--ip-text)] font-bold text-sm">{formatCurrency(minDeposit)}</div>
                   </div>
-                  <div className="bg-zinc-800/50 rounded-lg p-2 text-center">
-                    <div className="text-zinc-500 text-[10px]">Leverage</div>
-                    <div className="text-white font-bold text-sm">{leverage}</div>
+                  <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+                    <div className="text-[var(--ip-text-2)] text-[10px]">Leverage</div>
+                    <div className="text-[var(--ip-text)] font-bold text-sm">{leverage}</div>
                   </div>
                 </div>
                 {primary && (
-                  <div className="p-3 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 mb-3">
-                    <p className="text-white text-xs font-medium mb-1">{primary.amount || primary.name || "Welcome Bonus"}</p>
+                  <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500/10 to-pink-500/10 border border-blue-500/30 mb-3">
+                    <p className="text-[var(--ip-text)] text-xs font-medium mb-1">{primary.amount || primary.name || "Welcome Bonus"}</p>
                     {primary.code && (
                       <div className="flex items-center gap-2">
-                        <code className="text-[10px] font-mono bg-zinc-800 px-2 py-1 rounded text-purple-400">{primary.code}</code>
-                        <button onClick={() => handleCopy(primary.code)} className="text-zinc-400 hover:text-purple-400">
+                        <code className="text-[10px] font-mono bg-[var(--ip-surface-2)] px-2 py-1 rounded text-blue-400">{primary.code}</code>
+                        <button onClick={() => handleCopy(primary.code)} className="text-[var(--ip-text-2)] hover:text-blue-400">
                           {copiedId === primary.code ? <CheckCircle2 size={12} /> : <Copy size={12} />}
                         </button>
                       </div>
@@ -297,29 +297,29 @@ function OffersTab({ brokers }: { brokers: any[] }) {
                   </div>
                 )}
                 {additional.length > 0 && (
-                  <button onClick={() => setExpandedId(isExpanded ? null : broker.id)} className="w-full flex items-center justify-center gap-1 py-1 text-xs text-zinc-400">
+                  <button onClick={() => setExpandedId(isExpanded ? null : broker.id)} className="w-full flex items-center justify-center gap-1 py-1 text-xs text-[var(--ip-text-2)]">
                     {isExpanded ? <>Show Less <ChevronUp size={12} /></> : <>View {additional.length} More Offers <ChevronDown size={12} /></>}
                   </button>
                 )}
               </div>
               <AnimatePresence>
                 {isExpanded && additional.length > 0 && (
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-t border-zinc-800">
-                    <div className="p-4 space-y-2 bg-zinc-900/50">
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-t border-[var(--ip-border)]">
+                    <div className="p-4 space-y-2 bg-[var(--ip-surface)]">
                       {additional.map((offer: any, idx: number) => (
-                        <div key={idx} className="bg-zinc-800/50 rounded-lg p-3">
+                        <div key={idx} className="bg-[var(--ip-surface-2)] rounded-lg p-3">
                           <div className="flex justify-between items-start">
                             <div>
-                              <span className="text-xs font-semibold text-white">{offer.amount || offer.name || "Additional Offer"}</span>
+                              <span className="text-xs font-semibold text-[var(--ip-text)]">{offer.amount || offer.name || "Additional Offer"}</span>
                               {offer.type && <div className="text-green-400 text-xs mt-1">{offer.type}</div>}
                             </div>
                             {offer.code && (
-                              <button onClick={() => handleCopy(offer.code)} className="text-zinc-400 hover:text-purple-400">
+                              <button onClick={() => handleCopy(offer.code)} className="text-[var(--ip-text-2)] hover:text-blue-400">
                                 {copiedId === offer.code ? <CheckCircle2 size={12} /> : <Copy size={12} />}
                               </button>
                             )}
                           </div>
-                          {offer.code && <code className="text-[10px] font-mono bg-zinc-900 px-2 py-1 rounded text-purple-400 mt-2 block">Code: {offer.code}</code>}
+                          {offer.code && <code className="text-[10px] font-mono bg-[var(--ip-surface)] px-2 py-1 rounded text-blue-400 mt-2 block">Code: {offer.code}</code>}
                         </div>
                       ))}
                     </div>
@@ -327,7 +327,7 @@ function OffersTab({ brokers }: { brokers: any[] }) {
                 )}
               </AnimatePresence>
               <div className="p-4 pt-0">
-                <button onClick={() => window.open(broker.website || broker.affiliateLink, '_blank')} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 rounded-xl text-xs font-medium">
+                <button onClick={() => window.open(broker.website || broker.affiliateLink, '_blank')} className="w-full bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] py-2 rounded-xl text-xs font-medium">
                   Claim Bonus →
                 </button>
               </div>
@@ -351,45 +351,45 @@ function ConditionsTab({ brokers }: { brokers: any[] }) {
   if (selectedBroker) {
     return (
       <div>
-        <button onClick={() => setSelectedBroker(null)} className="flex items-center gap-1 text-purple-400 text-sm mb-4">← Back</button>
-        <div className="bg-zinc-900/80 rounded-xl border border-zinc-800 p-4 mb-4">
+        <button onClick={() => setSelectedBroker(null)} className="flex items-center gap-1 text-blue-400 text-sm mb-4">← Back</button>
+        <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-4 mb-4">
           <div className="flex items-center gap-3">
             <FirmLogo firm={selectedBroker} size="md" />
             <div>
-              <h3 className="text-white font-bold text-base">{selectedBroker.name}</h3>
-              <div className="text-zinc-400 text-xs">{selectedBroker.country || 'International'}</div>
+              <h3 className="text-[var(--ip-text)] font-bold text-base">{selectedBroker.name}</h3>
+              <div className="text-[var(--ip-text-2)] text-xs">{selectedBroker.country || 'International'}</div>
             </div>
           </div>
         </div>
         <div className="space-y-3">
-          <div className="bg-zinc-900/80 rounded-xl border border-zinc-800 p-4">
-            <h4 className="text-white font-semibold text-sm mb-3 flex items-center gap-2"><TrendingUp size={14} className="text-blue-400" />Trading Conditions</h4>
+          <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-4">
+            <h4 className="text-[var(--ip-text)] font-semibold text-sm mb-3 flex items-center gap-2"><TrendingUp size={14} className="text-blue-400" />Trading Conditions</h4>
             <div className="space-y-2">
-              <div className="flex justify-between items-center py-2 border-b border-zinc-800">
-                <span className="text-zinc-400 text-xs">Min Deposit</span>
-                <span className="text-white text-xs font-medium">{formatCurrency(getMinDeposit(selectedBroker))}</span>
+              <div className="flex justify-between items-center py-2 border-b border-[var(--ip-border)]">
+                <span className="text-[var(--ip-text-2)] text-xs">Min Deposit</span>
+                <span className="text-[var(--ip-text)] text-xs font-medium">{formatCurrency(getMinDeposit(selectedBroker))}</span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-zinc-800">
-                <span className="text-zinc-400 text-xs">Max Leverage</span>
-                <span className="text-white text-xs font-medium">{getMaxLeverage(selectedBroker)}</span>
+              <div className="flex justify-between items-center py-2 border-b border-[var(--ip-border)]">
+                <span className="text-[var(--ip-text-2)] text-xs">Max Leverage</span>
+                <span className="text-[var(--ip-text)] text-xs font-medium">{getMaxLeverage(selectedBroker)}</span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-zinc-800">
-                <span className="text-zinc-400 text-xs">EURUSD Spread</span>
-                <span className="text-white text-xs font-medium">{getSpread(selectedBroker)} pips</span>
+              <div className="flex justify-between items-center py-2 border-b border-[var(--ip-border)]">
+                <span className="text-[var(--ip-text-2)] text-xs">EURUSD Spread</span>
+                <span className="text-[var(--ip-text)] text-xs font-medium">{getSpread(selectedBroker)} pips</span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-zinc-800">
-                <span className="text-zinc-400 text-xs">Commission</span>
-                <span className="text-white text-xs font-medium">{selectedBroker.commission || 'Variable'}</span>
+              <div className="flex justify-between items-center py-2 border-b border-[var(--ip-border)]">
+                <span className="text-[var(--ip-text-2)] text-xs">Commission</span>
+                <span className="text-[var(--ip-text)] text-xs font-medium">{selectedBroker.commission || 'Variable'}</span>
               </div>
             </div>
           </div>
           {selectedBroker.accountTypes && selectedBroker.accountTypes.length > 0 && (
-            <div className="bg-zinc-900/80 rounded-xl border border-zinc-800 p-4">
-              <h4 className="text-white font-semibold text-sm mb-3 flex items-center gap-2"><Wallet size={14} className="text-green-400" />Account Types</h4>
+            <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-4">
+              <h4 className="text-[var(--ip-text)] font-semibold text-sm mb-3 flex items-center gap-2"><Wallet size={14} className="text-green-400" />Account Types</h4>
               <div className="space-y-2">
                 {selectedBroker.accountTypes.map((acc: any, i: number) => (
-                  <div key={i} className="flex justify-between items-center py-2 border-b border-zinc-800 last:border-0">
-                    <span className="text-white text-xs font-medium">{acc.name}</span>
+                  <div key={i} className="flex justify-between items-center py-2 border-b border-[var(--ip-border)] last:border-0">
+                    <span className="text-[var(--ip-text)] text-xs font-medium">{acc.name}</span>
                     <span className="text-green-400 text-xs">${acc.minDeposit}</span>
                   </div>
                 ))}
@@ -404,21 +404,21 @@ function ConditionsTab({ brokers }: { brokers: any[] }) {
   return (
     <div className="space-y-4">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={14} />
-        <input type="text" placeholder="Search broker..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl pl-9 pr-4 py-2.5 text-white text-sm" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ip-text-2)]" size={14} />
+        <input type="text" placeholder="Search broker..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full bg-[var(--ip-surface)] border border-[var(--ip-border)] rounded-xl pl-9 pr-4 py-2.5 text-[var(--ip-text)] text-sm" />
       </div>
-      <div className="text-xs text-zinc-500">{filteredBrokers.length} brokers</div>
+      <div className="text-xs text-[var(--ip-text-2)]">{filteredBrokers.length} brokers</div>
       <div className="space-y-2">
         {filteredBrokers.map((broker) => (
-          <button key={broker.id} onClick={() => setSelectedBroker(broker)} className="w-full bg-zinc-900/80 rounded-xl p-4 border border-zinc-800 text-left active:bg-zinc-800 transition-all flex items-center justify-between">
+          <button key={broker.id} onClick={() => setSelectedBroker(broker)} className="w-full bg-[var(--ip-surface)] rounded-xl p-4 border border-[var(--ip-border)] text-left active:bg-[var(--ip-surface-2)] transition-all flex items-center justify-between">
             <div className="flex items-center gap-3">
               <FirmLogo firm={broker} size="sm" />
               <div>
-                <div className="text-white font-medium text-sm">{broker.name}</div>
-                <div className="text-zinc-500 text-xs">{formatCurrency(getMinDeposit(broker))} min deposit</div>
+                <div className="text-[var(--ip-text)] font-medium text-sm">{broker.name}</div>
+                <div className="text-[var(--ip-text-2)] text-xs">{formatCurrency(getMinDeposit(broker))} min deposit</div>
               </div>
             </div>
-            <ChevronRight size={16} className="text-zinc-500" />
+            <ChevronRight size={16} className="text-[var(--ip-text-2)]" />
           </button>
         ))}
       </div>
@@ -497,18 +497,18 @@ function ReviewsTab({ brokers }: { brokers: any[] }) {
   const paginatedBrokers = filteredBrokers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   if (loadingReviews) {
-    return <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto" /></div>;
+    return <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto" /></div>;
   }
 
   if (selectedBroker) {
     return (
       <div>
-        <button onClick={() => setSelectedBroker(null)} className="flex items-center gap-1 text-purple-400 text-sm mb-4">← Back</button>
-        <div className="bg-zinc-900/80 rounded-xl border border-zinc-800 p-4 mb-4">
+        <button onClick={() => setSelectedBroker(null)} className="flex items-center gap-1 text-blue-400 text-sm mb-4">← Back</button>
+        <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-4 mb-4">
           <div className="flex items-center gap-3">
             <FirmLogo firm={selectedBroker} size="md" />
             <div className="flex-1">
-              <h3 className="text-white font-bold text-base">{selectedBroker.name}</h3>
+              <h3 className="text-[var(--ip-text)] font-bold text-base">{selectedBroker.name}</h3>
               <div className="flex items-center gap-2 mt-1">
                 <StarRating rating={selectedBroker.avgRating || 0} count={selectedBroker.reviewCount || 0} />
                 {selectedBroker.trustScore > 0 && <TrustScoreBadge score={selectedBroker.trustScore} size="sm" />}
@@ -516,18 +516,18 @@ function ReviewsTab({ brokers }: { brokers: any[] }) {
             </div>
           </div>
         </div>
-        <div className="bg-zinc-900/80 rounded-xl border border-zinc-800 p-4 mb-4 space-y-3">
-          <div className="text-xs text-zinc-500 mb-1">Community Ratings</div>
+        <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-4 mb-4 space-y-3">
+          <div className="text-xs text-[var(--ip-text-2)] mb-1">Community Ratings</div>
           <div className="space-y-2">
-            <div><div className="flex items-center justify-between text-xs"><div className="flex items-center gap-1.5"><TrendingUp size={12} className="text-green-400" /><span className="text-zinc-400">Trading</span></div><span className="text-white font-medium">{(selectedBroker.avgTradingConditions || 0).toFixed(1)}/5</span></div><div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div className="h-full rounded-full bg-gradient-to-r from-green-500 to-green-400" style={{ width: `${((selectedBroker.avgTradingConditions || 0) / 5) * 100}%` }} /></div></div>
-            <div><div className="flex items-center justify-between text-xs"><div className="flex items-center gap-1.5"><Gauge size={12} className="text-blue-400" /><span className="text-zinc-400">Platform</span></div><span className="text-white font-medium">{(selectedBroker.avgPlatformStability || 0).toFixed(1)}/5</span></div><div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-400" style={{ width: `${((selectedBroker.avgPlatformStability || 0) / 5) * 100}%` }} /></div></div>
-            <div><div className="flex items-center justify-between text-xs"><div className="flex items-center gap-1.5"><Headphones size={12} className="text-purple-400" /><span className="text-zinc-400">Support</span></div><span className="text-white font-medium">{(selectedBroker.avgCustomerSupport || 0).toFixed(1)}/5</span></div><div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div className="h-full rounded-full bg-gradient-to-r from-purple-500 to-purple-400" style={{ width: `${((selectedBroker.avgCustomerSupport || 0) / 5) * 100}%` }} /></div></div>
-            <div><div className="flex items-center justify-between text-xs"><div className="flex items-center gap-1.5"><Zap size={12} className="text-yellow-400" /><span className="text-zinc-400">Withdrawal</span></div><span className="text-white font-medium">{(selectedBroker.avgWithdrawalSpeed || 0).toFixed(1)}/5</span></div><div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div className="h-full rounded-full bg-gradient-to-r from-yellow-500 to-yellow-400" style={{ width: `${((selectedBroker.avgWithdrawalSpeed || 0) / 5) * 100}%` }} /></div></div>
+            <div><div className="flex items-center justify-between text-xs"><div className="flex items-center gap-1.5"><TrendingUp size={12} className="text-green-400" /><span className="text-[var(--ip-text-2)]">Trading</span></div><span className="text-[var(--ip-text)] font-medium">{(selectedBroker.avgTradingConditions || 0).toFixed(1)}/5</span></div><div className="h-1.5 bg-[var(--ip-surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full bg-gradient-to-r from-green-500 to-green-400" style={{ width: `${((selectedBroker.avgTradingConditions || 0) / 5) * 100}%` }} /></div></div>
+            <div><div className="flex items-center justify-between text-xs"><div className="flex items-center gap-1.5"><Gauge size={12} className="text-blue-400" /><span className="text-[var(--ip-text-2)]">Platform</span></div><span className="text-[var(--ip-text)] font-medium">{(selectedBroker.avgPlatformStability || 0).toFixed(1)}/5</span></div><div className="h-1.5 bg-[var(--ip-surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-400" style={{ width: `${((selectedBroker.avgPlatformStability || 0) / 5) * 100}%` }} /></div></div>
+            <div><div className="flex items-center justify-between text-xs"><div className="flex items-center gap-1.5"><Headphones size={12} className="text-blue-400" /><span className="text-[var(--ip-text-2)]">Support</span></div><span className="text-[var(--ip-text)] font-medium">{(selectedBroker.avgCustomerSupport || 0).toFixed(1)}/5</span></div><div className="h-1.5 bg-[var(--ip-surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-400" style={{ width: `${((selectedBroker.avgCustomerSupport || 0) / 5) * 100}%` }} /></div></div>
+            <div><div className="flex items-center justify-between text-xs"><div className="flex items-center gap-1.5"><Zap size={12} className="text-yellow-400" /><span className="text-[var(--ip-text-2)]">Withdrawal</span></div><span className="text-[var(--ip-text)] font-medium">{(selectedBroker.avgWithdrawalSpeed || 0).toFixed(1)}/5</span></div><div className="h-1.5 bg-[var(--ip-surface-2)] rounded-full overflow-hidden"><div className="h-full rounded-full bg-gradient-to-r from-yellow-500 to-yellow-400" style={{ width: `${((selectedBroker.avgWithdrawalSpeed || 0) / 5) * 100}%` }} /></div></div>
           </div>
         </div>
         {selectedBroker.incidentCount > 0 && (<div className="mb-4 flex items-center gap-1 bg-red-500/10 px-2 py-1 rounded-full w-fit"><AlertTriangle size={10} className="text-red-400" /><span className="text-[10px] text-red-400">{selectedBroker.incidentCount} incidents</span></div>)}
-        {getPlatforms(selectedBroker).length > 0 && (<div className="flex flex-wrap gap-1 mb-4">{getPlatforms(selectedBroker).slice(0, 3).map((p: string, i: number) => (<span key={i} className="text-[10px] bg-zinc-800 text-zinc-300 px-2 py-1 rounded-full">{p}</span>))}</div>)}
-        <button onClick={() => window.open(selectedBroker.website, '_blank')} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2.5 rounded-xl text-sm font-medium">Visit Broker</button>
+        {getPlatforms(selectedBroker).length > 0 && (<div className="flex flex-wrap gap-1 mb-4">{getPlatforms(selectedBroker).slice(0, 3).map((p: string, i: number) => (<span key={i} className="text-[10px] bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] px-2 py-1 rounded-full">{p}</span>))}</div>)}
+        <button onClick={() => window.open(selectedBroker.website, '_blank')} className="w-full bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] py-2.5 rounded-xl text-sm font-medium">Visit Broker</button>
       </div>
     );
   }
@@ -535,10 +535,10 @@ function ReviewsTab({ brokers }: { brokers: any[] }) {
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
-        <div className="relative flex-1"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={14} /><input type="text" placeholder="Search brokers..." value={search} onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }} className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl pl-9 pr-4 py-2.5 text-white text-sm" /></div>
-        <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="bg-zinc-800 border border-zinc-700 text-white text-sm rounded-xl px-3 py-2.5"><option value="rating">Highest Rated</option><option value="reviews">Most Reviews</option><option value="incidents">Most Incidents</option></select>
+        <div className="relative flex-1"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ip-text-2)]" size={14} /><input type="text" placeholder="Search brokers..." value={search} onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }} className="w-full bg-[var(--ip-surface)] border border-[var(--ip-border)] rounded-xl pl-9 pr-4 py-2.5 text-[var(--ip-text)] text-sm" /></div>
+        <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="bg-[var(--ip-surface-2)] border border-[var(--ip-border)] text-[var(--ip-text)] text-sm rounded-xl px-3 py-2.5"><option value="rating">Highest Rated</option><option value="reviews">Most Reviews</option><option value="incidents">Most Incidents</option></select>
       </div>
-      <div className="text-xs text-zinc-500">{filteredBrokers.length} brokers found</div>
+      <div className="text-xs text-[var(--ip-text-2)]">{filteredBrokers.length} brokers found</div>
       <div className="space-y-3">
         {paginatedBrokers.map((broker, index) => {
           const minDeposit = getMinDeposit(broker);
@@ -549,12 +549,12 @@ function ReviewsTab({ brokers }: { brokers: any[] }) {
           const rating = broker.avgRating || 0;
           const isTopRated = index === 0 && rating >= 4.5;
           return (
-            <div key={broker.id} onClick={() => setSelectedBroker(broker)} className="bg-zinc-900/80 rounded-xl border border-zinc-800 p-4 active:bg-zinc-800 transition-all cursor-pointer">
-              {isTopRated && (<div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-[10px] font-bold mb-2"><Flame size={10} /> Top Rated</div>)}
+            <div key={broker.id} onClick={() => setSelectedBroker(broker)} className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-4 active:bg-[var(--ip-surface-2)] transition-all cursor-pointer">
+              {isTopRated && (<div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 text-[var(--ip-text)] text-[10px] font-bold mb-2"><Flame size={10} /> Top Rated</div>)}
               <div className="flex items-start gap-3 mb-3">
                 <FirmLogo firm={broker} size="sm" />
                 <div className="flex-1">
-                  <h3 className="text-white font-bold text-base truncate">{broker.name}</h3>
+                  <h3 className="text-[var(--ip-text)] font-bold text-base truncate">{broker.name}</h3>
                   <div className="flex items-center gap-2 mt-1">
                     <StarRating rating={rating} count={broker.reviewCount || 0} />
                     {trustScore > 0 && <TrustScoreBadge score={trustScore} size="sm" />}
@@ -563,29 +563,29 @@ function ReviewsTab({ brokers }: { brokers: any[] }) {
               </div>
               <div className="grid grid-cols-2 gap-2 mb-3">
                 <div className="bg-green-500/10 rounded-lg p-2 text-center">
-                  <div className="text-zinc-500 text-[10px]">Min Deposit</div>
+                  <div className="text-[var(--ip-text-2)] text-[10px]">Min Deposit</div>
                   <div className="text-green-400 font-bold text-sm">{formatCurrency(minDeposit)}</div>
                 </div>
                 <div className="bg-blue-500/10 rounded-lg p-2 text-center">
-                  <div className="text-zinc-500 text-[10px]">Leverage</div>
+                  <div className="text-[var(--ip-text-2)] text-[10px]">Leverage</div>
                   <div className="text-blue-400 font-bold text-sm">{maxLeverage}</div>
                 </div>
               </div>
               <div className="space-y-2 mb-3">
-                <div className="text-xs text-zinc-500 mb-1">Community Ratings</div>
-                <div><div className="flex items-center gap-2"><div className="flex items-center gap-1 w-20"><TrendingUp size={11} className="text-green-400" /><span className="text-[11px] text-zinc-400">Trading</span></div><div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full" style={{ width: `${((broker.avgTradingConditions || 0) / 5) * 100}%` }} /></div><span className="text-[11px] font-medium text-green-400 w-8 text-right">{(broker.avgTradingConditions || 0).toFixed(1)}</span></div></div>
-                <div><div className="flex items-center gap-2"><div className="flex items-center gap-1 w-20"><Gauge size={11} className="text-blue-400" /><span className="text-[11px] text-zinc-400">Platform</span></div><div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full" style={{ width: `${((broker.avgPlatformStability || 0) / 5) * 100}%` }} /></div><span className="text-[11px] font-medium text-blue-400 w-8 text-right">{(broker.avgPlatformStability || 0).toFixed(1)}</span></div></div>
-                <div><div className="flex items-center gap-2"><div className="flex items-center gap-1 w-20"><Headphones size={11} className="text-purple-400" /><span className="text-[11px] text-zinc-400">Support</span></div><div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full" style={{ width: `${((broker.avgCustomerSupport || 0) / 5) * 100}%` }} /></div><span className="text-[11px] font-medium text-purple-400 w-8 text-right">{(broker.avgCustomerSupport || 0).toFixed(1)}</span></div></div>
-                <div><div className="flex items-center gap-2"><div className="flex items-center gap-1 w-20"><Zap size={11} className="text-yellow-400" /><span className="text-[11px] text-zinc-400">Withdrawal</span></div><div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-yellow-500 to-yellow-400 rounded-full" style={{ width: `${((broker.avgWithdrawalSpeed || 0) / 5) * 100}%` }} /></div><span className="text-[11px] font-medium text-yellow-400 w-8 text-right">{(broker.avgWithdrawalSpeed || 0).toFixed(1)}</span></div></div>
+                <div className="text-xs text-[var(--ip-text-2)] mb-1">Community Ratings</div>
+                <div><div className="flex items-center gap-2"><div className="flex items-center gap-1 w-20"><TrendingUp size={11} className="text-green-400" /><span className="text-[11px] text-[var(--ip-text-2)]">Trading</span></div><div className="flex-1 h-1.5 bg-[var(--ip-surface-2)] rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full" style={{ width: `${((broker.avgTradingConditions || 0) / 5) * 100}%` }} /></div><span className="text-[11px] font-medium text-green-400 w-8 text-right">{(broker.avgTradingConditions || 0).toFixed(1)}</span></div></div>
+                <div><div className="flex items-center gap-2"><div className="flex items-center gap-1 w-20"><Gauge size={11} className="text-blue-400" /><span className="text-[11px] text-[var(--ip-text-2)]">Platform</span></div><div className="flex-1 h-1.5 bg-[var(--ip-surface-2)] rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full" style={{ width: `${((broker.avgPlatformStability || 0) / 5) * 100}%` }} /></div><span className="text-[11px] font-medium text-blue-400 w-8 text-right">{(broker.avgPlatformStability || 0).toFixed(1)}</span></div></div>
+                <div><div className="flex items-center gap-2"><div className="flex items-center gap-1 w-20"><Headphones size={11} className="text-blue-400" /><span className="text-[11px] text-[var(--ip-text-2)]">Support</span></div><div className="flex-1 h-1.5 bg-[var(--ip-surface-2)] rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full" style={{ width: `${((broker.avgCustomerSupport || 0) / 5) * 100}%` }} /></div><span className="text-[11px] font-medium text-blue-400 w-8 text-right">{(broker.avgCustomerSupport || 0).toFixed(1)}</span></div></div>
+                <div><div className="flex items-center gap-2"><div className="flex items-center gap-1 w-20"><Zap size={11} className="text-yellow-400" /><span className="text-[11px] text-[var(--ip-text-2)]">Withdrawal</span></div><div className="flex-1 h-1.5 bg-[var(--ip-surface-2)] rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-yellow-500 to-yellow-400 rounded-full" style={{ width: `${((broker.avgWithdrawalSpeed || 0) / 5) * 100}%` }} /></div><span className="text-[11px] font-medium text-yellow-400 w-8 text-right">{(broker.avgWithdrawalSpeed || 0).toFixed(1)}</span></div></div>
               </div>
               {incidentCount > 0 && (<div className="mb-3 flex items-center gap-1 bg-red-500/10 px-2 py-1 rounded-full w-fit"><AlertTriangle size={10} className="text-red-400" /><span className="text-[10px] text-red-400">{incidentCount} incidents</span></div>)}
-              {platforms.length > 0 && (<div className="flex flex-wrap gap-1 mb-3">{platforms.slice(0, 3).map((p: string, i: number) => (<span key={i} className="text-[10px] bg-zinc-800 text-zinc-300 px-2 py-1 rounded-full">{p}</span>))}</div>)}
-              <button className="w-full py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-sm font-medium">Reviews ({broker.reviewCount || 0})</button>
+              {platforms.length > 0 && (<div className="flex flex-wrap gap-1 mb-3">{platforms.slice(0, 3).map((p: string, i: number) => (<span key={i} className="text-[10px] bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] px-2 py-1 rounded-full">{p}</span>))}</div>)}
+              <button className="w-full py-2 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-lg text-sm font-medium">Reviews ({broker.reviewCount || 0})</button>
             </div>
           );
         })}
       </div>
-      {totalPages > 1 && (<div className="flex justify-center gap-2 py-2"><button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white text-xs disabled:opacity-50">Prev</button><span className="px-3 py-1.5 text-zinc-400 text-xs">{currentPage} / {totalPages}</span><button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white text-xs disabled:opacity-50">Next</button></div>)}
+      {totalPages > 1 && (<div className="flex justify-center gap-2 py-2"><button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className="px-3 py-1.5 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text)] text-xs disabled:opacity-50">Prev</button><span className="px-3 py-1.5 text-[var(--ip-text-2)] text-xs">{currentPage} / {totalPages}</span><button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} className="px-3 py-1.5 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text)] text-xs disabled:opacity-50">Next</button></div>)}
     </div>
   );
 }
@@ -667,8 +667,8 @@ export default function MobileBrokersPage() {
       <MobileLayout title="Brokers" showSearch={false}>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto" />
-            <p className="text-xs text-zinc-500 mt-3">Loading brokers...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto" />
+            <p className="text-xs text-[var(--ip-text-2)] mt-3">Loading brokers...</p>
           </div>
         </div>
       </MobileLayout>
@@ -679,21 +679,21 @@ export default function MobileBrokersPage() {
     <MobileLayout title="Brokers" showSearch={false}>
       <div className="space-y-4 pb-6">
         {/* Hero Stats */}
-        <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-2xl p-4 border border-blue-500/30">
+        <div className="bg-gradient-to-r from-blue-600/20 to-blue-600/20 rounded-2xl p-4 border border-blue-500/30">
           <div className="grid grid-cols-3 gap-4 text-center">
-            <div><div className="text-2xl font-bold text-white">{enrichedBrokers.length}</div><div className="text-xs text-zinc-400">Brokers</div></div>
-            <div><div className="text-2xl font-bold text-white">{totalReviews.toLocaleString()}</div><div className="text-xs text-zinc-400">Reviews</div></div>
-            <div><div className="text-2xl font-bold text-red-400">{totalIncidents}</div><div className="text-xs text-zinc-400">Reports</div></div>
+            <div><div className="text-2xl font-bold text-[var(--ip-text)]">{enrichedBrokers.length}</div><div className="text-xs text-[var(--ip-text-2)]">Brokers</div></div>
+            <div><div className="text-2xl font-bold text-[var(--ip-text)]">{totalReviews.toLocaleString()}</div><div className="text-xs text-[var(--ip-text-2)]">Reviews</div></div>
+            <div><div className="text-2xl font-bold text-red-400">{totalIncidents}</div><div className="text-xs text-[var(--ip-text-2)]">Reports</div></div>
           </div>
         </div>
 
         {/* TABS */}
-        <div className="flex gap-1 bg-zinc-900/50 rounded-xl p-1 border border-zinc-800">
-          <button onClick={() => { setActiveTab("overview"); setCurrentPage(1); setSearch(""); }} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === "overview" ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg" : "text-zinc-400"}`}>📋 Brokers</button>
-          <button onClick={() => { setActiveTab("offers"); setCurrentPage(1); setSearch(""); }} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === "offers" ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg" : "text-zinc-400"}`}>🎁 Bonuses</button>
-          <button onClick={() => { setActiveTab("conditions"); setCurrentPage(1); setSearch(""); }} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === "conditions" ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg" : "text-zinc-400"}`}>📜 Conditions</button>
-          <button onClick={() => { setActiveTab("reviews"); setCurrentPage(1); setSearch(""); }} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === "reviews" ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg" : "text-zinc-400"}`}>⭐ Reviews</button>
-          <button onClick={() => { setActiveTab("regulations"); setCurrentPage(1); setSearch(""); }} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === "regulations" ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg" : "text-zinc-400"}`}>🛡️ Regulations</button>
+        <div className="flex gap-1 bg-[var(--ip-surface)] rounded-xl p-1 border border-[var(--ip-border)]">
+          <button onClick={() => { setActiveTab("overview"); setCurrentPage(1); setSearch(""); }} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === "overview" ? "bg-gradient-to-r from-blue-600 to-blue-600 text-[var(--ip-text)] shadow-lg" : "text-[var(--ip-text-2)]"}`}>📋 Brokers</button>
+          <button onClick={() => { setActiveTab("offers"); setCurrentPage(1); setSearch(""); }} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === "offers" ? "bg-gradient-to-r from-blue-600 to-blue-600 text-[var(--ip-text)] shadow-lg" : "text-[var(--ip-text-2)]"}`}>🎁 Bonuses</button>
+          <button onClick={() => { setActiveTab("conditions"); setCurrentPage(1); setSearch(""); }} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === "conditions" ? "bg-gradient-to-r from-blue-600 to-blue-600 text-[var(--ip-text)] shadow-lg" : "text-[var(--ip-text-2)]"}`}>📜 Conditions</button>
+          <button onClick={() => { setActiveTab("reviews"); setCurrentPage(1); setSearch(""); }} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === "reviews" ? "bg-gradient-to-r from-blue-600 to-blue-600 text-[var(--ip-text)] shadow-lg" : "text-[var(--ip-text-2)]"}`}>⭐ Reviews</button>
+          <button onClick={() => { setActiveTab("regulations"); setCurrentPage(1); setSearch(""); }} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === "regulations" ? "bg-gradient-to-r from-blue-600 to-blue-600 text-[var(--ip-text)] shadow-lg" : "text-[var(--ip-text-2)]"}`}>🛡️ Regulations</button>
         </div>
 
         {/* SPONSORED CARD - SHOWS ON ALL TABS */}
@@ -703,24 +703,24 @@ export default function MobileBrokersPage() {
         {activeTab === "overview" && (
           <>
             <div className="flex gap-2">
-              <button onClick={() => { setTypeFilter("all"); setCurrentPage(1); }} className={`flex-1 px-2 py-2 rounded-xl text-xs font-medium transition-all ${typeFilter === "all" ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white" : "bg-zinc-800/50 text-zinc-400 border border-zinc-800"}`}>All Brokers ({enrichedBrokers.length})</button>
-              <button onClick={() => { setTypeFilter("regulated"); setCurrentPage(1); }} className={`flex-1 px-2 py-2 rounded-xl text-xs font-medium transition-all ${typeFilter === "regulated" ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white" : "bg-zinc-800/50 text-zinc-400 border border-zinc-800"}`}>Regulated ({regulatedCount})</button>
-              <button onClick={() => { setTypeFilter("bonus"); setCurrentPage(1); }} className={`flex-1 px-2 py-2 rounded-xl text-xs font-medium transition-all ${typeFilter === "bonus" ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white" : "bg-zinc-800/50 text-zinc-400 border border-zinc-800"}`}>Has Bonus ({enrichedBrokers.filter(b => (b.bonuses?.length > 0) || (b.promotions?.length > 0)).length})</button>
+              <button onClick={() => { setTypeFilter("all"); setCurrentPage(1); }} className={`flex-1 px-2 py-2 rounded-xl text-xs font-medium transition-all ${typeFilter === "all" ? "bg-gradient-to-r from-blue-600 to-blue-600 text-[var(--ip-text)]" : "bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] border border-[var(--ip-border)]"}`}>All Brokers ({enrichedBrokers.length})</button>
+              <button onClick={() => { setTypeFilter("regulated"); setCurrentPage(1); }} className={`flex-1 px-2 py-2 rounded-xl text-xs font-medium transition-all ${typeFilter === "regulated" ? "bg-gradient-to-r from-blue-600 to-blue-600 text-[var(--ip-text)]" : "bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] border border-[var(--ip-border)]"}`}>Regulated ({regulatedCount})</button>
+              <button onClick={() => { setTypeFilter("bonus"); setCurrentPage(1); }} className={`flex-1 px-2 py-2 rounded-xl text-xs font-medium transition-all ${typeFilter === "bonus" ? "bg-gradient-to-r from-blue-600 to-blue-600 text-[var(--ip-text)]" : "bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] border border-[var(--ip-border)]"}`}>Has Bonus ({enrichedBrokers.filter(b => (b.bonuses?.length > 0) || (b.promotions?.length > 0)).length})</button>
             </div>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={14} />
-              <input type="text" placeholder="Search brokers..." value={search} onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }} className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl pl-9 pr-4 py-2.5 text-white text-sm" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ip-text-2)]" size={14} />
+              <input type="text" placeholder="Search brokers..." value={search} onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }} className="w-full bg-[var(--ip-surface)] border border-[var(--ip-border)] rounded-xl pl-9 pr-4 py-2.5 text-[var(--ip-text)] text-sm" />
             </div>
-            <div className="flex justify-between items-center"><span className="text-xs text-zinc-500">{filteredBrokers.length} brokers found</span></div>
+            <div className="flex justify-between items-center"><span className="text-xs text-[var(--ip-text-2)]">{filteredBrokers.length} brokers found</span></div>
             <div className="space-y-3">{paginatedBrokers.map((broker) => (<BrokerCard key={broker.id} firm={broker} onPress={() => handleNavigate(broker.id, broker.name)} />))}</div>
             {totalPages > 1 && (
               <div className="flex justify-center gap-2 py-2">
-                <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white text-xs disabled:opacity-50">Prev</button>
-                <span className="px-3 py-1.5 text-zinc-400 text-xs">{currentPage} / {totalPages}</span>
-                <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white text-xs disabled:opacity-50">Next</button>
+                <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className="px-3 py-1.5 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text)] text-xs disabled:opacity-50">Prev</button>
+                <span className="px-3 py-1.5 text-[var(--ip-text-2)] text-xs">{currentPage} / {totalPages}</span>
+                <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} className="px-3 py-1.5 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text)] text-xs disabled:opacity-50">Next</button>
               </div>
             )}
-            {filteredBrokers.length === 0 && (<div className="text-center py-12"><Building2 size={32} className="text-zinc-600 mx-auto mb-3" /><p className="text-zinc-500 text-sm">No brokers found</p></div>)}
+            {filteredBrokers.length === 0 && (<div className="text-center py-12"><Building2 size={32} className="text-zinc-600 mx-auto mb-3" /><p className="text-[var(--ip-text-2)] text-sm">No brokers found</p></div>)}
           </>
         )}
 

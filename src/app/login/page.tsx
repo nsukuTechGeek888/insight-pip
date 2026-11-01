@@ -1,4 +1,4 @@
-﻿// app/login/page.tsx - SIMPLIFIED VERSION
+// app/login/page.tsx - SIMPLIFIED VERSION
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -22,8 +22,8 @@ export default function LoginPage() {
   // Show loading while detecting
   if (isMobile === null) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-pulse text-white">Loading login...</div>
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
+        <div className="animate-pulse text-[var(--ip-text)]">Loading login...</div>
       </div>
     );
   }

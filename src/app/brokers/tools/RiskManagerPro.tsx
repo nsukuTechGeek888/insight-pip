@@ -34,7 +34,7 @@ const RiskManagerPro = () => {
         {/* Inputs */}
         <div className="space-y-6">
           <div>
-            <label className="block text-white font-semibold mb-3">
+            <label className="block text-[var(--ip-text)] font-semibold mb-3">
               Account Size: <span className="text-green-400">${accountSize.toLocaleString()}</span>
             </label>
             <input
@@ -49,7 +49,7 @@ const RiskManagerPro = () => {
           </div>
 
           <div>
-            <label className="block text-white font-semibold mb-3">
+            <label className="block text-[var(--ip-text)] font-semibold mb-3">
               Risk Percentage: <span className="text-red-400">{riskPercentage}%</span>
             </label>
             <input
@@ -64,7 +64,7 @@ const RiskManagerPro = () => {
           </div>
 
           <div>
-            <label className="block text-white font-semibold mb-3">
+            <label className="block text-[var(--ip-text)] font-semibold mb-3">
               Stop Loss (Pips): <span className="text-blue-400">{stopLossPips}</span>
             </label>
             <input
@@ -79,11 +79,11 @@ const RiskManagerPro = () => {
           </div>
 
           <div>
-            <label className="block text-zinc-400 text-sm mb-2 font-semibold">Currency Pair</label>
+            <label className="block text-[var(--ip-text-2)] text-sm mb-2 font-semibold">Currency Pair</label>
             <select
               value={currencyPair}
               onChange={(e) => setCurrencyPair(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500"
+              className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg p-3 text-[var(--ip-text)] focus:outline-none focus:border-blue-500"
             >
               <option value="EUR/USD">EUR/USD</option>
               <option value="GBP/USD">GBP/USD</option>
@@ -98,7 +98,7 @@ const RiskManagerPro = () => {
           <div className="bg-gradient-to-br from-red-500/10 to-orange-500/20 rounded-2xl p-6 border border-red-500/30">
             <div className="text-center">
               <div className="text-red-400 text-sm mb-2">Maximum Risk Amount</div>
-              <div className="text-white text-4xl font-bold">
+              <div className="text-[var(--ip-text)] text-4xl font-bold">
                 ${results.riskAmount.toLocaleString()}
               </div>
             </div>
@@ -124,19 +124,19 @@ const RiskManagerPro = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-white/5 rounded-xl p-4 text-center">
-              <div className="text-zinc-400 text-xs mb-1">Position Size</div>
+              <div className="text-[var(--ip-text-2)] text-xs mb-1">Position Size</div>
               <div className="text-green-400 font-bold text-xl">${results.positionSize.toLocaleString()}</div>
             </div>
             <div className="bg-white/5 rounded-xl p-4 text-center">
-              <div className="text-zinc-400 text-xs mb-1">Margin Required</div>
+              <div className="text-[var(--ip-text-2)] text-xs mb-1">Margin Required</div>
               <div className="text-blue-400 font-bold text-xl">${results.marginRequired.toLocaleString()}</div>
             </div>
             <div className="bg-white/5 rounded-xl p-4 text-center">
-              <div className="text-zinc-400 text-xs mb-1">Risk Percentage</div>
+              <div className="text-[var(--ip-text-2)] text-xs mb-1">Risk Percentage</div>
               <div className="text-red-400 font-bold text-xl">{riskPercentage}%</div>
             </div>
             <div className="bg-white/5 rounded-xl p-4 text-center">
-              <div className="text-zinc-400 text-xs mb-1">Margin Usage</div>
+              <div className="text-[var(--ip-text-2)] text-xs mb-1">Margin Usage</div>
               <div className="text-yellow-400 font-bold text-xl">{results.marginPercentage}%</div>
             </div>
           </div>

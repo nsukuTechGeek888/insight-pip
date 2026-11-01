@@ -1,3 +1,7 @@
+# InsightPip 2.0 development revision
+
+Start with [Windows setup](docs/V2-SETUP.md) and [delivery status / outstanding work](docs/V2-DELIVERY.md). This branch is for evaluation; it does not deploy to production.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

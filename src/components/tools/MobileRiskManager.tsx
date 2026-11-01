@@ -34,7 +34,7 @@ export default function MobileRiskManager() {
       <div className="space-y-4">
         <div>
           <div className="flex justify-between items-center mb-2">
-            <label className="text-zinc-400 text-sm">Account Size</label>
+            <label className="text-[var(--ip-text-2)] text-sm">Account Size</label>
             <span className="text-green-400 font-bold text-sm">${accountSize.toLocaleString()}</span>
           </div>
           <input
@@ -50,7 +50,7 @@ export default function MobileRiskManager() {
 
         <div>
           <div className="flex justify-between items-center mb-2">
-            <label className="text-zinc-400 text-sm">Risk Percentage</label>
+            <label className="text-[var(--ip-text-2)] text-sm">Risk Percentage</label>
             <span className="text-red-400 font-bold text-sm">{riskPercentage}%</span>
           </div>
           <input
@@ -66,7 +66,7 @@ export default function MobileRiskManager() {
 
         <div>
           <div className="flex justify-between items-center mb-2">
-            <label className="text-zinc-400 text-sm">Stop Loss (Pips)</label>
+            <label className="text-[var(--ip-text-2)] text-sm">Stop Loss (Pips)</label>
             <span className="text-blue-400 font-bold text-sm">{stopLossPips}</span>
           </div>
           <input
@@ -81,11 +81,11 @@ export default function MobileRiskManager() {
         </div>
 
         <div>
-          <label className="text-zinc-400 text-sm mb-2 block">Currency Pair</label>
+          <label className="text-[var(--ip-text-2)] text-sm mb-2 block">Currency Pair</label>
           <select
             value={currencyPair}
             onChange={(e) => setCurrencyPair(e.target.value)}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-purple-500"
+            className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl p-3 text-[var(--ip-text)] text-sm focus:outline-none focus:border-blue-500"
           >
             <option value="EUR/USD">EUR/USD</option>
             <option value="GBP/USD">GBP/USD</option>
@@ -98,7 +98,7 @@ export default function MobileRiskManager() {
       <div className="bg-gradient-to-br from-red-500/10 to-orange-500/20 rounded-xl p-5 border border-red-500/30">
         <div className="text-center">
           <div className="text-red-400 text-xs mb-1">Maximum Risk Amount</div>
-          <div className="text-white text-3xl font-bold">${results.riskAmount.toLocaleString()}</div>
+          <div className="text-[var(--ip-text)] text-3xl font-bold">${results.riskAmount.toLocaleString()}</div>
         </div>
       </div>
 
@@ -114,19 +114,19 @@ export default function MobileRiskManager() {
 
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-white/5 rounded-xl p-3 text-center">
-          <div className="text-zinc-500 text-[10px] mb-1">Position Size</div>
+          <div className="text-[var(--ip-text-2)] text-[10px] mb-1">Position Size</div>
           <div className="text-green-400 font-bold text-lg">${results.positionSize.toLocaleString()}</div>
         </div>
         <div className="bg-white/5 rounded-xl p-3 text-center">
-          <div className="text-zinc-500 text-[10px] mb-1">Margin Required</div>
+          <div className="text-[var(--ip-text-2)] text-[10px] mb-1">Margin Required</div>
           <div className="text-blue-400 font-bold text-lg">${results.marginRequired.toLocaleString()}</div>
         </div>
         <div className="bg-white/5 rounded-xl p-3 text-center">
-          <div className="text-zinc-500 text-[10px] mb-1">Risk %</div>
+          <div className="text-[var(--ip-text-2)] text-[10px] mb-1">Risk %</div>
           <div className="text-red-400 font-bold text-lg">{riskPercentage}%</div>
         </div>
         <div className="bg-white/5 rounded-xl p-3 text-center">
-          <div className="text-zinc-500 text-[10px] mb-1">Margin Usage</div>
+          <div className="text-[var(--ip-text-2)] text-[10px] mb-1">Margin Usage</div>
           <div className="text-yellow-400 font-bold text-lg">{results.marginPercentage}%</div>
         </div>
       </div>

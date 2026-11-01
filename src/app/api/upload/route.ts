@@ -1,3 +1,4 @@
+import {sessionSecret} from '@/lib/session-secret';
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
@@ -8,7 +9,7 @@ async function getAdminFromToken(request: NextRequest) {
   if (!token) return null;
   
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "development-secret-key-12345") as { userId: string; role: string };
+    const decoded = jwt.verify(token, sessionSecret()) as { userId: string; role: string };
     if (decoded.role !== 'ADMIN') return null;
     return decoded;
   } catch { return null; }

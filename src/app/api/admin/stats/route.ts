@@ -1,3 +1,4 @@
+import {sessionSecret} from '@/lib/session-secret';
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
@@ -9,7 +10,7 @@ async function getAdminFromToken(request: NextRequest) {
   if (!token) return null;
   
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "development-secret-key-12345") as { userId: string };
+    const decoded = jwt.verify(token, sessionSecret()) as { userId: string };
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: { id: true, role: true }
@@ -67,10 +68,22 @@ export async function GET(request: NextRequest) {
       })
     ]);
 
+    const [activeBrokers, activePropFirms, reportedReviews, publishedReviews, publishedArticles, draftArticles, newUsers7Days] = await Promise.all([
+      prisma.broker.count({where:{status:'ACTIVE'}}),
+      prisma.propFirm.count({where:{status:'ACTIVE'}}),
+      prisma.review.count({where:{reportCount:{gt:0}}}),
+      prisma.review.count({where:{status:'APPROVED',isHidden:false}}),
+      prisma.blogPost.count({where:{status:'PUBLISHED'}}),
+      prisma.blogPost.count({where:{status:'DRAFT'}}),
+      prisma.user.count({where:{createdAt:{gte:new Date(Date.now()-7*86400000)}}})
+    ]);
     return NextResponse.json({
       success: true,
       stats: {
         users: totalUsers,
+        activeProviders: activeBrokers + activePropFirms,
+        reportedReviews, publishedReviews, newUsers7Days,
+        content: {published:publishedArticles,drafts:draftArticles},
         reviews: { total: totalReviews, pending: pendingReviews, breakdown: reviewStats },
         incidents: { total: totalIncidents, pending: pendingIncidents, breakdown: incidentStats },
         brokers: totalBrokers,

@@ -1,0 +1,3 @@
+import ProviderDirectory from '@/components/research/ProviderDirectory';
+import Link from 'next/link';
+export default async function SearchPage({searchParams}:{searchParams:Promise<{q?:string;type?:string}>}){const q=await searchParams;const type=q.type==='prop-firms'?'prop-firms':'brokers';return <><div className="v2-container v2-search-types"><Link className="v2-button" href={`/search?q=${encodeURIComponent(q.q||'')}&type=brokers`}>Search brokers</Link><Link className="v2-button" href={`/search?q=${encodeURIComponent(q.q||'')}&type=prop-firms`}>Search prop firms</Link></div><ProviderDirectory key={`${type}-${q.q}`} type={type} initialSearch={q.q||''}/></>}

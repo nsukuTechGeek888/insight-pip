@@ -1,3 +1,4 @@
+import {requestUser} from '@/lib/request-user';
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
@@ -25,7 +26,9 @@ export async function GET(
       }
     });
 
-    if (!incident) {
+    const viewer=await requestUser(request);
+    const privileged=viewer?.role==='ADMIN'||viewer?.id===incident?.userId;
+    if (!incident || (!privileged && (incident.status!=='APPROVED'||incident.visibility!=='PUBLIC'))) {
       console.log(`❌ Incident not found: ${id}`);
       return NextResponse.json(
         { error: 'Incident not found' },
@@ -40,12 +43,12 @@ export async function GET(
     if (incident.entityType === 'broker') {
       entity = await prisma.broker.findUnique({
         where: { id: incident.entityId },
-        select: { id: true, name: true, slug: true, logo: true }
+        select: { id: true, name: true, slug: true, logo: true, incidentTrends: true }
       });
     } else {
       entity = await prisma.propFirm.findUnique({
         where: { id: incident.entityId },
-        select: { id: true, name: true, slug: true, logo: true }
+        select: { id: true, name: true, slug: true, logo: true, incidentTrends: true }
       });
     }
 
@@ -87,6 +90,9 @@ export async function GET(
       success: true,
       incident: {
         ...incident,
+        proofUrls: privileged ? incident.proofUrls : [],
+        auditLog: privileged ? incident.auditLog : null,
+        moderationNote: privileged ? incident.moderationNote : null,
         displayStatus,
         proofProvided: incident.proofUrls?.length > 0,
         confirmVsDispute: incident.confirmations - incident.disputes,

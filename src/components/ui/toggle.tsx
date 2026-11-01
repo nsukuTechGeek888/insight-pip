@@ -34,8 +34,8 @@ export function Toggle({
         className={cn(
           "w-10 h-6 rounded-full transition-colors",
           pressed
-            ? "bg-gradient-to-r from-pink-500 to-purple-600"
-            : "bg-zinc-800"
+            ? "bg-gradient-to-r from-pink-500 to-blue-600"
+            : "bg-[var(--ip-surface-2)]"
         )}
       />
       {/* Sliding circle */}

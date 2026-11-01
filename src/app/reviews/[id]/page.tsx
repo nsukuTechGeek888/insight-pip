@@ -40,8 +40,8 @@ interface Props {
 }
 
 // Helper to get region from cookies
-function getRegionFromCookies(): string {
-  const cookieStore = cookies();
+async function getRegionFromCookies(): Promise<string> {
+  const cookieStore = await cookies();
   const regionCookie = cookieStore.get('user_region');
   if (regionCookie?.value) {
     return regionCookie.value;
@@ -57,7 +57,7 @@ export default async function ReviewDetailPage({ params }: Props) {
   const reviewId = resolvedParams.id;
 
   // Get region from cookies
-  const region = getRegionFromCookies();
+  const region = await getRegionFromCookies();
   const regionInfo = REGION_DISPLAY[region] || REGION_DISPLAY['GLOBAL'];
 
   // Fetch the review for metadata
@@ -96,16 +96,7 @@ export default async function ReviewDetailPage({ params }: Props) {
         publishedTime={review?.createdAt}
         author={review?.user?.name}
         keywords={`${review?.entityName || 'Trading'} review, ${review?.entityType || 'broker'} review, trader review ${regionLabel}, ${regionLabel} trading review`}
-        locale={region === 'SA' ? 'en-ZA' : region === 'UK' ? 'en-GB' : 'en-US'}
-        canonicalUrl={`${siteUrl}/reviews/${reviewId}`}
-        openGraph={{
-          title: review ? `${review.title} - Trading Review in ${regionLabel}` : `Trading Review in ${regionLabel}`,
-          description: review?.content?.substring(0, 160) || `Read real trader reviews for brokers and prop firms in ${regionLabel}.`,
-          url: `${siteUrl}/reviews/${reviewId}`,
-          type: 'article',
-          siteName: 'InsightPip',
-          locale: region === 'SA' ? 'en_ZA' : region === 'UK' ? 'en_GB' : 'en_US',
-        }}
+        url={`${siteUrl}/reviews/${reviewId}`}
       />
       <BreadcrumbSchema items={breadcrumbItems} />
       
@@ -133,9 +124,9 @@ export default async function ReviewDetailPage({ params }: Props) {
 
       {/* Render appropriate component - pass reviewId as prop */}
       {isMobile ? (
-        <MobileReviewDetail reviewId={reviewId} />
+        <MobileReviewDetail />
       ) : (
-        <DesktopReviewDetail reviewId={reviewId} />
+        <DesktopReviewDetail />
       )}
     </>
   );

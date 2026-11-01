@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 // GET /api/prop-firms/[id]/reviews - Get all reviews for a specific prop firm
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { searchParams } = new URL(request.url);
@@ -14,7 +14,7 @@ export async function GET(
     const rating = searchParams.get('rating'); // filter by rating
 
     const skip = (page - 1) * limit;
-    const propFirmId = parseInt(params.id);
+    const propFirmId = parseInt((await params).id);
 
     // Check if prop firm exists
     const propFirm = await prisma.propFirm.findUnique({
@@ -77,7 +77,7 @@ export async function GET(
           },
           _count: {
             select: {
-              helpfulVotes: true,
+              votes: true,
               replies: true,
             }
           }

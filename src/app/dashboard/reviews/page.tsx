@@ -1,10 +1,10 @@
 // app/dashboard/reviews/page.tsx - Routing page
 import { headers } from 'next/headers';
 import MobileMyReviews from '@/components/dashboard/MobileReviews';
-import DesktopMyReviews from '@/app/dashboard/DesktopReviews';
+import DesktopMyReviews from './DesktopReviews';
 
-export default function MyReviewsPage() {
-  const headersList = headers();
+export default async function MyReviewsPage() {
+  const headersList = await headers();
   const userAgent = headersList.get('user-agent') || '';
   const isMobile = /Mobile|Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
 

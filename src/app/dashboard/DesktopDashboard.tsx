@@ -15,8 +15,8 @@ import { useUser } from '@/contexts/UserContext';
 
 const generateGradient = (name: string) => {
   const gradients = [
-    "from-pink-500 to-purple-500",
-    "from-blue-500 to-purple-500",
+    "from-pink-500 to-blue-500",
+    "from-blue-500 to-blue-500",
     "from-green-500 to-blue-500",
     "from-yellow-500 to-orange-500",
     "from-red-500 to-pink-500",
@@ -34,15 +34,15 @@ function StatCard({ title, value, icon: Icon, color, onClick }: any) {
       onClick={onClick}
       className="relative group cursor-pointer"
     >
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500/30 to-pink-500/30 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500" />
-      <div className="relative bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl p-5 border border-zinc-800 group-hover:border-purple-500/50 transition-all">
+      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/30 to-pink-500/30 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500" />
+      <div className="relative bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl p-5 border border-[var(--ip-border)] group-hover:border-blue-500/50 transition-all">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-sm text-zinc-500 mb-1">{title}</p>
-            <p className="text-3xl font-bold text-white">{value !== undefined && value !== null ? value : '0'}</p>
+            <p className="text-sm text-[var(--ip-text-2)] mb-1">{title}</p>
+            <p className="text-3xl font-bold text-[var(--ip-text)]">{value !== undefined && value !== null ? value : '0'}</p>
           </div>
           <div className={`p-3 rounded-xl bg-gradient-to-br ${color} bg-opacity-10`}>
-            <Icon size={20} className="text-white" />
+            <Icon size={20} className="text-[var(--ip-text)]" />
           </div>
         </div>
       </div>
@@ -72,15 +72,15 @@ function ActivityItem({ activity, type }: { activity: any; type: 'review' | 'inc
   return (
     <motion.div
       whileHover={{ x: 4 }}
-      className="flex items-center gap-4 p-4 bg-zinc-800/30 rounded-xl border border-zinc-800 hover:border-purple-500/30 transition-all cursor-pointer group"
+      className="flex items-center gap-4 p-4 bg-[var(--ip-surface-2)] rounded-xl border border-[var(--ip-border)] hover:border-blue-500/30 transition-all cursor-pointer group"
       onClick={handleClick}
     >
-      <div className={`p-2 rounded-lg ${type === 'review' ? 'bg-purple-500/20' : 'bg-orange-500/20'} group-hover:scale-110 transition-transform`}>
-        {type === 'review' ? <Star size={16} className="text-purple-400" /> : <AlertTriangle size={16} className="text-orange-400" />}
+      <div className={`p-2 rounded-lg ${type === 'review' ? 'bg-blue-500/20' : 'bg-orange-500/20'} group-hover:scale-110 transition-transform`}>
+        {type === 'review' ? <Star size={16} className="text-blue-400" /> : <AlertTriangle size={16} className="text-orange-400" />}
       </div>
       <div className="flex-1">
-        <p className="text-white text-sm font-medium line-clamp-1">{activity.title || 'Untitled'}</p>
-        <div className="flex items-center gap-3 text-xs text-zinc-500 mt-1 flex-wrap">
+        <p className="text-[var(--ip-text)] text-sm font-medium line-clamp-1">{activity.title || 'Untitled'}</p>
+        <div className="flex items-center gap-3 text-xs text-[var(--ip-text-2)] mt-1 flex-wrap">
           <span className="flex items-center gap-1">
             <Building2 size={10} />
             {getEntityName()}
@@ -110,7 +110,7 @@ function ActivityItem({ activity, type }: { activity: any; type: 'review' | 'inc
           )}
         </div>
       </div>
-      <ArrowRight size={16} className="text-zinc-500 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
+      <ArrowRight size={16} className="text-[var(--ip-text-2)] group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
     </motion.div>
   );
 }
@@ -120,11 +120,11 @@ function Pagination({ currentPage, totalPages, onPageChange }: { currentPage: nu
   if (totalPages <= 1) return null;
   
   return (
-    <div className="flex justify-center gap-2 mt-4 pt-4 border-t border-zinc-800">
+    <div className="flex justify-center gap-2 mt-4 pt-4 border-t border-[var(--ip-border)]">
       <button
         disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
-        className="px-3 py-1.5 text-sm text-zinc-400 disabled:opacity-50 hover:text-white border border-zinc-700 rounded-lg transition-colors"
+        className="px-3 py-1.5 text-sm text-[var(--ip-text-2)] disabled:opacity-50 hover:text-[var(--ip-text)] border border-[var(--ip-border)] rounded-lg transition-colors"
       >
         Previous
       </button>
@@ -142,8 +142,8 @@ function Pagination({ currentPage, totalPages, onPageChange }: { currentPage: nu
               onClick={() => onPageChange(pageNum)}
               className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
                 pageNum === currentPage
-                  ? 'bg-purple-600 text-white'
-                  : 'text-zinc-400 hover:text-white border border-zinc-700'
+                  ? 'bg-blue-600 text-[var(--ip-text)]'
+                  : 'text-[var(--ip-text-2)] hover:text-[var(--ip-text)] border border-[var(--ip-border)]'
               }`}
             >
               {pageNum}
@@ -154,7 +154,7 @@ function Pagination({ currentPage, totalPages, onPageChange }: { currentPage: nu
       <button
         disabled={currentPage === totalPages}
         onClick={() => onPageChange(currentPage + 1)}
-        className="px-3 py-1.5 text-sm text-zinc-400 disabled:opacity-50 hover:text-white border border-zinc-700 rounded-lg transition-colors"
+        className="px-3 py-1.5 text-sm text-[var(--ip-text-2)] disabled:opacity-50 hover:text-[var(--ip-text)] border border-[var(--ip-border)] rounded-lg transition-colors"
       >
         Next
       </button>
@@ -256,10 +256,10 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
-          <p className="mt-4 text-zinc-500">Loading your dashboard...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-[var(--ip-text-2)]">Loading your dashboard...</p>
         </div>
       </div>
     );
@@ -278,10 +278,10 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black pt-20">
+    <div className="min-h-screen bg-[var(--ip-bg)] pt-20">
       {/* Animated Background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-20 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-20 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
@@ -292,16 +292,16 @@ export default function DashboardPage() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Sparkles size={18} className="text-purple-400" />
-                <span className="text-sm text-purple-400 font-medium">Welcome back</span>
+                <Sparkles size={18} className="text-blue-400" />
+                <span className="text-sm text-blue-400 font-medium">Welcome back</span>
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-white">
+              <h1 className="text-3xl md:text-4xl font-bold text-[var(--ip-text)]">
                 {profile?.name || user.name || 'Trader'}
               </h1>
-              <p className="text-zinc-400 mt-1 flex items-center gap-2">
+              <p className="text-[var(--ip-text-2)] mt-1 flex items-center gap-2">
                 {user.email}
                 <span className="w-1 h-1 bg-zinc-600 rounded-full" />
-                <span className="text-xs text-zinc-500">
+                <span className="text-xs text-[var(--ip-text-2)]">
                   Member since {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Recently'}
                 </span>
               </p>
@@ -309,13 +309,13 @@ export default function DashboardPage() {
             <div className="flex gap-3">
               <Link
                 href="/dashboard/profile"
-                className="px-4 py-2 rounded-lg bg-zinc-800/50 text-zinc-300 text-sm hover:bg-zinc-700 transition-colors flex items-center gap-2"
+                className="px-4 py-2 rounded-lg bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] text-sm hover:bg-zinc-700 transition-colors flex items-center gap-2"
               >
                 <User size={14} /> Profile
               </Link>
               <Link
                 href="/reviews"
-                className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm hover:from-purple-500 hover:to-pink-500 transition-all flex items-center gap-2 shadow-lg hover:shadow-purple-500/25"
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] text-sm hover:from-blue-500 hover:to-pink-500 transition-all flex items-center gap-2 shadow-lg hover:shadow-blue-500/25"
               >
                 <MessageCircle size={14} /> Write Review
               </Link>
@@ -328,7 +328,7 @@ export default function DashboardPage() {
               title="Reviews Written" 
               value={stats.totalReviews} 
               icon={MessageCircle} 
-              color="from-purple-500 to-pink-500"
+              color="from-blue-500 to-pink-500"
             />
             <StatCard 
               title="Incidents Reported" 
@@ -357,15 +357,15 @@ export default function DashboardPage() {
               {/* Quick Actions */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Link href="/dashboard/reviews" className="group">
-                  <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl p-4 border border-purple-500/20 hover:border-purple-500/50 transition-all">
+                  <div className="bg-gradient-to-r from-blue-500/10 to-pink-500/10 rounded-xl p-4 border border-blue-500/20 hover:border-blue-500/50 transition-all">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Star size={20} className="text-purple-400" />
-                        <span className="text-white font-medium">My Reviews</span>
+                        <Star size={20} className="text-blue-400" />
+                        <span className="text-[var(--ip-text)] font-medium">My Reviews</span>
                       </div>
-                      <ArrowRight size={16} className="text-purple-400 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight size={16} className="text-blue-400 group-hover:translate-x-1 transition-transform" />
                     </div>
-                    <p className="text-xs text-zinc-500 mt-2">Manage your {stats.totalReviews} review{stats.totalReviews !== 1 ? 's' : ''}</p>
+                    <p className="text-xs text-[var(--ip-text-2)] mt-2">Manage your {stats.totalReviews} review{stats.totalReviews !== 1 ? 's' : ''}</p>
                   </div>
                 </Link>
                 <Link href="/dashboard/incidents" className="group">
@@ -373,25 +373,25 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <AlertTriangle size={20} className="text-orange-400" />
-                        <span className="text-white font-medium">My Incidents</span>
+                        <span className="text-[var(--ip-text)] font-medium">My Incidents</span>
                       </div>
                       <ArrowRight size={16} className="text-orange-400 group-hover:translate-x-1 transition-transform" />
                     </div>
-                    <p className="text-xs text-zinc-500 mt-2">Track your {stats.totalIncidents} incident{stats.totalIncidents !== 1 ? 's' : ''}</p>
+                    <p className="text-xs text-[var(--ip-text-2)] mt-2">Track your {stats.totalIncidents} incident{stats.totalIncidents !== 1 ? 's' : ''}</p>
                   </div>
                 </Link>
               </div>
 
               {/* Recent Activity with Tabs and Pagination - FIXED with separate rendering */}
-              <div className="bg-zinc-900/30 rounded-2xl border border-zinc-800 overflow-hidden">
+              <div className="bg-[var(--ip-surface)] rounded-2xl border border-[var(--ip-border)] overflow-hidden">
                 {/* Tabs */}
-                <div className="flex border-b border-zinc-800">
+                <div className="flex border-b border-[var(--ip-border)]">
                   <button
                     onClick={() => setActiveTab('reviews')}
                     className={`flex-1 px-4 py-3 text-sm font-medium transition-all ${
                       activeTab === 'reviews'
-                        ? 'text-purple-400 border-b-2 border-purple-400 bg-purple-500/5'
-                        : 'text-zinc-500 hover:text-zinc-300'
+                        ? 'text-blue-400 border-b-2 border-blue-400 bg-blue-500/5'
+                        : 'text-[var(--ip-text-2)] hover:text-[var(--ip-text-2)]'
                     }`}
                   >
                     <div className="flex items-center justify-center gap-2">
@@ -404,7 +404,7 @@ export default function DashboardPage() {
                     className={`flex-1 px-4 py-3 text-sm font-medium transition-all ${
                       activeTab === 'incidents'
                         ? 'text-orange-400 border-b-2 border-orange-400 bg-orange-500/5'
-                        : 'text-zinc-500 hover:text-zinc-300'
+                        : 'text-[var(--ip-text-2)] hover:text-[var(--ip-text-2)]'
                     }`}
                   >
                     <div className="flex items-center justify-center gap-2">
@@ -420,8 +420,8 @@ export default function DashboardPage() {
                     {paginatedReviews.length === 0 ? (
                       <div className="p-8 text-center">
                         <Star size={32} className="text-zinc-600 mx-auto mb-3" />
-                        <p className="text-zinc-500 text-sm">No reviews yet</p>
-                        <Link href="/reviews" className="text-purple-400 text-sm mt-2 inline-block hover:underline">Write your first review →</Link>
+                        <p className="text-[var(--ip-text-2)] text-sm">No reviews yet</p>
+                        <Link href="/reviews" className="text-blue-400 text-sm mt-2 inline-block hover:underline">Write your first review →</Link>
                       </div>
                     ) : (
                       <div className="divide-y divide-zinc-800">
@@ -436,7 +436,7 @@ export default function DashboardPage() {
                     {paginatedIncidents.length === 0 ? (
                       <div className="p-8 text-center">
                         <AlertTriangle size={32} className="text-zinc-600 mx-auto mb-3" />
-                        <p className="text-zinc-500 text-sm">No incidents reported yet</p>
+                        <p className="text-[var(--ip-text-2)] text-sm">No incidents reported yet</p>
                         <Link href="/reviews?tab=incidents" className="text-orange-400 text-sm mt-2 inline-block hover:underline">Report an incident →</Link>
                       </div>
                     ) : (
@@ -458,67 +458,67 @@ export default function DashboardPage() {
             <div className="space-y-6">
               {/* Trust Score Breakdown */}
               {stats.avgTrustScore > 0 && (
-                <div className="bg-gradient-to-r from-purple-500/5 to-pink-500/5 rounded-2xl border border-purple-500/20 p-5">
+                <div className="bg-gradient-to-r from-blue-500/5 to-pink-500/5 rounded-2xl border border-blue-500/20 p-5">
                   <div className="flex items-center gap-2 mb-3">
-                    <Shield size={16} className="text-purple-400" />
-                    <span className="text-sm font-medium text-white">Trust Score</span>
+                    <Shield size={16} className="text-blue-400" />
+                    <span className="text-sm font-medium text-[var(--ip-text)]">Trust Score</span>
                   </div>
-                  <div className="text-3xl font-bold text-white mb-2">{stats.avgTrustScore}</div>
-                  <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" style={{ width: `${stats.avgTrustScore}%` }} />
+                  <div className="text-3xl font-bold text-[var(--ip-text)] mb-2">{stats.avgTrustScore}</div>
+                  <div className="h-2 bg-[var(--ip-surface-2)] rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-blue-500 to-pink-500 rounded-full" style={{ width: `${stats.avgTrustScore}%` }} />
                   </div>
-                  <p className="text-xs text-zinc-500 mt-3 text-center">
+                  <p className="text-xs text-[var(--ip-text-2)] mt-3 text-center">
                     Based on your {stats.approvedReviews} approved review{stats.approvedReviews !== 1 ? 's' : ''}
                   </p>
                 </div>
               )}
 
               {/* Review Stats Summary */}
-              <div className="bg-zinc-900/30 rounded-2xl border border-zinc-800 p-5">
+              <div className="bg-[var(--ip-surface)] rounded-2xl border border-[var(--ip-border)] p-5">
                 <div className="flex items-center gap-2 mb-3">
-                  <BarChart3 size={16} className="text-purple-400" />
-                  <span className="text-sm font-medium text-white">Review Summary</span>
+                  <BarChart3 size={16} className="text-blue-400" />
+                  <span className="text-sm font-medium text-[var(--ip-text)]">Review Summary</span>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-zinc-400">Approved</span>
+                    <span className="text-[var(--ip-text-2)]">Approved</span>
                     <span className="text-green-400">{stats.approvedReviews}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-zinc-400">Pending</span>
+                    <span className="text-[var(--ip-text-2)]">Pending</span>
                     <span className="text-yellow-400">{stats.pendingReviews}</span>
                   </div>
                 </div>
               </div>
 
               {/* Incident Stats Summary */}
-              <div className="bg-zinc-900/30 rounded-2xl border border-zinc-800 p-5">
+              <div className="bg-[var(--ip-surface)] rounded-2xl border border-[var(--ip-border)] p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <AlertTriangle size={16} className="text-orange-400" />
-                  <span className="text-sm font-medium text-white">Incident Summary</span>
+                  <span className="text-sm font-medium text-[var(--ip-text)]">Incident Summary</span>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-zinc-400">Resolved</span>
+                    <span className="text-[var(--ip-text-2)]">Resolved</span>
                     <span className="text-green-400">{stats.resolvedIncidents}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-zinc-400">Pending</span>
+                    <span className="text-[var(--ip-text-2)]">Pending</span>
                     <span className="text-yellow-400">{stats.pendingIncidents}</span>
                   </div>
                 </div>
               </div>
 
               {/* Call to Action */}
-              <div className="bg-gradient-to-r from-purple-600/10 via-pink-600/10 to-orange-600/10 rounded-2xl border border-purple-500/20 p-5 text-center">
-                <Rocket size={24} className="text-purple-400 mx-auto mb-2" />
-                <p className="text-white text-sm font-medium mb-1">Help the community grow</p>
-                <p className="text-xs text-zinc-400 mb-3">Your voice matters. Share your trading experience.</p>
+              <div className="bg-gradient-to-r from-blue-600/10 via-pink-600/10 to-orange-600/10 rounded-2xl border border-blue-500/20 p-5 text-center">
+                <Rocket size={24} className="text-blue-400 mx-auto mb-2" />
+                <p className="text-[var(--ip-text)] text-sm font-medium mb-1">Help the community grow</p>
+                <p className="text-xs text-[var(--ip-text-2)] mb-3">Your voice matters. Share your trading experience.</p>
                 <div className="flex gap-2 justify-center">
-                  <Link href="/reviews" className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all">
+                  <Link href="/reviews" className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] text-xs rounded-lg hover:from-blue-500 hover:to-pink-500 transition-all">
                     Write Review
                   </Link>
-                  <Link href="/reviews?tab=incidents" className="px-3 py-1.5 bg-zinc-800 text-zinc-300 text-xs rounded-lg hover:bg-zinc-700 transition-all">
+                  <Link href="/reviews?tab=incidents" className="px-3 py-1.5 bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] text-xs rounded-lg hover:bg-zinc-700 transition-all">
                     Report Incident
                   </Link>
                 </div>
@@ -529,7 +529,7 @@ export default function DashboardPage() {
       </section>
 
       {/* Footer */}
-      <div className="border-t border-zinc-800/50 py-6 px-6 mt-8">
+      <div className="border-t border-[var(--ip-border)] py-6 px-6 mt-8">
         <div className="max-w-7xl mx-auto text-center">
           <p className="text-xs text-zinc-600">Your contributions help keep the trading community informed and safe.</p>
         </div>

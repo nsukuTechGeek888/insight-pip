@@ -1,6 +1,7 @@
+import {sessionSecret} from '@/lib/session-secret';
 // app/api/reviews/[id]/replies/route.ts - WORKING VERSION
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, ReplyType } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
@@ -11,7 +12,7 @@ async function getUserFromToken(request: NextRequest) {
   const token = request.cookies.get('auth_token')?.value;
   if (!token) return null;
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "development-secret-key-12345") as { userId: string };
+    const decoded = jwt.verify(token, sessionSecret()) as { userId: string };
     return await prisma.user.findUnique({ where: { id: decoded.userId } });
   } catch { return null; }
 }
@@ -116,7 +117,7 @@ export async function POST(
     // Determine reply type
     let brokerId = null;
     let propFirmId = null;
-    let replyType = 'USER';
+    let replyType: ReplyType = 'USER';
 
     if (review.brokerId) {
       const broker = await prisma.broker.findUnique({ where: { id: review.brokerId } });

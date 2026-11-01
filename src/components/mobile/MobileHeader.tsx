@@ -1,4 +1,4 @@
-﻿// src/components/mobile/MobileHeader.tsx
+// src/components/mobile/MobileHeader.tsx
 // PHASE 1 REDESIGN — Dark navy branded header with hardcoded colors
 // (bypasses CSS-variable issues in Tailwind v4)
 
@@ -165,7 +165,7 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
               className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
               style={{ backgroundColor: T.blue }}
             >
-              <span className="text-white font-bold text-[13px] tracking-tight">IP</span>
+              <span className="text-[var(--ip-text)] font-bold text-[13px] tracking-tight">IP</span>
             </div>
 
             <div className="flex flex-col leading-none min-w-0">
@@ -396,7 +396,7 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
                   className="w-8 h-8 rounded-lg flex items-center justify-center"
                   style={{ backgroundColor: T.blue }}
                 >
-                  <span className="text-white font-bold text-[13px] tracking-tight">IP</span>
+                  <span className="text-[var(--ip-text)] font-bold text-[13px] tracking-tight">IP</span>
                 </div>
                 <span className="font-semibold text-[17px] tracking-[-0.01em]" style={{ color: T.text }}>
                   Insight<span style={{ color: T.blue }}>Pip</span>
@@ -426,7 +426,7 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
                   <>
                     <div className="flex items-center gap-3 mb-3">
                       <div
-                        className="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-[17px] flex-shrink-0"
+                        className="w-12 h-12 rounded-full flex items-center justify-center text-[var(--ip-text)] font-semibold text-[17px] flex-shrink-0"
                         style={{ backgroundColor: T.blue }}
                       >
                         {getUserInitials()}
@@ -444,7 +444,7 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
                       <Link
                         href="/dashboard"
                         onClick={() => setMenuOpen(false)}
-                        className="flex-1 px-4 py-2.5 rounded-xl text-[14px] font-medium text-center text-white active:scale-[0.98] transition-transform"
+                        className="flex-1 px-4 py-2.5 rounded-xl text-[14px] font-medium text-center text-[var(--ip-text)] active:scale-[0.98] transition-transform"
                         style={{ backgroundColor: T.blue }}
                       >
                         Dashboard
@@ -484,7 +484,7 @@ export default function MobileHeader({ title, showSearch = false }: MobileHeader
                       <Link
                         href="/signup"
                         onClick={() => setMenuOpen(false)}
-                        className="px-4 py-2.5 rounded-xl text-center font-medium text-[14px] text-white active:scale-[0.98] transition-transform"
+                        className="px-4 py-2.5 rounded-xl text-center font-medium text-[14px] text-[var(--ip-text)] active:scale-[0.98] transition-transform"
                         style={{ backgroundColor: T.blue }}
                       >
                         Sign Up Free

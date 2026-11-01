@@ -224,20 +224,20 @@ export default function MobileSignUpPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[var(--ip-bg)] text-[var(--ip-text)]">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-black/80 backdrop-blur-lg border-b border-zinc-800 px-4 py-3">
+      <div className="sticky top-0 z-40 bg-black/80 backdrop-blur-lg border-b border-[var(--ip-border)] px-4 py-3">
         <div className="flex items-center gap-4">
           <button 
             onClick={() => router.back()}
-            className="p-2 hover:bg-zinc-800 rounded-lg transition-colors"
+            className="p-2 hover:bg-[var(--ip-surface-2)] rounded-lg transition-colors"
             disabled={isLoading}
           >
-            <ArrowLeft size={20} className="text-white" />
+            <ArrowLeft size={20} className="text-[var(--ip-text)]" />
           </button>
           <div>
-            <h1 className="text-lg font-bold text-white">Create Account</h1>
-            <p className="text-zinc-400 text-sm">Join InsightPip today</p>
+            <h1 className="text-lg font-bold text-[var(--ip-text)]">Create Account</h1>
+            <p className="text-[var(--ip-text-2)] text-sm">Join InsightPip today</p>
           </div>
         </div>
       </div>
@@ -250,13 +250,13 @@ export default function MobileSignUpPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Zap size={24} className="text-white" />
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 via-blue-600 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Zap size={24} className="text-[var(--ip-text)]" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">
+          <h2 className="text-2xl font-bold text-[var(--ip-text)] mb-2">
             Start Your Journey
           </h2>
-          <p className="text-zinc-400">
+          <p className="text-[var(--ip-text-2)]">
             Create your account and unlock powerful trading tools
           </p>
         </motion.div>
@@ -268,17 +268,17 @@ export default function MobileSignUpPage() {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-3 gap-3 mb-6"
         >
-          <div className="bg-zinc-900 rounded-xl p-3 text-center border border-zinc-800">
-            <div className="text-white font-bold text-sm">10K+</div>
-            <div className="text-zinc-400 text-xs">Traders</div>
+          <div className="bg-[var(--ip-surface)] rounded-xl p-3 text-center border border-[var(--ip-border)]">
+            <div className="text-[var(--ip-text)] font-bold text-sm">10K+</div>
+            <div className="text-[var(--ip-text-2)] text-xs">Traders</div>
           </div>
-          <div className="bg-zinc-900 rounded-xl p-3 text-center border border-zinc-800">
-            <div className="text-white font-bold text-sm">50+</div>
-            <div className="text-zinc-400 text-xs">Platforms</div>
+          <div className="bg-[var(--ip-surface)] rounded-xl p-3 text-center border border-[var(--ip-border)]">
+            <div className="text-[var(--ip-text)] font-bold text-sm">50+</div>
+            <div className="text-[var(--ip-text-2)] text-xs">Platforms</div>
           </div>
-          <div className="bg-zinc-900 rounded-xl p-3 text-center border border-zinc-800">
-            <div className="text-white font-bold text-sm">4.8/5</div>
-            <div className="text-zinc-400 text-xs">Rating</div>
+          <div className="bg-[var(--ip-surface)] rounded-xl p-3 text-center border border-[var(--ip-border)]">
+            <div className="text-[var(--ip-text)] font-bold text-sm">4.8/5</div>
+            <div className="text-[var(--ip-text-2)] text-xs">Rating</div>
           </div>
         </motion.div>
 
@@ -287,7 +287,7 @@ export default function MobileSignUpPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800"
+          className="bg-[var(--ip-surface)] rounded-2xl p-6 border border-[var(--ip-border)]"
         >
           <AnimatePresence mode="wait">
             {submitted ? (
@@ -299,12 +299,12 @@ export default function MobileSignUpPage() {
                 className="text-center py-8"
               >
                 <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 className="text-white" size={32} />
+                  <CheckCircle2 className="text-[var(--ip-text)]" size={32} />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">
+                <h3 className="text-xl font-bold text-[var(--ip-text)] mb-2">
                   Welcome to Insight Pip!
                 </h3>
-                <p className="text-zinc-300 mb-4">
+                <p className="text-[var(--ip-text-2)] mb-4">
                   Your account has been created successfully.
                 </p>
                 <div className="flex items-center justify-center gap-2 text-blue-400">
@@ -338,7 +338,7 @@ export default function MobileSignUpPage() {
 
                 {/* Full Name */}
                 <div>
-                  <label className="block mb-2 font-medium text-white flex items-center gap-2">
+                  <label className="block mb-2 font-medium text-[var(--ip-text)] flex items-center gap-2">
                     <User className="w-4 h-4 text-blue-400" />
                     Full Name
                   </label>
@@ -349,7 +349,7 @@ export default function MobileSignUpPage() {
                     onChange={handleChange}
                     placeholder="Enter your full name"
                     disabled={isLoading}
-                    className={`w-full bg-zinc-800 border-zinc-700 text-white rounded-xl h-12 ${
+                    className={`w-full bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] rounded-xl h-12 ${
                       errors.fullName ? 'border-red-500' : 'hover:border-zinc-600'
                     } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   />
@@ -367,8 +367,8 @@ export default function MobileSignUpPage() {
 
                 {/* Email */}
                 <div>
-                  <label className="block mb-2 font-medium text-white flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-purple-400" />
+                  <label className="block mb-2 font-medium text-[var(--ip-text)] flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-blue-400" />
                     Email Address
                   </label>
                   <Input
@@ -378,7 +378,7 @@ export default function MobileSignUpPage() {
                     onChange={handleChange}
                     placeholder="you@example.com"
                     disabled={isLoading}
-                    className={`w-full bg-zinc-800 border-zinc-700 text-white rounded-xl h-12 ${
+                    className={`w-full bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] rounded-xl h-12 ${
                       errors.email ? 'border-red-500' : 'hover:border-zinc-600'
                     } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   />
@@ -396,7 +396,7 @@ export default function MobileSignUpPage() {
 
                 {/* Password */}
                 <div>
-                  <label className="block mb-2 font-medium text-white flex items-center gap-2">
+                  <label className="block mb-2 font-medium text-[var(--ip-text)] flex items-center gap-2">
                     <Lock className="w-4 h-4 text-green-400" />
                     Password
                   </label>
@@ -408,7 +408,7 @@ export default function MobileSignUpPage() {
                       onChange={handleChange}
                       placeholder="Create a strong password"
                       disabled={isLoading}
-                      className={`w-full bg-zinc-800 border-zinc-700 text-white rounded-xl h-12 pr-10 ${
+                      className={`w-full bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] rounded-xl h-12 pr-10 ${
                         errors.password ? 'border-red-500' : 'hover:border-zinc-600'
                       } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     />
@@ -416,7 +416,7 @@ export default function MobileSignUpPage() {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       disabled={isLoading}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-400 hover:text-white transition-colors disabled:opacity-50"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors disabled:opacity-50"
                     >
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
@@ -430,7 +430,7 @@ export default function MobileSignUpPage() {
                       className="mt-3"
                     >
                       <div className="flex items-center justify-between text-sm mb-2">
-                        <span className="text-zinc-400">Password strength</span>
+                        <span className="text-[var(--ip-text-2)]">Password strength</span>
                         <span className={`font-medium ${
                           passwordStrength.strength >= 4 ? 'text-green-400' :
                           passwordStrength.strength >= 3 ? 'text-blue-400' :
@@ -463,7 +463,7 @@ export default function MobileSignUpPage() {
 
                 {/* Confirm Password */}
                 <div>
-                  <label className="block mb-2 font-medium text-white">
+                  <label className="block mb-2 font-medium text-[var(--ip-text)]">
                     Confirm Password
                   </label>
                   <div className="relative">
@@ -474,7 +474,7 @@ export default function MobileSignUpPage() {
                       onChange={handleChange}
                       placeholder="Confirm your password"
                       disabled={isLoading}
-                      className={`w-full bg-zinc-800 border-zinc-700 text-white rounded-xl h-12 pr-10 ${
+                      className={`w-full bg-[var(--ip-surface-2)] border-[var(--ip-border)] text-[var(--ip-text)] rounded-xl h-12 pr-10 ${
                         errors.confirmPassword ? 'border-red-500' : 'hover:border-zinc-600'
                       } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     />
@@ -482,7 +482,7 @@ export default function MobileSignUpPage() {
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       disabled={isLoading}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-400 hover:text-white transition-colors disabled:opacity-50"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors disabled:opacity-50"
                     >
                       {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
@@ -500,20 +500,20 @@ export default function MobileSignUpPage() {
                 </div>
 
                 {/* Terms Agreement */}
-                <div className={`flex items-start gap-3 p-4 bg-zinc-800/50 rounded-xl ${isLoading ? 'opacity-50' : ''}`}>
+                <div className={`flex items-start gap-3 p-4 bg-[var(--ip-surface-2)] rounded-xl ${isLoading ? 'opacity-50' : ''}`}>
                   <input
                     type="checkbox"
                     required
                     disabled={isLoading}
-                    className="mt-1 w-4 h-4 text-purple-600 bg-zinc-700 border-zinc-600 rounded focus:ring-purple-500 focus:ring-2 disabled:opacity-50"
+                    className="mt-1 w-4 h-4 text-blue-600 bg-zinc-700 border-zinc-600 rounded focus:ring-blue-500 focus:ring-2 disabled:opacity-50"
                   />
-                  <div className="text-sm text-zinc-300">
+                  <div className="text-sm text-[var(--ip-text-2)]">
                     I agree to the{' '}
-                    <Link href="/terms" className="text-purple-400 hover:text-purple-300 underline">
+                    <Link href="/terms" className="text-blue-400 hover:text-blue-300 underline">
                       Terms of Service
                     </Link>{' '}
                     and{' '}
-                    <Link href="/privacy" className="text-purple-400 hover:text-purple-300 underline">
+                    <Link href="/privacy" className="text-blue-400 hover:text-blue-300 underline">
                       Privacy Policy
                     </Link>
                   </div>
@@ -523,7 +523,7 @@ export default function MobileSignUpPage() {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-4 rounded-xl text-base transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-gradient-to-r from-blue-600 to-pink-600 hover:from-blue-500 hover:to-pink-500 text-[var(--ip-text)] font-bold py-4 rounded-xl text-base transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <div className="flex items-center gap-2 justify-center">
@@ -536,11 +536,11 @@ export default function MobileSignUpPage() {
                 </Button>
 
                 {/* Login Link */}
-                <p className={`text-center text-zinc-400 text-sm ${isLoading ? 'opacity-50' : ''}`}>
+                <p className={`text-center text-[var(--ip-text-2)] text-sm ${isLoading ? 'opacity-50' : ''}`}>
                   Already have an account?{' '}
                   <Link 
                     href="/login" 
-                    className={`text-purple-400 font-semibold hover:text-purple-300 transition-colors ${isLoading ? 'pointer-events-none' : ''}`}
+                    className={`text-blue-400 font-semibold hover:text-blue-300 transition-colors ${isLoading ? 'pointer-events-none' : ''}`}
                   >
                     Sign in here
                   </Link>
@@ -557,7 +557,7 @@ export default function MobileSignUpPage() {
           transition={{ delay: 0.3 }}
           className="space-y-4 mt-6"
         >
-          <h3 className="text-lg font-bold text-white text-center">Why Join Insight Pip?</h3>
+          <h3 className="text-lg font-bold text-[var(--ip-text)] text-center">Why Join Insight Pip?</h3>
           
           <div className="space-y-3">
             {features.map((feature, index) => (
@@ -566,14 +566,14 @@ export default function MobileSignUpPage() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.4 + index * 0.1 }}
-                className="flex items-center gap-4 p-4 bg-zinc-900 rounded-xl border border-zinc-800"
+                className="flex items-center gap-4 p-4 bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)]"
               >
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <feature.icon className="text-white" size={20} />
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <feature.icon className="text-[var(--ip-text)]" size={20} />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-white text-sm">{feature.title}</h4>
-                  <p className="text-zinc-400 text-xs">{feature.description}</p>
+                  <h4 className="font-semibold text-[var(--ip-text)] text-sm">{feature.title}</h4>
+                  <p className="text-[var(--ip-text-2)] text-xs">{feature.description}</p>
                 </div>
               </motion.div>
             ))}
@@ -585,14 +585,14 @@ export default function MobileSignUpPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="bg-zinc-900 rounded-2xl p-4 border border-zinc-800 mt-6"
+          className="bg-[var(--ip-surface)] rounded-2xl p-4 border border-[var(--ip-border)] mt-6"
         >
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center text-[var(--ip-text)] font-bold text-sm">
               TS
             </div>
             <div>
-              <h4 className="font-semibold text-white text-sm">Thomas S.</h4>
+              <h4 className="font-semibold text-[var(--ip-text)] text-sm">Thomas S.</h4>
               <div className="flex items-center gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star key={star} className="w-3 h-3 text-yellow-400 fill-yellow-400" />
@@ -600,7 +600,7 @@ export default function MobileSignUpPage() {
               </div>
             </div>
           </div>
-          <p className="text-zinc-300 text-xs italic">
+          <p className="text-[var(--ip-text-2)] text-xs italic">
             "Insight Pip helped me compare prop firms and find the perfect match for my trading style. The community insights are invaluable!"
           </p>
         </motion.div>
@@ -614,9 +614,9 @@ export default function MobileSignUpPage() {
         >
           <div className="flex items-center justify-center gap-2 mb-2">
             <Shield className="w-5 h-5 text-green-400" />
-            <span className="text-white font-semibold text-sm">Bank-Level Security</span>
+            <span className="text-[var(--ip-text)] font-semibold text-sm">Bank-Level Security</span>
           </div>
-          <p className="text-zinc-400 text-xs">
+          <p className="text-[var(--ip-text-2)] text-xs">
             Your data is encrypted and protected with enterprise-grade security
           </p>
         </motion.div>

@@ -3,10 +3,10 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  ShieldCheck, AlertTriangle, Search, Globe, CheckCircle2, 
-  ExternalLink, ArrowRight, Eye, Sparkles, Shield, 
-  Building2, Users, Clock, Trophy, Filter, X, 
+import {
+  ShieldCheck, AlertTriangle, Search, Globe, CheckCircle2,
+  ExternalLink, ArrowRight, Eye, Sparkles, Shield,
+  Building2, Users, Clock, Trophy, Filter, X,
   Landmark, Scale, Banknote, BadgeCheck, Info,
   ChevronDown, ChevronUp, Star, Award, Lock,
   FileCheck, Building, MapPin, Calendar,
@@ -28,13 +28,13 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
     md: "w-12 h-12 rounded-xl text-base",
     lg: "w-14 h-14 rounded-xl text-lg"
   };
-  
+
   if (firm.logo) {
     return (
-      <div className={`${sizeClasses[size]} overflow-hidden bg-zinc-800 border border-zinc-700 flex-shrink-0 shadow-lg`}>
-        <img 
-          src={firm.logo} 
-          alt={firm.name} 
+      <div className={`${sizeClasses[size]} overflow-hidden bg-[var(--ip-surface-2)] border border-[var(--ip-border)] flex-shrink-0 shadow-lg`}>
+        <img
+          src={firm.logo}
+          alt={firm.name}
           className="w-full h-full object-cover"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
@@ -42,7 +42,7 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
             const parent = target.parentElement;
             if (parent) {
               const fallback = document.createElement('div');
-              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`;
+              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`;
               fallback.textContent = firm.name?.charAt(0) || '?';
               parent.appendChild(fallback);
             }
@@ -51,9 +51,9 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
       </div>
     );
   }
-  
+
   return (
-    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`}>
+    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(firm.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`}>
       {firm.name?.charAt(0) || '?'}
     </div>
   );
@@ -61,7 +61,7 @@ function FirmLogo({ firm, size = "md" }: { firm: any; size?: "sm" | "md" | "lg" 
 
 const generateGradient = (name: string) => {
   const gradients = [
-    "from-pink-500 to-purple-500", "from-blue-500 to-purple-500", 
+    "from-pink-500 to-blue-500", "from-blue-500 to-blue-500",
     "from-green-500 to-blue-500", "from-yellow-500 to-orange-500",
     "from-red-500 to-pink-500", "from-indigo-500 to-blue-500",
     "from-teal-500 to-green-500", "from-orange-500 to-red-500"
@@ -83,7 +83,7 @@ const REGULATOR_TIERS: Record<string, { tier: 1 | 2 | 3 | 4; label: string; colo
   'FINRA': { tier: 1, label: 'Tier 1', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
   'OSC': { tier: 1, label: 'Tier 1', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
   'ESMA': { tier: 1, label: 'Tier 1', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
-  
+
   // Tier 2 - Well-Regarded
   'MFSA': { tier: 2, label: 'Tier 2', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
   'CySEC': { tier: 2, label: 'Tier 2', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
@@ -100,29 +100,29 @@ const REGULATOR_TIERS: Record<string, { tier: 1 | 2 | 3 | 4; label: string; colo
   'LFSA': { tier: 2, label: 'Tier 2', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
   'FSC': { tier: 2, label: 'Tier 2', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
   'BVIFSC': { tier: 2, label: 'Tier 2', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
-  
+
   // Tier 3 - Basic Regulation
   'VFSC': { tier: 3, label: 'Tier 3', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
   'IFSC': { tier: 3, label: 'Tier 3', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
   'FSA SVG': { tier: 3, label: 'Tier 3', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
   'MISA': { tier: 3, label: 'Tier 3', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
   'FSB': { tier: 3, label: 'Tier 3', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
-  
+
   // Tier 4 - Unregulated / Offshore
   'Unregulated': { tier: 4, label: 'Unregulated', color: 'bg-red-500/20 text-red-400 border-red-500/30' },
 };
 
 // Get regulator info with tier
-const getRegulatorInfo = (reg: string): { 
-  short: string; 
-  full: string; 
-  country: string; 
+const getRegulatorInfo = (reg: string): {
+  short: string;
+  full: string;
+  country: string;
   tier: 1 | 2 | 3 | 4;
   tierLabel: string;
   tierColor: string;
 } => {
   const cleanReg = reg.trim();
-  
+
   const mapping: Record<string, { short: string; full: string; country: string }> = {
     'FCA': { short: 'FCA', full: 'Financial Conduct Authority', country: 'UK' },
     'ASIC': { short: 'ASIC', full: 'Australian Securities and Investments Commission', country: 'Australia' },
@@ -156,7 +156,7 @@ const getRegulatorInfo = (reg: string): {
     'MISA': { short: 'MISA', full: 'Mauritius Investment Services Authority', country: 'Mauritius' },
     'FSB': { short: 'FSB', full: 'Financial Services Board', country: 'South Africa' },
   };
-  
+
   let found = null;
   for (const [key, value] of Object.entries(mapping)) {
     if (cleanReg.includes(key)) {
@@ -164,7 +164,7 @@ const getRegulatorInfo = (reg: string): {
       break;
     }
   }
-  
+
   if (found) {
     const tierInfo = REGULATOR_TIERS[found.key] || REGULATOR_TIERS['FSA'] || { tier: 3, label: 'Tier 3', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' };
     return {
@@ -176,7 +176,7 @@ const getRegulatorInfo = (reg: string): {
       tierColor: tierInfo.color,
     };
   }
-  
+
   if (cleanReg.length > 0 && !cleanReg.includes('Unregulated')) {
     const shortMatch = cleanReg.match(/^([A-Z]{2,5})/);
     if (shortMatch) {
@@ -200,7 +200,7 @@ const getRegulatorInfo = (reg: string): {
       tierColor: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
     };
   }
-  
+
   return {
     short: cleanReg || 'Unknown',
     full: cleanReg || 'Unknown',
@@ -216,9 +216,9 @@ const getComplianceLevel = (broker: any): { level: string; color: string; icon: 
   let score = 0;
   let hasValidRegulator = false;
   let bestTier = 4;
-  
+
   const tierWeights: Record<number, number> = { 1: 40, 2: 30, 3: 15, 4: 0 };
-  
+
   broker.regulators.forEach((reg: string) => {
     const info = getRegulatorInfo(reg);
     if (info.tier < bestTier) {
@@ -228,21 +228,21 @@ const getComplianceLevel = (broker: any): { level: string; color: string; icon: 
       hasValidRegulator = true;
     }
   });
-  
+
   if (hasValidRegulator) {
     score += tierWeights[bestTier] || 0;
   }
-  
+
   if (broker.regulators.length > 1) {
     score += Math.min(broker.regulators.length * 3, 10);
   }
-  
+
   if (broker.yearsRegulated >= 15) score += 20;
   else if (broker.yearsRegulated >= 10) score += 18;
   else if (broker.yearsRegulated >= 5) score += 14;
   else if (broker.yearsRegulated >= 3) score += 10;
   else if (broker.yearsRegulated > 0) score += 5;
-  
+
   if (broker.negativeBalanceProtection) score += 15;
   if (broker.segregatedAccounts) score += 15;
   if (broker.compensationScheme && broker.compensationScheme !== "None") {
@@ -252,38 +252,38 @@ const getComplianceLevel = (broker: any): { level: string; color: string; icon: 
       score += 5;
     }
   }
-  
+
   if (broker.trustScore >= 80) score += 10;
   else if (broker.trustScore >= 60) score += 7;
   else if (broker.trustScore >= 40) score += 4;
   else if (broker.trustScore > 0) score += 2;
-  
+
   score = Math.min(score, 100);
-  
+
   if (score >= 80) {
-    return { 
-      level: 'Highly Compliant', 
+    return {
+      level: 'Highly Compliant',
       color: 'bg-green-500/20 text-green-400 border-green-500/30',
       icon: <ShieldCheck size={14} className="text-green-400" />,
       score
     };
   } else if (score >= 65) {
-    return { 
-      level: 'Compliant', 
+    return {
+      level: 'Compliant',
       color: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
       icon: <ShieldCheck size={14} className="text-blue-400" />,
       score
     };
   } else if (score >= 40) {
-    return { 
-      level: 'Basic Compliance', 
+    return {
+      level: 'Basic Compliance',
       color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
       icon: <AlertTriangle size={14} className="text-yellow-400" />,
       score
     };
   } else {
-    return { 
-      level: 'Limited Compliance', 
+    return {
+      level: 'Limited Compliance',
       color: 'bg-red-500/20 text-red-400 border-red-500/30',
       icon: <ShieldOff size={14} className="text-red-400" />,
       score
@@ -295,7 +295,7 @@ export default function MobileRegulationsTab() {
   const [brokersData, setBrokersData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedTier, setSelectedTier] = useState<number | null>(null);
@@ -313,7 +313,7 @@ export default function MobileRegulationsTab() {
         const response = await api.getBrokers();
         if (response.success) {
           setBrokersData(response.data || []);
-          
+
           for (const broker of (response.data || [])) {
             if (broker.id) {
               setLoadingDetails(prev => ({ ...prev, [broker.id]: true }));
@@ -343,12 +343,12 @@ export default function MobileRegulationsTab() {
   // Process brokers data
   const brokers = brokersData.map((broker) => {
     const detailed = brokerDetails[broker.id];
-    
+
     let regulators: string[] = [];
     let negativeBalanceProtection = false;
     let segregatedAccounts = false;
     let compensationScheme = "None";
-    
+
     if (detailed?.regulation) {
       if (Array.isArray(detailed.regulation.authorities)) {
         regulators = detailed.regulation.authorities;
@@ -362,7 +362,7 @@ export default function MobileRegulationsTab() {
           regulators = detailed.regulation.authorities.split(',').map((s: string) => s.trim());
         }
       }
-      
+
       if (detailed.regulation.licenses && Array.isArray(detailed.regulation.licenses)) {
         detailed.regulation.licenses.forEach((license: any) => {
           if (license.authority && !regulators.includes(license.authority)) {
@@ -370,12 +370,12 @@ export default function MobileRegulationsTab() {
           }
         });
       }
-      
+
       negativeBalanceProtection = detailed.regulation.negativeBalanceProtection || false;
       segregatedAccounts = detailed.regulation.segregatedAccounts || false;
       compensationScheme = detailed.regulation.compensationScheme || "None";
     }
-    
+
     if (regulators.length === 0 && broker.regulation) {
       if (typeof broker.regulation === 'object' && !Array.isArray(broker.regulation)) {
         if (Array.isArray(broker.regulation.authorities)) {
@@ -388,7 +388,7 @@ export default function MobileRegulationsTab() {
         regulators = [broker.regulation];
       }
     }
-    
+
     if (regulators.length === 0 && broker.regulated) {
       const country = broker.country || '';
       const regMap: Record<string, string[]> = {
@@ -416,9 +416,9 @@ export default function MobileRegulationsTab() {
       };
       regulators = regMap[country] || ['Unregulated'];
     }
-    
+
     regulators = [...new Set(regulators.filter(r => r && typeof r === 'string' && r.trim() !== ''))];
-    
+
     if (regulators.length === 0) {
       regulators = ['Unregulated'];
     }
@@ -497,10 +497,10 @@ export default function MobileRegulationsTab() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="relative w-12 h-12 mx-auto">
-            <div className="absolute inset-0 rounded-full border-2 border-purple-500/20 animate-pulse" />
-            <div className="absolute inset-0 rounded-full border-2 border-purple-500 border-t-transparent animate-spin" />
+            <div className="absolute inset-0 rounded-full border-2 border-blue-500/20 animate-pulse" />
+            <div className="absolute inset-0 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
           </div>
-          <p className="mt-4 text-zinc-500">Loading regulatory data...</p>
+          <p className="mt-4 text-[var(--ip-text-2)]">Loading regulatory data...</p>
         </div>
       </div>
     );
@@ -511,7 +511,7 @@ export default function MobileRegulationsTab() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <p className="text-red-500 mb-4">{error}</p>
-          <button onClick={() => window.location.reload()} className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Retry</button>
+          <button onClick={() => window.location.reload()} className="px-4 py-2 bg-blue-600 text-[var(--ip-text)] rounded-lg hover:bg-blue-700">Retry</button>
         </div>
       </div>
     );
@@ -520,37 +520,37 @@ export default function MobileRegulationsTab() {
   return (
     <div className="space-y-4">
       {/* Hero Header - Mobile Optimized */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-900/30 via-blue-900/30 to-cyan-900/30 p-5 border border-purple-500/20">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/10 rounded-full blur-2xl" />
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-900/30 via-blue-900/30 to-cyan-900/30 p-5 border border-blue-500/20">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 rounded-full blur-2xl" />
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-600/10 rounded-full blur-2xl" />
-        
+
         <div className="relative">
           <div className="flex items-center gap-2 mb-2">
-            <ShieldCheck size={16} className="text-purple-400" />
-            <span className="text-[10px] font-medium text-purple-400 uppercase tracking-wider">Regulatory Intelligence</span>
+            <ShieldCheck size={16} className="text-blue-400" />
+            <span className="text-[10px] font-medium text-blue-400 uppercase tracking-wider">Regulatory Intelligence</span>
           </div>
-          <h2 className="text-lg font-bold text-white">Broker Compliance</h2>
-          <p className="text-zinc-400 text-xs">Compare regulatory status and protection measures</p>
-          
+          <h2 className="text-lg font-bold text-[var(--ip-text)]">Broker Compliance</h2>
+          <p className="text-[var(--ip-text-2)] text-xs">Compare regulatory status and protection measures</p>
+
           <div className="flex items-center gap-4 mt-4">
             <div className="text-center">
               <div className="text-xl font-bold text-green-400">{regulatedBrokers}</div>
-              <div className="text-[8px] text-zinc-500">Regulated</div>
+              <div className="text-[8px] text-[var(--ip-text-2)]">Regulated</div>
             </div>
             <div className="w-px h-8 bg-zinc-700" />
             <div className="text-center">
               <div className="text-xl font-bold text-emerald-400">{tier1Regulated}</div>
-              <div className="text-[8px] text-zinc-500">Tier 1</div>
+              <div className="text-[8px] text-[var(--ip-text-2)]">Tier 1</div>
             </div>
             <div className="w-px h-8 bg-zinc-700" />
             <div className="text-center">
               <div className="text-xl font-bold text-blue-400">{tier2Regulated}</div>
-              <div className="text-[8px] text-zinc-500">Tier 2</div>
+              <div className="text-[8px] text-[var(--ip-text-2)]">Tier 2</div>
             </div>
             <div className="w-px h-8 bg-zinc-700" />
             <div className="text-center">
-              <div className="text-xl font-bold text-purple-400">{multiRegulated}</div>
-              <div className="text-[8px] text-zinc-500">Multi-Reg</div>
+              <div className="text-xl font-bold text-blue-400">{multiRegulated}</div>
+              <div className="text-[8px] text-[var(--ip-text-2)]">Multi-Reg</div>
             </div>
           </div>
         </div>
@@ -559,30 +559,30 @@ export default function MobileRegulationsTab() {
       {/* Search and Filter Bar */}
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={14} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ip-text-2)]" size={14} />
           <input
             placeholder="Search brokers..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl pl-9 pr-3 py-2.5 text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-purple-500"
+            className="w-full bg-[var(--ip-surface)] border border-[var(--ip-border)] rounded-xl pl-9 pr-3 py-2.5 text-[var(--ip-text)] text-sm placeholder-zinc-500 focus:outline-none focus:border-blue-500"
           />
         </div>
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className={`px-3 py-2.5 rounded-xl transition-all ${showFilters ? 'bg-purple-600 text-white' : 'bg-zinc-800/50 text-zinc-400 hover:text-white'}`}
+          className={`px-3 py-2.5 rounded-xl transition-all ${showFilters ? 'bg-blue-600 text-[var(--ip-text)]' : 'bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] hover:text-[var(--ip-text)]'}`}
         >
           <Filter size={16} />
         </button>
-        <div className="flex bg-zinc-800/50 rounded-xl p-1 border border-zinc-700">
+        <div className="flex bg-[var(--ip-surface-2)] rounded-xl p-1 border border-[var(--ip-border)]">
           <button
             onClick={() => setViewMode("grid")}
-            className={`p-1.5 rounded-lg transition-all ${viewMode === "grid" ? "bg-purple-600 text-white" : "text-zinc-400"}`}
+            className={`p-1.5 rounded-lg transition-all ${viewMode === "grid" ? "bg-blue-600 text-[var(--ip-text)]" : "text-[var(--ip-text-2)]"}`}
           >
             <LayoutGrid size={14} />
           </button>
           <button
             onClick={() => setViewMode("list")}
-            className={`p-1.5 rounded-lg transition-all ${viewMode === "list" ? "bg-purple-600 text-white" : "text-zinc-400"}`}
+            className={`p-1.5 rounded-lg transition-all ${viewMode === "list" ? "bg-blue-600 text-[var(--ip-text)]" : "text-[var(--ip-text-2)]"}`}
           >
             <List size={14} />
           </button>
@@ -592,18 +592,18 @@ export default function MobileRegulationsTab() {
       {/* Filters Panel */}
       <AnimatePresence>
         {showFilters && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }} 
-            animate={{ opacity: 1, height: "auto" }} 
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800 overflow-hidden space-y-3"
+            className="bg-[var(--ip-surface)] rounded-xl p-4 border border-[var(--ip-border)] overflow-hidden space-y-3"
           >
             <div>
-              <label className="text-xs text-zinc-500 block mb-1">Region</label>
+              <label className="text-xs text-[var(--ip-text-2)] block mb-1">Region</label>
               <select
                 value={selectedRegions[0] || ''}
                 onChange={(e) => setSelectedRegions(e.target.value ? [e.target.value] : [])}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-white"
+                className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-3 py-2 text-xs text-[var(--ip-text)]"
               >
                 <option value="">All Regions</option>
                 {regions.map(region => (
@@ -612,11 +612,11 @@ export default function MobileRegulationsTab() {
               </select>
             </div>
             <div>
-              <label className="text-xs text-zinc-500 block mb-1">Regulator Tier</label>
+              <label className="text-xs text-[var(--ip-text-2)] block mb-1">Regulator Tier</label>
               <select
                 value={selectedTier === null ? '' : selectedTier}
                 onChange={(e) => setSelectedTier(e.target.value ? Number(e.target.value) : null)}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-white"
+                className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-3 py-2 text-xs text-[var(--ip-text)]"
               >
                 <option value="">All Tiers</option>
                 <option value="1">Tier 1 (Top Regulators)</option>
@@ -624,9 +624,9 @@ export default function MobileRegulationsTab() {
                 <option value="3">Tier 3 (Basic Regulation)</option>
               </select>
             </div>
-            <button 
-              onClick={() => { setSearchTerm(""); setSelectedRegions([]); setSelectedTier(null); }} 
-              className="text-xs text-zinc-500 hover:text-white transition-colors"
+            <button
+              onClick={() => { setSearchTerm(""); setSelectedRegions([]); setSelectedTier(null); }}
+              className="text-xs text-[var(--ip-text-2)] hover:text-[var(--ip-text)] transition-colors"
             >
               Clear All
             </button>
@@ -635,7 +635,7 @@ export default function MobileRegulationsTab() {
       </AnimatePresence>
 
       {/* Results count */}
-      <div className="text-xs text-zinc-500">{filteredBrokers.length} brokers</div>
+      <div className="text-xs text-[var(--ip-text-2)]">{filteredBrokers.length} brokers</div>
 
       {/* Grid View - WITH LOGOS */}
       {viewMode === "grid" ? (
@@ -644,27 +644,27 @@ export default function MobileRegulationsTab() {
             const isExpanded = expandedBroker === broker.id;
             const compliance = getComplianceLevel(broker);
             const tierCount = broker.regulators.length;
-            
+
             return (
               <div
                 key={broker.id}
-                className="bg-zinc-900/30 rounded-xl border border-zinc-800 hover:border-purple-500/30 transition-all overflow-hidden"
+                className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] hover:border-blue-500/30 transition-all overflow-hidden"
               >
                 {/* Card Header */}
-                <div 
-                  className="p-4 cursor-pointer hover:bg-zinc-800/20 transition-colors"
+                <div
+                  className="p-4 cursor-pointer hover:bg-[var(--ip-surface-2)] transition-colors"
                   onClick={() => toggleExpand(broker.id)}
                 >
                   <div className="flex items-start gap-3">
                     <FirmLogo firm={broker} size="sm" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-white text-sm truncate hover:text-purple-400 transition-colors">
+                        <h3 className="font-semibold text-[var(--ip-text)] text-sm truncate hover:text-blue-400 transition-colors">
                           {broker.name}
                         </h3>
                       </div>
                       <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                        <span className="text-[10px] text-zinc-400 flex items-center gap-1">
+                        <span className="text-[10px] text-[var(--ip-text-2)] flex items-center gap-1">
                           <Globe size={10} /> {broker.country}
                         </span>
                         {broker.hasTier1 && (
@@ -678,21 +678,21 @@ export default function MobileRegulationsTab() {
                           </span>
                         )}
                         {tierCount > 1 && (
-                          <span className="text-[7px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded-full border border-purple-500/30">
+                          <span className="text-[7px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded-full border border-blue-500/30">
                             {tierCount} Regs
                           </span>
                         )}
                       </div>
                     </div>
-                    <button className="p-1 rounded-lg bg-zinc-800/50 hover:bg-zinc-700 transition-colors flex-shrink-0">
-                      {isExpanded ? <ChevronUp size={14} className="text-zinc-400" /> : <ChevronDown size={14} className="text-zinc-400" />}
+                    <button className="p-1 rounded-lg bg-[var(--ip-surface-2)] hover:bg-zinc-700 transition-colors flex-shrink-0">
+                      {isExpanded ? <ChevronUp size={14} className="text-[var(--ip-text-2)]" /> : <ChevronDown size={14} className="text-[var(--ip-text-2)]" />}
                     </button>
                   </div>
 
                   {/* Compliance Score */}
                   <div className="mt-3">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] text-zinc-500">Compliance Score</span>
+                      <span className="text-[10px] text-[var(--ip-text-2)]">Compliance Score</span>
                       <div className="flex items-center gap-2">
                         <span className={`text-xs font-bold ${compliance.score >= 80 ? 'text-green-400' : compliance.score >= 65 ? 'text-blue-400' : compliance.score >= 40 ? 'text-yellow-400' : 'text-red-400'}`}>
                           {compliance.score}%
@@ -702,8 +702,8 @@ export default function MobileRegulationsTab() {
                         </span>
                       </div>
                     </div>
-                    <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                      <div 
+                    <div className="h-1.5 bg-[var(--ip-surface-2)] rounded-full overflow-hidden">
+                      <div
                         className={`h-full rounded-full transition-all duration-500 ${
                           compliance.score >= 80 ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
                           compliance.score >= 65 ? 'bg-gradient-to-r from-blue-500 to-cyan-500' :
@@ -726,19 +726,19 @@ export default function MobileRegulationsTab() {
                       );
                     })}
                     {broker.regulators.length > 2 && (
-                      <span className="text-[8px] text-zinc-500">+{broker.regulators.length - 2}</span>
+                      <span className="text-[8px] text-[var(--ip-text-2)]">+{broker.regulators.length - 2}</span>
                     )}
                   </div>
 
                   {/* Protection Icons */}
-                  <div className="flex items-center gap-3 mt-2 text-[10px] text-zinc-400">
-                    <span className={`flex items-center gap-0.5 ${broker.negativeBalanceProtection ? 'text-green-400' : 'text-zinc-500'}`}>
+                  <div className="flex items-center gap-3 mt-2 text-[10px] text-[var(--ip-text-2)]">
+                    <span className={`flex items-center gap-0.5 ${broker.negativeBalanceProtection ? 'text-green-400' : 'text-[var(--ip-text-2)]'}`}>
                       <Shield size={10} /> NBP
                     </span>
-                    <span className={`flex items-center gap-0.5 ${broker.segregatedAccounts ? 'text-green-400' : 'text-zinc-500'}`}>
+                    <span className={`flex items-center gap-0.5 ${broker.segregatedAccounts ? 'text-green-400' : 'text-[var(--ip-text-2)]'}`}>
                       <Lock size={10} /> Seg
                     </span>
-                    <span className="flex items-center gap-0.5 text-zinc-500">
+                    <span className="flex items-center gap-0.5 text-[var(--ip-text-2)]">
                       <Banknote size={10} /> {broker.compensationScheme !== "None" ? 'Comp' : '—'}
                     </span>
                   </div>
@@ -752,12 +752,12 @@ export default function MobileRegulationsTab() {
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="border-t border-zinc-800"
+                      className="border-t border-[var(--ip-border)]"
                     >
-                      <div className="p-4 bg-zinc-800/20 space-y-3">
+                      <div className="p-4 bg-[var(--ip-surface-2)] space-y-3">
                         {/* All Regulators */}
                         <div>
-                          <div className="text-[10px] text-zinc-500 mb-1.5 flex items-center gap-1">
+                          <div className="text-[10px] text-[var(--ip-text-2)] mb-1.5 flex items-center gap-1">
                             <Landmark size={12} /> Regulatory Authorities
                           </div>
                           <div className="flex flex-wrap gap-1.5">
@@ -774,27 +774,27 @@ export default function MobileRegulationsTab() {
 
                         {/* Protection Details */}
                         <div className="grid grid-cols-2 gap-2">
-                          <div className="bg-zinc-800/30 rounded-lg p-2">
-                            <div className="text-zinc-400 text-[8px]">NBP</div>
-                            <div className={`text-xs font-semibold ${broker.negativeBalanceProtection ? 'text-green-400' : 'text-zinc-500'}`}>
+                          <div className="bg-[var(--ip-surface-2)] rounded-lg p-2">
+                            <div className="text-[var(--ip-text-2)] text-[8px]">NBP</div>
+                            <div className={`text-xs font-semibold ${broker.negativeBalanceProtection ? 'text-green-400' : 'text-[var(--ip-text-2)]'}`}>
                               {broker.negativeBalanceProtection ? '✅ Protected' : '❌ No'}
                             </div>
                           </div>
-                          <div className="bg-zinc-800/30 rounded-lg p-2">
-                            <div className="text-zinc-400 text-[8px]">Segregated Accounts</div>
-                            <div className={`text-xs font-semibold ${broker.segregatedAccounts ? 'text-green-400' : 'text-zinc-500'}`}>
+                          <div className="bg-[var(--ip-surface-2)] rounded-lg p-2">
+                            <div className="text-[var(--ip-text-2)] text-[8px]">Segregated Accounts</div>
+                            <div className={`text-xs font-semibold ${broker.segregatedAccounts ? 'text-green-400' : 'text-[var(--ip-text-2)]'}`}>
                               {broker.segregatedAccounts ? '✅ Yes' : '❌ No'}
                             </div>
                           </div>
-                          <div className="bg-zinc-800/30 rounded-lg p-2">
-                            <div className="text-zinc-400 text-[8px]">Compensation</div>
-                            <div className="text-xs font-semibold text-white truncate">
+                          <div className="bg-[var(--ip-surface-2)] rounded-lg p-2">
+                            <div className="text-[var(--ip-text-2)] text-[8px]">Compensation</div>
+                            <div className="text-xs font-semibold text-[var(--ip-text)] truncate">
                               {broker.compensationScheme !== "None" ? broker.compensationScheme : '—'}
                             </div>
                           </div>
-                          <div className="bg-zinc-800/30 rounded-lg p-2">
-                            <div className="text-zinc-400 text-[8px]">Years Regulated</div>
-                            <div className="text-xs font-semibold text-white">
+                          <div className="bg-[var(--ip-surface-2)] rounded-lg p-2">
+                            <div className="text-[var(--ip-text-2)] text-[8px]">Years Regulated</div>
+                            <div className="text-xs font-semibold text-[var(--ip-text)]">
                               {broker.yearsRegulated || '—'}
                             </div>
                           </div>
@@ -803,7 +803,7 @@ export default function MobileRegulationsTab() {
                         {/* Action */}
                         <Link
                           href={`/brokers/${slugify(broker.name)}`}
-                          className="flex items-center justify-center w-full py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-xs font-medium hover:from-purple-500 hover:to-pink-500 transition-all"
+                          className="flex items-center justify-center w-full py-2 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-lg text-xs font-medium hover:from-blue-500 hover:to-pink-500 transition-all"
                         >
                           View Full Profile <ArrowRight size={12} className="ml-1" />
                         </Link>
@@ -817,8 +817,8 @@ export default function MobileRegulationsTab() {
         </div>
       ) : (
         /* List View - WITH LOGOS */
-        <div className="bg-zinc-900/30 rounded-xl border border-zinc-800 overflow-hidden">
-          <div className="grid grid-cols-12 gap-2 px-4 py-2.5 bg-zinc-800/30 border-b border-zinc-700/50 text-[10px] text-zinc-500 font-medium">
+        <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] overflow-hidden">
+          <div className="grid grid-cols-12 gap-2 px-4 py-2.5 bg-[var(--ip-surface-2)] border-b border-[var(--ip-border)] text-[10px] text-[var(--ip-text-2)] font-medium">
             <div className="col-span-4">Broker</div>
             <div className="col-span-3">Regulators</div>
             <div className="col-span-2">Tier</div>
@@ -828,16 +828,16 @@ export default function MobileRegulationsTab() {
           {filteredBrokers.map((broker) => {
             const isExpanded = expandedBroker === broker.id;
             const compliance = getComplianceLevel(broker);
-            
+
             return (
-              <div key={broker.id} className="border-b border-zinc-800/50 last:border-0">
-                <div 
-                  className="grid grid-cols-12 gap-2 px-4 py-3 hover:bg-zinc-800/20 transition-colors items-center cursor-pointer"
+              <div key={broker.id} className="border-b border-[var(--ip-border)] last:border-0">
+                <div
+                  className="grid grid-cols-12 gap-2 px-4 py-3 hover:bg-[var(--ip-surface-2)] transition-colors items-center cursor-pointer"
                   onClick={() => toggleExpand(broker.id)}
                 >
                   <div className="col-span-4 flex items-center gap-2 min-w-0">
                     <FirmLogo firm={broker} size="sm" />
-                    <span className="text-white font-medium text-xs truncate">{broker.name}</span>
+                    <span className="text-[var(--ip-text)] font-medium text-xs truncate">{broker.name}</span>
                   </div>
                   <div className="col-span-3 flex flex-wrap gap-0.5">
                     {broker.regulators.slice(0, 2).map((reg, idx) => {
@@ -849,7 +849,7 @@ export default function MobileRegulationsTab() {
                       );
                     })}
                     {broker.regulators.length > 2 && (
-                      <span className="text-[7px] text-zinc-500">+{broker.regulators.length - 2}</span>
+                      <span className="text-[7px] text-[var(--ip-text-2)]">+{broker.regulators.length - 2}</span>
                     )}
                   </div>
                   <div className="col-span-2">
@@ -860,19 +860,19 @@ export default function MobileRegulationsTab() {
                     ) : broker.regulators.length > 0 ? (
                       <span className="text-[8px] bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded-full">Tier 3</span>
                     ) : (
-                      <span className="text-[8px] text-zinc-500">—</span>
+                      <span className="text-[8px] text-[var(--ip-text-2)]">—</span>
                     )}
                   </div>
                   <div className="col-span-2">
                     <div className="flex items-center gap-1.5">
-                      <div className="h-1 w-8 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="h-1 w-8 bg-[var(--ip-surface-2)] rounded-full overflow-hidden">
                         <div className={`h-full rounded-full ${compliance.score >= 80 ? 'bg-green-500' : compliance.score >= 65 ? 'bg-blue-500' : compliance.score >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${compliance.score}%` }} />
                       </div>
-                      <span className="text-[10px] font-medium text-white">{compliance.score}%</span>
+                      <span className="text-[10px] font-medium text-[var(--ip-text)]">{compliance.score}%</span>
                     </div>
                   </div>
                   <div className="col-span-1 text-right">
-                    {isExpanded ? <ChevronUp size={12} className="text-zinc-400" /> : <ChevronDown size={12} className="text-zinc-400" />}
+                    {isExpanded ? <ChevronUp size={12} className="text-[var(--ip-text-2)]" /> : <ChevronDown size={12} className="text-[var(--ip-text-2)]" />}
                   </div>
                 </div>
 
@@ -884,9 +884,9 @@ export default function MobileRegulationsTab() {
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="border-t border-zinc-800"
+                      className="border-t border-[var(--ip-border)]"
                     >
-                      <div className="px-4 py-3 bg-zinc-800/10 space-y-2">
+                      <div className="px-4 py-3 bg-[var(--ip-surface-2)] space-y-2">
                         <div className="flex flex-wrap gap-1.5">
                           {broker.regulators.map((reg, idx) => {
                             const info = getRegulatorInfo(reg);
@@ -899,23 +899,23 @@ export default function MobileRegulationsTab() {
                         </div>
                         <div className="flex flex-wrap gap-3 text-[10px]">
                           <span className="flex items-center gap-0.5">
-                            <span className="text-zinc-500">NBP:</span>
-                            <span className={broker.negativeBalanceProtection ? 'text-green-400' : 'text-zinc-500'}>
+                            <span className="text-[var(--ip-text-2)]">NBP:</span>
+                            <span className={broker.negativeBalanceProtection ? 'text-green-400' : 'text-[var(--ip-text-2)]'}>
                               {broker.negativeBalanceProtection ? '✅' : '❌'}
                             </span>
                           </span>
                           <span className="flex items-center gap-0.5">
-                            <span className="text-zinc-500">Seg:</span>
-                            <span className={broker.segregatedAccounts ? 'text-green-400' : 'text-zinc-500'}>
+                            <span className="text-[var(--ip-text-2)]">Seg:</span>
+                            <span className={broker.segregatedAccounts ? 'text-green-400' : 'text-[var(--ip-text-2)]'}>
                               {broker.segregatedAccounts ? '✅' : '❌'}
                             </span>
                           </span>
                           <span className="flex items-center gap-0.5">
-                            <span className="text-zinc-500">Comp:</span>
-                            <span className="text-white">{broker.compensationScheme !== "None" ? broker.compensationScheme : '—'}</span>
+                            <span className="text-[var(--ip-text-2)]">Comp:</span>
+                            <span className="text-[var(--ip-text)]">{broker.compensationScheme !== "None" ? broker.compensationScheme : '—'}</span>
                           </span>
                         </div>
-                        <Link href={`/brokers/${slugify(broker.name)}`} className="inline-flex items-center gap-1 text-[10px] text-purple-400 hover:text-purple-300 transition-colors">
+                        <Link href={`/brokers/${slugify(broker.name)}`} className="inline-flex items-center gap-1 text-[10px] text-blue-400 hover:text-blue-300 transition-colors">
                           View Profile <ArrowRight size={10} />
                         </Link>
                       </div>
@@ -929,9 +929,9 @@ export default function MobileRegulationsTab() {
       )}
 
       {filteredBrokers.length === 0 && (
-        <div className="text-center py-12 bg-zinc-900/30 rounded-xl border border-zinc-800">
+        <div className="text-center py-12 bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)]">
           <ShieldCheck size={40} className="text-zinc-600 mx-auto mb-3" />
-          <p className="text-zinc-500 text-sm">No brokers found</p>
+          <p className="text-[var(--ip-text-2)] text-sm">No brokers found</p>
           <p className="text-zinc-600 text-xs">Try adjusting your filters</p>
         </div>
       )}

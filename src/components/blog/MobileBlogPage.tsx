@@ -57,17 +57,17 @@ const MobileBlogSearch = ({
       {/* Search Bar */}
       <div className="flex gap-2">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400" size={20} />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--ip-text-2)]" size={20} />
           <input
             placeholder="Search articles..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl pl-10 pr-4 py-3 text-white text-base focus:outline-none focus:border-purple-500"
+            className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl pl-10 pr-4 py-3 text-[var(--ip-text)] text-base focus:outline-none focus:border-blue-500"
           />
           {search && (
             <button
               onClick={() => setSearch('')}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-400 hover:text-white"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--ip-text-2)] hover:text-[var(--ip-text)]"
             >
               <X size={18} />
             </button>
@@ -75,21 +75,21 @@ const MobileBlogSearch = ({
         </div>
         <button
           onClick={onShowFilters}
-          className="bg-zinc-800/50 border border-zinc-700 text-white rounded-xl p-3 hover:bg-zinc-700 transition-colors"
+          className="bg-[var(--ip-surface-2)] border border-[var(--ip-border)] text-[var(--ip-text)] rounded-xl p-3 hover:bg-zinc-700 transition-colors"
         >
           <Filter size={20} />
         </button>
       </div>
 
       {/* Results Count */}
-      <div className="flex justify-between items-center text-sm text-zinc-400">
+      <div className="flex justify-between items-center text-sm text-[var(--ip-text-2)]">
         <span>
           {filteredCount} of {totalCount} articles
         </span>
         {search && (
           <button
             onClick={() => setSearch('')}
-            className="text-purple-400 text-sm font-medium"
+            className="text-blue-400 text-sm font-medium"
           >
             Clear search
           </button>
@@ -120,12 +120,12 @@ const MobileBlogFilters = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-white">Filters</h2>
-          <p className="text-zinc-400 text-sm">Customize your blog feed</p>
+          <h2 className="text-2xl font-bold text-[var(--ip-text)]">Filters</h2>
+          <p className="text-[var(--ip-text-2)] text-sm">Customize your blog feed</p>
         </div>
         <button
           onClick={onClose}
-          className="bg-zinc-800 text-white p-2 rounded-xl border border-zinc-700"
+          className="bg-[var(--ip-surface-2)] text-[var(--ip-text)] p-2 rounded-xl border border-[var(--ip-border)]"
         >
           <X size={20} />
         </button>
@@ -134,8 +134,8 @@ const MobileBlogFilters = ({
       <div className="flex-1 space-y-6">
         {/* Categories */}
         <div>
-          <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-            <Tag size={18} className="text-purple-400" />
+          <h3 className="text-[var(--ip-text)] font-semibold mb-3 flex items-center gap-2">
+            <Tag size={18} className="text-blue-400" />
             Categories
           </h3>
           <div className="space-y-2">
@@ -143,14 +143,14 @@ const MobileBlogFilters = ({
               onClick={() => setSelectedCategory('all')}
               className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
                 selectedCategory === 'all'
-                  ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white border border-purple-500/30'
-                  : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                  ? 'bg-gradient-to-r from-blue-500/20 to-pink-500/20 text-[var(--ip-text)] border border-blue-500/30'
+                  : 'text-[var(--ip-text-2)] hover:text-[var(--ip-text)] hover:bg-[var(--ip-surface-2)]'
               }`}
             >
               <div className="flex items-center justify-between">
                 <span>All Categories</span>
                 {selectedCategory === 'all' && (
-                  <div className="w-2 h-2 bg-purple-500 rounded-full" />
+                  <div className="w-2 h-2 bg-blue-500 rounded-full" />
                 )}
               </div>
             </button>
@@ -160,14 +160,14 @@ const MobileBlogFilters = ({
                 onClick={() => setSelectedCategory(category)}
                 className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
                   selectedCategory === category
-                    ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white border border-purple-500/30'
-                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                    ? 'bg-gradient-to-r from-blue-500/20 to-pink-500/20 text-[var(--ip-text)] border border-blue-500/30'
+                    : 'text-[var(--ip-text-2)] hover:text-[var(--ip-text)] hover:bg-[var(--ip-surface-2)]'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <span className="capitalize">{category}</span>
                   {selectedCategory === category && (
-                    <div className="w-2 h-2 bg-purple-500 rounded-full" />
+                    <div className="w-2 h-2 bg-blue-500 rounded-full" />
                   )}
                 </div>
               </button>
@@ -177,7 +177,7 @@ const MobileBlogFilters = ({
 
         {/* Sort Options */}
         <div>
-          <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+          <h3 className="text-[var(--ip-text)] font-semibold mb-3 flex items-center gap-2">
             <TrendingUp size={18} className="text-blue-400" />
             Sort By
           </h3>
@@ -192,8 +192,8 @@ const MobileBlogFilters = ({
                 onClick={() => setSortBy(option.value)}
                 className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
                   sortBy === option.value
-                    ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-white border border-blue-500/30'
-                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                    ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-[var(--ip-text)] border border-blue-500/30'
+                    : 'text-[var(--ip-text-2)] hover:text-[var(--ip-text)] hover:bg-[var(--ip-surface-2)]'
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -215,13 +215,13 @@ const MobileBlogFilters = ({
             setSelectedCategory('all');
             setSortBy('newest');
           }}
-          className="flex-1 px-4 py-2 rounded-xl bg-zinc-800 border border-zinc-700 text-white hover:bg-zinc-700 transition-colors"
+          className="flex-1 px-4 py-2 rounded-xl bg-[var(--ip-surface-2)] border border-[var(--ip-border)] text-[var(--ip-text)] hover:bg-zinc-700 transition-colors"
         >
           Reset All
         </button>
         <button
           onClick={onClose}
-          className="flex-1 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity"
+          className="flex-1 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-pink-500 text-[var(--ip-text)] hover:opacity-90 transition-opacity"
         >
           Apply Filters
         </button>
@@ -233,7 +233,7 @@ const MobileBlogFilters = ({
 // Mobile Blog Card Component
 const MobileBlogCard = ({ post, index }: { post: BlogPost; index: number }) => {
   return (
-    <div className="bg-zinc-900/50 rounded-2xl overflow-hidden border border-zinc-800 hover:border-purple-500/30 transition-all group">
+    <div className="bg-[var(--ip-surface)] rounded-2xl overflow-hidden border border-[var(--ip-border)] hover:border-blue-500/30 transition-all group">
       {post.imageUrl && (
         <div className="relative overflow-hidden h-48">
           <img 
@@ -242,7 +242,7 @@ const MobileBlogCard = ({ post, index }: { post: BlogPost; index: number }) => {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
           <div className="absolute top-3 left-3">
-            <span className="bg-black/80 text-white px-2 py-1 rounded-md text-xs">
+            <span className="bg-black/80 text-[var(--ip-text)] px-2 py-1 rounded-md text-xs">
               {post.category}
             </span>
           </div>
@@ -257,7 +257,7 @@ const MobileBlogCard = ({ post, index }: { post: BlogPost; index: number }) => {
       )}
       <div className="p-4">
         {/* Meta Information */}
-        <div className="flex items-center gap-3 text-xs text-zinc-400 mb-2">
+        <div className="flex items-center gap-3 text-xs text-[var(--ip-text-2)] mb-2">
           <span className="flex items-center gap-1">
             <Calendar size={12} />
             {format(new Date(post.publishedAt || post.createdAt), 'MMM d, yyyy')}
@@ -270,26 +270,26 @@ const MobileBlogCard = ({ post, index }: { post: BlogPost; index: number }) => {
 
         {/* Title */}
         <Link href={`/blog/${post.slug}`}>
-          <h3 className="text-lg font-bold text-white mb-2 line-clamp-2 hover:text-purple-400 transition-colors">
+          <h3 className="text-lg font-bold text-[var(--ip-text)] mb-2 line-clamp-2 hover:text-blue-400 transition-colors">
             {post.title}
           </h3>
         </Link>
         
         {/* Summary */}
-        <p className="text-zinc-400 text-sm mb-3 line-clamp-2">
+        <p className="text-[var(--ip-text-2)] text-sm mb-3 line-clamp-2">
           {post.summary}
         </p>
 
         {/* Author & Engagement */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-500 rounded-full flex items-center justify-center text-[var(--ip-text)] text-xs font-bold">
               {post.author?.name?.charAt(0) || 'U'}
             </div>
-            <span className="text-sm text-zinc-400">{post.author?.name || 'Unknown'}</span>
+            <span className="text-sm text-[var(--ip-text-2)]">{post.author?.name || 'Unknown'}</span>
           </div>
           
-          <div className="flex items-center gap-3 text-zinc-500">
+          <div className="flex items-center gap-3 text-[var(--ip-text-2)]">
             <span className="flex items-center gap-1 text-xs">
               <ThumbsUp size={14} /> {post.likes || 0}
             </span>
@@ -301,7 +301,7 @@ const MobileBlogCard = ({ post, index }: { post: BlogPost; index: number }) => {
 
         {/* Read More Button */}
         <Link href={`/blog/${post.slug}`}>
-          <div className="mt-3 pt-3 border-t border-zinc-800 flex items-center justify-between text-purple-400 text-sm font-medium hover:text-purple-300 transition-colors">
+          <div className="mt-3 pt-3 border-t border-[var(--ip-border)] flex items-center justify-between text-blue-400 text-sm font-medium hover:text-blue-300 transition-colors">
             <span>Read More</span>
             <ArrowRight size={16} />
           </div>
@@ -314,7 +314,7 @@ const MobileBlogCard = ({ post, index }: { post: BlogPost; index: number }) => {
 // Mobile Featured Post Component
 const MobileFeaturedPost = ({ post }: { post: BlogPost }) => {
   return (
-    <div className="bg-gradient-to-br from-zinc-900 to-zinc-800 rounded-2xl overflow-hidden border border-zinc-700 hover:border-purple-500/30 transition-all group">
+    <div className="bg-gradient-to-br from-zinc-900 to-zinc-800 rounded-2xl overflow-hidden border border-[var(--ip-border)] hover:border-blue-500/30 transition-all group">
       {post.imageUrl && (
         <div className="relative overflow-hidden h-56">
           <img 
@@ -323,7 +323,7 @@ const MobileFeaturedPost = ({ post }: { post: BlogPost }) => {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
           <div className="absolute top-3 left-3">
-            <span className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm font-semibold backdrop-blur-sm">
+            <span className="bg-gradient-to-r from-pink-500 to-blue-500 text-[var(--ip-text)] px-3 py-1 rounded-full text-sm font-semibold backdrop-blur-sm">
               Featured
             </span>
           </div>
@@ -331,7 +331,7 @@ const MobileFeaturedPost = ({ post }: { post: BlogPost }) => {
         </div>
       )}
       <div className="p-4">
-        <div className="flex items-center gap-3 text-sm text-zinc-400 mb-2">
+        <div className="flex items-center gap-3 text-sm text-[var(--ip-text-2)] mb-2">
           <span className="flex items-center gap-1">
             <Calendar size={14} />
             {format(new Date(post.publishedAt || post.createdAt), 'MMM d, yyyy')}
@@ -343,25 +343,25 @@ const MobileFeaturedPost = ({ post }: { post: BlogPost }) => {
         </div>
 
         <Link href={`/blog/${post.slug}`}>
-          <h2 className="text-xl font-bold text-white mb-2 hover:text-purple-400 transition-colors">
+          <h2 className="text-xl font-bold text-[var(--ip-text)] mb-2 hover:text-blue-400 transition-colors">
             {post.title}
           </h2>
         </Link>
         
-        <p className="text-zinc-300 text-sm mb-3 leading-relaxed line-clamp-3">
+        <p className="text-[var(--ip-text-2)] text-sm mb-3 leading-relaxed line-clamp-3">
           {post.summary}
         </p>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-500 rounded-full flex items-center justify-center text-[var(--ip-text)] text-xs font-bold">
               {post.author?.name?.charAt(0) || 'U'}
             </div>
-            <span className="text-sm text-zinc-400">{post.author?.name || 'Unknown'}</span>
+            <span className="text-sm text-[var(--ip-text-2)]">{post.author?.name || 'Unknown'}</span>
           </div>
           
           <Link href={`/blog/${post.slug}`}>
-            <button className="px-4 py-2 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white rounded-xl text-sm font-medium transition-all">
+            <button className="px-4 py-2 bg-gradient-to-r from-pink-600 to-blue-600 hover:from-pink-500 hover:to-blue-500 text-[var(--ip-text)] rounded-xl text-sm font-medium transition-all">
               Read
             </button>
           </Link>
@@ -385,8 +385,8 @@ const MobileCategoriesSection = ({
 
   return (
     <div className="mb-4">
-      <h3 className="text-sm font-medium text-zinc-400 mb-2 flex items-center gap-2">
-        <Tag size={14} className="text-purple-400" />
+      <h3 className="text-sm font-medium text-[var(--ip-text-2)] mb-2 flex items-center gap-2">
+        <Tag size={14} className="text-blue-400" />
         Categories
       </h3>
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
@@ -394,8 +394,8 @@ const MobileCategoriesSection = ({
           onClick={() => setSelectedCategory('all')}
           className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
             selectedCategory === 'all'
-              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-              : 'bg-zinc-800/50 text-zinc-300 border border-zinc-700 hover:bg-zinc-700'
+              ? 'bg-gradient-to-r from-blue-500 to-pink-500 text-[var(--ip-text)] shadow-lg'
+              : 'bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] border border-[var(--ip-border)] hover:bg-zinc-700'
           }`}
         >
           All
@@ -406,8 +406,8 @@ const MobileCategoriesSection = ({
             onClick={() => setSelectedCategory(category)}
             className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
               selectedCategory === category
-                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                : 'bg-zinc-800/50 text-zinc-300 border border-zinc-700 hover:bg-zinc-700'
+                ? 'bg-gradient-to-r from-blue-500 to-pink-500 text-[var(--ip-text)] shadow-lg'
+                : 'bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] border border-[var(--ip-border)] hover:bg-zinc-700'
             }`}
           >
             {category}
@@ -464,7 +464,7 @@ export default function MobileBlogPage() {
       setPosts(data.posts || []);
       
       // Extract unique categories
-      const uniqueCategories = [...new Set(data.posts.map((p: BlogPost) => p.category).filter(Boolean))];
+      const uniqueCategories = [...new Set<string>(data.posts.map((p: BlogPost) => p.category).filter(Boolean))];
       setCategories(uniqueCategories);
     } catch (error: any) {
       console.error('Error fetching blog posts:', error);
@@ -510,10 +510,10 @@ export default function MobileBlogPage() {
   if (loading) {
     return (
       <MobileLayout title="Blog" showSearch={false}>
-        <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="min-h-screen bg-[var(--ip-bg)] text-[var(--ip-text)] flex items-center justify-center">
           <div className="text-center">
-            <Loader2 className="w-12 h-12 text-purple-500 animate-spin mx-auto mb-4" />
-            <p className="text-zinc-400">Loading articles...</p>
+            <Loader2 className="w-12 h-12 text-blue-500 animate-spin mx-auto mb-4" />
+            <p className="text-[var(--ip-text-2)]">Loading articles...</p>
           </div>
         </div>
       </MobileLayout>
@@ -522,16 +522,16 @@ export default function MobileBlogPage() {
 
   return (
     <MobileLayout title="Blog" showSearch={false}>
-      <div className="min-h-screen bg-black text-white pb-20">
+      <div className="min-h-screen bg-[var(--ip-bg)] text-[var(--ip-text)] pb-20">
         {/* Hero Section */}
-        <div className="bg-gradient-to-br from-purple-900 via-blue-900 to-cyan-900 py-8 px-4 rounded-b-3xl mb-6 -mx-4 -mt-4">
+        <div className="bg-gradient-to-br from-blue-900 via-blue-900 to-cyan-900 py-8 px-4 rounded-b-3xl mb-6 -mx-4 -mt-4">
           <div className="text-center max-w-md mx-auto pt-8">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-lg px-3 py-1 rounded-full text-white text-sm mb-4">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-lg px-3 py-1 rounded-full text-[var(--ip-text)] text-sm mb-4">
               <BookOpen className="w-4 h-4" />
               Trading Insights & Education
             </div>
 
-            <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-green-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-green-400 via-blue-400 to-blue-400 bg-clip-text text-transparent">
               InsightPip Blog
             </h1>
             <p className="text-zinc-200 text-sm mb-6">
@@ -541,18 +541,18 @@ export default function MobileBlogPage() {
             {/* Quick Stats */}
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <div className="text-lg font-bold text-white">{posts.length}</div>
-                <div className="text-zinc-300 text-xs">Articles</div>
+                <div className="text-lg font-bold text-[var(--ip-text)]">{posts.length}</div>
+                <div className="text-[var(--ip-text-2)] text-xs">Articles</div>
               </div>
               <div>
-                <div className="text-lg font-bold text-white">{categories.length}</div>
-                <div className="text-zinc-300 text-xs">Categories</div>
+                <div className="text-lg font-bold text-[var(--ip-text)]">{categories.length}</div>
+                <div className="text-[var(--ip-text-2)] text-xs">Categories</div>
               </div>
               <div>
-                <div className="text-lg font-bold text-white">
+                <div className="text-lg font-bold text-[var(--ip-text)]">
                   {posts.reduce((sum, p) => sum + (p.views || 0), 0).toLocaleString()}
                 </div>
-                <div className="text-zinc-300 text-xs">Views</div>
+                <div className="text-[var(--ip-text-2)] text-xs">Views</div>
               </div>
             </div>
           </div>
@@ -597,8 +597,8 @@ export default function MobileBlogPage() {
           {!error && posts.length === 0 && (
             <div className="text-center py-12">
               <BookOpen className="w-16 h-16 text-zinc-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">No articles yet</h3>
-              <p className="text-zinc-400 text-sm">
+              <h3 className="text-xl font-semibold text-[var(--ip-text)] mb-2">No articles yet</h3>
+              <p className="text-[var(--ip-text-2)] text-sm">
                 Check back soon for new trading insights and educational content.
               </p>
             </div>
@@ -607,7 +607,7 @@ export default function MobileBlogPage() {
           {/* Featured Posts */}
           {featuredPosts.length > 0 && (
             <div className="mb-6">
-              <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+              <h2 className="text-lg font-bold text-[var(--ip-text)] mb-3 flex items-center gap-2">
                 <Star size={18} className="text-yellow-400" />
                 Featured
               </h2>
@@ -622,9 +622,9 @@ export default function MobileBlogPage() {
           {/* All Posts */}
           {regularPosts.length > 0 && (
             <div>
-              <h2 className="text-lg font-bold text-white mb-3">
+              <h2 className="text-lg font-bold text-[var(--ip-text)] mb-3">
                 {selectedCategory === 'all' ? 'All Articles' : selectedCategory}
-                <span className="text-sm text-zinc-400 ml-2">({regularPosts.length})</span>
+                <span className="text-sm text-[var(--ip-text-2)] ml-2">({regularPosts.length})</span>
               </h2>
               <div className="space-y-4">
                 {regularPosts.map((post, index) => (
@@ -638,8 +638,8 @@ export default function MobileBlogPage() {
           {!error && posts.length > 0 && filteredPosts.length === 0 && (
             <div className="text-center py-12">
               <BookOpen className="w-16 h-16 text-zinc-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">No articles found</h3>
-              <p className="text-zinc-400">
+              <h3 className="text-xl font-semibold text-[var(--ip-text)] mb-2">No articles found</h3>
+              <p className="text-[var(--ip-text-2)]">
                 {search ? 'Try adjusting your search' : 'No articles available in this category'}
               </p>
             </div>

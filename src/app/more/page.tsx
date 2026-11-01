@@ -1,0 +1,2 @@
+import Link from 'next/link';
+export default function More(){return <div className="v2-container v2-page-heading"><h1>Explore InsightPip</h1><div className="v2-discovery-cards">{[['Brokers','/brokers'],['Prop firms','/prop-firms'],['Reviews','/reviews'],['Compare','/compare'],['Offers','/offers'],['Learn','/blog'],['Incidents','/incidents'],['Your account','/account'],['Trust & transparency','/methodology']].map(([l,u])=><Link key={u} href={u}><h2>{l}</h2></Link>)}</div></div>}

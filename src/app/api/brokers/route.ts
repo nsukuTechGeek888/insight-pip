@@ -1,7 +1,8 @@
+import {requestUser,sameOrigin} from '@/lib/request-user';
 ﻿﻿// app/api/brokers/route.ts - UPDATED to include promotions and bonuses
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { 
   getRegionFromCountry, 
   DEFAULT_REGION,
@@ -129,6 +130,8 @@ export async function GET(request: NextRequest) {
               amount: true,
               conditions: true,
               expiry: true,
+            regions: true,
+            restrictedRegions: true,
               code: true,
             }
           },
@@ -150,6 +153,8 @@ export async function GET(request: NextRequest) {
               discount: true,
               code: true,
               validUntil: true,
+            regions: true,
+            restrictedRegions: true,
             }
           },
           reviews: {
@@ -283,7 +288,7 @@ export async function GET(request: NextRequest) {
         commissions: commissions,
         swapFree: broker.islamicAccount || false,
         platforms: broker.platforms || [],
-        mobileTrading: broker.mobileTrading || false,
+        mobileTrading: broker.platforms.some(platform => /mobile/i.test(platform)),
         chartingTools: chartingTools.length > 0 ? chartingTools : ['Advanced charts', 'Technical indicators', 'Drawing tools'],
         tradingFeatures: tradingFeatures.length > 0 ? tradingFeatures : ['One-click trading', 'Expert Advisors', 'Copy trading'],
         instruments: instruments,
@@ -318,9 +323,9 @@ export async function GET(request: NextRequest) {
           education: averageRating
         },
         awards: broker.awards || [],
-        partnershipProgram: broker.partnershipProgram || false,
-        affiliateProgram: broker.affiliateProgram || false,
-        ibProgram: broker.ibProgram || false,
+        partnershipProgram: broker.partnershipPrograms || false,
+        affiliateProgram: broker.partnershipPrograms.includes('Affiliate'),
+        ibProgram: broker.partnershipPrograms.includes('IB'),
         features: broker.features || [],
         suitableFor: broker.targetAudience || [],
         socialMedia: socialMedia,
@@ -412,6 +417,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  if(!sameOrigin(request)) return NextResponse.json({error:'Invalid request origin'},{status:403});
+  const admin=await requestUser(request);
+  if(admin?.role!=='ADMIN') return NextResponse.json({error:'Administrator access required'},{status:403});
   try {
     const body = await request.json();
     
@@ -438,10 +446,10 @@ export async function POST(request: NextRequest) {
         maxLeverage: body.maxLeverage || '1:100',
         platforms: body.platforms || [],
         status: 'ACTIVE',
-        regulation: body.regulation ? JSON.stringify(body.regulation) : null,
-        averageSpreads: body.spreads ? JSON.stringify(body.spreads) : null,
-        commissions: body.commissions ? JSON.stringify(body.commissions) : null,
-        instruments: body.instruments ? JSON.stringify(body.instruments) : null,
+        regulation: body.regulation ? JSON.stringify(body.regulation) : Prisma.DbNull,
+        averageSpreads: body.spreads ? JSON.stringify(body.spreads) : Prisma.DbNull,
+        commissions: body.commissions ? JSON.stringify(body.commissions) : Prisma.DbNull,
+        instruments: body.instruments ? JSON.stringify(body.instruments) : Prisma.DbNull,
         features: body.features || [],
         depositMethods: body.depositMethods || [],
         withdrawalMethods: body.withdrawalMethods || [],
@@ -453,14 +461,14 @@ export async function POST(request: NextRequest) {
         educationTypes: body.education?.learningMaterials || [],
         awards: body.awards || [],
         targetAudience: body.suitableFor || [],
-        socialMedia: body.socialMedia ? JSON.stringify(body.socialMedia) : null,
+        socialMedia: body.socialMedia ? JSON.stringify(body.socialMedia) : Prisma.DbNull,
         regions: body.regions || ['GLOBAL'],
         restrictedRegions: body.restrictedRegions || [],
-        regionNotes: body.regionNotes ? JSON.stringify(body.regionNotes) : null,
-        entityMapping: body.entityMapping ? JSON.stringify(body.entityMapping) : null,
-        regionDescriptions: body.regionDescriptions ? JSON.stringify(body.regionDescriptions) : null,
-        regionPricing: body.regionPricing ? JSON.stringify(body.regionPricing) : null,
-        regionPaymentMethods: body.regionPaymentMethods ? JSON.stringify(body.regionPaymentMethods) : null,
+        regionNotes: body.regionNotes ? JSON.stringify(body.regionNotes) : Prisma.DbNull,
+        entityMapping: body.entityMapping ? JSON.stringify(body.entityMapping) : Prisma.DbNull,
+        regionDescriptions: body.regionDescriptions ? JSON.stringify(body.regionDescriptions) : Prisma.DbNull,
+        regionPricing: body.regionPricing ? JSON.stringify(body.regionPricing) : Prisma.DbNull,
+        regionPaymentMethods: body.regionPaymentMethods ? JSON.stringify(body.regionPaymentMethods) : Prisma.DbNull,
       },
     });
     

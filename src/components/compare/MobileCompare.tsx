@@ -60,7 +60,7 @@ function FirmLogo({ item, size = "md" }: { item: any; size?: "sm" | "md" | "lg" 
   
   if (item.logo) {
     return (
-      <div className={`${sizeClasses[size]} overflow-hidden bg-zinc-800 border border-zinc-700 flex-shrink-0 shadow-lg`}>
+      <div className={`${sizeClasses[size]} overflow-hidden bg-[var(--ip-surface-2)] border border-[var(--ip-border)] flex-shrink-0 shadow-lg`}>
         <img 
           src={item.logo} 
           alt={item.name} 
@@ -71,7 +71,7 @@ function FirmLogo({ item, size = "md" }: { item: any; size?: "sm" | "md" | "lg" 
             const parent = target.parentElement;
             if (parent) {
               const fallback = document.createElement('div');
-              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(item.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`;
+              fallback.className = `${sizeClasses[size]} bg-gradient-to-r ${generateGradient(item.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`;
               fallback.textContent = item.name?.charAt(0) || '?';
               parent.appendChild(fallback);
             }
@@ -82,7 +82,7 @@ function FirmLogo({ item, size = "md" }: { item: any; size?: "sm" | "md" | "lg" 
   }
   
   return (
-    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(item.name)} flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0`}>
+    <div className={`${sizeClasses[size]} bg-gradient-to-r ${generateGradient(item.name)} flex items-center justify-center text-[var(--ip-text)] font-bold shadow-lg flex-shrink-0`}>
       {item.name?.charAt(0) || '?'}
     </div>
   );
@@ -104,8 +104,8 @@ function StarRating({ rating, count = 0, size = "sm" }: { rating: number; count?
       </div>
       {hasReviews && (
         <>
-          <span className="text-xs text-white ml-0.5">{displayRating.toFixed(1)}</span>
-          <span className="text-[10px] text-zinc-500 ml-0.5">({count})</span>
+          <span className="text-xs text-[var(--ip-text)] ml-0.5">{displayRating.toFixed(1)}</span>
+          <span className="text-[10px] text-[var(--ip-text-2)] ml-0.5">({count})</span>
         </>
       )}
     </div>
@@ -115,8 +115,8 @@ function StarRating({ rating, count = 0, size = "sm" }: { rating: number; count?
 // ============ GRADIENT GENERATOR ============
 const generateGradient = (name: string): string => {
   const gradients = [
-    "from-pink-500 to-purple-500",
-    "from-blue-500 to-purple-500",
+    "from-pink-500 to-blue-500",
+    "from-blue-500 to-blue-500",
     "from-green-500 to-blue-500",
     "from-yellow-500 to-orange-500",
     "from-red-500 to-pink-500",
@@ -366,15 +366,15 @@ export default function MobileCompare() {
       <MobileLayout title="Compare Platforms" showSearch={false}>
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
           <Globe size={48} className="text-zinc-600 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">
+          <h2 className="text-xl font-bold text-[var(--ip-text)] mb-2">
             No trading partners in {regionInfo.flag} {regionInfo.label}
           </h2>
-          <p className="text-zinc-400 text-sm mb-4">
+          <p className="text-[var(--ip-text-2)] text-sm mb-4">
             We don't have any brokers or prop firms available in {regionInfo.flag} {regionInfo.label} yet.
           </p>
           
-          <div className="bg-zinc-900/50 rounded-xl p-4 mb-6 border border-zinc-800">
-            <p className="text-sm text-zinc-400 mb-3">Try these regions instead:</p>
+          <div className="bg-[var(--ip-surface)] rounded-xl p-4 mb-6 border border-[var(--ip-border)]">
+            <p className="text-sm text-[var(--ip-text-2)] mb-3">Try these regions instead:</p>
             <div className="flex flex-wrap justify-center gap-2">
               {suggestions.map((suggestion) => (
                 <button
@@ -383,7 +383,7 @@ export default function MobileCompare() {
                     const { setRegion } = useRegion();
                     setRegion(suggestion.key);
                   }}
-                  className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm text-white transition-all duration-200 hover:scale-105"
+                  className="px-4 py-2 bg-[var(--ip-surface-2)] hover:bg-zinc-700 rounded-lg text-sm text-[var(--ip-text)] transition-all duration-200 hover:scale-105"
                 >
                   {suggestion.flag} {suggestion.label}
                 </button>
@@ -396,7 +396,7 @@ export default function MobileCompare() {
               const { setRegion } = useRegion();
               setRegion('GLOBAL');
             }}
-            className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all duration-200 shadow-lg hover:shadow-purple-500/25"
+            className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-lg hover:from-blue-500 hover:to-pink-500 transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
           >
             View All Global Partners
           </button>
@@ -410,8 +410,8 @@ export default function MobileCompare() {
       <MobileLayout title="Compare Platforms" showSearch={false}>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto" />
-            <p className="text-xs text-zinc-500 mt-3">Loading comparison data...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto" />
+            <p className="text-xs text-[var(--ip-text-2)] mt-3">Loading comparison data...</p>
           </div>
         </div>
       </MobileLayout>
@@ -425,17 +425,17 @@ export default function MobileCompare() {
       <div className="space-y-5 pb-6">
         
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-2xl p-5 border border-purple-500/30">
+        <div className="bg-gradient-to-r from-blue-600/20 to-pink-600/20 rounded-2xl p-5 border border-blue-500/30">
           <div className="flex items-center gap-2 mb-2">
-            <GitCompare size={18} className="text-purple-400" />
-            <span className="text-xs text-purple-400 font-medium">Compare Side by Side</span>
+            <GitCompare size={18} className="text-blue-400" />
+            <span className="text-xs text-blue-400 font-medium">Compare Side by Side</span>
           </div>
-          <h1 className="text-2xl font-bold text-white">Compare <span className="text-purple-400">{currentLabel}</span></h1>
-          <p className="text-xs text-zinc-400 mt-1">Select up to 4 platforms to compare features, pricing, and ratings</p>
+          <h1 className="text-2xl font-bold text-[var(--ip-text)]">Compare <span className="text-blue-400">{currentLabel}</span></h1>
+          <p className="text-xs text-[var(--ip-text-2)] mt-1">Select up to 4 platforms to compare features, pricing, and ratings</p>
         </div>
 
         {/* Type Toggle */}
-        <div className="flex gap-2 bg-zinc-900/50 rounded-xl p-1 border border-zinc-800">
+        <div className="flex gap-2 bg-[var(--ip-surface)] rounded-xl p-1 border border-[var(--ip-border)]">
           <button
             onClick={() => {
               setSelectedType('brokers');
@@ -444,8 +444,8 @@ export default function MobileCompare() {
             }}
             className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
               selectedType === 'brokers'
-                ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg'
-                : 'text-zinc-400'
+                ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-[var(--ip-text)] shadow-lg'
+                : 'text-[var(--ip-text-2)]'
             }`}
           >
             <TrendingUp size={14} /> Brokers ({brokersData.length})
@@ -458,8 +458,8 @@ export default function MobileCompare() {
             }}
             className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
               selectedType === 'prop-firms'
-                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
-                : 'text-zinc-400'
+                ? 'bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] shadow-lg'
+                : 'text-[var(--ip-text-2)]'
             }`}
           >
             <Trophy size={14} /> Prop Firms ({propFirmsData.length})
@@ -467,17 +467,17 @@ export default function MobileCompare() {
         </div>
 
         {/* Search & Add Section */}
-        <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-4">
+        <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Plus size={14} className="text-purple-400" />
-              <span className="text-white text-sm font-medium">Add to Compare</span>
+              <Plus size={14} className="text-blue-400" />
+              <span className="text-[var(--ip-text)] text-sm font-medium">Add to Compare</span>
             </div>
-            <span className="text-xs text-zinc-500">{selectedItems.length}/4 selected</span>
+            <span className="text-xs text-[var(--ip-text-2)]">{selectedItems.length}/4 selected</span>
           </div>
           
           <div className="relative" ref={searchRef}>
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={14} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ip-text-2)]" size={14} />
             <input
               ref={inputRef}
               type="text"
@@ -485,33 +485,33 @@ export default function MobileCompare() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onFocus={() => search.length > 1 && setShowSuggestions(true)}
-              className="w-full bg-zinc-800/80 border border-zinc-700 rounded-xl pl-9 pr-8 py-2.5 text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-purple-500"
+              className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-xl pl-9 pr-8 py-2.5 text-[var(--ip-text)] text-sm placeholder-zinc-500 focus:outline-none focus:border-blue-500"
             />
             {search && (
-              <button onClick={clearSearch} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white">
+              <button onClick={clearSearch} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--ip-text-2)] hover:text-[var(--ip-text)]">
                 <X size={14} />
               </button>
             )}
 
             <AnimatePresence>
               {showSuggestions && searchSuggestions.length > 0 && (
-                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 right-0 mt-2 bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl z-20 overflow-hidden">
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-full left-0 right-0 mt-2 bg-[var(--ip-surface)] border border-[var(--ip-border)] rounded-xl shadow-xl z-20 overflow-hidden">
                   {searchSuggestions.map((item) => (
                     <button
                       key={item.id}
                       onClick={() => handleAddItem(item)}
                       disabled={selectedItems.length >= 4}
-                      className="w-full px-3 py-2.5 text-left hover:bg-zinc-800 transition-colors flex items-center gap-3 border-b border-zinc-800 last:border-0 group disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-3 py-2.5 text-left hover:bg-[var(--ip-surface-2)] transition-colors flex items-center gap-3 border-b border-[var(--ip-border)] last:border-0 group disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <FirmLogo item={item} size="sm" />
                       <div className="flex-1">
-                        <div className="text-white text-sm font-medium">{item.name}</div>
-                        <div className="text-[10px] text-zinc-500 flex items-center gap-2">
+                        <div className="text-[var(--ip-text)] text-sm font-medium">{item.name}</div>
+                        <div className="text-[10px] text-[var(--ip-text-2)] flex items-center gap-2">
                           <span>{item.country || 'International'}</span>
                           <StarRating rating={item.rating || 0} count={selectedType === 'brokers' ? item.reviewsCount : item.totalReviews} size="sm" />
                         </div>
                       </div>
-                      <Plus size={14} className="text-purple-400 opacity-0 group-hover:opacity-100" />
+                      <Plus size={14} className="text-blue-400 opacity-0 group-hover:opacity-100" />
                     </button>
                   ))}
                 </motion.div>
@@ -527,7 +527,7 @@ export default function MobileCompare() {
         {/* Selected Items */}
         {selectedItems.length > 0 && (
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-white">Selected Platforms</h3>
+            <h3 className="text-sm font-medium text-[var(--ip-text)]">Selected Platforms</h3>
             <div className="space-y-2">
               {selectedItems.map((item, index) => {
                 const trustScore = item.avgTrustScore || item.trustScore || 0;
@@ -538,12 +538,12 @@ export default function MobileCompare() {
                   : (item.promotions && item.promotions.length > 0);
                 
                 return (
-                  <div key={item.id} className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-3">
+                  <div key={item.id} className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <FirmLogo item={item} size="sm" />
                         <div>
-                          <h4 className="text-white font-semibold text-sm">{item.name}</h4>
+                          <h4 className="text-[var(--ip-text)] font-semibold text-sm">{item.name}</h4>
                           <div className="flex items-center gap-2 mt-0.5">
                             <StarRating rating={rating} count={reviewsCount} size="sm" />
                             {trustScore > 0 && <TrustScoreBadge score={trustScore} size="sm" />}
@@ -559,23 +559,23 @@ export default function MobileCompare() {
                     </div>
                     
                     <div className="grid grid-cols-3 gap-2 mt-3">
-                      <div className="bg-zinc-800/30 rounded-lg p-2 text-center">
-                        <div className="text-zinc-500 text-[10px]">Min {selectedType === 'brokers' ? 'Deposit' : 'Account'}</div>
-                        <div className="text-white font-semibold text-xs">${getMinAccountSize(item).toLocaleString()}</div>
+                      <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+                        <div className="text-[var(--ip-text-2)] text-[10px]">Min {selectedType === 'brokers' ? 'Deposit' : 'Account'}</div>
+                        <div className="text-[var(--ip-text)] font-semibold text-xs">${getMinAccountSize(item).toLocaleString()}</div>
                       </div>
                       {selectedType === 'prop-firms' ? (
-                        <div className="bg-zinc-800/30 rounded-lg p-2 text-center">
-                          <div className="text-zinc-500 text-[10px]">Max Payout</div>
+                        <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+                          <div className="text-[var(--ip-text-2)] text-[10px]">Max Payout</div>
                           <div className="text-green-400 font-semibold text-xs">{getMaxPayout(item)}%</div>
                         </div>
                       ) : (
-                        <div className="bg-zinc-800/30 rounded-lg p-2 text-center">
-                          <div className="text-zinc-500 text-[10px]">Leverage</div>
-                          <div className="text-white font-semibold text-xs">{item.maxLeverage || item.leverage || '1:100'}</div>
+                        <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+                          <div className="text-[var(--ip-text-2)] text-[10px]">Leverage</div>
+                          <div className="text-[var(--ip-text)] font-semibold text-xs">{item.maxLeverage || item.leverage || '1:100'}</div>
                         </div>
                       )}
-                      <div className="bg-zinc-800/30 rounded-lg p-2 text-center">
-                        <div className="text-zinc-500 text-[10px]">Rating</div>
+                      <div className="bg-[var(--ip-surface-2)] rounded-lg p-2 text-center">
+                        <div className="text-[var(--ip-text-2)] text-[10px]">Rating</div>
                         <div className="text-yellow-400 font-semibold text-xs">{rating.toFixed(1)}</div>
                       </div>
                     </div>
@@ -596,13 +596,13 @@ export default function MobileCompare() {
 
         {/* Comparison Table - WITH LOGOS IN HEADER */}
         {selectedItems.length >= 2 && (
-          <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 overflow-hidden">
+          <div className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] overflow-hidden">
             {/* Header Row with Logos and Names */}
-            <div className="p-3 border-b border-zinc-800 bg-zinc-800/30">
+            <div className="p-3 border-b border-[var(--ip-border)] bg-[var(--ip-surface-2)]">
               <div className="grid grid-cols-5 gap-2 items-center">
                 <div className="col-span-1">
-                  <h3 className="text-white text-sm font-semibold flex items-center gap-2">
-                    <BarChart3 size={14} className="text-purple-400" />
+                  <h3 className="text-[var(--ip-text)] text-sm font-semibold flex items-center gap-2">
+                    <BarChart3 size={14} className="text-blue-400" />
                     Feature
                   </h3>
                 </div>
@@ -610,7 +610,7 @@ export default function MobileCompare() {
                   <div key={`header-${item.id}`} className="col-span-1 text-center">
                     <div className="flex flex-col items-center">
                       <FirmLogo item={item} size="sm" />
-                      <span className="text-xs font-medium text-white truncate max-w-[80px] mt-1">{item.name}</span>
+                      <span className="text-xs font-medium text-[var(--ip-text)] truncate max-w-[80px] mt-1">{item.name}</span>
                     </div>
                   </div>
                 ))}
@@ -627,13 +627,13 @@ export default function MobileCompare() {
                       <div className="col-span-1">
                         <div className="flex items-center gap-2">
                           <Star size={12} className="text-yellow-500" />
-                          <span className="text-xs text-zinc-400 font-medium">Rating</span>
+                          <span className="text-xs text-[var(--ip-text-2)] font-medium">Rating</span>
                         </div>
                       </div>
                       {selectedItems.map((item) => (
                         <div key={`rating-${item.id}`} className="col-span-1 text-center">
-                          <div className="text-white text-sm font-medium">{item.rating?.toFixed(1) || '0.0'}</div>
-                          <div className="text-[10px] text-zinc-500">({item.totalReviews || 0})</div>
+                          <div className="text-[var(--ip-text)] text-sm font-medium">{item.rating?.toFixed(1) || '0.0'}</div>
+                          <div className="text-[10px] text-[var(--ip-text-2)]">({item.totalReviews || 0})</div>
                         </div>
                       ))}
                     </div>
@@ -644,14 +644,14 @@ export default function MobileCompare() {
                     <div className="grid grid-cols-5 gap-2 items-center">
                       <div className="col-span-1">
                         <div className="flex items-center gap-2">
-                          <Shield size={12} className="text-purple-500" />
-                          <span className="text-xs text-zinc-400 font-medium">Trust Score</span>
+                          <Shield size={12} className="text-blue-500" />
+                          <span className="text-xs text-[var(--ip-text-2)] font-medium">Trust Score</span>
                         </div>
                       </div>
                       {selectedItems.map((item) => (
                         <div key={`trust-${item.id}`} className="col-span-1 text-center">
                           <div className="flex items-center justify-center gap-1">
-                            <span className="text-white text-sm font-medium">{item.avgTrustScore || item.trustScore || 0}</span>
+                            <span className="text-[var(--ip-text)] text-sm font-medium">{item.avgTrustScore || item.trustScore || 0}</span>
                             <TrustScoreBadge score={item.avgTrustScore || item.trustScore || 0} size="sm" showLabel={false} />
                           </div>
                         </div>
@@ -665,12 +665,12 @@ export default function MobileCompare() {
                       <div className="col-span-1">
                         <div className="flex items-center gap-2">
                           <Clock size={12} className="text-green-500" />
-                          <span className="text-xs text-zinc-400 font-medium">Payout Speed</span>
+                          <span className="text-xs text-[var(--ip-text-2)] font-medium">Payout Speed</span>
                         </div>
                       </div>
                       {selectedItems.map((item) => (
                         <div key={`payout-${item.id}`} className="col-span-1 text-center">
-                          <span className="text-white text-sm">{getPayoutSpeed(item)}</span>
+                          <span className="text-[var(--ip-text)] text-sm">{getPayoutSpeed(item)}</span>
                         </div>
                       ))}
                     </div>
@@ -682,7 +682,7 @@ export default function MobileCompare() {
                       <div className="col-span-1">
                         <div className="flex items-center gap-2">
                           <BookOpenIcon size={12} className="text-cyan-500" />
-                          <span className="text-xs text-zinc-400 font-medium">Trading Rules</span>
+                          <span className="text-xs text-[var(--ip-text-2)] font-medium">Trading Rules</span>
                         </div>
                       </div>
                       {selectedItems.map((item) => {
@@ -691,19 +691,19 @@ export default function MobileCompare() {
                         return (
                           <div key={`rules-${item.id}`} className="col-span-1 text-center space-y-1">
                             {rules?.maxDrawdown && (
-                              <div className="text-[10px]"><span className="text-zinc-500">Max DD:</span> <span className="text-white">{rules.maxDrawdown}%</span></div>
+                              <div className="text-[10px]"><span className="text-[var(--ip-text-2)]">Max DD:</span> <span className="text-[var(--ip-text)]">{rules.maxDrawdown}%</span></div>
                             )}
                             {rules?.profitTarget && (
-                              <div className="text-[10px]"><span className="text-zinc-500">Target:</span> <span className="text-white">
+                              <div className="text-[10px]"><span className="text-[var(--ip-text-2)]">Target:</span> <span className="text-[var(--ip-text)]">
                                 {typeof rules.profitTarget === 'object' 
                                   ? `${rules.profitTarget.phase1 || 0}% + ${rules.profitTarget.phase2 || 0}%` 
                                   : `${rules.profitTarget}%`}
                               </span></div>
                             )}
                             {rules?.minTradingDays && (
-                              <div className="text-[10px]"><span className="text-zinc-500">Min Days:</span> <span className="text-white">{rules.minTradingDays}</span></div>
+                              <div className="text-[10px]"><span className="text-[var(--ip-text-2)]">Min Days:</span> <span className="text-[var(--ip-text)]">{rules.minTradingDays}</span></div>
                             )}
-                            {!rules && <span className="text-[10px] text-zinc-500">N/A</span>}
+                            {!rules && <span className="text-[10px] text-[var(--ip-text-2)]">N/A</span>}
                           </div>
                         );
                       })}
@@ -716,7 +716,7 @@ export default function MobileCompare() {
                       <div className="col-span-1">
                         <div className="flex items-center gap-2">
                           <Coins size={12} className="text-emerald-500" />
-                          <span className="text-xs text-zinc-400 font-medium">Account Costs</span>
+                          <span className="text-xs text-[var(--ip-text-2)] font-medium">Account Costs</span>
                         </div>
                       </div>
                       {selectedItems.map((item) => {
@@ -725,21 +725,21 @@ export default function MobileCompare() {
                         const displayOptions = showMore ? accountOptions : accountOptions.slice(0, 2);
                         return (
                           <div key={`costs-${item.id}`} className="col-span-1 text-center space-y-1">
-                            {displayOptions.map((acc, idx) => (
-                              <div key={idx} className="bg-zinc-800/30 rounded-lg p-1">
-                                <div className="text-white text-xs font-medium">${acc.size.toLocaleString()}</div>
+                            {displayOptions.map((acc: {name?:string;minDeposit?:number;commission?:string;spreadType?:string;swapFree?:boolean;size:number;price:number;payout?:number}, idx: number) => (
+                              <div key={idx} className="bg-[var(--ip-surface-2)] rounded-lg p-1">
+                                <div className="text-[var(--ip-text)] text-xs font-medium">${acc.size.toLocaleString()}</div>
                                 <div className="text-green-400 text-[10px]">${acc.price.toLocaleString()}</div>
                               </div>
                             ))}
                             {accountOptions.length > 2 && (
                               <button
                                 onClick={() => setExpandedProgram(expandedProgram === item.id ? null : item.id)}
-                                className="text-[10px] text-purple-400"
+                                className="text-[10px] text-blue-400"
                               >
                                 {showMore ? 'Show less' : `+${accountOptions.length - 2} more`}
                               </button>
                             )}
-                            {accountOptions.length === 0 && <span className="text-[10px] text-zinc-500">N/A</span>}
+                            {accountOptions.length === 0 && <span className="text-[10px] text-[var(--ip-text-2)]">N/A</span>}
                           </div>
                         );
                       })}
@@ -752,12 +752,12 @@ export default function MobileCompare() {
                       <div className="col-span-1">
                         <div className="flex items-center gap-2">
                           <Activity size={12} className="text-orange-500" />
-                          <span className="text-xs text-zinc-400 font-medium">Trading Conditions</span>
+                          <span className="text-xs text-[var(--ip-text-2)] font-medium">Trading Conditions</span>
                         </div>
                       </div>
                       {selectedItems.map((item) => (
                         <div key={`conditions-${item.id}`} className="col-span-1 text-center">
-                          <span className="text-white text-sm">{getTradingConditions(item).toFixed(1)}/5</span>
+                          <span className="text-[var(--ip-text)] text-sm">{getTradingConditions(item).toFixed(1)}/5</span>
                         </div>
                       ))}
                     </div>
@@ -769,12 +769,12 @@ export default function MobileCompare() {
                       <div className="col-span-1">
                         <div className="flex items-center gap-2">
                           <Headphones size={12} className="text-blue-500" />
-                          <span className="text-xs text-zinc-400 font-medium">Support Score</span>
+                          <span className="text-xs text-[var(--ip-text-2)] font-medium">Support Score</span>
                         </div>
                       </div>
                       {selectedItems.map((item) => (
                         <div key={`support-${item.id}`} className="col-span-1 text-center">
-                          <span className="text-white text-sm">{getSupportScore(item).toFixed(1)}/5</span>
+                          <span className="text-[var(--ip-text)] text-sm">{getSupportScore(item).toFixed(1)}/5</span>
                         </div>
                       ))}
                     </div>
@@ -786,17 +786,17 @@ export default function MobileCompare() {
                       <div className="col-span-1">
                         <div className="flex items-center gap-2">
                           <Monitor size={12} className="text-cyan-500" />
-                          <span className="text-xs text-zinc-400 font-medium">Platforms</span>
+                          <span className="text-xs text-[var(--ip-text-2)] font-medium">Platforms</span>
                         </div>
                       </div>
                       {selectedItems.map((item) => (
                         <div key={`platforms-${item.id}`} className="col-span-1 text-center">
                           <div className="flex flex-wrap gap-1 justify-center">
                             {getPlatforms(item).slice(0, 2).map((p: string, idx: number) => (
-                              <span key={idx} className="text-[9px] bg-zinc-800 text-zinc-300 px-1.5 py-0.5 rounded">{p}</span>
+                              <span key={idx} className="text-[9px] bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] px-1.5 py-0.5 rounded">{p}</span>
                             ))}
                             {getPlatforms(item).length > 2 && (
-                              <span className="text-[9px] text-zinc-500">+{getPlatforms(item).length - 2}</span>
+                              <span className="text-[9px] text-[var(--ip-text-2)]">+{getPlatforms(item).length - 2}</span>
                             )}
                           </div>
                         </div>
@@ -815,13 +815,13 @@ export default function MobileCompare() {
                       <div className="col-span-1">
                         <div className="flex items-center gap-2">
                           <Star size={12} className="text-yellow-500" />
-                          <span className="text-xs text-zinc-400 font-medium">Rating</span>
+                          <span className="text-xs text-[var(--ip-text-2)] font-medium">Rating</span>
                         </div>
                       </div>
                       {selectedItems.map((item) => (
                         <div key={`rating-${item.id}`} className="col-span-1 text-center">
-                          <div className="text-white text-sm font-medium">{item.rating?.toFixed(1) || '0.0'}</div>
-                          <div className="text-[10px] text-zinc-500">({item.reviewsCount || 0})</div>
+                          <div className="text-[var(--ip-text)] text-sm font-medium">{item.rating?.toFixed(1) || '0.0'}</div>
+                          <div className="text-[10px] text-[var(--ip-text-2)]">({item.reviewsCount || 0})</div>
                         </div>
                       ))}
                     </div>
@@ -832,14 +832,14 @@ export default function MobileCompare() {
                     <div className="grid grid-cols-5 gap-2 items-center">
                       <div className="col-span-1">
                         <div className="flex items-center gap-2">
-                          <Shield size={12} className="text-purple-500" />
-                          <span className="text-xs text-zinc-400 font-medium">Trust Score</span>
+                          <Shield size={12} className="text-blue-500" />
+                          <span className="text-xs text-[var(--ip-text-2)] font-medium">Trust Score</span>
                         </div>
                       </div>
                       {selectedItems.map((item) => (
                         <div key={`trust-${item.id}`} className="col-span-1 text-center">
                           <div className="flex items-center justify-center gap-1">
-                            <span className="text-white text-sm font-medium">{item.avgTrustScore || item.trustScore || 0}</span>
+                            <span className="text-[var(--ip-text)] text-sm font-medium">{item.avgTrustScore || item.trustScore || 0}</span>
                             <TrustScoreBadge score={item.avgTrustScore || item.trustScore || 0} size="sm" showLabel={false} />
                           </div>
                         </div>
@@ -853,15 +853,15 @@ export default function MobileCompare() {
                       <div className="col-span-1">
                         <div className="flex items-center gap-2">
                           <Clock size={12} className="text-green-500" />
-                          <span className="text-xs text-zinc-400 font-medium">Withdrawal Speed</span>
+                          <span className="text-xs text-[var(--ip-text-2)] font-medium">Withdrawal Speed</span>
                         </div>
                       </div>
                       {selectedItems.map((item) => (
                         <div key={`withdrawal-${item.id}`} className="col-span-1 text-center">
                           {getWithdrawalSpeedRating(item) > 0 ? (
-                            <span className="text-white text-sm">{getWithdrawalSpeedRating(item).toFixed(1)}/5</span>
+                            <span className="text-[var(--ip-text)] text-sm">{getWithdrawalSpeedRating(item).toFixed(1)}/5</span>
                           ) : (
-                            <span className="text-[10px] text-zinc-500">N/A</span>
+                            <span className="text-[10px] text-[var(--ip-text-2)]">N/A</span>
                           )}
                         </div>
                       ))}
@@ -874,12 +874,12 @@ export default function MobileCompare() {
                       <div className="col-span-1">
                         <div className="flex items-center gap-2">
                           <Activity size={12} className="text-orange-500" />
-                          <span className="text-xs text-zinc-400 font-medium">Trading Conditions</span>
+                          <span className="text-xs text-[var(--ip-text-2)] font-medium">Trading Conditions</span>
                         </div>
                       </div>
                       {selectedItems.map((item) => (
                         <div key={`conditions-${item.id}`} className="col-span-1 text-center">
-                          <span className="text-white text-sm">{getTradingConditions(item).toFixed(1)}/5</span>
+                          <span className="text-[var(--ip-text)] text-sm">{getTradingConditions(item).toFixed(1)}/5</span>
                         </div>
                       ))}
                     </div>
@@ -891,12 +891,12 @@ export default function MobileCompare() {
                       <div className="col-span-1">
                         <div className="flex items-center gap-2">
                           <Gauge size={12} className="text-blue-500" />
-                          <span className="text-xs text-zinc-400 font-medium">Max Leverage</span>
+                          <span className="text-xs text-[var(--ip-text-2)] font-medium">Max Leverage</span>
                         </div>
                       </div>
                       {selectedItems.map((item) => (
                         <div key={`leverage-${item.id}`} className="col-span-1 text-center">
-                          <span className="text-white text-sm font-bold">{item.maxLeverage || item.leverage || '1:100'}</span>
+                          <span className="text-[var(--ip-text)] text-sm font-bold">{item.maxLeverage || item.leverage || '1:100'}</span>
                         </div>
                       ))}
                     </div>
@@ -908,7 +908,7 @@ export default function MobileCompare() {
                       <div className="col-span-1">
                         <div className="flex items-center gap-2">
                           <Target size={12} className="text-cyan-500" />
-                          <span className="text-xs text-zinc-400 font-medium">Spreads</span>
+                          <span className="text-xs text-[var(--ip-text-2)] font-medium">Spreads</span>
                         </div>
                       </div>
                       {selectedItems.map((item) => (
@@ -916,17 +916,17 @@ export default function MobileCompare() {
                           {item.averageSpreads && Object.keys(item.averageSpreads).length > 0 ? (
                             <>
                               {item.averageSpreads.eurusd && (
-                                <div className="text-[10px]"><span className="text-zinc-500">EURUSD:</span> <span className="text-white">{item.averageSpreads.eurusd} pips</span></div>
+                                <div className="text-[10px]"><span className="text-[var(--ip-text-2)]">EURUSD:</span> <span className="text-[var(--ip-text)]">{item.averageSpreads.eurusd} pips</span></div>
                               )}
                               {item.averageSpreads.us30 && (
-                                <div className="text-[10px]"><span className="text-zinc-500">US30:</span> <span className="text-white">{item.averageSpreads.us30} pips</span></div>
+                                <div className="text-[10px]"><span className="text-[var(--ip-text-2)]">US30:</span> <span className="text-[var(--ip-text)]">{item.averageSpreads.us30} pips</span></div>
                               )}
                               {item.averageSpreads.xauusd && (
-                                <div className="text-[10px]"><span className="text-zinc-500">XAUUSD:</span> <span className="text-white">{item.averageSpreads.xauusd} pips</span></div>
+                                <div className="text-[10px]"><span className="text-[var(--ip-text-2)]">XAUUSD:</span> <span className="text-[var(--ip-text)]">{item.averageSpreads.xauusd} pips</span></div>
                               )}
                             </>
                           ) : (
-                            <span className="text-[10px] text-zinc-500">N/A</span>
+                            <span className="text-[10px] text-[var(--ip-text-2)]">N/A</span>
                           )}
                         </div>
                       ))}
@@ -939,12 +939,12 @@ export default function MobileCompare() {
                       <div className="col-span-1">
                         <div className="flex items-center gap-2">
                           <Headphones size={12} className="text-blue-500" />
-                          <span className="text-xs text-zinc-400 font-medium">Support Score</span>
+                          <span className="text-xs text-[var(--ip-text-2)] font-medium">Support Score</span>
                         </div>
                       </div>
                       {selectedItems.map((item) => (
                         <div key={`support-${item.id}`} className="col-span-1 text-center">
-                          <span className="text-white text-sm">{getSupportScore(item).toFixed(1)}/5</span>
+                          <span className="text-[var(--ip-text)] text-sm">{getSupportScore(item).toFixed(1)}/5</span>
                         </div>
                       ))}
                     </div>
@@ -956,12 +956,12 @@ export default function MobileCompare() {
                       <div className="col-span-1">
                         <div className="flex items-center gap-2">
                           <DollarSign size={12} className="text-emerald-500" />
-                          <span className="text-xs text-zinc-400 font-medium">Min Deposit</span>
+                          <span className="text-xs text-[var(--ip-text-2)] font-medium">Min Deposit</span>
                         </div>
                       </div>
                       {selectedItems.map((item) => (
                         <div key={`deposit-${item.id}`} className="col-span-1 text-center">
-                          <span className="text-white text-sm font-bold">${getMinAccountSize(item).toLocaleString()}</span>
+                          <span className="text-[var(--ip-text)] text-sm font-bold">${getMinAccountSize(item).toLocaleString()}</span>
                         </div>
                       ))}
                     </div>
@@ -974,12 +974,12 @@ export default function MobileCompare() {
 
         {/* Quick Insights */}
         {selectedItems.length >= 2 && (
-          <div className="p-3 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20">
+          <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500/10 to-pink-500/10 border border-blue-500/20">
             <div className="flex items-center gap-2 mb-1">
-              <Award size={14} className="text-purple-400" />
-              <span className="text-xs font-medium text-white">Quick Insights</span>
+              <Award size={14} className="text-blue-400" />
+              <span className="text-xs font-medium text-[var(--ip-text)]">Quick Insights</span>
             </div>
-            <p className="text-[11px] text-zinc-300">
+            <p className="text-[11px] text-[var(--ip-text-2)]">
               {(() => {
                 const highestRated = [...selectedItems].sort((a, b) => (b.rating || 0) - (a.rating || 0))[0];
                 const bestSupport = [...selectedItems].sort((a, b) => getSupportScore(b) - getSupportScore(a))[0];
@@ -992,11 +992,11 @@ export default function MobileCompare() {
 
         {/* Empty State */}
         {selectedItems.length === 0 && (
-          <div className="text-center py-12 bg-zinc-900/50 rounded-xl border border-zinc-800">
-            <div className="w-16 h-16 bg-zinc-800/50 rounded-full flex items-center justify-center mx-auto mb-3">
-              <GitCompare size={24} className="text-zinc-500" />
+          <div className="text-center py-12 bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)]">
+            <div className="w-16 h-16 bg-[var(--ip-surface-2)] rounded-full flex items-center justify-center mx-auto mb-3">
+              <GitCompare size={24} className="text-[var(--ip-text-2)]" />
             </div>
-            <p className="text-zinc-500 text-sm">No platforms selected</p>
+            <p className="text-[var(--ip-text-2)] text-sm">No platforms selected</p>
             <p className="text-zinc-600 text-xs mt-1">Search and add up to 4 to compare</p>
           </div>
         )}
@@ -1010,13 +1010,13 @@ export default function MobileCompare() {
                 const type = selectedType === 'brokers' ? 'broker' : 'prop';
                 router.push(`/compare?ids=${ids}&type=${type}`);
               }}
-              className="flex-1 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2"
+              className="flex-1 py-2.5 bg-gradient-to-r from-blue-600 to-pink-600 text-[var(--ip-text)] rounded-xl text-sm font-medium flex items-center justify-center gap-2"
             >
               <Share size={14} /> Share Comparison
             </button>
             <button
               onClick={() => setSelectedItems([])}
-              className="flex-1 py-2.5 bg-zinc-800 text-zinc-300 rounded-xl text-sm font-medium flex items-center justify-center gap-2"
+              className="flex-1 py-2.5 bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] rounded-xl text-sm font-medium flex items-center justify-center gap-2"
             >
               <X size={14} /> Clear All
             </button>
