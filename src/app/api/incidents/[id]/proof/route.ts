@@ -1,157 +1,82 @@
-import {sessionSecret} from '@/lib/session-secret';
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
-
-const prisma = new PrismaClient();
-
-async function getUserFromToken(request: NextRequest) {
-  const token = request.cookies.get('auth_token')?.value;
-  if (!token) return null;
-  try {
-    const decoded = jwt.verify(
-      token, 
-      sessionSecret()
-    ) as { userId: string };
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId }
-    });
-    return user;
-  } catch {
-    return null;
-  }
-}
-
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { requestUser } from "@/lib/request-user";
+import { POST as upload } from "@/app/api/evidence/route";
 export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  r: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  try {
-    const { id } = await params;
-    const user = await getUserFromToken(request);
-    
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const incident = await prisma.incident.findUnique({
-      where: { id }
-    });
-
-    if (!incident) {
-      return NextResponse.json({ error: 'Incident not found' }, { status: 404 });
-    }
-
-    if (incident.userId !== user.id) {
-      return NextResponse.json({ error: 'Not your incident' }, { status: 403 });
-    }
-
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
-    
-    if (!file) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
-    }
-
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
-    if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: 'Invalid file type' }, { status: 400 });
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File too large (max 5MB)' }, { status: 400 });
-    }
-
-    // Save file
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    
-    const uploadDir = path.join(process.cwd(), 'public/uploads/incidents');
-    await mkdir(uploadDir, { recursive: true });
-    
-    const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-    const filepath = path.join(uploadDir, filename);
-    await writeFile(filepath, buffer);
-    
-    const fileUrl = `/uploads/incidents/${filename}`;
-
-    // Update incident with proof URL
-    const proofUrls = [...(incident.proofUrls || []), fileUrl];
-    await prisma.incident.update({
-      where: { id },
-      data: { 
-        proofUrls,
-        status: proofUrls.length > 0 ? 'PROOF_SUBMITTED' : incident.status
-      }
-    });
-
-    return NextResponse.json({
-      success: true,
-      fileUrl,
-      message: 'Proof uploaded successfully',
-      proofProvided: true
-    });
-
-  } catch (error) {
-    console.error('Error uploading proof:', error);
-    return NextResponse.json({ error: 'Failed to upload proof' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
-  }
+  const u = await requestUser(r);
+  if (!u) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { id } = await params;
+  if (!(await prisma.incident.findFirst({ where: { id, userId: u.id } })))
+    return NextResponse.json(
+      { error: "Incident unavailable" },
+      { status: 404 },
+    );
+  const response = await upload(r);
+  if (!response.ok) return response;
+  const data = await response.json();
+  await prisma.privateEvidence.update({
+    where: { id: data.evidence.id },
+    data: { incidentId: id },
+  });
+  return NextResponse.json({
+    success: true,
+    fileUrl: "/api/evidence/" + data.evidence.id,
+    proofProvided: true,
+    message: "Evidence stored privately for moderation",
+  });
 }
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+export async function GET(
+  r: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const u = await requestUser(r);
+    if (!u)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const { id } = await params;
-    const user = await getUserFromToken(request);
-    
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const incident = await prisma.incident.findUnique({
-      where: { id }
+    const incident = await prisma.incident.findUnique({ where: { id } });
+    if (!incident || (incident.userId !== u.id && u.role !== "ADMIN"))
+      return NextResponse.json(
+        { error: "Evidence unavailable" },
+        { status: 404 },
+      );
+    const index = Number(r.nextUrl.searchParams.get("index"));
+    const url = incident.proofUrls[index];
+    if (
+      !Number.isInteger(index) ||
+      !url ||
+      !/^\/uploads\/incidents\/[a-zA-Z0-9_.-]+$/.test(url)
+    )
+      return NextResponse.json(
+        { error: "Evidence unavailable" },
+        { status: 404 },
+      );
+    const { readFile } = await import("node:fs/promises");
+    const path = await import("node:path");
+    const bytes = await readFile(path.join(process.cwd(), "public", url));
+    await prisma.auditEvent.create({
+      data: {
+        actorId: u.id,
+        action: "LEGACY_EVIDENCE_VIEWED",
+        entityType: "incident",
+        entityId: id,
+      },
     });
-
-    if (!incident) {
-      return NextResponse.json({ error: 'Incident not found' }, { status: 404 });
-    }
-
-    if (incident.userId !== user.id) {
-      return NextResponse.json({ error: 'Not your incident' }, { status: 403 });
-    }
-
-    const { fileUrl } = await request.json();
-
-    // Remove the file URL from the array
-    const proofUrls = (incident.proofUrls || []).filter((url: string) => url !== fileUrl);
-
-    await prisma.incident.update({
-      where: { id },
-      data: { 
-        proofUrls,
-        status: proofUrls.length === 0 && incident.status === 'PROOF_SUBMITTED' ? 'PENDING' : incident.status
-      }
+    return new Response(new Uint8Array(bytes), {
+      headers: {
+        "Content-Type": "application/octet-stream",
+        "Content-Disposition": 'attachment; filename="previous-evidence"',
+        "Cache-Control": "private, no-store",
+        "X-Content-Type-Options": "nosniff",
+      },
     });
-
-    // Note: You might want to also delete the physical file from the filesystem
-
-    return NextResponse.json({
-      success: true,
-      message: 'Proof removed successfully'
-    });
-
-  } catch (error) {
-    console.error('Error removing proof:', error);
-    return NextResponse.json({ error: 'Failed to remove proof' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+  } catch {
+    return NextResponse.json(
+      { error: "Evidence unavailable" },
+      { status: 404 },
+    );
   }
 }

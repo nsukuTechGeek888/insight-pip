@@ -14,6 +14,7 @@ import {
 import { useUser } from "@/contexts/UserContext";
 type Stats = {
   users: number;
+  openIncidents:number;
   brokers: number;
   propFirms: number;
   activeProviders: number;
@@ -27,6 +28,8 @@ type Stats = {
 type Recent = { id: string; title: string; status: string; createdAt: string };
 export default function AdminOverview() {
   const { user, isLoading } = useUser();
+  const [growth,setGrowth]=useState<{day:string;users:number;reviews:number;incidents:number}[]>([]);
+  const [series,setSeries]=useState<"users"|"reviews"|"incidents">("users");
   const [stats, setStats] = useState<Stats | null>(null);
   const [recent, setRecent] = useState<Recent[]>([]);
   const [error, setError] = useState(false);
@@ -38,7 +41,7 @@ export default function AdminOverview() {
       const r = await fetch("/api/admin/stats");
       if (!r.ok) throw Error();
       const d = await r.json();
-      setStats(d.stats);
+      setStats(d.stats);setGrowth(d.growth||[]);
       setRecent(d.recent.reviews);
     } catch {
       setError(true);
@@ -100,8 +103,8 @@ export default function AdminOverview() {
           ],
           [
             Activity,
-            "Pending incidents",
-            stats?.incidents.pending,
+            "Open incidents",
+            stats?.openIncidents,
             "/admin/incidents",
           ],
         ].map(([Icon, label, value, url]) => {
@@ -176,6 +179,7 @@ export default function AdminOverview() {
           </div>
         </section>
       </div>
+      <section className="v2-panel v2-growth-panel"><div className="v2-section-title"><div><span className="v2-eyebrow">ACTIVITY OVER TIME</span><h2>Platform growth · last 30 days</h2></div><div className="v2-tabs">{(['users','reviews','incidents'] as const).map(key=><button key={key} aria-pressed={series===key} onClick={()=>setSeries(key)}>{key==='users'?'New accounts':key==='reviews'?'Review submissions':'Incident reports'}</button>)}</div></div>{growth.length?<><svg viewBox="0 0 900 200" role="img" aria-label={`${series} per day over the last 30 days`}><line x1="10" y1="170" x2="890" y2="170" stroke="var(--ip-border)"/>{growth.map((point,index)=>{const max=Math.max(1,...growth.map(p=>p[series]));const height=point[series]/max*140;return <g key={point.day}><rect x={15+index*29} y={170-height} width="16" height={Math.max(height,1)} rx="3" fill="var(--ip-blue)" opacity={point[series]?1:.2}><title>{new Date(point.day).toLocaleDateString()}: {point[series]}</title></rect>{index%7===0&&<text x={15+index*29} y="192" fontSize="11" fill="var(--ip-text-2)">{new Date(point.day).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</text>}</g>;})}</svg><p className="v2-form-note">Counts come from all database records, grouped by UTC creation date. Review submissions include unpublished submissions.</p><details><summary>View daily counts</summary><div className="v2-audit-table"><table><thead><tr><th>Date</th><th>Accounts</th><th>Reviews</th><th>Incidents</th></tr></thead><tbody>{growth.map(p=><tr key={p.day}><td>{new Date(p.day).toLocaleDateString()}</td><td>{p.users}</td><td>{p.reviews}</td><td>{p.incidents}</td></tr>)}</tbody></table></div></details></>:<div className="v2-state">Growth data is unavailable.</div>}</section>
       <section className="v2-panel">
         <div className="v2-panel-heading">
           <h2>Recent review submissions</h2>

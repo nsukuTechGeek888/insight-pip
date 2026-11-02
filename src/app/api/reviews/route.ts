@@ -1,105 +1,82 @@
-import {sessionSecret} from '@/lib/session-secret';
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
+import {verifiedIds} from "@/lib/verification";
+import { z } from "zod";
+import { throttle } from "@/lib/platform-security";
+import { evidenceIds, attachEvidence } from "@/lib/evidence";
+import { requestUser } from "@/lib/request-user";
+import { NextRequest, NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/db";
 
 // Helper function to verify custom JWT token
 async function getUserFromToken(request: NextRequest) {
-  const token = request.cookies.get('auth_token')?.value;
-  
-  console.log('🔑 Token from cookie:', token ? 'Present' : 'Not present');
-  
-  if (!token) return null;
-  
-  try {
-    const decoded = jwt.verify(
-      token, 
-      sessionSecret()
-    ) as { userId: string; email: string };
-    
-    console.log('✅ Token verified for user:', decoded.email);
-    
-    // Get user from database
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: { 
-        id: true, 
-        email: true, 
-        name: true,
-        role: true 
-      }
-    });
-    
-    return user;
-  } catch (error) {
-    console.error('❌ Token verification failed:', error);
-    return null;
-  }
+  return requestUser(request);
 }
 
 // Helper function to calculate trust score
 function calculateTrustScore(data: any): number {
   let score = 0;
   let totalWeight = 0;
-  
+
   // Withdrawal Experience (40%)
   if (data.withdrawalExperience && data.withdrawalExperience > 0) {
     score += (data.withdrawalExperience / 5) * 40;
     totalWeight += 40;
-  } else if (data.withdrawalSpeed === 'Still Waiting') {
+  } else if (data.withdrawalSpeed === "Still Waiting") {
     score += 0;
     totalWeight += 40;
   } else if (data.withdrawalSpeed) {
     const speedScores: Record<string, number> = {
-      'Same Day': 5,
-      '1-3 Days': 4,
-      '3-7 Days': 3,
-      '7+ Days': 2,
-      'Still Waiting': 0
+      "Same Day": 5,
+      "1-3 Days": 4,
+      "3-7 Days": 3,
+      "7+ Days": 2,
+      "Still Waiting": 0,
     };
     score += (speedScores[data.withdrawalSpeed] / 5) * 40;
     totalWeight += 40;
   }
-  
+
   // Execution Quality (20%)
   if (data.executionQuality && data.executionQuality > 0) {
     score += (data.executionQuality / 5) * 20;
     totalWeight += 20;
   }
-  
+
   // Reliability (20%)
   if (data.reliability && data.reliability > 0) {
     score += (data.reliability / 5) * 20;
     totalWeight += 20;
   }
-  
+
   // Customer Support (10%)
   if (data.customerSupport && data.customerSupport > 0) {
     score += (data.customerSupport / 5) * 10;
     totalWeight += 10;
   }
-  
+
   // Recommendation (10%)
-  if (data.wouldRecommend === 'Yes') {
+  if (data.wouldRecommend === "Yes") {
     score += 10;
     totalWeight += 10;
-  } else if (data.wouldRecommend === 'No') {
+  } else if (data.wouldRecommend === "No") {
     score += 0;
     totalWeight += 10;
   }
-  
+
   // Account Issues (penalty)
-  if (data.accountIssues && data.accountIssues !== 'No Issues' && data.accountIssues !== '') {
+  if (
+    data.accountIssues &&
+    data.accountIssues !== "No Issues" &&
+    data.accountIssues !== ""
+  ) {
     score = score * 0.8;
   }
-  
+
   // If no weighted fields, return default
   if (totalWeight === 0) {
     return 50;
   }
-  
+
   return Math.min(100, Math.round((score / totalWeight) * 100));
 }
 
@@ -109,48 +86,69 @@ async function updateBrokerStats(brokerId: number) {
     const reviews = await prisma.review.findMany({
       where: {
         brokerId,
-        status: 'APPROVED'
-      }
+        status: "APPROVED",
+      },
     });
-    
+
     if (reviews.length === 0) return;
-    
-    const avgTrustScore = reviews.reduce((sum, r) => sum + (r.trustScore || 0), 0) / reviews.length;
-    
-    const avgWithdrawalSuccess = reviews
-      .filter(r => r.withdrawalExperience)
-      .reduce((sum, r) => sum + (r.withdrawalExperience || 0), 0) / 
-      (reviews.filter(r => r.withdrawalExperience).length || 1);
-    
-    const avgExecutionQuality = reviews
-      .filter(r => r.executionQuality)
-      .reduce((sum, r) => sum + (r.executionQuality || 0), 0) / 
-      (reviews.filter(r => r.executionQuality).length || 1);
-    
-    const avgReliability = reviews
-      .filter(r => r.reliability)
-      .reduce((sum, r) => sum + (r.reliability || 0), 0) / 
-      (reviews.filter(r => r.reliability).length || 1);
-    
-    const recommendationRate = (reviews.filter(r => r.wouldRecommend === 'Yes').length / reviews.length) * 100;
-    
+
+    const avgTrustScore =
+      reviews.reduce((sum, r) => sum + (r.trustScore || 0), 0) / reviews.length;
+
+    const avgWithdrawalSuccess =
+      reviews
+        .filter((r) => r.withdrawalExperience)
+        .reduce((sum, r) => sum + (r.withdrawalExperience || 0), 0) /
+      (reviews.filter((r) => r.withdrawalExperience).length || 1);
+
+    const avgExecutionQuality =
+      reviews
+        .filter((r) => r.executionQuality)
+        .reduce((sum, r) => sum + (r.executionQuality || 0), 0) /
+      (reviews.filter((r) => r.executionQuality).length || 1);
+
+    const avgReliability =
+      reviews
+        .filter((r) => r.reliability)
+        .reduce((sum, r) => sum + (r.reliability || 0), 0) /
+      (reviews.filter((r) => r.reliability).length || 1);
+
+    const recommendationRate =
+      (reviews.filter((r) => r.wouldRecommend === "Yes").length /
+        reviews.length) *
+      100;
+
     const withdrawalStats = {
-      sameDay: reviews.filter(r => r.withdrawalSpeed === 'Same Day').length,
-      oneToThreeDays: reviews.filter(r => r.withdrawalSpeed === '1-3 Days').length,
-      threeToSevenDays: reviews.filter(r => r.withdrawalSpeed === '3-7 Days').length,
-      sevenPlusDays: reviews.filter(r => r.withdrawalSpeed === '7+ Days').length,
-      stillWaiting: reviews.filter(r => r.withdrawalSpeed === 'Still Waiting').length,
+      sameDay: reviews.filter((r) => r.withdrawalSpeed === "Same Day").length,
+      oneToThreeDays: reviews.filter((r) => r.withdrawalSpeed === "1-3 Days")
+        .length,
+      threeToSevenDays: reviews.filter((r) => r.withdrawalSpeed === "3-7 Days")
+        .length,
+      sevenPlusDays: reviews.filter((r) => r.withdrawalSpeed === "7+ Days")
+        .length,
+      stillWaiting: reviews.filter((r) => r.withdrawalSpeed === "Still Waiting")
+        .length,
     };
-    
+
     const accountIssueStats = {
-      noIssues: reviews.filter(r => r.accountIssues === 'No Issues').length,
-      temporarySuspension: reviews.filter(r => r.accountIssues === 'Temporary Account Suspension').length,
-      withdrawalDelayed: reviews.filter(r => r.accountIssues === 'Withdrawal Delayed').length,
-      withdrawalRejected: reviews.filter(r => r.accountIssues === 'Withdrawal Rejected').length,
-      accountTerminated: reviews.filter(r => r.accountIssues === 'Account Terminated').length,
-      ruleViolation: reviews.filter(r => r.accountIssues === 'Rule Violation Dispute').length,
+      noIssues: reviews.filter((r) => r.accountIssues === "No Issues").length,
+      temporarySuspension: reviews.filter(
+        (r) => r.accountIssues === "Temporary Account Suspension",
+      ).length,
+      withdrawalDelayed: reviews.filter(
+        (r) => r.accountIssues === "Withdrawal Delayed",
+      ).length,
+      withdrawalRejected: reviews.filter(
+        (r) => r.accountIssues === "Withdrawal Rejected",
+      ).length,
+      accountTerminated: reviews.filter(
+        (r) => r.accountIssues === "Account Terminated",
+      ).length,
+      ruleViolation: reviews.filter(
+        (r) => r.accountIssues === "Rule Violation Dispute",
+      ).length,
     };
-    
+
     await prisma.broker.update({
       where: { id: brokerId },
       data: {
@@ -163,15 +161,15 @@ async function updateBrokerStats(brokerId: number) {
         accountIssueStats: JSON.stringify(accountIssueStats),
         avgWithdrawalExperience: avgWithdrawalSuccess,
 
-        avgCustomerSupport: reviews
-          .filter(r => r.customerSupport)
-          .reduce((sum, r) => sum + (r.customerSupport || 0), 0) / 
-          (reviews.filter(r => r.customerSupport).length || 1),
-      }
+        avgCustomerSupport:
+          reviews
+            .filter((r) => r.customerSupport)
+            .reduce((sum, r) => sum + (r.customerSupport || 0), 0) /
+          (reviews.filter((r) => r.customerSupport).length || 1),
+      },
     });
-    
   } catch (error) {
-    console.error('Error updating broker stats:', error);
+    console.error("Error updating broker stats:", error);
   }
 }
 
@@ -181,48 +179,69 @@ async function updatePropFirmStats(propFirmId: number) {
     const reviews = await prisma.review.findMany({
       where: {
         propFirmId,
-        status: 'APPROVED'
-      }
+        status: "APPROVED",
+      },
     });
-    
+
     if (reviews.length === 0) return;
-    
-    const avgTrustScore = reviews.reduce((sum, r) => sum + (r.trustScore || 0), 0) / reviews.length;
-    
-    const avgWithdrawalSuccess = reviews
-      .filter(r => r.withdrawalExperience)
-      .reduce((sum, r) => sum + (r.withdrawalExperience || 0), 0) / 
-      (reviews.filter(r => r.withdrawalExperience).length || 1);
-    
-    const avgExecutionQuality = reviews
-      .filter(r => r.executionQuality)
-      .reduce((sum, r) => sum + (r.executionQuality || 0), 0) / 
-      (reviews.filter(r => r.executionQuality).length || 1);
-    
-    const avgReliability = reviews
-      .filter(r => r.reliability)
-      .reduce((sum, r) => sum + (r.reliability || 0), 0) / 
-      (reviews.filter(r => r.reliability).length || 1);
-    
-    const recommendationRate = (reviews.filter(r => r.wouldRecommend === 'Yes').length / reviews.length) * 100;
-    
+
+    const avgTrustScore =
+      reviews.reduce((sum, r) => sum + (r.trustScore || 0), 0) / reviews.length;
+
+    const avgWithdrawalSuccess =
+      reviews
+        .filter((r) => r.withdrawalExperience)
+        .reduce((sum, r) => sum + (r.withdrawalExperience || 0), 0) /
+      (reviews.filter((r) => r.withdrawalExperience).length || 1);
+
+    const avgExecutionQuality =
+      reviews
+        .filter((r) => r.executionQuality)
+        .reduce((sum, r) => sum + (r.executionQuality || 0), 0) /
+      (reviews.filter((r) => r.executionQuality).length || 1);
+
+    const avgReliability =
+      reviews
+        .filter((r) => r.reliability)
+        .reduce((sum, r) => sum + (r.reliability || 0), 0) /
+      (reviews.filter((r) => r.reliability).length || 1);
+
+    const recommendationRate =
+      (reviews.filter((r) => r.wouldRecommend === "Yes").length /
+        reviews.length) *
+      100;
+
     const withdrawalStats = {
-      sameDay: reviews.filter(r => r.withdrawalSpeed === 'Same Day').length,
-      oneToThreeDays: reviews.filter(r => r.withdrawalSpeed === '1-3 Days').length,
-      threeToSevenDays: reviews.filter(r => r.withdrawalSpeed === '3-7 Days').length,
-      sevenPlusDays: reviews.filter(r => r.withdrawalSpeed === '7+ Days').length,
-      stillWaiting: reviews.filter(r => r.withdrawalSpeed === 'Still Waiting').length,
+      sameDay: reviews.filter((r) => r.withdrawalSpeed === "Same Day").length,
+      oneToThreeDays: reviews.filter((r) => r.withdrawalSpeed === "1-3 Days")
+        .length,
+      threeToSevenDays: reviews.filter((r) => r.withdrawalSpeed === "3-7 Days")
+        .length,
+      sevenPlusDays: reviews.filter((r) => r.withdrawalSpeed === "7+ Days")
+        .length,
+      stillWaiting: reviews.filter((r) => r.withdrawalSpeed === "Still Waiting")
+        .length,
     };
-    
+
     const accountIssueStats = {
-      noIssues: reviews.filter(r => r.accountIssues === 'No Issues').length,
-      temporarySuspension: reviews.filter(r => r.accountIssues === 'Temporary Account Suspension').length,
-      withdrawalDelayed: reviews.filter(r => r.accountIssues === 'Withdrawal Delayed').length,
-      withdrawalRejected: reviews.filter(r => r.accountIssues === 'Withdrawal Rejected').length,
-      accountTerminated: reviews.filter(r => r.accountIssues === 'Account Terminated').length,
-      ruleViolation: reviews.filter(r => r.accountIssues === 'Rule Violation Dispute').length,
+      noIssues: reviews.filter((r) => r.accountIssues === "No Issues").length,
+      temporarySuspension: reviews.filter(
+        (r) => r.accountIssues === "Temporary Account Suspension",
+      ).length,
+      withdrawalDelayed: reviews.filter(
+        (r) => r.accountIssues === "Withdrawal Delayed",
+      ).length,
+      withdrawalRejected: reviews.filter(
+        (r) => r.accountIssues === "Withdrawal Rejected",
+      ).length,
+      accountTerminated: reviews.filter(
+        (r) => r.accountIssues === "Account Terminated",
+      ).length,
+      ruleViolation: reviews.filter(
+        (r) => r.accountIssues === "Rule Violation Dispute",
+      ).length,
     };
-    
+
     await prisma.propFirm.update({
       where: { id: propFirmId },
       data: {
@@ -231,95 +250,109 @@ async function updatePropFirmStats(propFirmId: number) {
         avgExecutionQuality,
         avgReliability,
         recommendationRate,
-
-
-      }
+      },
     });
-    
   } catch (error) {
-    console.error('Error updating prop firm stats:', error);
+    console.error("Error updating prop firm stats:", error);
   }
 }
 
 // GET /api/reviews - List reviews with filters
 export async function GET(request: NextRequest) {
   try {
-    console.log('📥 GET /api/reviews started');
+    console.log("📥 GET /api/reviews started");
     const { searchParams } = new URL(request.url);
-    
-    const brokerId = searchParams.get('brokerId');
-    const propFirmId = searchParams.get('propFirmId');
-    const type = searchParams.get('type');
-    const userId = searchParams.get('userId');
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const sort = searchParams.get('sort') || 'newest';
-    const status = searchParams.get('status') || 'APPROVED';
-    const search = searchParams.get('search') || '';
 
-    console.log('📥 Params:', { brokerId, propFirmId, type, userId, page, limit, sort, status, search });
+    const brokerId = searchParams.get("brokerId");
+    const propFirmId = searchParams.get("propFirmId");
+    const type = searchParams.get("type");
+    const userId = searchParams.get("userId");
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const sort = searchParams.get("sort") || "newest";
+    const status = searchParams.get("status") || "APPROVED";
+    const search = searchParams.get("search") || "";
+
+    console.log("📥 Params:", {
+      brokerId,
+      propFirmId,
+      type,
+      userId,
+      page,
+      limit,
+      sort,
+      status,
+      search,
+    });
 
     const skip = (page - 1) * limit;
 
     // Build where clause
     const where: any = {};
-    
+
     if (brokerId) where.brokerId = parseInt(brokerId);
     if (propFirmId) where.propFirmId = parseInt(propFirmId);
-    
-    if (type === 'broker' && !brokerId) {
+
+    if (type === "broker" && !brokerId) {
       where.brokerId = { not: null };
-    } else if (type === 'propFirm' && !propFirmId) {
+    } else if (type === "propFirm" && !propFirmId) {
       where.propFirmId = { not: null };
     }
-    
+
     if (userId) where.userId = userId;
     const viewer = await getUserFromToken(request);
-    if (viewer?.role === 'ADMIN') { if(status) where.status=status; }
-    else { where.status='APPROVED'; where.isHidden=false; }
-    const minRating = Number(searchParams.get('minRating'));
-    if(minRating>=1 && minRating<=5) where.rating={gte:minRating};
-    if(searchParams.get('verified')==='true') where.isVerified=true;
-    const firmName=searchParams.get('firmName');
-    if(firmName) { if(type==='propFirm') where.propFirm={name:firmName}; else where.broker={name:firmName}; }
-    
+    if (viewer?.role === "ADMIN") {
+      if (status) where.status = status;
+    } else {
+      where.status = "APPROVED";
+      where.isHidden = false;where.retractedAt=null;
+    }
+    const minRating = Number(searchParams.get("minRating"));
+    if (minRating >= 1 && minRating <= 5) where.rating = { gte: minRating };
+    if (searchParams.get("verified") === "true") {where.isVerified=true;where.id={in:[...await verifiedIds("review")]};}
+    const firmName = searchParams.get("firmName");
+    if (firmName) {
+      if (type === "propFirm") where.propFirm = { name: firmName };
+      else where.broker = { name: firmName };
+    }
+
     if (search) {
       where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { content: { contains: search, mode: 'insensitive' } },
-        { pros: { contains: search, mode: 'insensitive' } },
-        { cons: { contains: search, mode: 'insensitive' } },
-        { user: { name: { contains: search, mode: 'insensitive' } } },
-        { broker: { name: { contains: search, mode: 'insensitive' } } },
-        { propFirm: { name: { contains: search, mode: 'insensitive' } } }
+        { title: { contains: search, mode: "insensitive" } },
+        { content: { contains: search, mode: "insensitive" } },
+        { pros: { contains: search, mode: "insensitive" } },
+        { cons: { contains: search, mode: "insensitive" } },
+        { user: { name: { contains: search, mode: "insensitive" } } },
+        { broker: { name: { contains: search, mode: "insensitive" } } },
+        { propFirm: { name: { contains: search, mode: "insensitive" } } },
       ];
     }
 
-    console.log('📥 Where clause:', where);
+    console.log("📥 Where clause:", where);
 
     let orderBy: any = {};
     switch (sort) {
-      case 'newest':
-        orderBy = { createdAt: 'desc' };
+      case "newest":
+        orderBy = { createdAt: "desc" };
         break;
-      case 'oldest':
-        orderBy = { createdAt: 'asc' };
+      case "oldest":
+        orderBy = { createdAt: "asc" };
         break;
-      case 'highest':
-        orderBy = { rating: 'desc' };
+      case "highest":
+        orderBy = { rating: "desc" };
         break;
-      case 'lowest':
-        orderBy = { rating: 'asc' };
+      case "lowest":
+        orderBy = { rating: "asc" };
         break;
-      case 'mostHelpful':
-      case 'most-helpful':
-        orderBy = { helpfulCount: 'desc' };
+      case "mostHelpful":
+      case "most-helpful":
+        orderBy = { helpfulCount: "desc" };
         break;
-      case 'trust-score':
-        orderBy = { trustScore: 'desc' };
+      case "trust-score":
+        orderBy = { trustScore: "desc" };
         break;
       default:
-        orderBy = { createdAt: 'desc' };
+        orderBy = { createdAt: "desc" };
     }
 
     const [reviews, total] = await Promise.all([
@@ -334,7 +367,7 @@ export async function GET(request: NextRequest) {
               id: true,
               name: true,
               avatar: true,
-            }
+            },
           },
           broker: {
             select: {
@@ -342,7 +375,7 @@ export async function GET(request: NextRequest) {
               name: true,
               slug: true,
               logo: true,
-            }
+            },
           },
           propFirm: {
             select: {
@@ -350,22 +383,23 @@ export async function GET(request: NextRequest) {
               name: true,
               slug: true,
               logo: true,
-            }
+            },
           },
           _count: {
             select: {
-              votes: true,
-              replies: true,
-            }
-          }
-        }
+              votes:{where:{voteType:"HELPFUL"}},
+              replies:{where:{isApproved:true,isHidden:false}},
+            },
+          },
+        },
       }),
-      prisma.review.count({ where })
+      prisma.review.count({ where }),
     ]);
 
     console.log(`📥 Found ${reviews.length} reviews (total: ${total})`);
 
-    const transformedReviews = reviews.map(review => ({
+    const verified=await verifiedIds("review",reviews.map(r=>r.id));
+    const transformedReviews = reviews.map((review) => ({
       id: review.id,
       title: review.title,
       content: review.content,
@@ -387,7 +421,7 @@ export async function GET(request: NextRequest) {
       trustScore: review.trustScore,
       pros: review.pros,
       cons: review.cons,
-      isVerified: review.isVerified || false,
+      isVerified: review.isVerified && verified.has(review.id),
       status: review.status,
       createdAt: review.createdAt,
       updatedAt: review.updatedAt,
@@ -396,7 +430,7 @@ export async function GET(request: NextRequest) {
       replyCount: review._count?.replies || 0,
       entityId: review.brokerId || review.propFirmId,
       entityName: review.broker?.name || review.propFirm?.name,
-      entityType: review.brokerId ? 'broker' : 'propFirm',
+      entityType: review.brokerId ? "broker" : "propFirm",
       entityLogo: review.broker?.logo || review.propFirm?.logo,
       entitySlug: review.broker?.slug || review.propFirm?.slug,
     }));
@@ -407,227 +441,142 @@ export async function GET(request: NextRequest) {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
-    console.error('❌ Error in GET /api/reviews:', error);
+    console.error("❌ Error in GET /api/reviews:", error);
     return NextResponse.json(
-      { 
-        error: 'Failed to fetch reviews', 
-        details: error instanceof Error ? error.message : String(error),
+      {
+        error: "Failed to fetch reviews",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 // POST /api/reviews - Create a new review (FIXED VERSION)
+const reviewSubmission = z
+  .object({
+    title: z.string().trim().min(2).max(150),
+    content: z.string().trim().min(5).max(2000),
+    rating: z.number().int().min(1).max(5),
+    brokerId: z.number().int().positive().optional(),
+    propFirmId: z.number().int().positive().optional(),
+    platformStability: z.number().int().min(0).max(5).optional(),
+    executionQuality: z.number().int().min(0).max(5).optional(),
+    withdrawalExperience: z.number().int().min(0).max(5).optional(),
+    depositExperience: z.number().int().min(0).max(5).optional(),
+    customerSupport: z.number().int().min(0).max(5).optional(),
+    reliability: z.number().int().min(0).max(5).optional(),
+    value: z.number().int().min(0).max(5).optional(),
+    pros: z.string().max(1000).optional(),
+    cons: z.string().max(1000).optional(),
+  })
+  .refine((v) => !!v.brokerId !== !!v.propFirmId, {
+    message: "Select exactly one provider",
+  });
 export async function POST(request: NextRequest) {
   try {
-    console.log('📥 POST /api/reviews started');
-    
-    // Get authenticated user
     const user = await getUserFromToken(request);
-    
-    if (!user) {
-      console.log('❌ No user found from token');
+    if (!user)
       return NextResponse.json(
-        { error: 'You must be logged in to write a review' },
-        { status: 401 }
+        { error: "Sign in to submit a review" },
+        { status: 401 },
       );
-    }
-
-    console.log('✅ User authenticated:', user.id, user.email);
-
-    // Parse the request body
+    if (!(await throttle(request, "review-submit", 5, 60, user.id)))
+      return NextResponse.json(
+        { error: "Submission limit reached. Try later." },
+        { status: 429 },
+      );
     const body = await request.json();
-    console.log('📥 Request body:', JSON.stringify(body, null, 2));
-
-    // SIMPLE VALIDATION - Only check required fields
-    if (!body.title || body.title.trim().length < 2) {
+    const parsed = reviewSubmission.safeParse(body);
+    if (!parsed.success)
       return NextResponse.json(
-        { error: 'Title must be at least 2 characters' },
-        { status: 400 }
+        { error: parsed.error.issues[0].message },
+        { status: 400 },
       );
-    }
-    
-    if (!body.content || body.content.trim().length < 5) {
+    const data = parsed.data;
+    const ids = evidenceIds(body.evidenceIds);
+    const provider = data.brokerId
+      ? await prisma.broker.findUnique({
+          where: { id: data.brokerId, status: "ACTIVE" },
+        })
+      : await prisma.propFirm.findUnique({
+          where: { id: data.propFirmId, status: "ACTIVE" },
+        });
+    if (!provider)
       return NextResponse.json(
-        { error: 'Content must be at least 5 characters' },
-        { status: 400 }
+        { error: "Provider unavailable" },
+        { status: 404 },
       );
-    }
-    
-    if (!body.brokerId && !body.propFirmId) {
-      return NextResponse.json(
-        { error: 'Either brokerId or propFirmId is required' },
-        { status: 400 }
-      );
-    }
-
-    // Check if user already reviewed this entity
-    const existingReview = await prisma.review.findFirst({
-      where: {
-        userId: user.id,
-        ...(body.brokerId ? { brokerId: body.brokerId } : {}),
-        ...(body.propFirmId ? { propFirmId: body.propFirmId } : {})
-      }
-    });
-
-    if (existingReview) {
-      return NextResponse.json(
-        { error: 'You have already reviewed this item' },
-        { status: 400 }
-      );
-    }
-
-    // Calculate overall rating from provided ratings
-    if (body.brokerId && body.propFirmId) return NextResponse.json({error:'Select one provider only'},{status:400});
-    let overallRating = Number(body.rating) || 0;
-    
-    const ratingValues = [
-      body.platformStability,
-      body.executionQuality,
-      body.withdrawalExperience,
-      body.depositExperience,
-      body.customerSupport,
-      body.reliability,
-      body.value
-    ].filter(r => r && r > 0 && r <= 5);
-    
-    if (!overallRating && ratingValues.length > 0) {
-      overallRating = Math.round(ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length);
-    }
-
-    if (!Number.isInteger(overallRating)||overallRating<1||overallRating>5) return NextResponse.json({error:'Choose an overall rating from 1 to 5'},{status:400});
-
-    // Calculate trust score
-    const trustScore = calculateTrustScore(body);
-
-    // Prepare data for database - ONLY include fields that have valid values
-    const reviewData: any = {
-      title: body.title.trim(),
-      content: body.content.trim(),
-      rating: overallRating,
-      trustScore: trustScore,
-      userId: user.id,
-      status: 'PENDING',
-      isApproved: false,
-      isVerified: false,
-      verifiedTrader: false,
-    };
-    
-    // Add entity ID (broker or prop firm)
-    if (body.brokerId) {
-      reviewData.brokerId = body.brokerId;
-    }
-    if (body.propFirmId) {
-      reviewData.propFirmId = body.propFirmId;
-    }
-    
-    // Add trader profile fields (only if they have valid values)
-    if (body.experienceLevel && ['Beginner', 'Intermediate', 'Advanced', 'Professional'].includes(body.experienceLevel)) {
-      reviewData.experienceLevel = body.experienceLevel;
-    }
-    if (body.yearsTrading && ['<1', '1-2', '3-5', '5-10', '10+'].includes(body.yearsTrading)) {
-      reviewData.yearsTrading = body.yearsTrading;
-    }
-    if (body.tradingStyle && ['Scalper', 'Day Trader', 'Swing Trader', 'Position Trader', 'News Trader', 'EA / Algorithmic Trader'].includes(body.tradingStyle)) {
-      reviewData.tradingStyle = body.tradingStyle;
-    }
-    if (body.tradingEnvironment && ['Live Account', 'Demo Account', 'Prop Firm Account'].includes(body.tradingEnvironment)) {
-      reviewData.tradingEnvironment = body.tradingEnvironment;
-    }
-    
-    // Add rating fields (only if between 1-5)
-    if (body.platformStability >= 1 && body.platformStability <= 5) reviewData.platformStability = body.platformStability;
-    if (body.executionQuality >= 1 && body.executionQuality <= 5) reviewData.executionQuality = body.executionQuality;
-    if (body.withdrawalExperience >= 1 && body.withdrawalExperience <= 5) reviewData.withdrawalExperience = body.withdrawalExperience;
-    if (body.depositExperience >= 1 && body.depositExperience <= 5) reviewData.depositExperience = body.depositExperience;
-    if (body.customerSupport >= 1 && body.customerSupport <= 5) reviewData.customerSupport = body.customerSupport;
-    if (body.reliability >= 1 && body.reliability <= 5) reviewData.reliability = body.reliability;
-    if (body.value >= 1 && body.value <= 5) reviewData.value = body.value;
-    
-    // Add trust signal fields (only if they have valid values)
-    if (body.withdrawalSpeed && ['Same Day', '1-3 Days', '3-7 Days', '7+ Days', 'Still Waiting'].includes(body.withdrawalSpeed)) {
-      reviewData.withdrawalSpeed = body.withdrawalSpeed;
-    }
-    if (body.accountIssues && ['No Issues', 'Temporary Account Suspension', 'Withdrawal Delayed', 'Withdrawal Rejected', 'Account Terminated', 'Rule Violation Dispute'].includes(body.accountIssues)) {
-      reviewData.accountIssues = body.accountIssues;
-    }
-    if (body.wouldRecommend && ['Yes', 'No'].includes(body.wouldRecommend)) {
-      reviewData.wouldRecommend = body.wouldRecommend;
-    }
-    
-    // Add legacy fields
-    if (body.pros) reviewData.pros = body.pros;
-    if (body.cons) reviewData.cons = body.cons;
-    if (body.verifiedTrader !== undefined) reviewData.verifiedTrader = body.verifiedTrader;
-
-    console.log('Creating review with data:', JSON.stringify(reviewData, null, 2));
-
-    // Create the review
-    const review = await prisma.review.create({
-      data: reviewData,
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          }
+    const review = await prisma.$transaction(async (tx) => {
+      const review = await tx.review.create({
+        data: {
+          ...data,
+          platformStability: data.platformStability || null,
+          executionQuality: data.executionQuality || null,
+          withdrawalExperience: data.withdrawalExperience || null,
+          depositExperience: data.depositExperience || null,
+          customerSupport: data.customerSupport || null,
+          reliability: data.reliability || null,
+          value: data.value || null,
+          userId: user.id,
+          region: user.region,
+          status: "PENDING",
+          isApproved: false,
+          isVerified: false,
+          verifiedTrader: false,
         },
-        broker: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            logo: true,
-          }
+      });
+      await attachEvidence(tx, user.id, ids, { reviewId: review.id });
+      await tx.auditEvent.create({
+        data: {
+          actorId: user.id,
+          action: "REVIEW_SUBMITTED",
+          entityType: "review",
+          entityId: review.id,
         },
-        propFirm: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            logo: true,
-          }
-        }
-      }
+      });
+      await tx.notification.create({
+        data: {
+          userId: user.id,
+          title: "Review received",
+          body: "Your review is awaiting moderation.",
+          href: "/dashboard/reviews",
+        },
+      });
+      return review;
     });
-
-    console.log('✅ Review created successfully! ID:', review.id);
-
-    // Update broker or prop firm stats
-    if (body.brokerId) {
-      await updateBrokerStats(body.brokerId);
-    } else if (body.propFirmId) {
-      await updatePropFirmStats(body.propFirmId);
-    }
-
-    // Transform the response
-    const transformedReview = {
-      id: review.id,
-      title: review.title,
-      content: review.content,
-      rating: review.rating,
-      trustScore: review.trustScore,
-      createdAt: review.createdAt,
-      user: review.user,
-      entityId: review.brokerId || review.propFirmId,
-      entityName: review.broker?.name || review.propFirm?.name,
-      entityType: review.brokerId ? 'broker' : 'propFirm',
-      entitySlug: review.broker?.slug || review.propFirm?.slug,
-    };
-
-    return NextResponse.json(transformedReview, { status: 201 });
-
+    return NextResponse.json(
+      {
+        id: review.id,
+        title: review.title,
+        status: review.status,
+        success: true,
+      },
+      { status: 201 },
+    );
   } catch (error) {
-    console.error('❌ Error in POST /api/reviews:', error);
-    
-    return NextResponse.json({error:'Unable to submit your review. Please try again.'},{status:500});
-  } finally {
-    await prisma.$disconnect();
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "P2002"
+    )
+      return NextResponse.json(
+        {
+          error:
+            "You have already reviewed this provider. Edit your existing review.",
+        },
+        { status: 409 },
+      );
+    return NextResponse.json(
+      {
+        error:
+          "Unable to submit your review. Check your evidence and try again.",
+      },
+      { status: 400 },
+    );
   }
 }

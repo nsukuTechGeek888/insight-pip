@@ -1,23 +1,22 @@
 // src/app/api/prop-firms/slug/[slug]/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { NextRequest, NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/db";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
     const { slug } = await params;
-    console.log('📡 API Request for prop firm slug:', slug);
-    
+    console.log("📡 API Request for prop firm slug:", slug);
+
     const propFirm = await prisma.propFirm.findFirst({
       where: {
         OR: [
           { slug: slug },
-          { name: { contains: slug.replace(/-/g, ' '), mode: 'insensitive' } }
-        ]
+          { name: { contains: slug.replace(/-/g, " "), mode: "insensitive" } },
+        ],
       },
       include: {
         programs: {
@@ -29,8 +28,8 @@ export async function GET(
             timeLimit: true,
             rules: true,
 
-            accountOptions: true
-          }
+            accountOptions: true,
+          },
         },
         promotions: {
           select: {
@@ -39,32 +38,31 @@ export async function GET(
             description: true,
             code: true,
             validUntil: true,
-          }
+          },
         },
-      }
+      },
     });
-    
+
     if (!propFirm) {
-      console.log('❌ Prop firm not found with slug:', slug);
+      console.log("❌ Prop firm not found with slug:", slug);
       return NextResponse.json(
-        { success: false, error: 'Prop firm not found' },
-        { status: 404 }
+        { success: false, error: "Prop firm not found" },
+        { status: 404 },
       );
     }
-    
-    console.log('✅ Found prop firm by slug:', propFirm.name);
-    
+
+    console.log("✅ Found prop firm by slug:", propFirm.name);
+
     // Return the data - we'll reuse the same transformation
     // For simplicity, redirect to the ID-based endpoint
-    return NextResponse.redirect(new URL(`/api/prop-firms/${propFirm.id}`, request.url));
-    
-  } catch (error) {
-    console.error('Error fetching prop firm by slug:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch prop firm' },
-      { status: 500 }
+    return NextResponse.redirect(
+      new URL(`/api/prop-firms/${propFirm.id}`, request.url),
     );
-  } finally {
-    await prisma.$disconnect();
+  } catch (error) {
+    console.error("Error fetching prop firm by slug:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch prop firm" },
+      { status: 500 },
+    );
   }
 }

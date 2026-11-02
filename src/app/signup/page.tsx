@@ -1,44 +1,9 @@
-// app/signup/page.tsx
-'use client';
-
-import { useEffect, useState } from 'react';
-import DesktopSignUp from './DesktopSignUp';
-import MobileSignUp from './MobileSignUp';
-
-export default function SignUpPage() {
-  const [isMobile, setIsMobile] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const checkDevice = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkDevice();
-    window.addEventListener('resize', checkDevice);
-    
-    return () => window.removeEventListener('resize', checkDevice);
-  }, []);
-
-  // Show loading while detecting
-  if (isMobile === null) {
-    return (
-      <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
-        <div className="animate-pulse text-[var(--ip-text)]">Loading signup...</div>
-      </div>
-    );
-  }
-
+import { Suspense } from "react";
+import AccountAccess from "@/components/research/AccountAccess";
+export default function Page() {
   return (
-    <>
-      {/* Desktop - hidden on mobile */}
-      <div className={`${isMobile ? 'hidden' : 'block'}`}>
-        <DesktopSignUp />
-      </div>
-      
-      {/* Mobile - hidden on desktop */}
-      <div className={`${isMobile ? 'block' : 'hidden'}`}>
-        <MobileSignUp />
-      </div>
-    </>
+    <Suspense fallback={<div className="v2-state">Loading…</div>}>
+      <AccountAccess register />
+    </Suspense>
   );
 }

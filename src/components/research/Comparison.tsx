@@ -1,4 +1,5 @@
 "use client";
+import {choiceMap,queryChoices,encodeChoices,offeringOptions,flattenOffering} from "@/lib/comparison-offerings";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRegion } from "@/contexts/RegionContext";
@@ -11,7 +12,7 @@ import {
   ArrowUpRight,
   RefreshCw,
 } from "lucide-react";
-import { notify } from "@/components/ui/Feedback";
+import { notify, requestText } from "@/components/ui/Feedback";
 type Provider = {
   id: number;
   name: string;
@@ -19,6 +20,7 @@ type Provider = {
   logo?: string;
   website?: string;
   updatedAt?: string;
+  sources?:{id:string;label:string;url:string;verifiedAt?:string}[];
   accountTypes?: Array<Record<string, unknown>>;
   programs?: Array<Record<string, unknown>>;
   [key: string]: unknown;
@@ -57,6 +59,7 @@ export default function Comparison({
   const [lookupError, setLookupError] = useState(false);
   const [different, setDifferent] = useState(false);
   const [selection, setSelection] = useState<Record<number, string>>({});
+  const [optionSelection,setOptionSelection]=useState<Record<number,string>>({});
   const [retry, setRetry] = useState(0);
   useEffect(() => {
     if (
@@ -72,7 +75,7 @@ export default function Comparison({
           ["brokers", "prop-firms"].includes(v.type) &&
           Array.isArray(v.ids)
         ) {
-          setType(v.type);
+          setType(v.type);setSelection(choiceMap(v.selection));setOptionSelection(choiceMap(v.optionSelection));
           setIds(
             v.ids
               .filter((n: unknown) => Number.isSafeInteger(n) && Number(n) > 0)
@@ -81,20 +84,22 @@ export default function Comparison({
         }
       } catch {}
     }
+    const params=new URLSearchParams(window.location.search);if(params.has("accounts"))setSelection(queryChoices(params.get("accounts")));if(params.has("options"))setOptionSelection(queryChoices(params.get("options")));
     setReady(true);
-  }, []);
+  }, [initialIds.length]);
   useEffect(() => {
     if (!ready) return;
     try {
       localStorage.setItem(
         "insightpip-compare-v2",
-        JSON.stringify({ type, ids }),
+        JSON.stringify({ type, ids,selection,optionSelection }),
       );
     } catch {}
     const q = new URLSearchParams({ type });
     if (ids.length) q.set("ids", ids.join(","));
+    if(encodeChoices(selection))q.set("accounts",encodeChoices(selection));if(encodeChoices(optionSelection))q.set("options",encodeChoices(optionSelection));
     window.history.replaceState(null, "", `/compare?${q}`);
-  }, [ready, ids, type]);
+  }, [ready, ids, type,selection,optionSelection]);
   useEffect(() => {
     const c = new AbortController();
     const t = setTimeout(() => {
@@ -168,10 +173,9 @@ export default function Comparison({
     const pool = type === "brokers" ? p.accountTypes : p.programs;
     return pool?.find((o) => String(o.id) === selection[p.id]);
   }
-  const extraRows =
-    type === "brokers"
-      ? ["name", "minDeposit", "commission", "spreadType", "swapFree"]
-      : ["name", "type", "timeLimit", "rules", "accountOptions"];
+  function accountOptions(p:Provider){return offeringOptions(selected(p)?.accountOptions);}
+  function selectedFields(p:Provider){const options=accountOptions(p);const index=Number(optionSelection[p.id]);const option=optionSelection[p.id]!==undefined&&Number.isInteger(index)&&index>=0?options[index]:undefined;return flattenOffering(selected(p),option);}
+  const extraRows=[...new Set(providers.flatMap(p=>Object.keys(selectedFields(p))))];
   return (
     <div className="v2-container">
       <header className="v2-page-heading">
@@ -195,7 +199,7 @@ export default function Comparison({
               onClick={() => {
                 setType(v);
                 setIds([]);
-                setSelection({});
+                setSelection({});setOptionSelection({});
                 setSearch("");
               }}
             >
@@ -219,6 +223,33 @@ export default function Comparison({
           Share comparison
         </button>
       </div>
+      <button
+        className="v2-button"
+        disabled={!ids.length}
+        onClick={async () => {
+          const name = await requestText("Name this comparison");
+          if (!name) return;
+          try {
+            const r = await fetch("/api/user/comparisons", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name, type, ids, selection,optionSelection }),
+            });
+            const d = await r.json();
+            if (!r.ok)
+              throw Error(
+                r.status === 401
+                  ? "Sign in to save this comparison to your account. Your selection stays in this browser."
+                  : d.error,
+              );
+            notify("Comparison saved in your workspace.");
+          } catch (e) {
+            notify(e instanceof Error ? e.message : "Unable to save");
+          }
+        }}
+      >
+        Save to my account
+      </button>
       <div className="v2-compare-picker">
         <label className="v2-search">
           <Search size={19} />
@@ -344,6 +375,7 @@ export default function Comparison({
                           </option>
                         ))}
                       </select>
+                      {type==='prop-firms'&&accountOptions(p).length>0&&<select aria-label={`Select ${p.name} challenge account size`} value={optionSelection[p.id]||''} onChange={e=>setOptionSelection(v=>({...v,[p.id]:e.target.value}))}><option value="">Choose account size / option</option>{accountOptions(p).map((o,index)=><option key={index} value={String(index)}>{display(o.name||o.accountSize||o.size||o.option||`Recorded option ${index+1}`)}</option>)}</select>}
                     </th>
                   ))}
                 </tr>
@@ -385,14 +417,14 @@ export default function Comparison({
                       (key) =>
                         !different ||
                         new Set(
-                          providers.map((p) => display(selected(p)?.[key])),
+                          providers.map((p) => display(selectedFields(p)[key])),
                         ).size > 1,
                     )
                     .map((key) => (
                       <tr key={key}>
-                        <th>{key.replace(/([A-Z])/g, " $1")}</th>
+                        <th>{key.replace(/[._]/g," ").replace(/([A-Z])/g, " $1")}</th>
                         {providers.map((p) => (
-                          <td key={p.id}>{display(selected(p)?.[key])}</td>
+                          <td key={p.id}>{display(selectedFields(p)[key])}</td>
                         ))}
                       </tr>
                     ))}
@@ -414,6 +446,7 @@ export default function Comparison({
                     </td>
                   ))}
                 </tr>
+                <tr><th>Source references</th>{providers.map(p=><td key={p.id}>{p.sources?.length?p.sources.map(s=><div key={s.id}>{/^https?:\/\//.test(s.url)?<a href={s.url} target="_blank" rel="noreferrer">{s.label}<ArrowUpRight size={12}/></a>:s.label}<small>{s.verifiedAt?'Checked '+new Date(s.verifiedAt).toLocaleDateString():'Not independently checked'}</small></div>):'Not provided'}</td>)}</tr>
                 <tr>
                   <th>Record updated</th>
                   {providers.map((p) => (

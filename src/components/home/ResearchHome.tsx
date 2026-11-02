@@ -1,4 +1,6 @@
 "use client";
+import {defaultHomepage,homepageSchema} from "@/lib/homepage";
+import ResearchFeed from "./ResearchFeed";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
@@ -23,10 +25,13 @@ type Provider = {
   logo?: string;
   rating?: number;
   trustScore?: number;
+  isRecommended?:boolean;
   reviewsCount?: number;
   shortDescription?: string;
 };
 export default function ResearchHome() {
+  const [content,setContent]=useState(defaultHomepage);
+  useEffect(()=>{fetch("/api/research/homepage").then(r=>r.json()).then(d=>{const parsed=homepageSchema.safeParse(d.content);if(parsed.success)setContent(parsed.data);}).catch(()=>{});},[]);
   const { region } = useRegion();
   const [type, setType] = useState("brokers");
   const [items, setItems] = useState<Provider[]>([]);
@@ -35,7 +40,7 @@ export default function ResearchHome() {
   useEffect(() => {
     const ctrl = new AbortController();
     setStatus("loading");
-    fetch(`/api/research/providers?type=${type}&region=${region}&limit=5`, {
+    fetch(`/api/research/providers?type=${type}&region=${region}&limit=5&featuredFirst=1`, {
       signal: ctrl.signal,
     })
       .then(async (r) => {
@@ -61,16 +66,15 @@ export default function ResearchHome() {
       <section className="v2-hero">
         <div>
           <div className="v2-eyebrow">
-            <span /> CLARITY BEFORE COMMITMENT
+            <span /> {content.eyebrow.toUpperCase()}
           </div>
           <h1>
-            Your next trading partner.
+            {content.headline}
             <br />
-            <em>A more informed choice.</em>
+            <em>{content.highlight}</em>
           </h1>
           <p>
-            Look beyond the promises. Research brokers and prop firms, compare
-            the details, and learn from real trader experiences.
+            {content.description}
           </p>
           <form className="v2-search" action="/search">
             <Search size={21} />
@@ -99,15 +103,14 @@ export default function ResearchHome() {
           <div className="v2-cube" aria-hidden="true">
             <ArrowUpRight size={76} strokeWidth={1.3} />
           </div>
-          <h2>See the bigger picture.</h2>
+          <h2>{content.cardHeading}</h2>
           <p>
-            Provider data, trader experiences and reported incidents. One place
-            to do your due diligence.
+            {content.cardDescription}
           </p>
           <Link href="/methodology">
             Understand the signals <ArrowRight size={17} />
           </Link>
-          <div className="v2-art-caption">Built by traders. For traders.</div>
+          <div className="v2-art-caption">{content.tagline}</div>
         </aside>
       </section>
       <section className="v2-principles" aria-label="Our principles">
@@ -330,6 +333,7 @@ export default function ResearchHome() {
           ))}
         </div>
       </section>
+      <ResearchFeed />
     </div>
   );
 }

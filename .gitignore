@@ -44,3 +44,6 @@ next-env.d.ts
 
 # Safe configuration template
 !.env.example
+
+# Private evidence and development mail (never web accessible)
+.private/

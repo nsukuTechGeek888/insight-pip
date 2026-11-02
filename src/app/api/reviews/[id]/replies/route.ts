@@ -1,205 +1,170 @@
-import {sessionSecret} from '@/lib/session-secret';
-// app/api/reviews/[id]/replies/route.ts - WORKING VERSION
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient, ReplyType } from '@prisma/client';
-import jwt from 'jsonwebtoken';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
-
-const prisma = new PrismaClient();
-
-async function getUserFromToken(request: NextRequest) {
-  const token = request.cookies.get('auth_token')?.value;
-  if (!token) return null;
-  try {
-    const decoded = jwt.verify(token, sessionSecret()) as { userId: string };
-    return await prisma.user.findUnique({ where: { id: decoded.userId } });
-  } catch { return null; }
-}
-
-// GET /api/reviews/[id]/replies
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { requestUser } from "@/lib/request-user";
+import { throttle } from "@/lib/platform-security";
 export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  r: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  try {
-    const { id } = await params;
-    const searchParams = request.nextUrl.searchParams;
-    const parentId = searchParams.get('parentId');
-    
-    // Build the where clause
-    const where: any = { reviewId: id };
-    if (parentId) {
-      where.parentReplyId = parentId;
-    } else {
-      where.parentReplyId = null;
-    }
-    
-    const replies = await prisma.reviewReply.findMany({
-      where,
-      orderBy: { createdAt: 'asc' },
-      include: {
-        user: { select: { id: true, name: true, avatar: true, role: true } },
-        broker: { select: { id: true, name: true, logo: true } },
-        propFirm: { select: { id: true, name: true, logo: true } },
-        replies: {
-          include: {
-            user: { select: { id: true, name: true, avatar: true, role: true } },
-            broker: { select: { id: true, name: true, logo: true } },
-            propFirm: { select: { id: true, name: true, logo: true } }
-          }
-        }
-      }
-    });
-
-    // Add replyCount to each reply
-    const repliesWithCount = await Promise.all(replies.map(async (reply) => {
-      const replyCount = await prisma.reviewReply.count({
-        where: { parentReplyId: reply.id }
-      });
-      return { ...reply, replyCount };
-    }));
-
-    return NextResponse.json({ success: true, replies: repliesWithCount });
-  } catch (error) {
-    console.error('Error fetching replies:', error);
-    return NextResponse.json({ error: 'Failed to fetch replies' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
-  }
-}
-
-// POST /api/reviews/[id]/replies
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const user = await getUserFromToken(request);
-    
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Handle both JSON and FormData
-    let content: string;
-    let parentReplyId: string | null = null;
-    let mediaFiles: File[] = [];
-    
-    const contentType = request.headers.get('content-type') || '';
-    
-    if (contentType.includes('application/json')) {
-      const body = await request.json();
-      content = body.content;
-      parentReplyId = body.parentReplyId || null;
-    } else {
-      const formData = await request.formData();
-      content = formData.get('content') as string;
-      parentReplyId = formData.get('parentReplyId') as string || null;
-      mediaFiles = formData.getAll('media') as File[];
-    }
-    
-    if (!content || content.trim().length < 3) {
-      return NextResponse.json({ error: 'Comment must be at least 3 characters' }, { status: 400 });
-    }
-
-    // Verify review exists
-    const review = await prisma.review.findUnique({
-      where: { id },
-      include: { broker: true, propFirm: true }
-    });
-
-    if (!review) {
-      return NextResponse.json({ error: 'Review not found' }, { status: 404 });
-    }
-
-    // Determine reply type
-    let brokerId = null;
-    let propFirmId = null;
-    let replyType: ReplyType = 'USER';
-
-    if (review.brokerId) {
-      const broker = await prisma.broker.findUnique({ where: { id: review.brokerId } });
-      if (broker && user.email?.toLowerCase().includes(broker.name?.toLowerCase().replace(/\s+/g, '.'))) {
-        brokerId = review.brokerId;
-        replyType = 'BROKER';
-      }
-    }
-    
-    if (review.propFirmId && !brokerId) {
-      const propFirm = await prisma.propFirm.findUnique({ where: { id: review.propFirmId } });
-      if (propFirm && user.email?.toLowerCase().includes(propFirm.name?.toLowerCase().replace(/\s+/g, '.'))) {
-        propFirmId = review.propFirmId;
-        replyType = 'PROP_FIRM';
-      }
-    }
-    
-    if (user.role === 'ADMIN') {
-      replyType = 'ADMIN';
-    }
-
-    // Upload media files
-    const mediaUrls: string[] = [];
-    if (mediaFiles.length > 0) {
-      const uploadDir = path.join(process.cwd(), 'public/uploads/replies');
-      await mkdir(uploadDir, { recursive: true });
-
-      for (const file of mediaFiles) {
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        const timestamp = Date.now();
-        const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-        const filename = `${timestamp}-${safeName}`;
-        const filepath = path.join(uploadDir, filename);
-        await writeFile(filepath, buffer);
-        mediaUrls.push(`/uploads/replies/${filename}`);
-      }
-    }
-
-    // Create reply
-    const reply = await prisma.reviewReply.create({
-      data: {
-        content: content.trim(),
-        mediaUrls,
-        replyType,
-        reviewId: id,
-        userId: user.id,
-        brokerId,
-        propFirmId,
-        parentReplyId: parentReplyId,
-        isApproved: true
+  const { id } = await params;
+  const u = await requestUser(r);
+  const review = await prisma.review.findUnique({ where: { id } });
+  if (
+    !review ||
+    ((review.status !== "APPROVED" || review.isHidden) &&
+      u?.id !== review.userId &&
+      u?.role !== "ADMIN")
+  )
+    return NextResponse.json({ error: "Review unavailable" }, { status: 404 });
+  const visibility =
+    u?.role === "ADMIN"
+      ? {}
+      : {
+          OR: [
+            { isApproved: true, isHidden: false },
+            ...(u ? [{ userId: u.id }] : []),
+          ],
+        };
+  const replies = await prisma.reviewReply.findMany({
+    where: {
+      reviewId: id,
+      parentReplyId: r.nextUrl.searchParams.get("parentId") || null,
+      ...visibility,
+    },
+    include: {
+      user: { select: { id: true, name: true, avatar: true, role: true } },
+      broker: { select: { name: true } },
+      propFirm: { select: { name: true } },
+      replies: {
+        where: visibility,
+        include: { user: { select: { id: true, name: true, avatar: true } } },
       },
-      include: {
-        user: { select: { id: true, name: true, avatar: true, role: true } },
-        broker: { select: { id: true, name: true, logo: true } },
-        propFirm: { select: { id: true, name: true, logo: true } }
-      }
-    });
-
-    // Update review reply count
-    await prisma.review.update({
-      where: { id },
-      data: { replyCount: { increment: 1 } }
-    });
-
-    // If this is a child reply, update parent's replyCount
-    if (parentReplyId) {
-      await prisma.reviewReply.update({
-        where: { id: parentReplyId },
-        data: { replyCount: { increment: 1 } }
-      });
+    },
+    orderBy: { createdAt: "asc" },
+    take: 100,
+  });
+  return NextResponse.json({ success: true, replies });
+}
+export async function POST(
+  r: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const u = await requestUser(r);
+    if (!u)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!(await throttle(r, "reply", 15, 60, u.id)))
+      return NextResponse.json(
+        { error: "Reply limit reached" },
+        { status: 429 },
+      );
+    const { id } = await params;
+    let content: unknown, parentReplyId: unknown;
+    const type = r.headers.get("content-type") || "";
+    if (type.includes("application/json")) {
+      const b = await r.json();
+      content = b.content;
+      parentReplyId = b.parentReplyId;
+    } else {
+      const form = await r.formData();
+      content = form.get("content");
+      parentReplyId = form.get("parentReplyId");
+      if (form.getAll("media").some((f) => f instanceof File && f.size))
+        return NextResponse.json(
+          {
+            error:
+              "Public reply attachments are not accepted. Submit supporting evidence privately with your review.",
+          },
+          { status: 400 },
+        );
     }
-
-    return NextResponse.json({
-      success: true,
-      reply
-    }, { status: 201 });
-
-  } catch (error) {
-    console.error('Error adding reply:', error);
-    return NextResponse.json({ error: 'Failed to add reply' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    if (
+      typeof content !== "string" ||
+      content.trim().length < 3 ||
+      content.length > 2000
+    )
+      return NextResponse.json(
+        { error: "Write a reply of 3–2,000 characters" },
+        { status: 400 },
+      );
+    const review = await prisma.review.findFirst({
+      where: { id, status: "APPROVED", isHidden: false },
+    });
+    if (!review)
+      return NextResponse.json(
+        { error: "Review unavailable" },
+        { status: 404 },
+      );
+    if (parentReplyId) {
+      if (
+        typeof parentReplyId !== "string" ||
+        !(await prisma.reviewReply.findFirst({
+          where: {
+            id: parentReplyId,
+            reviewId: id,
+            isApproved: true,
+            isHidden: false,
+          },
+        }))
+      )
+        return NextResponse.json(
+          { error: "Parent reply unavailable" },
+          { status: 400 },
+        );
+    }
+    const entityType = review.brokerId ? "brokers" : "prop-firms";
+    const entityId = review.brokerId || review.propFirmId!;
+    const representative = await prisma.providerRepresentative.findUnique({
+      where: {
+        userId_entityType_entityId: { userId: u.id, entityType, entityId },
+      },
+    });
+    const reply = await prisma.$transaction(async (tx) => {
+      const reply = await tx.reviewReply.create({
+        data: {
+          reviewId: id,
+          userId: u.id,
+          content: content.trim(),
+          mediaUrls: [],
+          parentReplyId:
+            typeof parentReplyId === "string" ? parentReplyId : null,
+          replyType:
+            u.role === "ADMIN"
+              ? "ADMIN"
+              : representative
+                ? review.brokerId
+                  ? "BROKER"
+                  : "PROP_FIRM"
+                : "USER",
+          brokerId: representative ? review.brokerId : null,
+          propFirmId: representative ? review.propFirmId : null,
+          isApproved: u.role === "ADMIN",
+        },
+      });
+      await tx.auditEvent.create({
+        data: {
+          actorId: u.id,
+          action: "REPLY_SUBMITTED",
+          entityType: "reply",
+          entityId: reply.id,
+        },
+      });
+      return reply;
+    });
+    return NextResponse.json(
+      {
+        success: true,
+        reply,
+        message: reply.isApproved
+          ? "Reply published"
+          : "Reply submitted for moderation",
+      },
+      { status: 201 },
+    );
+  } catch {
+    return NextResponse.json(
+      { error: "Reply could not be saved" },
+      { status: 400 },
+    );
   }
 }

@@ -1,9 +1,9 @@
-import NextAuth from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
-import { prisma } from './prisma';
-import bcrypt from 'bcryptjs';
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import { prisma } from "./prisma";
+import {verifyPassword} from "./passwords";
 
-declare module 'next-auth' {
+declare module "next-auth" {
   interface User {
     id: string;
     role?: string;
@@ -14,40 +14,44 @@ declare module 'next-auth' {
       email?: string | null;
       name?: string | null;
       role?: string;
-    }
+    };
   }
 }
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
-      name: 'credentials',
+      name: "credentials",
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' }
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (typeof credentials?.email !== 'string' || typeof credentials?.password !== 'string') {
-          throw new Error('Invalid credentials');
+        if (
+          typeof credentials?.email !== "string" ||
+          typeof credentials?.password !== "string"
+        ) {
+          throw new Error("Invalid credentials");
         }
 
         const user = await prisma.user.findUnique({
           where: {
-            email: credentials.email
-          }
+            email: credentials.email.trim().toLowerCase(),
+          },
+          include: { security: true },
         });
 
-        if (!user || !user.password) {
-          throw new Error('Invalid credentials');
+        if (!user || !user.password || user.security?.suspendedAt) {
+          throw new Error("Invalid credentials");
         }
 
-        const isCorrectPassword = await bcrypt.compare(
+        const isCorrectPassword = await verifyPassword(
           credentials.password,
-          user.password
+          user.password,
         );
 
         if (!isCorrectPassword) {
-          throw new Error('Invalid credentials');
+          throw new Error("Invalid credentials");
         }
 
         return {
@@ -55,15 +59,33 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           email: user.email,
           name: user.name,
           role: user.role,
+          sessionEpoch: user.security?.sessionsRevokedAt?.toISOString() || null,
         };
-      }
-    })
+      },
+    }),
   ],
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.sessionEpoch = (
+          user as unknown as { sessionEpoch: string | null }
+        ).sessionEpoch;
+      }
+      if (token.id) {
+        const current = await prisma.user.findUnique({
+          where: { id: String(token.id) },
+          include: { security: true },
+        });
+        if (
+          !current ||
+          current.security?.suspendedAt ||
+          (current.security?.sessionsRevokedAt?.toISOString() || null) !==
+            (token.sessionEpoch || null)
+        )
+          return null;
+        token.role = current.role;
       }
       return token;
     },
@@ -73,14 +95,14 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         session.user.role = token.role as string;
       }
       return session;
-    }
+    },
   },
   pages: {
-    signIn: '/login',
-    error: '/login',
+    signIn: "/login",
+    error: "/login",
   },
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
 });

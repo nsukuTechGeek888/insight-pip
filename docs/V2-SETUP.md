@@ -1,54 +1,20 @@
-# InsightPip 2.0 development setup
+# Evaluate InsightPip on Windows
 
-This is an integrated development revision of the existing Next.js application, based on `insightpip-v2-foundation`. Production and the Prisma schema were not changed. Use a dedicated development PostgreSQL database. This delivery is for evaluation, not a production release.
+Use Node.js 22.17 or newer. Extract the source and open PowerShell in the folder containing package.json.
 
-## Windows / PowerShell
-
-Install Git, Node.js 22 LTS and PostgreSQL. Clone the repository and select `insightpip-v2-redesign` (or extract the source ZIP).
-
-```powershell
-git clone https://github.com/nsukuTechGeek888/insight-pip.git
-cd insight-pip
-git checkout insightpip-v2-redesign
+~~~powershell
 $env:PUPPETEER_SKIP_DOWNLOAD = "1"
 npm ci
-Copy-Item .env.example .env
-node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 npm run prisma:generate
-```
+npm run dev:qa
+~~~
 
-Edit `.env`: set `DATABASE_URL` to your separate development database and paste a newly generated random secret into `JWT_SECRET`. Generate a separate `NEXTAUTH_SECRET` for the retained NextAuth configuration. Never commit `.env`. Existing cookie authentication requires at least 32 characters in `JWT_SECRET`; it now fails closed instead of using a hardcoded fallback.
+Open http://localhost:3000. QA mode creates an isolated local database with clearly labelled fictional providers and submissions. Read the generated trader and admin credentials locally with `Get-Content .private/qa/access.json`. Development emails appear in .private/mail. Keep these directories private.
 
-Restore a sanitized development database snapshot matching `prisma/schema.prisma`. No migration, reset or seed is required by this redesign. Do not run `db:setup`, `db:reset` or `prisma:seed` against any shared or production database. Database provisioning and a reviewed migration history are separate from this UI delivery.
+To evaluate the workflow, compare two providers, choose a specific offering, save it as the trader, submit a review with evidence, then use the administrator account to inspect it and record a decision. Check the trader's notifications afterwards.
 
-```powershell
-npm run dev
-```
+For ordinary development, copy .env.example to .env and configure a separate PostgreSQL DATABASE_URL, JWT_SECRET and NEXTAUTH_SECRET. Generate independent secrets with Node's crypto.randomBytes(48).toString('hex'). Apply the new additive platform_services and homepage_content migrations to a development database matching the previous foundation schema. Check migration history before applying any earlier migrations. Use npm run dev.
 
-Open http://localhost:3000. Without a database, public layouts render and directories show explicit connection errors; provider records, authentication and admin operations require the development database. No mock data is substituted.
+Configure APP_URL, SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASSWORD and MAIL_FROM for real email delivery. Configure PRIVATE_STORAGE_DIR on persistent storage outside public/. The web process needs write access to it and to the public image upload directories.
 
-## Build and checks
-
-```powershell
-npm run prisma:generate
-npm run typecheck
-npm test
-npm run lint
-npm run build
-npm start
-```
-
-Run `npm run test:smoke` in another terminal while the local application is running. Its default target is localhost:3000. For another local port:
-
-```powershell
-$env:TEST_BASE_URL = "http://localhost:3001"
-npm run test:smoke
-```
-
-The smoke script rejects non-local targets and does not authenticate or create records. Full lint currently fails on inherited and remaining code issues; see `V2-DELIVERY.md`. A clean build does not imply all authenticated workflows have been tested.
-
-## Architecture
-
-`src/app/platform.css` owns shared semantic colors, responsive layouts, system light/dark appearance and reduced motion. `PlatformNav` and `ClientRootLayout` provide the common shell. New research views live in `src/components/research`; existing provider, authentication, editorial and administration components retain their data integrations and receive shared theme styling. Public discovery adapters under `/api/research` use the existing Prisma models. Comparison and visitor drafts use browser storage; they are not server-synced bookmarks.
-
-The source ZIP excludes generated dependencies, secrets, git internals and user-upload directories. Restore approved public logos separately if your database references excluded uploads. Private evidence must never be restored under `public/`.
+Run npm test, npm run typecheck, npm run lint and npm run build. Run npm start to serve the production build locally. Run npm run test:smoke against a running local server.

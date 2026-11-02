@@ -1,56 +1,68 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { NextRequest, NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/db";
 
 // GET /api/blog - Get published blog posts
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category') || '';
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const exclude = searchParams.get('exclude') || '';
-    const page = parseInt(searchParams.get('page') || '1');
+    const category = searchParams.get("category") || "";
+    const limit = Math.min(
+      30,
+      Math.max(1, Math.floor(Number(searchParams.get("limit")) || 12)),
+    );
+    const exclude = searchParams.get("exclude") || "";
+    const page = Math.max(1, Math.floor(Number(searchParams.get("page")) || 1));
     const skip = (page - 1) * limit;
-    const status = 'PUBLISHED';
+    const status = "PUBLISHED";
 
-    const where: any = {};
-    
+    const where: import("@prisma/client").Prisma.BlogPostWhereInput = {
+      OR: [{ publishedAt: null }, { publishedAt: { lte: new Date() } }],
+    };
+    const search = (searchParams.get("search") || "").slice(0, 150);
+    if (search)
+      where.AND = {
+        OR: [
+          { title: { contains: search, mode: "insensitive" } },
+          { summary: { contains: search, mode: "insensitive" } },
+        ],
+      };
+
     // Only show published posts for public, but allow status override
     if (status) {
       where.status = status;
     } else {
-      where.status = 'PUBLISHED';
+      where.status = "PUBLISHED";
     }
-    
+
     if (category) {
       where.category = category;
     }
-    
+
     if (exclude) {
       where.id = { not: exclude };
     }
 
-    console.log('Fetching posts with where:', where);
+    console.log("Fetching posts with where:", where);
 
     const [posts, total] = await Promise.all([
       prisma.blogPost.findMany({
         where,
         skip,
         take: limit,
-        orderBy: { publishedAt: 'desc' },
+        orderBy: { publishedAt: "desc" },
         include: {
           author: {
             select: {
               id: true,
               name: true,
-              email: true,
-              avatar: true
-            }
-          }
-        }
+
+              avatar: true,
+            },
+          },
+        },
       }),
-      prisma.blogPost.count({ where })
+      prisma.blogPost.count({ where }),
     ]);
 
     console.log(`Found ${posts.length} posts`);
@@ -62,17 +74,17 @@ export async function GET(request: NextRequest) {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
-    console.error('Error fetching blog posts:', error);
-    return NextResponse.json({ 
-      success: false,
-      error: 'Failed to fetch blog posts',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    console.error("Error fetching blog posts:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to fetch blog posts",
+      },
+      { status: 500 },
+    );
   }
 }

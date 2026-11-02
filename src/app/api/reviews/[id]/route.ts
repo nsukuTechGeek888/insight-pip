@@ -1,17 +1,11 @@
-import {sessionSecret} from '@/lib/session-secret';
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
+import {verifiedIds} from "@/lib/verification";
+import { requestUser } from "@/lib/request-user";
+import { NextRequest, NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/db";
 
 async function getUserFromToken(request: NextRequest) {
-  const token = request.cookies.get('auth_token')?.value;
-  if (!token) return null;
-  try {
-    const decoded = jwt.verify(token, sessionSecret()) as { userId: string };
-    return await prisma.user.findUnique({ where: { id: decoded.userId } });
-  } catch { return null; }
+  return requestUser(request);
 }
 
 // Helper functions
@@ -19,7 +13,7 @@ async function updateBrokerAverageRating(brokerId: number) {
   const reviews = await prisma.review.aggregate({
     where: {
       brokerId,
-      status: 'APPROVED'
+      status: "APPROVED",
     },
     _avg: {
       rating: true,
@@ -28,7 +22,7 @@ async function updateBrokerAverageRating(brokerId: number) {
       valueRating: true,
       supportRating: true,
     },
-    _count: true
+    _count: true,
   });
 
   await prisma.broker.update({
@@ -40,7 +34,7 @@ async function updateBrokerAverageRating(brokerId: number) {
       avgValueRating: reviews._avg.valueRating || 0,
       avgSupportRating: reviews._avg.supportRating || 0,
       reviewsCount: reviews._count,
-    }
+    },
   });
 }
 
@@ -48,7 +42,7 @@ async function updatePropFirmAverageRating(propFirmId: number) {
   const reviews = await prisma.review.aggregate({
     where: {
       propFirmId,
-      status: 'APPROVED'
+      status: "APPROVED",
     },
     _avg: {
       rating: true,
@@ -57,7 +51,7 @@ async function updatePropFirmAverageRating(propFirmId: number) {
       userFriendliness: true,
       payoutProcess: true,
     },
-    _count: true
+    _count: true,
   });
 
   await prisma.propFirm.update({
@@ -69,18 +63,18 @@ async function updatePropFirmAverageRating(propFirmId: number) {
       avgUserFriendliness: reviews._avg.userFriendliness || 0,
       avgPayoutProcess: reviews._avg.payoutProcess || 0,
       reviewsCount: reviews._count,
-    }
+    },
   });
 }
 
 // GET /api/reviews/[id] - Get single review
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
-    
+
     const review = await prisma.review.findUnique({
       where: { id },
       include: {
@@ -89,7 +83,7 @@ export async function GET(
             id: true,
             name: true,
             avatar: true,
-          }
+          },
         },
         broker: {
           select: {
@@ -97,7 +91,7 @@ export async function GET(
             name: true,
             slug: true,
             logo: true,
-          }
+          },
         },
         propFirm: {
           select: {
@@ -105,103 +99,112 @@ export async function GET(
             name: true,
             slug: true,
             logo: true,
-          }
+          },
         },
         replies: {
-          where: { parentReplyId: null },
+          where: { parentReplyId: null, isApproved: true, isHidden: false },
           include: {
             user: {
               select: {
                 id: true,
                 name: true,
                 avatar: true,
-              }
+              },
             },
             broker: {
               select: {
                 id: true,
                 name: true,
                 logo: true,
-              }
+              },
             },
             propFirm: {
               select: {
                 id: true,
                 name: true,
                 logo: true,
-              }
+              },
             },
             replies: {
+              where: { isApproved: true, isHidden: false },
               include: {
                 user: {
                   select: {
                     id: true,
                     name: true,
                     avatar: true,
-                  }
+                  },
                 },
                 broker: {
                   select: {
                     id: true,
                     name: true,
                     logo: true,
-                  }
+                  },
                 },
                 propFirm: {
                   select: {
                     id: true,
                     name: true,
                     logo: true,
-                  }
-                }
-              }
-            }
+                  },
+                },
+              },
+            },
           },
           orderBy: {
-            createdAt: 'asc'
-          }
+            createdAt: "asc",
+          },
         },
         _count: {
           select: {
-            votes: true,
-            replies: true,
-          }
-        }
-      }
+            votes:{where:{voteType:"HELPFUL"}},
+            replies:{where:{isApproved:true,isHidden:false}},
+          },
+        },
+      },
     });
 
     if (!review) {
-      return NextResponse.json(
-        { error: 'Review not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Review not found" }, { status: 404 });
     }
 
     // Check if current user has voted on this review
     const user = await getUserFromToken(request);
-    if ((review.status!=='APPROVED'||review.isHidden)&&user?.id!==review.userId&&user?.role!=='ADMIN') return NextResponse.json({error:'Review unavailable'},{status:404});
+    if (
+      (review.status !== "APPROVED" || review.isHidden) &&
+      user?.id !== review.userId &&
+      user?.role !== "ADMIN"
+    )
+      return NextResponse.json(
+        { error: "Review unavailable" },
+        { status: 404 },
+      );
     let userVote = null;
-    
+
     if (user) {
       const vote = await prisma.helpfulVote.findUnique({
         where: {
           reviewId_userId: {
             reviewId: id,
-            userId: user.id
-          }
-        }
+            userId: user.id,
+          },
+        },
       });
       if (vote) {
         userVote = vote.voteType;
       }
     }
 
+    const verified=await verifiedIds("review",[review.id]);
     // Transform response
     const transformedReview = {
       id: review.id,
       title: review.title,
       content: review.content,
       rating: review.rating,
+      evidenceSubmitted:await prisma.privateEvidence.count({where:{reviewId:review.id}})>0,
+      platformStability:review.platformStability,executionQuality:review.executionQuality,withdrawalExperience:review.withdrawalExperience,customerSupport:review.customerSupport,reliability:review.reliability,
       pros: review.pros,
       cons: review.cons,
       serviceRating: review.serviceRating,
@@ -214,7 +217,7 @@ export async function GET(
       payoutProcess: review.payoutProcess,
       tradingExperience: review.tradingExperienceLevel,
       yearsTrading: review.yearsTrading,
-      isVerified: review.isVerified || false,
+      isVerified: review.isVerified && verified.has(review.id),
       status: review.status,
       createdAt: review.createdAt,
       updatedAt: review.updatedAt,
@@ -224,63 +227,58 @@ export async function GET(
       userVote,
       entityId: review.brokerId || review.propFirmId,
       entityName: review.broker?.name || review.propFirm?.name,
-      entityType: review.brokerId ? 'broker' : 'propFirm',
+      entityType: review.brokerId ? "broker" : "propFirm",
       entityLogo: review.broker?.logo || review.propFirm?.logo,
       entitySlug: review.broker?.slug || review.propFirm?.slug,
-      replies: review.replies || []
+      replies: review.replies || [],
     };
 
     return NextResponse.json(transformedReview);
   } catch (error) {
-    console.error('Error fetching review:', error);
+    console.error("Error fetching review:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch review' },
-      { status: 500 }
+      { error: "Failed to fetch review" },
+      { status: 500 },
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
 // PUT /api/reviews/[id] - Update review
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
     const user = await getUserFromToken(request);
-    
+
     if (!user) {
       return NextResponse.json(
-        { error: 'You must be logged in' },
-        { status: 401 }
+        { error: "You must be logged in" },
+        { status: 401 },
       );
     }
 
     // Check if review exists and user owns it or is admin
     const existingReview = await prisma.review.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!existingReview) {
-      return NextResponse.json(
-        { error: 'Review not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Review not found" }, { status: 404 });
     }
 
-    if (existingReview.userId !== user.id && user.role !== 'ADMIN') {
+    if (existingReview.userId !== user.id && user.role !== "ADMIN") {
       return NextResponse.json(
-        { error: 'You do not have permission to edit this review' },
-        { status: 403 }
+        { error: "You do not have permission to edit this review" },
+        { status: 403 },
       );
     }
 
     const body = await request.json();
-    const { 
-      title, 
-      content, 
+    const {
+      title,
+      content,
       rating,
       pros,
       cons,
@@ -296,6 +294,21 @@ export async function PUT(
       yearsTrading,
     } = body;
 
+    if (
+      typeof title !== "string" ||
+      title.trim().length < 2 ||
+      title.length > 150 ||
+      typeof content !== "string" ||
+      content.trim().length < 5 ||
+      content.length > 2000 ||
+      !Number.isInteger(rating) ||
+      rating < 1 ||
+      rating > 5
+    )
+      return NextResponse.json(
+        { error: "Enter a valid title, review and rating" },
+        { status: 400 },
+      );
     // Update review
     const review = await prisma.review.update({
       where: { id },
@@ -315,7 +328,13 @@ export async function PUT(
         payoutProcess,
         tradingExperienceLevel: tradingExperience,
         yearsTrading: yearsTrading ? String(yearsTrading) : null,
-        status: 'PENDING', // Reset to pending after edit for moderation
+        status: "PENDING",
+        isApproved: false,
+        retractedAt:null,retractionReason:null,
+        isVerified: false,
+        verifiedTrader: false,
+        moderatedAt: null,
+        editedAt: new Date(), // Edits return to moderation
       },
       include: {
         user: {
@@ -323,13 +342,13 @@ export async function PUT(
             id: true,
             name: true,
             avatar: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     // Update average ratings if review was previously approved
-    if (existingReview.status === 'APPROVED') {
+    if (existingReview.status === "APPROVED") {
       if (existingReview.brokerId) {
         await updateBrokerAverageRating(existingReview.brokerId);
       } else if (existingReview.propFirmId) {
@@ -339,48 +358,43 @@ export async function PUT(
 
     return NextResponse.json(review);
   } catch (error) {
-    console.error('Error updating review:', error);
+    console.error("Error updating review:", error);
     return NextResponse.json(
-      { error: 'Failed to update review' },
-      { status: 500 }
+      { error: "Failed to update review" },
+      { status: 500 },
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
 // DELETE /api/reviews/[id] - Soft delete (retract) review
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
     const user = await getUserFromToken(request);
-    
+
     if (!user) {
       return NextResponse.json(
-        { error: 'You must be logged in' },
-        { status: 401 }
+        { error: "You must be logged in" },
+        { status: 401 },
       );
     }
 
     // Check if review exists and user owns it or is admin
     const existingReview = await prisma.review.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!existingReview) {
-      return NextResponse.json(
-        { error: 'Review not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Review not found" }, { status: 404 });
     }
 
-    if (existingReview.userId !== user.id && user.role !== 'ADMIN') {
+    if (existingReview.userId !== user.id && user.role !== "ADMIN") {
       return NextResponse.json(
-        { error: 'You do not have permission to delete this review' },
-        { status: 403 }
+        { error: "You do not have permission to delete this review" },
+        { status: 403 },
       );
     }
 
@@ -388,14 +402,16 @@ export async function DELETE(
     const review = await prisma.review.update({
       where: { id },
       data: {
-        status: 'RETRACTED',
+        status: "RETRACTED",
+        isApproved:false,isHidden:true,
         retractedAt: new Date(),
-        retractionReason: 'user_requested'
-      }
+        retractionReason: "user_requested",
+      },
     });
 
+    await prisma.auditEvent.create({data:{actorId:user.id,action:"REVIEW_RETRACTED",entityType:"review",entityId:id}});
     // Update average ratings if review was approved
-    if (existingReview.status === 'APPROVED') {
+    if (existingReview.status === "APPROVED") {
       if (existingReview.brokerId) {
         await updateBrokerAverageRating(existingReview.brokerId);
       } else if (existingReview.propFirmId) {
@@ -403,18 +419,16 @@ export async function DELETE(
       }
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Review retracted successfully',
-      review 
+    return NextResponse.json({
+      success: true,
+      message: "Review retracted successfully",
+      review,
     });
   } catch (error) {
-    console.error('Error retracting review:', error);
+    console.error("Error retracting review:", error);
     return NextResponse.json(
-      { error: 'Failed to retract review' },
-      { status: 500 }
+      { error: "Failed to retract review" },
+      { status: 500 },
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

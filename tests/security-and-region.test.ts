@@ -51,3 +51,5 @@ test("regional entity mapping accepts stored JSON and rejects invalid claims", (
   assert.equal(getRegionEntityName({ entityMapping: { SA: 123 } }, "SA"), null);
   assert.equal(getRegionEntityName({ entityMapping: "invalid" }, "SA"), null);
 });
+
+test('new password hashes distinguish Unicode suffixes beyond bcrypt’s legacy byte limit',async()=>{const {hashPassword,verifyPassword}=await import('../src/lib/passwords');const password='🔐'.repeat(20)+'first';const hash=await hashPassword(password);assert.equal(await verifyPassword(password,hash),true);assert.equal(await verifyPassword('🔐'.repeat(20)+'different',hash),false);});

@@ -391,6 +391,7 @@ export default function AdminPropFirmsPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingFirm, setEditingFirm] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [listPage,setListPage]=useState(1);const [listPages,setListPages]=useState(1);const [listTotal,setListTotal]=useState(0);const [listStatus,setListStatus]=useState('all');
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set([
     'basic', 'payout', 'programs', 'promotions'
   ]));
@@ -569,19 +570,19 @@ export default function AdminPropFirmsPage() {
       return;
     }
     if (user?.role === 'ADMIN') {
-      fetchFirms();
+      const timer=setTimeout(()=>void fetchFirms(),250);return()=>clearTimeout(timer);
     }
-  }, [user, isLoading]);
+  }, [user, isLoading,listPage,searchQuery,listStatus]);
 
   const fetchFirms = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/admin/prop-firms', { credentials: 'include' });
+      const response = await fetch(`/api/admin/prop-firms?${new URLSearchParams({page:String(listPage),limit:'20',search:searchQuery,status:listStatus})}`, { credentials: 'include' });
       const data = await response.json();
       
       if (data.success) {
-        setFirms(data.firms || []);
+        setFirms(data.firms || []);setListPages(data.pagination.pages);setListTotal(data.pagination.total);
       } else {
         setError(data.error || 'Failed to fetch prop firms');
       }
@@ -594,11 +595,11 @@ export default function AdminPropFirmsPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!await confirmAction('Delete this prop firm? This cannot be undone.')) return;
+    if (!await confirmAction('Unpublish this prop firm? Existing records and trader contributions will be preserved.')) return;
     try {
       const response = await fetch(`/api/admin/prop-firms/${id}`, { method: 'DELETE', credentials: 'include' });
       if (response.ok) {
-        setSuccess('Prop firm deleted successfully!');
+        setSuccess('Prop firm unpublished. Records preserved.');
         setTimeout(() => setSuccess(''), 3000);
         fetchFirms();
       } else {
@@ -785,7 +786,7 @@ export default function AdminPropFirmsPage() {
         payload.status = 'ACTIVE';
       }
 
-      console.log('📦 Sending payload:', JSON.stringify(payload, null, 2));
+      console.log(' Sending payload:', JSON.stringify(payload, null, 2));
 
       const url = editingFirm ? `/api/admin/prop-firms/${editingFirm.id}` : '/api/admin/prop-firms';
       const method = editingFirm ? 'PUT' : 'POST';
@@ -799,8 +800,8 @@ export default function AdminPropFirmsPage() {
 
       const data = await response.json();
       
-      console.log('📨 Response status:', response.status);
-      console.log('📨 Response data:', data);
+      console.log(' Response status:', response.status);
+      console.log(' Response data:', data);
 
       if (!response.ok) {
         const errorMsg = data.details || data.error || 'Failed to save';
@@ -837,12 +838,9 @@ export default function AdminPropFirmsPage() {
     setShowModal(true);
   };
 
-  const filteredFirms = firms.filter(f =>
-    f.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    f.country?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredFirms = firms;
 
-  if (isLoading || loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
@@ -862,7 +860,7 @@ export default function AdminPropFirmsPage() {
             </Link>
             <div>
               <h1 className="text-2xl font-bold text-[var(--ip-text)]">Prop Firm Management</h1>
-              <p className="text-[var(--ip-text-2)] text-sm">{firms.length} prop firms in database</p>
+              <p className="text-[var(--ip-text-2)] text-sm">{listTotal} matching prop firms</p>
             </div>
           </div>
           <div className="flex gap-3">
@@ -887,12 +885,14 @@ export default function AdminPropFirmsPage() {
           </div>
         )}
 
+        <div className="v2-community-actions"><select aria-label="Filter publication status" value={listStatus} onChange={e=>{setListStatus(e.target.value);setListPage(1);}}><option value="all">All publication statuses</option><option value="ACTIVE">Published</option><option value="INACTIVE">Unpublished</option></select><span>{listTotal} matching records</span></div>
         <div className="relative mb-6">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ip-text-2)]" size={16} />
-          <input type="text" placeholder="Search prop firms..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg pl-10 pr-4 py-2 text-[var(--ip-text)] text-sm" />
+          <input type="text" placeholder="Search prop firms..." value={searchQuery} onChange={(e) => {setSearchQuery(e.target.value);setListPage(1);}} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg pl-10 pr-4 py-2 text-[var(--ip-text)] text-sm" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {loading&&<p role="status" className="v2-form-note">Loading provider records…</p>}
+        <div aria-busy={loading} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredFirms.map((firm) => (
             <div key={firm.id} className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-5 hover:border-blue-500/50 transition-all group">
               <div className="flex justify-between items-start mb-3">
@@ -910,10 +910,10 @@ export default function AdminPropFirmsPage() {
                   </div>
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => openEditModal(firm)} className="p-1.5 rounded-lg text-[var(--ip-text-2)] hover:text-blue-400">
+                  <button aria-label={`Edit ${firm.name}`} onClick={() => openEditModal(firm)} className="p-1.5 rounded-lg text-[var(--ip-text-2)] hover:text-blue-400">
                     <Edit size={14} />
                   </button>
-                  <button onClick={() => handleDelete(firm.id)} className="p-1.5 rounded-lg text-[var(--ip-text-2)] hover:text-red-400">
+                  <button aria-label={`Unpublish ${firm.name}`} onClick={() => handleDelete(firm.id)} className="p-1.5 rounded-lg text-[var(--ip-text-2)] hover:text-red-400">
                     <Trash2 size={14} />
                   </button>
                 </div>
@@ -935,6 +935,7 @@ export default function AdminPropFirmsPage() {
         </div>
 
         {/* MODAL */}
+        <div className="v2-pagination"><button disabled={listPage===1} onClick={()=>setListPage(listPage-1)}>Previous</button><span>Page {listPage} of {Math.max(1,listPages)}</span><button disabled={listPage>=listPages} onClick={()=>setListPage(listPage+1)}>Next</button></div>
         <AnimatePresence>
           {showModal && (
             <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -952,7 +953,7 @@ export default function AdminPropFirmsPage() {
                     {/* SECTION 1: BASIC INFORMATION */}
                     <div>
                       <button type="button" onClick={() => toggleSection('basic')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">📋 Basic Information</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]"> Basic Information</h3>
                         {expandedSections.has('basic') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('basic') && (
@@ -1067,7 +1068,7 @@ export default function AdminPropFirmsPage() {
                     {/* SECTION 2: PAYOUT */}
                     <div>
                       <button type="button" onClick={() => toggleSection('payout')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">💰 Payout Settings</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]"> Payout Settings</h3>
                         {expandedSections.has('payout') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('payout') && (
@@ -1095,7 +1096,7 @@ export default function AdminPropFirmsPage() {
                     {/* SECTION 3: PROGRAMS */}
                     <div>
                       <button type="button" onClick={() => toggleSection('programs')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">🎯 Programs</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]"> Programs</h3>
                         {expandedSections.has('programs') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('programs') && (
@@ -1113,7 +1114,7 @@ export default function AdminPropFirmsPage() {
                     {/* SECTION 4: PROMOTIONS */}
                     <div>
                       <button type="button" onClick={() => toggleSection('promotions')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">🏷️ Promotions</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">️ Promotions</h3>
                         {expandedSections.has('promotions') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('promotions') && (

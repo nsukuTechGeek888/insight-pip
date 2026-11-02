@@ -1,4 +1,6 @@
 "use client";
+import Image from "next/image";
+import SaveProvider from "./SaveProvider";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRegion } from "@/contexts/RegionContext";
@@ -11,6 +13,8 @@ type Provider = {
   shortDescription?: string;
   headquarters?: string;
   founded?: number;
+  rating?: number;
+  minDeposit?: number;
   reviewsCount: number;
   updatedAt: string;
 };
@@ -25,6 +29,9 @@ export default function ProviderDirectory({
   const [search, setSearch] = useState(initialSearch);
   const [query, setQuery] = useState(initialSearch);
   const [page, setPage] = useState(1);
+  const [platform, setPlatform] = useState("");
+  const [deposit, setDeposit] = useState("");
+  const [program, setProgram] = useState("");
   const [order, setOrder] = useState("asc");
   const [items, setItems] = useState<Provider[]>([]);
   const [total, setTotal] = useState(0);
@@ -44,7 +51,7 @@ export default function ProviderDirectory({
     const c = new AbortController();
     setStatus("loading");
     fetch(
-      `/api/research/providers?${new URLSearchParams({ type, region, search: query, page: String(page), order })}`,
+      `/api/research/providers?${new URLSearchParams({ type, region, search: query, page: String(page), order, platform, ...(deposit ? { deposit } : {}), program })}`,
       { signal: c.signal },
     )
       .then(async (r) => {
@@ -58,7 +65,7 @@ export default function ProviderDirectory({
         if (e.name !== "AbortError") setStatus("error");
       });
     return () => c.abort();
-  }, [type, region, query, page, order, retry]);
+  }, [type, region, query, page, order, retry, platform, deposit, program]);
   return (
     <div className="v2-container">
       <header className="v2-page-heading">
@@ -97,11 +104,75 @@ export default function ProviderDirectory({
         >
           <option value="asc">Name: A to Z</option>
           <option value="desc">Name: Z to A</option>
+          <option value="updated">Recently updated</option>
         </select>
         <Link className="v2-button" href={`/compare?type=${type}`}>
           Compare providers <ArrowUpRight size={16} />
         </Link>
       </div>
+      <details className="v2-panel v2-directory-filters">
+        <summary>
+          Refine your research
+          {platform || deposit || program ? " · Filters active" : ""}
+        </summary>
+        <div>
+          <label>
+            Trading platform (exact recorded name)
+            <input
+              placeholder="e.g. MT5"
+              value={platform}
+              onChange={(e) => {
+                setPlatform(e.target.value);
+                setPage(1);
+              }}
+            />
+          </label>
+          {type === "brokers" ? (
+            <label>
+              Maximum minimum-deposit amount
+              <input
+                type="number"
+                min="0"
+                placeholder="Any amount"
+                value={deposit}
+                onChange={(e) => {
+                  setDeposit(e.target.value);
+                  setPage(1);
+                }}
+              />
+            </label>
+          ) : (
+            <label>
+              Funding program name
+              <input
+                placeholder="Search program names"
+                value={program}
+                onChange={(e) => {
+                  setProgram(e.target.value);
+                  setPage(1);
+                }}
+              />
+            </label>
+          )}
+          <button
+            className="v2-button"
+            onClick={() => {
+              setSearch("");
+              setPlatform("");
+              setDeposit("");
+              setProgram("");
+              setPage(1);
+            }}
+          >
+            Clear filters
+          </button>
+        </div>
+        <p className="v2-form-note">
+          Amounts use the recorded currency; check the profile. Missing values
+          do not match numeric filters.
+        </p>
+      </details>
+      <Link className="v2-ranking-link" href="/rankings">Explore published trader-rating rankings <ArrowUpRight size={14}/></Link>
       <div className="v2-directory-meta">
         <span>
           {status === "ready" ? `${total} providers` : "Provider directory"}
@@ -130,7 +201,7 @@ export default function ProviderDirectory({
             <article className="v2-provider-card" key={p.id}>
               <div className="v2-card-top">
                 <span className="v2-logo">
-                  {p.logo ? <img src={p.logo} alt="" /> : p.name[0]}
+                  {p.logo ? <Image src={p.logo} alt="" width={48} height={48} unoptimized={!p.logo.startsWith("/")} /> : p.name[0]}
                 </span>
                 <span>{type === "brokers" ? "BROKER" : "PROP FIRM"}</span>
                 <Link aria-label={`View ${p.name}`} href={`/${type}/${p.slug}`}>
@@ -145,6 +216,14 @@ export default function ProviderDirectory({
                   "View the provider profile for available information and trading conditions."}
               </p>
               <dl>
+                <div>
+                  <dt>Trader rating</dt>
+                  <dd>{p.rating ? p.rating.toFixed(1) + "/5" : "Not rated"}</dd>
+                </div>
+                <div>
+                  <dt>Trust Score</dt>
+                  <dd>Not assessed</dd>
+                </div>
                 <div>
                   <dt>Headquarters</dt>
                   <dd>{p.headquarters || "Not provided"}</dd>
@@ -169,6 +248,7 @@ export default function ProviderDirectory({
                   Compare
                 </Link>
               </div>
+              <SaveProvider id={p.id} type={type} />
               <small>
                 Record updated {new Date(p.updatedAt).toLocaleDateString()} ·
                 Verification not confirmed

@@ -1,37 +1,36 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 // GET /api/brokers/[id]/reviews - Get all reviews for a specific broker
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const sort = searchParams.get('sort') || 'newest';
-    const rating = searchParams.get('rating'); // filter by rating
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const sort = searchParams.get("sort") || "newest";
+    const rating = searchParams.get("rating"); // filter by rating
 
     const skip = (page - 1) * limit;
     const brokerId = parseInt((await params).id);
 
     // Check if broker exists
     const broker = await prisma.broker.findUnique({
-      where: { id: brokerId }
+      where: { id: brokerId },
     });
 
     if (!broker) {
-      return NextResponse.json(
-        { error: 'Broker not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Broker not found" }, { status: 404 });
     }
 
     // Build where clause
     const where: any = {
       brokerId,
-      status: 'APPROVED' // Only show approved reviews
+      status: "APPROVED",
+      isHidden: false,
+      retractedAt: null, // Only show approved reviews
     };
 
     if (rating) {
@@ -41,23 +40,23 @@ export async function GET(
     // Determine sort order
     let orderBy: any = {};
     switch (sort) {
-      case 'newest':
-        orderBy = { createdAt: 'desc' };
+      case "newest":
+        orderBy = { createdAt: "desc" };
         break;
-      case 'oldest':
-        orderBy = { createdAt: 'asc' };
+      case "oldest":
+        orderBy = { createdAt: "asc" };
         break;
-      case 'highest':
-        orderBy = { rating: 'desc' };
+      case "highest":
+        orderBy = { rating: "desc" };
         break;
-      case 'lowest':
-        orderBy = { rating: 'asc' };
+      case "lowest":
+        orderBy = { rating: "asc" };
         break;
-      case 'most-helpful':
-        orderBy = { helpfulCount: 'desc' };
+      case "most-helpful":
+        orderBy = { helpfulCount: "desc" };
         break;
       default:
-        orderBy = { createdAt: 'desc' };
+        orderBy = { createdAt: "desc" };
     }
 
     // Get reviews with pagination
@@ -73,40 +72,42 @@ export async function GET(
               id: true,
               name: true,
               avatar: true,
-            }
+            },
           },
           _count: {
             select: {
               votes: true,
               replies: true,
-            }
-          }
-        }
+            },
+          },
+        },
       }),
-      prisma.review.count({ where })
+      prisma.review.count({ where }),
     ]);
 
     // Get rating distribution
     const ratingDistribution = await prisma.review.groupBy({
-      by: ['rating'],
+      by: ["rating"],
       where: {
         brokerId,
-        status: 'APPROVED'
+        status: "APPROVED",
+        isHidden: false,
+        retractedAt: null,
       },
-      _count: true
+      _count: true,
     });
 
     const distribution = Array.from({ length: 5 }, (_, i) => {
-      const ratingData = ratingDistribution.find(r => r.rating === i + 1);
+      const ratingData = ratingDistribution.find((r) => r.rating === i + 1);
       return {
         rating: i + 1,
         count: ratingData?._count || 0,
-        percentage: total > 0 ? ((ratingData?._count || 0) / total) * 100 : 0
+        percentage: total > 0 ? ((ratingData?._count || 0) / total) * 100 : 0,
       };
     });
 
     return NextResponse.json({
-      reviews,
+      reviews:reviews.map(review=>({...review,proofFiles:null,moderationNote:null,moderatedBy:null,editHistory:null,originalContent:null,isVerified:false})),
       broker: {
         id: broker.id,
         name: broker.name,
@@ -118,14 +119,14 @@ export async function GET(
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
-    console.error('Error fetching broker reviews:', error);
+    console.error("Error fetching broker reviews:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch reviews' },
-      { status: 500 }
+      { error: "Failed to fetch reviews" },
+      { status: 500 },
     );
   }
 }

@@ -1,37 +1,24 @@
-import {sessionSecret} from '@/lib/session-secret';
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
+import { requestUser } from "@/lib/request-user";
+import { NextRequest, NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/db";
 
 async function getUserFromToken(request: NextRequest) {
-  const token = request.cookies.get('auth_token')?.value;
-  if (!token) return null;
-  
-  try {
-    const decoded = jwt.verify(token, sessionSecret()) as { userId: string };
-    return await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: { id: true, email: true, name: true, role: true }
-    });
-  } catch {
-    return null;
-  }
+  return requestUser(request);
 }
 
 // GET /api/user/incidents - Get current user's incidents
 export async function GET(request: NextRequest) {
   try {
     const user = await getUserFromToken(request);
-    
+
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;
 
     const [incidents, total] = await Promise.all([
@@ -39,27 +26,28 @@ export async function GET(request: NextRequest) {
         where: { userId: user.id },
         include: {
           broker: { select: { id: true, name: true, slug: true } },
-          propFirm: { select: { id: true, name: true, slug: true } }
+          propFirm: { select: { id: true, name: true, slug: true } },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         skip,
         take: limit,
       }),
-      prisma.incident.count({ where: { userId: user.id } })
+      prisma.incident.count({ where: { userId: user.id } }),
     ]);
 
-    const formattedIncidents = incidents.map(incident => ({
+    const formattedIncidents = incidents.map((incident) => ({
       id: incident.id,
       title: incident.title,
       description: incident.description,
       incidentType: incident.incidentType,
       status: incident.status,
+      moderationNote: incident.moderationNote,
       resolutionStatus: incident.resolutionStatus,
       createdAt: incident.createdAt,
       incidentDate: incident.incidentDate,
       entityId: incident.brokerId || incident.propFirmId,
       entityName: incident.broker?.name || incident.propFirm?.name,
-      entityType: incident.brokerId ? 'broker' : 'propFirm',
+      entityType: incident.brokerId ? "broker" : "propFirm",
       entitySlug: incident.broker?.slug || incident.propFirm?.slug,
       confirmations: incident.confirmations,
       disputes: incident.disputes,
@@ -70,12 +58,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       incidents: formattedIncidents,
-      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     });
   } catch (error) {
-    console.error('Error fetching user incidents:', error);
-    return NextResponse.json({ error: 'Failed to fetch incidents' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    console.error("Error fetching user incidents:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch incidents" },
+      { status: 500 },
+    );
   }
 }

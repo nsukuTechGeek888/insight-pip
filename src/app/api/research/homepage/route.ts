@@ -1,0 +1,2 @@
+import {NextResponse} from 'next/server';import {prisma} from '@/lib/db';import {defaultHomepage,homepageSchema} from '@/lib/homepage';
+export async function GET(){try{const setting=await prisma.platformSetting.findUnique({where:{key:'homepage'}});const parsed=homepageSchema.safeParse(setting?.value);return NextResponse.json({content:parsed.success?parsed.data:defaultHomepage});}catch{return NextResponse.json({content:defaultHomepage,unavailable:true},{status:503});}}

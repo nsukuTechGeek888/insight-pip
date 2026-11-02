@@ -1,217 +1,121 @@
-import {sessionSecret} from '@/lib/session-secret';
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
-
-const prisma = new PrismaClient();
-
-async function getUserFromToken(request: NextRequest) {
-  const token = request.cookies.get('auth_token')?.value;
-  if (!token) return null;
-  try {
-    const decoded = jwt.verify(
-      token, 
-      sessionSecret()
-    ) as { userId: string };
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId }
-    });
-    return user;
-  } catch {
-    return null;
-  }
-}
-
-// Helper to update entity metrics
-async function updateEntityMetrics(entityType: string, entityId: number) {
-  try {
-    const incidents = await prisma.incident.findMany({
-      where: {
-        entityType,
-        entityId,
-        status: 'APPROVED'
-      }
-    });
-
-    const now = new Date();
-    const sevenDaysAgo = new Date(now);
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const thirtyDaysAgo = new Date(now);
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    const metrics = {
-      totalIncidents: incidents.length,
-      incidentsLast7Days: incidents.filter(i => i.createdAt >= sevenDaysAgo).length,
-      incidentsLast30Days: incidents.filter(i => i.createdAt >= thirtyDaysAgo).length,
-      withdrawalReports: incidents.filter(i => i.incidentType.includes('WITHDRAWAL')).length,
-      withdrawalDelays: incidents.filter(i => i.incidentType === 'WITHDRAWAL_DELAY').length,
-      withdrawalConfirmed: incidents.filter(i => i.incidentType === 'WITHDRAWAL_PAID').length,
-      withdrawalRejected: incidents.filter(i => i.incidentType === 'WITHDRAWAL_REJECTED').length,
-      executionComplaints: incidents.filter(i => 
-        ['SLIPPAGE_ISSUES', 'SPREAD_SPIKE', 'EXECUTION_DELAY', 'TRADE_MANIPULATION_SUSPECTED'].includes(i.incidentType)
-      ).length,
-      platformIssues: incidents.filter(i =>
-        ['PLATFORM_FREEZE', 'SERVER_DOWN', 'LOGIN_ISSUES', 'ORDER_EXECUTION_FAILURE'].includes(i.incidentType)
-      ).length,
-      resolvedIncidents: incidents.filter(i => i.verifiedBadge).length,
-      disputedIncidents: incidents.filter(i => i.disputes > i.confirmations).length
-    };
-
-    if (entityType === 'broker') {
-      await prisma.broker.update({
-        where: { id: entityId },
-        data: metrics
-      });
-    } else {
-      await prisma.propFirm.update({
-        where: { id: entityId },
-        data: metrics
-      });
-    }
-    
-    console.log(`✅ Updated ${entityType} ${entityId} metrics after moderation`);
-  } catch (error) {
-    console.error('Error updating entity metrics:', error);
-  }
-}
-
+import { NextRequest, NextResponse } from "next/server";
+import { IncidentType, ResolutionStatus, Prisma } from "@prisma/client";
+import { prisma } from "@/lib/db";
+import { requestUser } from "@/lib/request-user";
 export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  r: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const u = await requestUser(r);
+    if (u?.role !== "ADMIN")
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const { id } = await params;
-    const user = await getUserFromToken(request);
-    
-    if (!user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { action, note } = await request.json();
-
-    let updateData: any = {};
-    
-    switch(action) {
-      case 'approve':
-        updateData = { 
-          status: 'APPROVED', 
-          moderatedBy: user.id, 
-          moderatedAt: new Date(), 
-          moderationNote: note 
-        };
-        break;
-      case 'reject':
-        updateData = { 
-          status: 'REJECTED', 
-          moderatedBy: user.id, 
-          moderatedAt: new Date(), 
-          moderationNote: note 
-        };
-        break;
-      case 'verify':
-        updateData = { 
-          verifiedBadge: true, 
-          status: 'APPROVED', 
-          moderatedBy: user.id, 
-          moderatedAt: new Date() 
-        };
-        break;
-      case 'flag':
-        updateData = { 
-          status: 'FLAGGED', 
-          moderatedBy: user.id, 
-          moderatedAt: new Date(), 
-          moderationNote: note 
-        };
-        break;
-      case 'resolve':
-        updateData = {
-          resolutionStatus: 'RESOLVED',
-          moderatedBy: user.id,
-          moderatedAt: new Date(),
-          moderationNote: note
-        };
-        break;
-      default:
-        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
-    }
-
-    const incident = await prisma.incident.update({
-      where: { id },
-      data: updateData,
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          }
-        }
-      }
+    const b = await r.json();
+    const note = typeof b.note === "string" ? b.note.trim().slice(0, 2000) : "";
+    if (note.length < 5)
+      return NextResponse.json(
+        { error: "Record a moderation note of at least five characters" },
+        { status: 400 },
+      );
+    const incident = await prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM incidents WHERE id = ${id} FOR UPDATE`;
+      const current = await tx.incident.findUniqueOrThrow({ where: { id } });
+      const data: Prisma.IncidentUpdateInput = {
+        moderatedBy: u.id,
+        moderatedAt: new Date(),
+        moderationNote: note,
+      };
+      if (b.action === "approve") {
+        data.status = "APPROVED";
+        data.visibility = "PUBLIC";
+      } else if (b.action === "reject") data.status = "REJECTED";
+      else if (b.action === "flag") data.status = "FLAGGED";
+      else if (b.action === "resolve") data.resolutionStatus = "RESOLVED";
+      else if (b.action === "verify") {
+        if (
+          !(await tx.privateEvidence.count({
+            where: { incidentId: id, status: "REVIEWED" },
+          }))
+        )
+          throw Error("Review supporting evidence before confirming facts");
+        data.verifiedBadge = true;
+        data.proofVerified = true;
+      } else if (b.action === "classify") {
+        if (!Object.values(IncidentType).includes(b.incidentType))
+          throw Error("Choose a valid incident category");
+        data.incidentType = b.incidentType;
+      } else if (b.action === "resolution") {
+        if (!Object.values(ResolutionStatus).includes(b.resolutionStatus))
+          throw Error("Choose a valid resolution status");
+        data.resolutionStatus = b.resolutionStatus;
+      } else if (b.action === "approve-update") {
+        const updates = Array.isArray(current.followUps)
+          ? current.followUps
+          : [];
+        data.followUps = updates.map((entry) =>
+          entry &&
+          typeof entry === "object" &&
+          !Array.isArray(entry) &&
+          entry.id === b.updateId
+            ? { ...entry, approved: true }
+            : entry,
+        ) as Prisma.InputJsonValue;
+      } else throw Error("Invalid action");
+      const incident = await tx.incident.update({ where: { id }, data });
+      await tx.auditEvent.create({
+        data: {
+          actorId: u.id,
+          action: "INCIDENT_" + String(b.action).toUpperCase(),
+          entityType: "incident",
+          entityId: id,
+          metadata: { note },
+        },
+      });
+      await tx.notification.create({
+        data: {
+          userId: current.userId,
+          title: "Incident status updated",
+          body: note,
+          href: "/incidents/" + id,
+        },
+      });
+      return incident;
     });
-
-    // Update entity metrics after approval
-    if (action === 'approve' || action === 'verify') {
-      await updateEntityMetrics(incident.entityType, incident.entityId);
-    }
-
-    // Calculate display status for response
-    const displayStatus = incident.verifiedBadge ? 'VERIFIED' : 
-                         incident.proofUrls?.length > 0 ? 'PROOF_SUBMITTED' :
-                         incident.disputes > incident.confirmations ? 'DISPUTED' : 'UNVERIFIED';
-
-    return NextResponse.json({ 
-      success: true, 
-      incident: {
-        ...incident,
-        displayStatus
+    return NextResponse.json({ success: true, incident });
+  } catch (e) {
+    return NextResponse.json(
+      {
+        error:
+          e instanceof Error && e.message.startsWith("Review supporting")
+            ? e.message
+            : "Unable to save incident decision",
       },
-      message: `Incident ${action}d successfully` 
-    });
-
-  } catch (error) {
-    console.error('Error moderating incident:', error);
-    return NextResponse.json({ error: 'Failed to moderate incident' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+      { status: 400 },
+    );
   }
 }
-
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  r: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  try {
-    const { id } = await params;
-    const user = await getUserFromToken(request);
-    
-    if (!user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get incident before deletion to update metrics
-    const incident = await prisma.incident.findUnique({
-      where: { id }
+  const u = await requestUser(r);
+  if (u?.role !== "ADMIN")
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { id } = await params;
+  await prisma.$transaction(async (tx) => {
+    await tx.incident.update({
+      where: { id },
+      data: { status: "ARCHIVED", visibility: "PRIVATE" },
     });
-
-    await prisma.incident.delete({
-      where: { id }
+    await tx.auditEvent.create({
+      data: {
+        actorId: u.id,
+        action: "INCIDENT_ARCHIVED",
+        entityType: "incident",
+        entityId: id,
+      },
     });
-
-    // Update entity metrics after deletion
-    if (incident) {
-      await updateEntityMetrics(incident.entityType, incident.entityId);
-    }
-
-    return NextResponse.json({ 
-      success: true,
-      message: 'Incident deleted successfully' 
-    });
-
-  } catch (error) {
-    console.error('Error deleting incident:', error);
-    return NextResponse.json({ error: 'Failed to delete incident' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
-  }
+  });
+  return NextResponse.json({ success: true });
 }

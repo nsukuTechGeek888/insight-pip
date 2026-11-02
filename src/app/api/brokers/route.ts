@@ -1,104 +1,103 @@
-import {requestUser,sameOrigin} from '@/lib/request-user';
-﻿﻿// app/api/brokers/route.ts - UPDATED to include promotions and bonuses
-
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient, Prisma } from '@prisma/client';
-import { 
-  getRegionFromCountry, 
+import { requestUser, sameOrigin } from "@/lib/request-user"; // app/api/brokers/route.ts - UPDATED to include promotions and bonuses
+import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
+import {
+  getRegionFromCountry,
   DEFAULT_REGION,
   getRegionFromCookies,
   isAvailableInRegion,
-  setRegionCookie
-} from '@/lib/region';
+  setRegionCookie,
+} from "@/lib/region";
 
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/db";
 
 function safeJSONParse(value: any) {
   if (!value) return null;
-  if (typeof value === 'object') return value;
-  if (value === '[object Object]' || value.includes('[object Object]')) {
-    console.warn('⚠️ Found malformed JSON data, returning null');
+  if (typeof value === "object") return value;
+  if (value === "[object Object]" || value.includes("[object Object]")) {
+    console.warn("⚠️ Found malformed JSON data, returning null");
     return null;
   }
   try {
     return JSON.parse(value);
   } catch (e) {
-    console.error('Error parsing JSON:', e);
+    console.error("Error parsing JSON:", e);
     return null;
   }
 }
 
 function getRegionFromRequest(request: NextRequest): string {
-  const regionParam = request.nextUrl.searchParams.get('region');
-  if (regionParam && regionParam !== '') {
+  const regionParam = request.nextUrl.searchParams.get("region");
+  if (regionParam && regionParam !== "") {
     return regionParam;
   }
-  
+
   const cookieRegion = getRegionFromCookies(request);
   if (cookieRegion) {
     return cookieRegion;
   }
-  
-  const cfCountry = request.headers.get('CF-IPCountry') || 
-                    request.headers.get('x-vercel-ip-country') ||
-                    request.headers.get('x-country-code');
+
+  const cfCountry =
+    request.headers.get("CF-IPCountry") ||
+    request.headers.get("x-vercel-ip-country") ||
+    request.headers.get("x-country-code");
   if (cfCountry) {
     return getRegionFromCountry(cfCountry);
   }
-  
+
   return DEFAULT_REGION;
 }
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const search = searchParams.get('search') || '';
-    const country = searchParams.get('country') || '';
-    const regulated = searchParams.get('regulated');
-    const minRating = parseFloat(searchParams.get('minRating') || '0');
-    const sortBy = searchParams.get('sortBy') || 'rating';
-    const sortOrder = searchParams.get('sortOrder') || 'desc';
-    
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "20");
+    const search = searchParams.get("search") || "";
+    const country = searchParams.get("country") || "";
+    const regulated = searchParams.get("regulated");
+    const minRating = parseFloat(searchParams.get("minRating") || "0");
+    const sortBy = searchParams.get("sortBy") || "rating";
+    const sortOrder = searchParams.get("sortOrder") || "desc";
+
     const region = getRegionFromRequest(request);
     console.log(`📍 Brokers API - Region: ${region}`);
-    
+
     const skip = (page - 1) * limit;
-    
-    const where: any = { status: 'ACTIVE' };
-    
+
+    const where: any = { status: "ACTIVE" };
+
     where.AND = [
       {
         OR: [
           { regions: { has: region } },
-          { regions: { has: 'GLOBAL' } },
+          { regions: { has: "GLOBAL" } },
           { regions: { isEmpty: true } },
-        ]
+        ],
       },
       {
         NOT: {
-          restrictedRegions: { has: region }
-        }
-      }
+          restrictedRegions: { has: region },
+        },
+      },
     ];
-    
+
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-        { country: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+        { country: { contains: search, mode: "insensitive" } },
       ];
     }
-    
+
     if (country) {
-      where.country = { contains: country, mode: 'insensitive' };
+      where.country = { contains: country, mode: "insensitive" };
     }
-    
-    if (regulated !== null && regulated !== undefined && regulated !== '') {
-      where.regulated = regulated === 'true';
+
+    if (regulated !== null && regulated !== undefined && regulated !== "") {
+      where.regulated = regulated === "true";
     }
-    
+
     const [brokers, total] = await Promise.all([
       prisma.broker.findMany({
         where,
@@ -111,18 +110,18 @@ export async function GET(request: NextRequest) {
               commission: true,
               spreadType: true,
               swapFree: true,
-            }
+            },
           },
           bonuses: {
             where: {
               OR: [
                 { regions: { has: region } },
-                { regions: { has: 'GLOBAL' } },
+                { regions: { has: "GLOBAL" } },
                 { regions: { isEmpty: true } },
               ],
               NOT: {
-                restrictedRegions: { has: region }
-              }
+                restrictedRegions: { has: region },
+              },
             },
             select: {
               id: true,
@@ -130,21 +129,21 @@ export async function GET(request: NextRequest) {
               amount: true,
               conditions: true,
               expiry: true,
-            regions: true,
-            restrictedRegions: true,
+              regions: true,
+              restrictedRegions: true,
               code: true,
-            }
+            },
           },
           promotions: {
             where: {
               OR: [
                 { regions: { has: region } },
-                { regions: { has: 'GLOBAL' } },
+                { regions: { has: "GLOBAL" } },
                 { regions: { isEmpty: true } },
               ],
               NOT: {
-                restrictedRegions: { has: region }
-              }
+                restrictedRegions: { has: region },
+              },
             },
             select: {
               id: true,
@@ -153,149 +152,192 @@ export async function GET(request: NextRequest) {
               discount: true,
               code: true,
               validUntil: true,
-            regions: true,
-            restrictedRegions: true,
-            }
+              regions: true,
+              restrictedRegions: true,
+            },
           },
           reviews: {
-            where: { status: 'APPROVED' },
+            where: { status: "APPROVED" },
             select: {
               rating: true,
               serviceRating: true,
               platformRating: true,
               valueRating: true,
               supportRating: true,
-            }
-          }
+            },
+          },
         },
         skip,
         take: limit,
       }),
-      prisma.broker.count({ where })
+      prisma.broker.count({ where }),
     ]);
-    
-    console.log(`📊 Found ${brokers.length} brokers with ${brokers.reduce((acc, b) => acc + b.promotions.length, 0)} promotions and ${brokers.reduce((acc, b) => acc + b.bonuses.length, 0)} bonuses`);
-    
-    let parsedBrokers = brokers.map(broker => {
+
+    console.log(
+      `📊 Found ${brokers.length} brokers with ${brokers.reduce((acc, b) => acc + b.promotions.length, 0)} promotions and ${brokers.reduce((acc, b) => acc + b.bonuses.length, 0)} bonuses`,
+    );
+
+    let parsedBrokers = brokers.map((broker) => {
       const regulation = safeJSONParse(broker.regulation);
       const spreads = safeJSONParse(broker.averageSpreads) || {};
       const commissions = safeJSONParse(broker.commissions) || {};
       const instruments = safeJSONParse(broker.instruments) || {};
       const socialMedia = safeJSONParse(broker.socialMedia) || {};
-      
+
       const approvedReviews = broker.reviews;
       const totalReviews = approvedReviews.length;
-      
-      const averageRating = totalReviews > 0
-        ? approvedReviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
-        : 0;
-      
-      const avgServiceRating = totalReviews > 0
-        ? approvedReviews.reduce((sum, r) => sum + (r.serviceRating || 0), 0) / totalReviews
-        : 0;
-      
-      const avgPlatformRating = totalReviews > 0
-        ? approvedReviews.reduce((sum, r) => sum + (r.platformRating || 0), 0) / totalReviews
-        : 0;
-      
-      const avgValueRating = totalReviews > 0
-        ? approvedReviews.reduce((sum, r) => sum + (r.valueRating || 0), 0) / totalReviews
-        : 0;
-      
-      const avgSupportRating = totalReviews > 0
-        ? approvedReviews.reduce((sum, r) => sum + (r.supportRating || 0), 0) / totalReviews
-        : 0;
-      
+
+      const averageRating =
+        totalReviews > 0
+          ? approvedReviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
+          : 0;
+
+      const avgServiceRating =
+        totalReviews > 0
+          ? approvedReviews.reduce(
+              (sum, r) => sum + (r.serviceRating || 0),
+              0,
+            ) / totalReviews
+          : 0;
+
+      const avgPlatformRating =
+        totalReviews > 0
+          ? approvedReviews.reduce(
+              (sum, r) => sum + (r.platformRating || 0),
+              0,
+            ) / totalReviews
+          : 0;
+
+      const avgValueRating =
+        totalReviews > 0
+          ? approvedReviews.reduce((sum, r) => sum + (r.valueRating || 0), 0) /
+            totalReviews
+          : 0;
+
+      const avgSupportRating =
+        totalReviews > 0
+          ? approvedReviews.reduce(
+              (sum, r) => sum + (r.supportRating || 0),
+              0,
+            ) / totalReviews
+          : 0;
+
       const ratingDistribution = Array.from({ length: 5 }, (_, i) => {
         const ratingValue = i + 1;
-        const count = approvedReviews.filter(r => Math.floor(r.rating) === ratingValue).length;
+        const count = approvedReviews.filter(
+          (r) => Math.floor(r.rating) === ratingValue,
+        ).length;
         return {
           rating: ratingValue,
           count,
-          percentage: totalReviews > 0 ? (count / totalReviews) * 100 : 0
+          percentage: totalReviews > 0 ? (count / totalReviews) * 100 : 0,
         };
       });
-      
+
       // Format bonuses with region info
-      const bonuses = broker.bonuses.map(bonus => ({
+      const bonuses = broker.bonuses.map((bonus) => ({
         type: bonus.type,
         amount: bonus.amount,
-        conditions: bonus.conditions || '',
-        expiry: bonus.expiry || 'Ongoing',
-        code: bonus.code || '',
-        regions: bonus.regions || ['GLOBAL'],
+        conditions: bonus.conditions || "",
+        expiry: bonus.expiry || "Ongoing",
+        code: bonus.code || "",
+        regions: bonus.regions || ["GLOBAL"],
         restrictedRegions: bonus.restrictedRegions || [],
       }));
-      
+
       // Format promotions with region info
-      const promotions = broker.promotions.map(promo => ({
+      const promotions = broker.promotions.map((promo) => ({
         name: promo.name,
-        description: promo.description || '',
-        discount: promo.discount || '',
-        code: promo.code || '',
+        description: promo.description || "",
+        discount: promo.discount || "",
+        code: promo.code || "",
         validUntil: promo.validUntil,
-        regions: promo.regions || ['GLOBAL'],
+        regions: promo.regions || ["GLOBAL"],
         restrictedRegions: promo.restrictedRegions || [],
       }));
-      
+
       const support = {
         languages: broker.supportLanguages || [],
-        availability: broker.supportAvailability || '24/5',
-        channels: ['Live Chat', 'Email', 'Phone'],
-        responseTime: 'Under 5 minutes (live chat)'
+        availability: broker.supportAvailability || "24/5",
+        channels: ["Live Chat", "Email", "Phone"],
+        responseTime: "Under 5 minutes (live chat)",
       };
-      
+
       const education = {
         learningMaterials: broker.educationTypes || [],
-        researchTools: ['Daily market analysis', 'Economic calendar', 'Trading signals', 'Market news']
+        researchTools: [
+          "Daily market analysis",
+          "Economic calendar",
+          "Trading signals",
+          "Market news",
+        ],
       };
-      
-      const chartingTools = (broker.features || []).filter((f: string) => 
-        f && (f.includes('chart') || f.includes('indicator') || f.includes('analysis'))
+
+      const chartingTools = (broker.features || []).filter(
+        (f: string) =>
+          f &&
+          (f.includes("chart") ||
+            f.includes("indicator") ||
+            f.includes("analysis")),
       );
-      
-      const tradingFeatures = (broker.features || []).filter((f: string) => 
-        f && (f.includes('trading') || f.includes('Advisor') || f.includes('copy') || f.includes('hedging'))
+
+      const tradingFeatures = (broker.features || []).filter(
+        (f: string) =>
+          f &&
+          (f.includes("trading") ||
+            f.includes("Advisor") ||
+            f.includes("copy") ||
+            f.includes("hedging")),
       );
-      
-      const slug = broker.slug || broker.name.toLowerCase().replace(/\s+/g, '-');
-      
+
+      const slug =
+        broker.slug || broker.name.toLowerCase().replace(/\s+/g, "-");
+
       return {
         id: broker.id,
         name: broker.name,
         slug: slug,
-        description: broker.description || '',
-        logo: broker.logo || '',
+        description: broker.description || "",
+        logo: broker.logo || "",
         founded: broker.founded || 0,
-        headquarters: broker.headquarters || '',
+        headquarters: broker.headquarters || "",
         website: broker.website,
-        accountTypes: broker.accountTypes.map(acc => ({
+        accountTypes: broker.accountTypes.map((acc) => ({
           name: acc.name,
           minDeposit: acc.minDeposit || 0,
-          commission: acc.commission || '',
-          spreadType: acc.spreadType || '',
-          swapFree: acc.swapFree || false
+          commission: acc.commission || "",
+          spreadType: acc.spreadType || "",
+          swapFree: acc.swapFree || false,
         })),
         demoAccount: broker.demoAccount || false,
-        demoAccountDuration: broker.demoAccount ? '30 days' : '',
-        leverage: broker.maxLeverage || '1:100',
+        demoAccountDuration: broker.demoAccount ? "30 days" : "",
+        leverage: broker.maxLeverage || "1:100",
         minTradeSize: 0.01,
         maxTradeSize: 100,
-        orderExecution: 'Market Execution',
+        orderExecution: "Market Execution",
         marginCall: 100,
         stopOutLevel: 50,
         spreads: spreads,
         commissions: commissions,
         swapFree: broker.islamicAccount || false,
         platforms: broker.platforms || [],
-        mobileTrading: broker.platforms.some(platform => /mobile/i.test(platform)),
-        chartingTools: chartingTools.length > 0 ? chartingTools : ['Advanced charts', 'Technical indicators', 'Drawing tools'],
-        tradingFeatures: tradingFeatures.length > 0 ? tradingFeatures : ['One-click trading', 'Expert Advisors', 'Copy trading'],
+        mobileTrading: broker.platforms.some((platform) =>
+          /mobile/i.test(platform),
+        ),
+        chartingTools:
+          chartingTools.length > 0
+            ? chartingTools
+            : ["Advanced charts", "Technical indicators", "Drawing tools"],
+        tradingFeatures:
+          tradingFeatures.length > 0
+            ? tradingFeatures
+            : ["One-click trading", "Expert Advisors", "Copy trading"],
         instruments: instruments,
         depositMethods: broker.depositMethods || [],
         withdrawalMethods: broker.withdrawalMethods || [],
-        withdrawalProcessingTime: broker.withdrawalProcessingTime || '1-3 business days',
-        withdrawalFee: broker.withdrawalFee || 'No fee',
+        withdrawalProcessingTime:
+          broker.withdrawalProcessingTime || "1-3 business days",
+        withdrawalFee: broker.withdrawalFee || "No fee",
         minWithdrawal: broker.minWithdrawal || 50,
         // ✅ CRITICAL: Include bonuses and promotions with region info
         bonuses: bonuses,
@@ -304,9 +346,9 @@ export async function GET(request: NextRequest) {
         education: education,
         regulation: regulation || {
           authorities: [],
-          compensationScheme: '',
+          compensationScheme: "",
           negativeBalanceProtection: false,
-          segregatedAccounts: false
+          segregatedAccounts: false,
         },
         rating: averageRating,
         reviewsCount: totalReviews,
@@ -320,60 +362,60 @@ export async function GET(request: NextRequest) {
           platformStability: avgPlatformRating || averageRating,
           customerSupport: avgSupportRating || averageRating,
           withdrawalSpeed: totalReviews > 0 ? 4.5 : 0,
-          education: averageRating
+          education: averageRating,
         },
         awards: broker.awards || [],
         partnershipProgram: broker.partnershipPrograms || false,
-        affiliateProgram: broker.partnershipPrograms.includes('Affiliate'),
-        ibProgram: broker.partnershipPrograms.includes('IB'),
+        affiliateProgram: broker.partnershipPrograms.includes("Affiliate"),
+        ibProgram: broker.partnershipPrograms.includes("IB"),
         features: broker.features || [],
         suitableFor: broker.targetAudience || [],
         socialMedia: socialMedia,
-        bonusOffer: broker.bonusOffer || '',
-        bonus: broker.bonus || '',
-        highlight: broker.highlight || '',
+        bonusOffer: broker.bonusOffer || "",
+        bonus: broker.bonus || "",
+        highlight: broker.highlight || "",
         signupLink: broker.signupLink || broker.website,
         payout: broker.payout || 0,
         accountSize: broker.accountSize || 0,
-        country: broker.country || '',
+        country: broker.country || "",
         maxAllocation: broker.maxAllocation || 0,
         yearsInOperation: broker.yearsInOperation || 0,
         years: broker.years || 0,
-        type: broker.type || 'Broker',
-        assets: broker.assets || '',
+        type: broker.type || "Broker",
+        assets: broker.assets || "",
         platform: broker.platforms || [],
-        programType: broker.accountTypes.map(acc => acc.name),
-        promo: broker.promo || '',
+        programType: broker.accountTypes.map((acc) => acc.name),
+        promo: broker.promo || "",
         regulated: broker.regulated || false,
         minDeposit: broker.minDeposit || 0,
-        regions: broker.regions || ['GLOBAL'],
+        regions: broker.regions || ["GLOBAL"],
         restrictedRegions: broker.restrictedRegions || [],
         availableInRegion: isAvailableInRegion(broker, region),
       };
     });
-    
+
     if (minRating > 0) {
-      parsedBrokers = parsedBrokers.filter(broker => broker.rating >= minRating);
+      parsedBrokers = parsedBrokers.filter(
+        (broker) => broker.rating >= minRating,
+      );
     }
-    
-    if (sortBy === 'rating') {
+
+    if (sortBy === "rating") {
       parsedBrokers.sort((a, b) => {
-        return sortOrder === 'desc' 
-          ? b.rating - a.rating 
-          : a.rating - b.rating;
+        return sortOrder === "desc" ? b.rating - a.rating : a.rating - b.rating;
       });
-    } else if (sortBy === 'reviews') {
+    } else if (sortBy === "reviews") {
       parsedBrokers.sort((a, b) => {
-        return sortOrder === 'desc' 
-          ? b.reviewsCount - a.reviewsCount 
+        return sortOrder === "desc"
+          ? b.reviewsCount - a.reviewsCount
           : a.reviewsCount - b.reviewsCount;
       });
     }
-    
+
     const paginatedBrokers = parsedBrokers.slice(0, limit);
     const filteredTotal = parsedBrokers.length;
     const totalPages = Math.ceil(filteredTotal / limit);
-    
+
     const response = NextResponse.json({
       success: true,
       data: paginatedBrokers,
@@ -396,39 +438,45 @@ export async function GET(request: NextRequest) {
         minRating,
         sortBy,
         sortOrder,
-      }
+      },
     });
-    
+
     if (!getRegionFromCookies(request)) {
       setRegionCookie(response, region);
     }
-    
+
     return response;
-    
   } catch (error) {
-    console.error('Error fetching brokers:', error);
+    console.error("Error fetching brokers:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch brokers' },
-      { status: 500 }
+      { success: false, error: "Failed to fetch brokers" },
+      { status: 500 },
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
 export async function POST(request: NextRequest) {
-  if(!sameOrigin(request)) return NextResponse.json({error:'Invalid request origin'},{status:403});
-  const admin=await requestUser(request);
-  if(admin?.role!=='ADMIN') return NextResponse.json({error:'Administrator access required'},{status:403});
+  if (!sameOrigin(request))
+    return NextResponse.json(
+      { error: "Invalid request origin" },
+      { status: 403 },
+    );
+  const admin = await requestUser(request);
+  if (admin?.role !== "ADMIN")
+    return NextResponse.json(
+      { error: "Administrator access required" },
+      { status: 403 },
+    );
   try {
     const body = await request.json();
-    
-    const slug = body.name.toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '');
-    
+
+    const slug = body.name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
+
     const region = getRegionFromRequest(request);
-    
+
     const broker = await prisma.broker.create({
       data: {
         name: body.name,
@@ -443,13 +491,21 @@ export async function POST(request: NextRequest) {
         reviewsCount: 0,
         regulated: body.regulated || false,
         minDeposit: body.minDeposit || 0,
-        maxLeverage: body.maxLeverage || '1:100',
+        maxLeverage: body.maxLeverage || "1:100",
         platforms: body.platforms || [],
-        status: 'ACTIVE',
-        regulation: body.regulation ? JSON.stringify(body.regulation) : Prisma.DbNull,
-        averageSpreads: body.spreads ? JSON.stringify(body.spreads) : Prisma.DbNull,
-        commissions: body.commissions ? JSON.stringify(body.commissions) : Prisma.DbNull,
-        instruments: body.instruments ? JSON.stringify(body.instruments) : Prisma.DbNull,
+        status: "ACTIVE",
+        regulation: body.regulation
+          ? JSON.stringify(body.regulation)
+          : Prisma.DbNull,
+        averageSpreads: body.spreads
+          ? JSON.stringify(body.spreads)
+          : Prisma.DbNull,
+        commissions: body.commissions
+          ? JSON.stringify(body.commissions)
+          : Prisma.DbNull,
+        instruments: body.instruments
+          ? JSON.stringify(body.instruments)
+          : Prisma.DbNull,
         features: body.features || [],
         depositMethods: body.depositMethods || [],
         withdrawalMethods: body.withdrawalMethods || [],
@@ -461,25 +517,35 @@ export async function POST(request: NextRequest) {
         educationTypes: body.education?.learningMaterials || [],
         awards: body.awards || [],
         targetAudience: body.suitableFor || [],
-        socialMedia: body.socialMedia ? JSON.stringify(body.socialMedia) : Prisma.DbNull,
-        regions: body.regions || ['GLOBAL'],
+        socialMedia: body.socialMedia
+          ? JSON.stringify(body.socialMedia)
+          : Prisma.DbNull,
+        regions: body.regions || ["GLOBAL"],
         restrictedRegions: body.restrictedRegions || [],
-        regionNotes: body.regionNotes ? JSON.stringify(body.regionNotes) : Prisma.DbNull,
-        entityMapping: body.entityMapping ? JSON.stringify(body.entityMapping) : Prisma.DbNull,
-        regionDescriptions: body.regionDescriptions ? JSON.stringify(body.regionDescriptions) : Prisma.DbNull,
-        regionPricing: body.regionPricing ? JSON.stringify(body.regionPricing) : Prisma.DbNull,
-        regionPaymentMethods: body.regionPaymentMethods ? JSON.stringify(body.regionPaymentMethods) : Prisma.DbNull,
+        regionNotes: body.regionNotes
+          ? JSON.stringify(body.regionNotes)
+          : Prisma.DbNull,
+        entityMapping: body.entityMapping
+          ? JSON.stringify(body.entityMapping)
+          : Prisma.DbNull,
+        regionDescriptions: body.regionDescriptions
+          ? JSON.stringify(body.regionDescriptions)
+          : Prisma.DbNull,
+        regionPricing: body.regionPricing
+          ? JSON.stringify(body.regionPricing)
+          : Prisma.DbNull,
+        regionPaymentMethods: body.regionPaymentMethods
+          ? JSON.stringify(body.regionPaymentMethods)
+          : Prisma.DbNull,
       },
     });
-    
+
     return NextResponse.json({ success: true, data: broker }, { status: 201 });
   } catch (error) {
-    console.error('Error creating broker:', error);
+    console.error("Error creating broker:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to create broker' },
-      { status: 500 }
+      { success: false, error: "Failed to create broker" },
+      { status: 500 },
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

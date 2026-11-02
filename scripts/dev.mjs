@@ -1,16 +1,25 @@
 import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
-// Support the shared preview runner's host flags as well as normal Next.js flags.
+const { loadEnvConfig } = require("@next/env");
+loadEnvConfig(process.cwd(), true);
+let stopDatabase;
+if (process.argv.includes("--qa") || process.env.INSIGHTPIP_QA_MODE === "1") {
+  const { startQaDatabase } = await import("./qa-database.mjs");
+  stopDatabase = await startQaDatabase();
+}
 const args = process.argv
   .slice(2)
-  .filter((x) => x !== "--strictPort")
+  .filter((x) => !["--strictPort", "--qa"].includes(x))
   .map((x) => (x === "--host" ? "--hostname" : x));
 const child = spawn(
   process.execPath,
   [require.resolve("next/dist/bin/next"), "dev", ...args],
-  { stdio: "inherit" },
+  { stdio: "inherit", env: process.env },
 );
-child.on("exit", (code) => process.exit(code ?? 1));
+child.on("exit", async (code) => {
+  await stopDatabase?.();
+  process.exit(code ?? 1);
+});
 for (const signal of ["SIGINT", "SIGTERM"])
   process.on(signal, () => child.kill(signal));

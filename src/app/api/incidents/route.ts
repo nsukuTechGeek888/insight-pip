@@ -1,75 +1,70 @@
-import {sessionSecret} from '@/lib/session-secret';
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient, IncidentType } from '@prisma/client';
-import { z } from 'zod';
-import jwt from 'jsonwebtoken';
-import { updateBrokerMetrics, updatePropFirmMetrics } from '@/lib/incident-metrics';
+import {verifiedIds} from "@/lib/verification";
+import { evidenceIds, attachEvidence } from "@/lib/evidence";
+import { requestUser } from "@/lib/request-user";
+import { NextRequest, NextResponse } from "next/server";
+import { IncidentType } from "@prisma/client";
+import { z } from "zod";
+import {
+  updateBrokerMetrics,
+  updatePropFirmMetrics,
+} from "@/lib/incident-metrics";
 
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/db";
 
 // Helper function to verify custom JWT token
 async function getUserFromToken(request: NextRequest) {
-  const token = request.cookies.get('auth_token')?.value;
-
-  if (!token) return null;
-
-  try {
-    const decoded = jwt.verify(
-      token,
-      sessionSecret()
-    ) as { userId: string; email: string };
-
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: { id: true, email: true, name: true, role: true }
-    });
-
-    return user;
-  } catch (error) {
-    console.error('❌ Token verification failed:', error);
-    return null;
-  }
+  return requestUser(request);
 }
 
 // Validation schema for incidents - UPDATED: min description length 3 instead of 20
 const incidentSchema = z.object({
-  entityType: z.enum(['broker', 'propFirm']),
+  entityType: z.enum(["broker", "propFirm"]),
   entityId: z.number(),
   incidentType: z.enum([
-    'WITHDRAWAL_PAID',
-    'WITHDRAWAL_DELAY',
-    'WITHDRAWAL_REJECTED',
-    'SLIPPAGE_ISSUES',
-    'SPREAD_SPIKE',
-    'EXECUTION_DELAY',
-    'TRADE_MANIPULATION_SUSPECTED',
-    'PLATFORM_FREEZE',
-    'SERVER_DOWN',
-    'LOGIN_ISSUES',
-    'ORDER_EXECUTION_FAILURE',
-    'ACCOUNT_SUSPENDED',
-    'ACCOUNT_BANNED',
-    'WITHDRAWAL_DENIED_AFTER_PROFIT',
-    'RULE_VIOLATION_DISPUTE',
-    'SUSPICIOUS_BROKER_ACTIVITY',
-    'SCAM_WARNING',
-    'OTHER'
+    "WITHDRAWAL_PAID",
+    "WITHDRAWAL_DELAY",
+    "WITHDRAWAL_REJECTED",
+    "SLIPPAGE_ISSUES",
+    "SPREAD_SPIKE",
+    "EXECUTION_DELAY",
+    "TRADE_MANIPULATION_SUSPECTED",
+    "PLATFORM_FREEZE",
+    "SERVER_DOWN",
+    "LOGIN_ISSUES",
+    "ORDER_EXECUTION_FAILURE",
+    "ACCOUNT_SUSPENDED",
+    "ACCOUNT_BANNED",
+    "WITHDRAWAL_DENIED_AFTER_PROFIT",
+    "RULE_VIOLATION_DISPUTE",
+    "SUSPICIOUS_BROKER_ACTIVITY",
+    "SCAM_WARNING",
+    "OTHER",
   ]),
   title: z.string().min(3).max(100),
   description: z.string().min(3).max(2000), // ✅ CHANGED: min 3 instead of 20
-  incidentDate: z.string().datetime(),
+  incidentDate: z.string().datetime().refine(v=>new Date(v).getTime()<=Date.now()+300000,"Incident dates cannot be in the future"),
 
   // Optional fields
   withdrawalAmount: z.number().positive().optional(),
-  withdrawalMethod: z.enum(['Bank Transfer', 'Crypto', 'Card', 'Skrill', 'Neteller', 'Other']).optional(),
+  withdrawalMethod: z
+    .enum(["Bank Transfer", "Crypto", "Card", "Skrill", "Neteller", "Other"])
+    .optional(),
 
   // User context
-  userExperience: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'PROFESSIONAL']).optional(),
-  userTradingStyle: z.enum(['SCALPER', 'DAY_TRADER', 'SWING_TRADER', 'EA_TRADER', 'NEWS_TRADER']).optional(),
+  userExperience: z
+    .enum(["BEGINNER", "INTERMEDIATE", "ADVANCED", "PROFESSIONAL"])
+    .optional(),
+  userTradingStyle: z
+    .enum(["SCALPER", "DAY_TRADER", "SWING_TRADER", "EA_TRADER", "NEWS_TRADER"])
+    .optional(),
 });
 
 // Helper function to check for automated alerts
-async function checkForAlerts(entityType: string, entityId: number, incidentType: IncidentType) {
+async function checkForAlerts(
+  entityType: string,
+  entityId: number,
+  incidentType: IncidentType,
+) {
   const timeWindow = 48; // hours
   const threshold = 5;
 
@@ -82,25 +77,30 @@ async function checkForAlerts(entityType: string, entityId: number, incidentType
       entityId,
       incidentType,
       createdAt: { gte: cutoffTime },
-      status: 'APPROVED'
-    }
+      status: "APPROVED",
+    },
   });
 
   if (recentCount >= threshold) {
     // Get the entity
-    const entity = entityType === 'broker'
-      ? await prisma.broker.findUnique({ where: { id: entityId } })
-      : await prisma.propFirm.findUnique({ where: { id: entityId } });
+    const entity =
+      entityType === "broker"
+        ? await prisma.broker.findUnique({ where: { id: entityId } })
+        : await prisma.propFirm.findUnique({ where: { id: entityId } });
 
     if (entity) {
       // Update incidentTrends JSON
-      const trends = entity.incidentTrends ? JSON.parse(entity.incidentTrends as string) : { alerts: [] };
+      const trends = entity.incidentTrends
+        ? JSON.parse(entity.incidentTrends as string)
+        : { alerts: [] };
       trends.alerts = trends.alerts || [];
 
       // Check if this alert already exists and is active
-      const existingAlert = trends.alerts.find((a: any) =>
-        a.type === incidentType &&
-        new Date(a.triggeredAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      const existingAlert = trends.alerts.find(
+        (a: any) =>
+          a.type === incidentType &&
+          new Date(a.triggeredAt) >
+            new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
       );
 
       if (!existingAlert) {
@@ -109,23 +109,30 @@ async function checkForAlerts(entityType: string, entityId: number, incidentType
           count: recentCount,
           timeWindow,
           triggeredAt: new Date().toISOString(),
-          message: `${recentCount} ${incidentType.toLowerCase().replace(/_/g, ' ')} reports in last ${timeWindow}h`,
-          severity: recentCount >= 10 ? 'critical' : recentCount >= 7 ? 'warning' : 'info'
+          message: `${recentCount} ${incidentType.toLowerCase().replace(/_/g, " ")} reports in last ${timeWindow}h`,
+          severity:
+            recentCount >= 10
+              ? "critical"
+              : recentCount >= 7
+                ? "warning"
+                : "info",
         });
 
-        if (entityType === 'broker') {
+        if (entityType === "broker") {
           await prisma.broker.update({
             where: { id: entityId },
-            data: { incidentTrends: JSON.stringify(trends) }
+            data: { incidentTrends: JSON.stringify(trends) },
           });
         } else {
           await prisma.propFirm.update({
             where: { id: entityId },
-            data: { incidentTrends: JSON.stringify(trends) }
+            data: { incidentTrends: JSON.stringify(trends) },
           });
         }
 
-        console.log(`🚨 ALERT CREATED: ${recentCount} ${incidentType} incidents for ${entityType} ${entityId}`);
+        console.log(
+          `🚨 ALERT CREATED: ${recentCount} ${incidentType} incidents for ${entityType} ${entityId}`,
+        );
       }
     }
   }
@@ -134,131 +141,131 @@ async function checkForAlerts(entityType: string, entityId: number, incidentType
 // Incident type definitions with display names and categories
 const INCIDENT_TYPE_DEFINITIONS = {
   WITHDRAWAL_PAID: {
-    displayName: 'Withdrawal Paid',
-    category: 'withdrawal',
+    displayName: "Withdrawal Paid",
+    category: "withdrawal",
     severity: 1,
-    icon: '💰',
-    description: 'Successful withdrawal processed'
+    icon: "💰",
+    description: "Successful withdrawal processed",
   },
   WITHDRAWAL_DELAY: {
-    displayName: 'Withdrawal Delay',
-    category: 'withdrawal',
+    displayName: "Withdrawal Delay",
+    category: "withdrawal",
     severity: 3,
-    icon: '⏳',
-    description: 'Withdrawal taking longer than stated policy'
+    icon: "⏳",
+    description: "Withdrawal taking longer than stated policy",
   },
   WITHDRAWAL_REJECTED: {
-    displayName: 'Withdrawal Rejected',
-    category: 'withdrawal',
+    displayName: "Withdrawal Rejected",
+    category: "withdrawal",
     severity: 4,
-    icon: '❌',
-    description: 'Withdrawal request rejected without valid reason'
+    icon: "❌",
+    description: "Withdrawal request rejected without valid reason",
   },
   SLIPPAGE_ISSUES: {
-    displayName: 'Slippage Issues',
-    category: 'execution',
+    displayName: "Slippage Issues",
+    category: "execution",
     severity: 3,
-    icon: '📉',
-    description: 'Excessive slippage during order execution'
+    icon: "📉",
+    description: "Excessive slippage during order execution",
   },
   SPREAD_SPIKE: {
-    displayName: 'Spread Spike',
-    category: 'execution',
+    displayName: "Spread Spike",
+    category: "execution",
     severity: 2,
-    icon: '📈',
-    description: 'Unusual spread widening during trading'
+    icon: "📈",
+    description: "Unusual spread widening during trading",
   },
   EXECUTION_DELAY: {
-    displayName: 'Execution Delay',
-    category: 'execution',
+    displayName: "Execution Delay",
+    category: "execution",
     severity: 3,
-    icon: '⏱️',
-    description: 'Orders taking too long to execute'
+    icon: "⏱️",
+    description: "Orders taking too long to execute",
   },
   TRADE_MANIPULATION_SUSPECTED: {
-    displayName: 'Trade Manipulation',
-    category: 'execution',
+    displayName: "Trade Manipulation",
+    category: "execution",
     severity: 5,
-    icon: '🎭',
-    description: 'Suspicious trade manipulation suspected'
+    icon: "🎭",
+    description: "Suspicious trade manipulation suspected",
   },
   PLATFORM_FREEZE: {
-    displayName: 'Platform Freeze',
-    category: 'platform',
+    displayName: "Platform Freeze",
+    category: "platform",
     severity: 4,
-    icon: '❄️',
-    description: 'Platform freezing during trading'
+    icon: "❄️",
+    description: "Platform freezing during trading",
   },
   SERVER_DOWN: {
-    displayName: 'Server Down',
-    category: 'platform',
+    displayName: "Server Down",
+    category: "platform",
     severity: 5,
-    icon: '⚠️',
-    description: 'Server unavailable during trading hours'
+    icon: "⚠️",
+    description: "Server unavailable during trading hours",
   },
   LOGIN_ISSUES: {
-    displayName: 'Login Issues',
-    category: 'platform',
+    displayName: "Login Issues",
+    category: "platform",
     severity: 3,
-    icon: '🔑',
-    description: 'Unable to log into trading account'
+    icon: "🔑",
+    description: "Unable to log into trading account",
   },
   ORDER_EXECUTION_FAILURE: {
-    displayName: 'Order Execution Failure',
-    category: 'platform',
+    displayName: "Order Execution Failure",
+    category: "platform",
     severity: 4,
-    icon: '❌',
-    description: 'Orders failing to execute'
+    icon: "❌",
+    description: "Orders failing to execute",
   },
   ACCOUNT_SUSPENDED: {
-    displayName: 'Account Suspended',
-    category: 'account',
+    displayName: "Account Suspended",
+    category: "account",
     severity: 4,
-    icon: '🔒',
-    description: 'Account suspended without explanation'
+    icon: "🔒",
+    description: "Account suspended without explanation",
   },
   ACCOUNT_BANNED: {
-    displayName: 'Account Banned',
-    category: 'account',
+    displayName: "Account Banned",
+    category: "account",
     severity: 5,
-    icon: '🚫',
-    description: 'Account permanently banned'
+    icon: "🚫",
+    description: "Account permanently banned",
   },
   WITHDRAWAL_DENIED_AFTER_PROFIT: {
-    displayName: 'Withdrawal Denied After Profit',
-    category: 'withdrawal',
+    displayName: "Withdrawal Denied After Profit",
+    category: "withdrawal",
     severity: 5,
-    icon: '💸',
-    description: 'Withdrawal denied after profitable trading'
+    icon: "💸",
+    description: "Withdrawal denied after profitable trading",
   },
   RULE_VIOLATION_DISPUTE: {
-    displayName: 'Rule Violation Dispute',
-    category: 'account',
+    displayName: "Rule Violation Dispute",
+    category: "account",
     severity: 3,
-    icon: '⚖️',
-    description: 'Disputing alleged rule violation'
+    icon: "⚖️",
+    description: "Disputing alleged rule violation",
   },
   SUSPICIOUS_BROKER_ACTIVITY: {
-    displayName: 'Suspicious Activity',
-    category: 'compliance',
+    displayName: "Suspicious Activity",
+    category: "compliance",
     severity: 4,
-    icon: '🕵️',
-    description: 'Suspicious broker behavior detected'
+    icon: "🕵️",
+    description: "Suspicious broker behavior detected",
   },
   SCAM_WARNING: {
-    displayName: 'Scam Warning',
-    category: 'compliance',
+    displayName: "Scam Warning",
+    category: "compliance",
     severity: 5,
-    icon: '🚨',
-    description: 'Potential scam activity'
+    icon: "🚨",
+    description: "Potential scam activity",
   },
   OTHER: {
-    displayName: 'Other Issue',
-    category: 'other',
+    displayName: "Other Issue",
+    category: "other",
     severity: 1,
-    icon: '📌',
-    description: 'Other trading-related issue'
-  }
+    icon: "📌",
+    description: "Other trading-related issue",
+  },
 };
 
 // POST /api/incidents - Create a new incident report
@@ -269,8 +276,8 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { error: 'You must be logged in to report an incident' },
-        { status: 401 }
+        { error: "You must be logged in to report an incident" },
+        { status: 401 },
       );
     }
 
@@ -279,43 +286,42 @@ export async function POST(request: NextRequest) {
       where: {
         userId: user.id,
         createdAt: {
-          gte: new Date(new Date().setHours(0, 0, 0, 0))
-        }
-      }
+          gte: new Date(new Date().setHours(0, 0, 0, 0)),
+        },
+      },
     });
 
     if (userIncidentsToday >= 3) {
       return NextResponse.json(
-        { error: 'Daily incident limit reached (max 3 per day)' },
-        { status: 429 }
+        { error: "Daily incident limit reached (max 3 per day)" },
+        { status: 429 },
       );
     }
 
     const body = await request.json();
-    console.log('📥 Incident report received:', body);
 
     // Validate request body
     const validatedData = incidentSchema.parse(body);
 
     // Verify that the entity exists
-    if (validatedData.entityType === 'broker') {
+    if (validatedData.entityType === "broker") {
       const broker = await prisma.broker.findUnique({
-        where: { id: validatedData.entityId }
+        where: { id: validatedData.entityId },
       });
       if (!broker) {
         return NextResponse.json(
-          { error: 'Broker not found' },
-          { status: 404 }
+          { error: "Broker not found" },
+          { status: 404 },
         );
       }
     } else {
       const propFirm = await prisma.propFirm.findUnique({
-        where: { id: validatedData.entityId }
+        where: { id: validatedData.entityId },
       });
       if (!propFirm) {
         return NextResponse.json(
-          { error: 'Prop firm not found' },
-          { status: 404 }
+          { error: "Prop firm not found" },
+          { status: 404 },
         );
       }
     }
@@ -328,99 +334,136 @@ export async function POST(request: NextRequest) {
         entityId: validatedData.entityId,
         incidentType: validatedData.incidentType,
         createdAt: {
-          gte: new Date(Date.now() - 24 * 60 * 60 * 1000)
-        }
-      }
+          gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
+        },
+      },
     });
 
     if (existingDuplicate) {
       return NextResponse.json(
-        { error: 'You have already reported this incident type for this entity in the last 24 hours' },
-        { status: 400 }
+        {
+          error:
+            "You have already reported this incident type for this entity in the last 24 hours",
+        },
+        { status: 400 },
       );
     }
 
     // Create the incident report
-    const incident = await prisma.incident.create({
-      data: {
-        entityType: validatedData.entityType,
-        entityId: validatedData.entityId,
-        incidentType: validatedData.incidentType,
-        title: validatedData.title,
-        description: validatedData.description,
-        incidentDate: new Date(validatedData.incidentDate),
+    const incident = await prisma.$transaction(async (tx) => {
+      const incident = await tx.incident.create({
+        data: {
+          entityType: validatedData.entityType,
+          entityId: validatedData.entityId,
+          incidentType: validatedData.incidentType,
+          title: validatedData.title,
+          description: validatedData.description,
+          incidentDate: new Date(validatedData.incidentDate),
 
-        // Optional fields
-        withdrawalAmount: validatedData.withdrawalAmount,
-        withdrawalMethod: validatedData.withdrawalMethod,
+          // Optional fields
+          withdrawalAmount: validatedData.withdrawalAmount,
+          withdrawalMethod: validatedData.withdrawalMethod,
 
-        // User context
-        userId: user.id,
-        userExperience: validatedData.userExperience,
-        userTradingStyle: validatedData.userTradingStyle,
+          // User context
+          userId: user.id,
+          userExperience: validatedData.userExperience,
+          userTradingStyle: validatedData.userTradingStyle,
 
-        // Default values
-        proofUrls: [],
-        proofVerified: false,
-        confirmations: 0,
-        disputes: 0,
-        verifiedBadge: false,
-        status: 'PENDING', // Requires admin approval
-        resolutionStatus: 'PENDING'
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          }
-        }
-      }
+          // Default values
+          proofUrls: [],
+          proofVerified: false,
+          confirmations: 0,
+          disputes: 0,
+          verifiedBadge: false,
+          status: "PENDING", // Requires admin approval
+          resolutionStatus: "PENDING",
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+            },
+          },
+        },
+      });
+      await attachEvidence(tx, user.id, evidenceIds(body.evidenceIds), {
+        incidentId: incident.id,
+      });
+      await tx.notification.create({
+        data: {
+          userId: user.id,
+          title: "Incident received",
+          body: "Your report is awaiting moderation.",
+          href: "/dashboard/incidents",
+        },
+      });
+      await tx.auditEvent.create({
+        data: {
+          actorId: user.id,
+          action: "INCIDENT_SUBMITTED",
+          entityType: "incident",
+          entityId: incident.id,
+        },
+      });
+      return incident;
     });
 
     console.log(`✅ Incident reported: ${incident.id}`);
 
     // ===== CHECK FOR AUTOMATED ALERTS =====
-    await checkForAlerts(validatedData.entityType, validatedData.entityId, validatedData.incidentType);
+    await checkForAlerts(
+      validatedData.entityType,
+      validatedData.entityId,
+      validatedData.incidentType,
+    );
 
     // Calculate display status for frontend
-    const displayStatus = incident.verifiedBadge ? 'VERIFIED' :
-                         incident.proofUrls?.length > 0 ? 'PROOF_SUBMITTED' :
-                         incident.disputes > incident.confirmations ? 'DISPUTED' : 'UNVERIFIED';
+    const displayStatus = incident.verifiedBadge
+      ? "VERIFIED"
+      : incident.proofUrls?.length > 0
+        ? "PROOF_SUBMITTED"
+        : incident.disputes > incident.confirmations
+          ? "DISPUTED"
+          : "UNVERIFIED";
 
     // Return response
-    return NextResponse.json({
-      success: true,
-      message: 'Incident reported successfully. It will be reviewed by our team.',
-      incident: {
-        id: incident.id,
-        title: incident.title,
-        type: incident.incidentType,
-        status: incident.status,
-        displayStatus,
-        proofProvided: incident.proofUrls?.length > 0,
-        createdAt: incident.createdAt,
-        remainingReports: 2 - userIncidentsToday, // 3 max, they just used 1
-        dailyLimit: 3
-      }
-    }, { status: 201 });
-
+    return NextResponse.json(
+      {
+        success: true,
+        message:
+          "Incident reported successfully. It will be reviewed by our team.",
+        incident: {
+          id: incident.id,
+          title: incident.title,
+          type: incident.incidentType,
+          status: incident.status,
+          displayStatus,
+          proofProvided: incident.proofUrls?.length > 0,
+          createdAt: incident.createdAt,
+          remainingReports: 2 - userIncidentsToday, // 3 max, they just used 1
+          dailyLimit: 3,
+        },
+      },
+      { status: 201 },
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({
-        error: 'Validation failed',
-        details: error.issues
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: "Validation failed",
+          details: error.issues,
+        },
+        { status: 400 },
+      );
     }
 
-    console.error('❌ Error reporting incident:', error);
+    console.error("❌ Error reporting incident:", error);
     return NextResponse.json(
-      { error: 'Failed to report incident' },
-      { status: 500 }
+      { error: "Failed to report incident" },
+      { status: 500 },
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -429,15 +472,15 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
-    const entityType = searchParams.get('entityType');
-    const entityId = searchParams.get('entityId');
-    const incidentType = searchParams.get('incidentType');
-    const statusParam = searchParams.get('status');
-    const viewer=await getUserFromToken(request);
-    const isAdmin=viewer?.role==='ADMIN';
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const days = parseInt(searchParams.get('days') || '30'); // Default to last 30 days
+    const entityType = searchParams.get("entityType");
+    const entityId = searchParams.get("entityId");
+    const incidentType = searchParams.get("incidentType");
+    const statusParam = searchParams.get("status");
+    const viewer = await getUserFromToken(request);
+    const isAdmin = viewer?.role === "ADMIN";
+    const page=Math.max(1,Math.floor(Number(searchParams.get("page"))||1));
+    const limit=Math.min(50,Math.max(1,Math.floor(Number(searchParams.get("limit"))||20)));
+    const days=Math.min(3650,Math.max(0,Math.floor(Number(searchParams.get("days")??"30"))||0)); // Default to last 30 days
 
     const skip = (page - 1) * limit;
 
@@ -452,7 +495,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Only add status filter if not 'ALL'
-    if (statusParam && statusParam !== 'ALL') {
+    if (statusParam && statusParam !== "ALL") {
       where.status = statusParam;
     }
 
@@ -465,19 +508,29 @@ export async function GET(request: NextRequest) {
       where.incidentType = incidentType;
     }
 
-    console.log('📡 Fetching incidents with where:', where);
+    console.log("📡 Fetching incidents with where:", where);
 
-    if(!isAdmin) { where.status='APPROVED'; where.visibility='PUBLIC'; }
-    const search=searchParams.get('search');
-    if(search) where.OR=[{title:{contains:search.slice(0,100),mode:'insensitive'}},{description:{contains:search.slice(0,100),mode:'insensitive'}}];
-    const type=searchParams.get('type');
-    if(type==='broker'||type==='propFirm') where.entityType=type;
+    if (!isAdmin) {
+      where.status = "APPROVED";
+      where.visibility = "PUBLIC";
+    }
+    const search = searchParams.get("search");
+    if (search)
+      where.OR = [
+        { title: { contains: search.slice(0, 100), mode: "insensitive" } },
+        {
+          description: { contains: search.slice(0, 100), mode: "insensitive" },
+        },
+      ];
+    const type = searchParams.get("type");
+    if (type === "broker" || type === "propFirm") where.entityType = type;
 
+    const resolution=searchParams.get("resolution");if(resolution&&["PENDING","RESOLVED","DISPUTED","CONFIRMED"].includes(resolution))where.resolutionStatus=resolution;
     // Get incidents with pagination
     const [incidents, total] = await Promise.all([
       prisma.incident.findMany({
         where,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         skip,
         take: limit,
         include: {
@@ -486,38 +539,55 @@ export async function GET(request: NextRequest) {
               id: true,
               name: true,
               avatar: true,
-            }
-          }
-        }
+            },
+          },
+        },
       }),
-      prisma.incident.count({ where })
+      prisma.incident.count({ where }),
     ]);
 
     console.log(`✅ Found ${incidents.length} incidents`);
 
     // Calculate display status for each incident
-    const incidentsWithStatus = incidents.map(incident => ({
+    const confirmed=await verifiedIds("incident",incidents.map(i=>i.id));
+    const incidentsWithStatus = incidents.map((incident) => ({
       ...incident,
+      verifiedBadge:incident.verifiedBadge&&confirmed.has(incident.id),
+      followUps:isAdmin?incident.followUps:(Array.isArray(incident.followUps)?incident.followUps:[]).filter(x=>x&&typeof x==="object"&&!Array.isArray(x)&&x.approved===true).map(x=>{const v=x as Record<string,unknown>;return {id:v.id,content:v.content,authorType:v.authorType,createdAt:v.createdAt};}),
       proofUrls: isAdmin ? incident.proofUrls : [],
       auditLog: isAdmin ? incident.auditLog : null,
       moderationNote: isAdmin ? incident.moderationNote : null,
       userId: isAdmin ? incident.userId : undefined,
-      displayStatus: incident.verifiedBadge ? 'VERIFIED' :
-                     incident.proofUrls?.length > 0 ? 'PROOF_SUBMITTED' :
-                     incident.disputes > incident.confirmations ? 'DISPUTED' : 'UNVERIFIED',
+      displayStatus: incident.verifiedBadge&&confirmed.has(incident.id)
+        ? "VERIFIED"
+        : incident.proofUrls?.length > 0
+          ? "PROOF_SUBMITTED"
+          : incident.disputes > incident.confirmations
+            ? "DISPUTED"
+            : "UNVERIFIED",
       proofProvided: incident.proofUrls?.length > 0,
       confirmVsDispute: incident.confirmations - incident.disputes,
-      trustScore: incident.confirmations + incident.disputes > 0
-        ? Math.round((incident.confirmations / (incident.confirmations + incident.disputes)) * 100)
-        : 0
+      trustScore:
+        incident.confirmations + incident.disputes > 0
+          ? Math.round(
+              (incident.confirmations /
+                (incident.confirmations + incident.disputes)) *
+                100,
+            )
+          : 0,
     }));
 
     // Get alerts for this entity if specified
     let alerts: any[] = [];
     if (entityType && entityId) {
-      const entity = entityType === 'broker'
-        ? await prisma.broker.findUnique({ where: { id: parseInt(entityId) } })
-        : await prisma.propFirm.findUnique({ where: { id: parseInt(entityId) } });
+      const entity =
+        entityType === "broker"
+          ? await prisma.broker.findUnique({
+              where: { id: parseInt(entityId) },
+            })
+          : await prisma.propFirm.findUnique({
+              where: { id: parseInt(entityId) },
+            });
 
       if (entity && entity.incidentTrends) {
         const trends = JSON.parse(entity.incidentTrends as string);
@@ -533,25 +603,22 @@ export async function GET(request: NextRequest) {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
+        pages: Math.ceil(total / limit),
       },
       filters: {
         entityType,
         entityId,
         incidentType,
         status: statusParam,
-        days
-      }
+        days,
+      },
     });
-
   } catch (error) {
-    console.error('❌ Error fetching incidents:', error);
+    console.error("❌ Error fetching incidents:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch incidents' },
-      { status: 500 }
+      { error: "Failed to fetch incidents" },
+      { status: 500 },
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 

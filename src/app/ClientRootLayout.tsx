@@ -15,6 +15,15 @@ export default function ClientRootLayout({
       <UserProvider>
         <NavigationProvider>
           <div className="v2-app">
+            {process.env.NEXT_PUBLIC_QA_MODE === "1" && (
+              <div className="v2-qa-banner" role="status">
+                <strong>ISOLATED QA ENVIRONMENT</strong>
+                <span>
+                  Fictional providers, reviews and trading conditions. For
+                  application evaluation only.
+                </span>
+              </div>
+            )}
             <PlatformNav />
             <Feedback />
             <main id="main-content">{children}</main>

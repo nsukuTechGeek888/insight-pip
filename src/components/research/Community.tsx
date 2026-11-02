@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Star,
   ShieldCheck,
@@ -52,8 +52,11 @@ export default function Community({
   incidents?: boolean;
 }) {
   const [type, setType] = useState("");
+  const [days,setDays]=useState("30");const [resolution,setResolution]=useState("");
+  const [minRating,setMinRating]=useState("");const [verified,setVerified]=useState(false);
   const [sort, setSort] = useState("newest");
-  const [query, setQuery] = useState("");
+  const params = useSearchParams();
+  const [query, setQuery] = useState(params.get("search") || "");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -80,7 +83,8 @@ export default function Community({
       sort,
       search,
       ...(type ? { type } : {}),
-      ...(incidents ? { status: "APPROVED" } : {}),
+      ...(!incidents&&minRating?{minRating}:{}),...(!incidents&&verified?{verified:"true"}:{}),
+      ...(incidents ? { status: "APPROVED", days,resolution } : {}),
     });
     fetch(`/api/${incidents ? "incidents" : "reviews"}?${qs}`, {
       signal: c.signal,
@@ -97,7 +101,7 @@ export default function Community({
         if (e.name !== "AbortError") setStatus("error");
       });
     return () => c.abort();
-  }, [incidents, type, sort, search, page, retry]);
+  }, [incidents, type, sort, search, page, retry,minRating,verified,days,resolution]);
   async function vote(id: string) {
     if (!user) {
       router.push("/login?redirect=/reviews");
@@ -221,6 +225,8 @@ export default function Community({
               </select>
             )}
           </div>
+          {incidents&&<div className="v2-community-actions"><select aria-label="Incident time range" value={days} onChange={e=>{setDays(e.target.value);setPage(1);}}><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="365">Last year</option><option value="0">All available history</option></select><select aria-label="Incident resolution status" value={resolution} onChange={e=>{setResolution(e.target.value);setPage(1);}}><option value="">All resolution statuses</option><option value="PENDING">Awaiting resolution</option><option value="RESOLVED">Resolved</option><option value="DISPUTED">Disputed</option><option value="CONFIRMED">Confirmed resolution status</option></select></div>}
+          {!incidents&&<div className="v2-community-actions"><select aria-label="Minimum review rating" value={minRating} onChange={e=>{setMinRating(e.target.value);setPage(1);}}><option value="">All star ratings</option>{[5,4,3,2,1].map(n=><option key={n} value={n}>At least {n} star{n===1?'':'s'}</option>)}</select><label className="v2-checkbox"><input type="checkbox" checked={verified} onChange={e=>{setVerified(e.target.checked);setPage(1);}}/>Independently verified experiences only</label></div>}
           <p className="v2-result-count">
             {status === "ready"
               ? `${total} published ${incidents ? "reports" : "reviews"}`
@@ -259,7 +265,7 @@ export default function Community({
                           : "Reported allegation"}
                     </span>
                   </div>
-                  <h2>{r.title}</h2>
+                  <h2><Link href={`/incidents/${r.id}`}>{r.title}</Link></h2>
                   <p>{r.description}</p>
                   <div className="v2-card-footer">
                     <span>{new Date(r.createdAt).toLocaleDateString()}</span>
@@ -293,12 +299,12 @@ export default function Community({
                   </span>
                   <span className="v2-status">
                     {r.isVerified
-                      ? "Verification recorded"
+                      ? "Trading experience independently verified"
                       : "Experience not independently verified"}
                   </span>
                 </div>
                 <Link href={`/reviews/${r.id}`}>
-                  <h2>{r.title}</h2>
+                  <h2><Link href={`/incidents/${r.id}`}>{r.title}</Link></h2>
                 </Link>
                 <div className="v2-review-author">
                   {r.user?.name || "Trader"} ·{" "}

@@ -1,140 +1,70 @@
-import {sessionSecret} from '@/lib/session-secret';
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
+import { requestUser } from "@/lib/request-user";
+import { NextRequest, NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/db";
 
 async function getAdminUser(request: NextRequest) {
-  const token = request.cookies.get('auth_token')?.value;
-  if (!token) return null;
-  
-  try {
-    const decoded = jwt.verify(token, sessionSecret()) as { userId: string };
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: { id: true, email: true, name: true, role: true }
-    });
-    return user;
-  } catch {
-    return null;
-  }
+  const user = await requestUser(request);
+  return user?.role === "ADMIN" ? user : null;
 }
 
 // GET /api/admin/users
 export async function GET(request: NextRequest) {
   try {
     const admin = await getAdminUser(request);
-    
-    if (!admin || admin.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { searchParams } = new URL(request.url);
-    const search = searchParams.get('search') || '';
-    const role = searchParams.get('role') || 'all';
-    const limit = parseInt(searchParams.get('limit') || '50');
-
-    const where: any = {};
-    
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } }
-      ];
-    }
-    
-    if (role !== 'all') {
-      where.role = role;
-    }
-
-    const users = await prisma.user.findMany({
-      where,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        avatar: true,
-        createdAt: true,
-        updatedAt: true,
-        _count: {
-          select: {
-            reviews: true,
-            incidents: true,
-            favorites: true
+    if (!admin)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const q = request.nextUrl.searchParams;
+    const page = Math.max(1, Math.floor(Number(q.get("page")) || 1));
+    const limit = Math.min(
+      50,
+      Math.max(1, Math.floor(Number(q.get("limit")) || 20)),
+    );
+    const search = (q.get("search") || "").slice(0, 150);
+    const role = q.get("role");
+    const where: import("@prisma/client").Prisma.UserWhereInput = {
+      ...(role && ["USER", "ADMIN"].includes(role) ? { role } : {}),
+      ...(search
+        ? {
+            OR: [
+              { name: { contains: search, mode: "insensitive" } },
+              { email: { contains: search, mode: "insensitive" } },
+            ],
           }
-        }
-      },
-      orderBy: { createdAt: 'desc' },
-      take: limit
-    });
-
-    // Get stats for each user
-    const usersWithStats = await Promise.all(users.map(async (user) => {
-      const reviews = await prisma.review.findMany({
-        where: { userId: user.id },
-        select: { status: true, rating: true, helpfulCount: true, trustScore: true }
-      });
-
-      const incidents = await prisma.incident.findMany({
-        where: { userId: user.id },
-        select: { status: true, resolutionStatus: true }
-      });
-
-      const helpfulGiven = await prisma.helpfulVote.count({
-        where: { userId: user.id }
-      });
-
-      const totalReviews = reviews.length;
-      const approvedReviews = reviews.filter(r => r.status === 'APPROVED').length;
-      const pendingReviews = reviews.filter(r => r.status === 'PENDING').length;
-      const totalIncidents = incidents.length;
-      const resolvedIncidents = incidents.filter(i => i.status === 'APPROVED' || i.resolutionStatus === 'RESOLVED').length;
-      const pendingIncidents = incidents.filter(i => i.status === 'PENDING').length;
-      const helpfulReceived = reviews.reduce((sum, r) => sum + (r.helpfulCount || 0), 0);
-      
-      const approvedWithTrust = reviews.filter(r => r.status === 'APPROVED' && r.trustScore);
-      let avgTrustScore = 0;
-      if (approvedWithTrust.length > 0) {
-        const totalTrust = approvedWithTrust.reduce((sum, r) => sum + (r.trustScore || 0), 0);
-        avgTrustScore = Math.round(totalTrust / approvedWithTrust.length);
-      }
-
-      let impactScore = 0;
-      impactScore += Math.min(40, helpfulReceived * 2);
-      impactScore += Math.min(30, approvedReviews * 5);
-      impactScore += Math.min(20, resolvedIncidents * 4);
-      impactScore += Math.min(10, helpfulGiven);
-
-      return {
-        ...user,
-        stats: {
-          totalReviews,
-          approvedReviews,
-          pendingReviews,
-          totalIncidents,
-          pendingIncidents,
-          resolvedIncidents,
-          totalFavorites: user._count.favorites,
-          helpfulReceived,
-          helpfulGiven,
-          avgTrustScore,
-          impactScore: Math.min(100, impactScore)
-        }
-      };
-    }));
-
+        : {}),
+    };
+    const [users, total, suspended] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          createdAt: true,
+          security: { select: { suspendedAt: true, emailVerifiedAt: true } },
+          _count: {
+            select: { reviews: true, incidents: true, favorites: true },
+          },
+        },
+      }),
+      prisma.user.count({ where }),
+      prisma.userSecurity.count({ where: { suspendedAt: { not: null } } }),
+    ]);
     return NextResponse.json({
       success: true,
-      users: usersWithStats,
-      total: usersWithStats.length
+      users,
+      pagination: { page, total, pages: Math.ceil(total / limit) },
+      suspended,
     });
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+  } catch {
+    return NextResponse.json(
+      { error: "User directory unavailable" },
+      { status: 503 },
+    );
   }
 }
 
@@ -142,38 +72,59 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const admin = await getAdminUser(request);
-    
-    if (!admin || admin.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    if (!admin || admin.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
     const { userId, role } = body;
 
-    if (!userId || !['USER','ADMIN'].includes(role)) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    if (!userId || !["USER", "ADMIN"].includes(role)) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
     }
 
     if (userId === admin.id) {
-      return NextResponse.json({ error: 'Cannot change your own role' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Cannot change your own role" },
+        { status: 400 },
+      );
     }
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: { role },
-      select: { id: true, name: true, email: true, role: true }
+      select: { id: true, name: true, email: true, role: true },
     });
 
+    await prisma.userSecurity.upsert({
+      where: { userId },
+      create: { userId, sessionsRevokedAt: new Date() },
+      update: { sessionsRevokedAt: new Date() },
+    });
+    await prisma.auditEvent.create({
+      data: {
+        actorId: admin.id,
+        action: "ROLE_CHANGED",
+        entityType: "user",
+        entityId: userId,
+        metadata: { role },
+      },
+    });
     return NextResponse.json({
       success: true,
       user: updatedUser,
-      message: `User role updated to ${role}`
+      message: `User role updated to ${role}`,
     });
   } catch (error) {
-    console.error('Error updating user role:', error);
-    return NextResponse.json({ error: 'Failed to update user role' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    console.error("Error updating user role:", error);
+    return NextResponse.json(
+      { error: "Failed to update user role" },
+      { status: 500 },
+    );
   }
 }
 
@@ -181,27 +132,79 @@ export async function PUT(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const admin = await getAdminUser(request);
-    
-    if (!admin || admin.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    if (!admin || admin.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
     const { userId, action } = body;
 
     if (!userId || !action) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
     }
 
     if (userId === admin.id) {
-      return NextResponse.json({ error: 'Cannot suspend your own account' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Cannot suspend your own account" },
+        { status: 400 },
+      );
     }
 
-    return NextResponse.json({error:'Account suspension is temporarily unavailable. No account changes were made.'},{status:501});
+    if (!["suspend", "activate", "reactivate"].includes(action))
+      return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+    const target = await prisma.user.findUnique({ where: { id: userId } });
+    if (!target)
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    const suspended = action === "suspend";
+    await prisma.$transaction(async (tx) => {
+      await tx.userSecurity.upsert({
+        where: { userId },
+        create: {
+          userId,
+          suspendedAt: suspended ? new Date() : null,
+          suspensionReason: suspended
+            ? String(body.reason || "Account suspended by administrator").slice(
+                0,
+                1000,
+              )
+            : null,
+          sessionsRevokedAt: new Date(),
+        },
+        update: {
+          suspendedAt: suspended ? new Date() : null,
+          suspensionReason: suspended
+            ? String(body.reason || "Account suspended by administrator").slice(
+                0,
+                1000,
+              )
+            : null,
+          sessionsRevokedAt: new Date(),
+        },
+      });
+      await tx.auditEvent.create({
+        data: {
+          actorId: admin.id,
+          action: suspended ? "USER_SUSPENDED" : "USER_REACTIVATED",
+          entityType: "user",
+          entityId: userId,
+        },
+      });
+    });
+    return NextResponse.json({
+      success: true,
+      message: suspended
+        ? "Account suspended and sessions revoked"
+        : "Account reactivated. The trader can sign in again.",
+    });
   } catch (error) {
-    console.error('Error updating user status:', error);
-    return NextResponse.json({ error: 'Failed to update user status' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    console.error("Error updating user status:", error);
+    return NextResponse.json(
+      { error: "Failed to update user status" },
+      { status: 500 },
+    );
   }
 }

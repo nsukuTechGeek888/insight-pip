@@ -1,117 +1,100 @@
-import {requestUser} from '@/lib/request-user';
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
-
+import {verifiedIds} from "@/lib/verification";
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { requestUser } from "@/lib/request-user";
 export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  r: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
-    
-    console.log(`🔍 Fetching incident with ID: ${id}`);
-
-    const incident = await prisma.incident.findUnique({
+    const u = await requestUser(r);
+    const record = await prisma.incident.findUnique({
       where: { id },
       include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          }
-        }
-      }
+        user: { select: { id: true, name: true, avatar: true } },
+        broker: { select: { id: true, name: true, slug: true } },
+        propFirm: { select: { id: true, name: true, slug: true } },
+      },
     });
-
-    const viewer=await requestUser(request);
-    const privileged=viewer?.role==='ADMIN'||viewer?.id===incident?.userId;
-    if (!incident || (!privileged && (incident.status!=='APPROVED'||incident.visibility!=='PUBLIC'))) {
-      console.log(`❌ Incident not found: ${id}`);
+    if (!record)
       return NextResponse.json(
-        { error: 'Incident not found' },
-        { status: 404 }
+        { error: "Incident unavailable" },
+        { status: 404 },
       );
-    }
-
-    console.log(`✅ Found incident: ${incident.title}`);
-    
-    // Get the entity details (broker or prop firm)
-    let entity = null;
-    if (incident.entityType === 'broker') {
-      entity = await prisma.broker.findUnique({
-        where: { id: incident.entityId },
-        select: { id: true, name: true, slug: true, logo: true, incidentTrends: true }
-      });
-    } else {
-      entity = await prisma.propFirm.findUnique({
-        where: { id: incident.entityId },
-        select: { id: true, name: true, slug: true, logo: true, incidentTrends: true }
-      });
-    }
-
-    // Get related incidents (same type, same entity)
-    const relatedIncidents = await prisma.incident.findMany({
-      where: {
-        entityType: incident.entityType,
-        entityId: incident.entityId,
-        incidentType: incident.incidentType,
-        id: { not: incident.id },
-        status: 'APPROVED'
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-      include: {
-        user: {
+    const privileged = u?.id === record.userId || u?.role === "ADMIN";
+    if (
+      !privileged &&
+      (record.status !== "APPROVED" || record.visibility !== "PUBLIC")
+    )
+      return NextResponse.json(
+        { error: "Incident unavailable" },
+        { status: 404 },
+      );
+    const evidence = privileged
+      ? await prisma.privateEvidence.findMany({
+          where: { incidentId: id },
           select: {
             id: true,
-            name: true,
-            avatar: true,
-          }
-        }
-      }
-    });
-
-    // Calculate display status
-    const displayStatus = incident.verifiedBadge ? 'VERIFIED' : 
-                         incident.proofUrls?.length > 0 ? 'PROOF_SUBMITTED' :
-                         incident.disputes > incident.confirmations ? 'DISPUTED' : 'UNVERIFIED';
-
-    // Get entity trends/alerts
-    let alerts: any[] = [];
-    if (entity && entity.incidentTrends) {
-      const trends = JSON.parse(entity.incidentTrends as string);
-      alerts = trends.alerts || [];
-    }
-
-    return NextResponse.json({
-      success: true,
-      incident: {
-        ...incident,
-        proofUrls: privileged ? incident.proofUrls : [],
-        auditLog: privileged ? incident.auditLog : null,
-        moderationNote: privileged ? incident.moderationNote : null,
-        displayStatus,
-        proofProvided: incident.proofUrls?.length > 0,
-        confirmVsDispute: incident.confirmations - incident.disputes,
-        trustScore: incident.confirmations + incident.disputes > 0 
-          ? Math.round((incident.confirmations / (incident.confirmations + incident.disputes)) * 100)
-          : 0,
-        entity
-      },
-      relatedIncidents,
-      alerts: alerts.filter((a: any) => a.type === incident.incidentType)
-    });
-
-  } catch (error) {
-    console.error('Error fetching incident:', error);
+            originalName: true,
+            mimeType: true,
+            status: true,
+          },
+        })
+      : [];
+    const confirmed=await verifiedIds("incident",[id]);
+    const incident = {
+      id: record.id,
+      title: record.title,
+      description: record.description,
+      incidentType: record.incidentType,
+      incidentDate: record.incidentDate,
+      reportDate: record.reportDate,
+      resolutionStatus: record.resolutionStatus,
+      status: record.status,
+      confirmations: record.confirmations,
+      disputes: record.disputes,
+      verifiedBadge: record.verifiedBadge&&confirmed.has(id),
+      proofProvided: evidence.length > 0 || record.proofUrls.length > 0,
+      moderationNote: privileged ? record.moderationNote : null,
+      user: { name: record.user.name },
+      entity: record.broker || record.propFirm,
+      entityType: record.entityType,
+      evidence,
+      legacyEvidence: privileged
+        ? record.proofUrls.map((_, i) => ({
+            label: `Previously submitted evidence ${i + 1}`,
+            url: `/api/incidents/${id}/proof?index=${i}`,
+          }))
+        : [],
+      updates: (Array.isArray(record.followUps) ? record.followUps : [])
+        .filter(
+          (x) =>
+            x &&
+            typeof x === "object" &&
+            !Array.isArray(x) &&
+            (x.approved === true || privileged || x.authorId === u?.id),
+        )
+        .map((x) => {
+          const v = x as Record<string, unknown>;
+          return {
+            id: v.id,
+            content: v.content,
+            authorType: v.authorType,
+            approved: v.approved,
+            createdAt: v.createdAt,
+          };
+        }),
+      canManage: u?.id === record.userId,
+    };
     return NextResponse.json(
-      { error: 'Failed to fetch incident' },
-      { status: 500 }
+      { success: true, incident },
+      { headers: { "Cache-Control": "no-store" } },
     );
-  } finally {
-    await prisma.$disconnect();
+  } catch {
+    return NextResponse.json(
+      { error: "Incident unavailable" },
+      { status: 503 },
+    );
   }
 }

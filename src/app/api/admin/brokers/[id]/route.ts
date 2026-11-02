@@ -1,32 +1,26 @@
-import {sessionSecret} from '@/lib/session-secret';
+import {providerInputError} from "@/lib/provider-validation";
+import {syncBrokerOfferings} from "@/lib/provider-offerings";
+import { requestUser } from "@/lib/request-user";
 // app/api/admin/brokers/[id]/route.ts - COMPLETE UPDATED FILE
 
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
+import { NextRequest, NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/db";
 
 async function getAdminFromToken(request: NextRequest) {
-  const token = request.cookies.get('auth_token')?.value;
-  if (!token) return null;
-  
-  try {
-    const decoded = jwt.verify(token, sessionSecret()) as { userId: string; role: string };
-    if (decoded.role !== 'ADMIN') return null;
-    return decoded;
-  } catch { return null; }
+  const user = await requestUser(request);
+  return user?.role === "ADMIN" ? user : null;
 }
 
 // GET /api/admin/brokers/[id] - Get single broker
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const admin = await getAdminFromToken(request);
     if (!admin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id } = await params;
@@ -40,42 +34,48 @@ export async function GET(
     });
 
     if (!broker) {
-      return NextResponse.json({ error: 'Broker not found' }, { status: 404 });
+      return NextResponse.json({ error: "Broker not found" }, { status: 404 });
     }
 
     return NextResponse.json({ success: true, broker });
   } catch (error) {
-    console.error('Error fetching broker:', error);
-    return NextResponse.json({ error: 'Failed to fetch broker' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    console.error("Error fetching broker:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch broker" },
+      { status: 500 },
+    );
   }
 }
 
 // PUT /api/admin/brokers/[id] - Update broker
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const admin = await getAdminFromToken(request);
     if (!admin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id } = await params;
     const body = await request.json();
-    
-    const slug = body.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-    
+    const invalid=providerInputError(body,false);if(invalid)return NextResponse.json({error:invalid},{status:400});
+
+    const slug = body.name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
+
     // Update broker
-    await prisma.broker.update({
+    return await prisma.$transaction(async tx=>{
+    await tx.broker.update({
       where: { id: parseInt(id) },
       data: {
         name: body.name,
         slug,
         status: body.status,
-        description: body.description || '',
+        description: body.description || "",
         shortDescription: body.shortDescription,
         logo: body.logo,
         founded: body.founded ? parseInt(body.founded) : null,
@@ -92,39 +92,97 @@ export async function PUT(
         rating: body.rating ? parseFloat(body.rating) : null,
         reviewsCount: body.reviewsCount ? parseInt(body.reviewsCount) : 0,
         expertRating: body.expertRating ? parseFloat(body.expertRating) : null,
-        avgOverallRating: body.avgOverallRating ? parseFloat(body.avgOverallRating) : null,
-        avgServiceRating: body.avgServiceRating ? parseFloat(body.avgServiceRating) : null,
-        avgPlatformRating: body.avgPlatformRating ? parseFloat(body.avgPlatformRating) : null,
-        avgValueRating: body.avgValueRating ? parseFloat(body.avgValueRating) : null,
-        avgSupportRating: body.avgSupportRating ? parseFloat(body.avgSupportRating) : null,
-        avgWithdrawalExperience: body.avgWithdrawalExperience ? parseFloat(body.avgWithdrawalExperience) : null,
-        avgDepositExperience: body.avgDepositExperience ? parseFloat(body.avgDepositExperience) : null,
-        avgCustomerSupport: body.avgCustomerSupport ? parseFloat(body.avgCustomerSupport) : null,
-        avgTradingExperience: body.avgTradingExperience ? parseFloat(body.avgTradingExperience) : null,
-        avgReliability: body.avgReliability ? parseFloat(body.avgReliability) : null,
-        avgTrustScore: body.avgTrustScore ? parseFloat(body.avgTrustScore) : null,
-        avgWithdrawalSuccess: body.avgWithdrawalSuccess ? parseFloat(body.avgWithdrawalSuccess) : null,
-        avgExecutionQuality: body.avgExecutionQuality ? parseFloat(body.avgExecutionQuality) : null,
-        recommendationRate: body.recommendationRate ? parseFloat(body.recommendationRate) : null,
+        avgOverallRating: body.avgOverallRating
+          ? parseFloat(body.avgOverallRating)
+          : null,
+        avgServiceRating: body.avgServiceRating
+          ? parseFloat(body.avgServiceRating)
+          : null,
+        avgPlatformRating: body.avgPlatformRating
+          ? parseFloat(body.avgPlatformRating)
+          : null,
+        avgValueRating: body.avgValueRating
+          ? parseFloat(body.avgValueRating)
+          : null,
+        avgSupportRating: body.avgSupportRating
+          ? parseFloat(body.avgSupportRating)
+          : null,
+        avgWithdrawalExperience: body.avgWithdrawalExperience
+          ? parseFloat(body.avgWithdrawalExperience)
+          : null,
+        avgDepositExperience: body.avgDepositExperience
+          ? parseFloat(body.avgDepositExperience)
+          : null,
+        avgCustomerSupport: body.avgCustomerSupport
+          ? parseFloat(body.avgCustomerSupport)
+          : null,
+        avgTradingExperience: body.avgTradingExperience
+          ? parseFloat(body.avgTradingExperience)
+          : null,
+        avgReliability: body.avgReliability
+          ? parseFloat(body.avgReliability)
+          : null,
+        avgTrustScore: body.avgTrustScore
+          ? parseFloat(body.avgTrustScore)
+          : null,
+        avgWithdrawalSuccess: body.avgWithdrawalSuccess
+          ? parseFloat(body.avgWithdrawalSuccess)
+          : null,
+        avgExecutionQuality: body.avgExecutionQuality
+          ? parseFloat(body.avgExecutionQuality)
+          : null,
+        recommendationRate: body.recommendationRate
+          ? parseFloat(body.recommendationRate)
+          : null,
         withdrawalStats: body.withdrawalStats,
         accountIssueStats: body.accountIssueStats,
         totalIncidents: body.totalIncidents ? parseInt(body.totalIncidents) : 0,
-        incidentsLast7Days: body.incidentsLast7Days ? parseInt(body.incidentsLast7Days) : 0,
-        incidentsLast30Days: body.incidentsLast30Days ? parseInt(body.incidentsLast30Days) : 0,
-        withdrawalReports: body.withdrawalReports ? parseInt(body.withdrawalReports) : 0,
-        withdrawalDelays: body.withdrawalDelays ? parseInt(body.withdrawalDelays) : 0,
-        withdrawalConfirmed: body.withdrawalConfirmed ? parseInt(body.withdrawalConfirmed) : 0,
-        withdrawalRejected: body.withdrawalRejected ? parseInt(body.withdrawalRejected) : 0,
-        executionComplaints: body.executionComplaints ? parseInt(body.executionComplaints) : 0,
-        slippageReports: body.slippageReports ? parseInt(body.slippageReports) : 0,
-        spreadSpikeReports: body.spreadSpikeReports ? parseInt(body.spreadSpikeReports) : 0,
+        incidentsLast7Days: body.incidentsLast7Days
+          ? parseInt(body.incidentsLast7Days)
+          : 0,
+        incidentsLast30Days: body.incidentsLast30Days
+          ? parseInt(body.incidentsLast30Days)
+          : 0,
+        withdrawalReports: body.withdrawalReports
+          ? parseInt(body.withdrawalReports)
+          : 0,
+        withdrawalDelays: body.withdrawalDelays
+          ? parseInt(body.withdrawalDelays)
+          : 0,
+        withdrawalConfirmed: body.withdrawalConfirmed
+          ? parseInt(body.withdrawalConfirmed)
+          : 0,
+        withdrawalRejected: body.withdrawalRejected
+          ? parseInt(body.withdrawalRejected)
+          : 0,
+        executionComplaints: body.executionComplaints
+          ? parseInt(body.executionComplaints)
+          : 0,
+        slippageReports: body.slippageReports
+          ? parseInt(body.slippageReports)
+          : 0,
+        spreadSpikeReports: body.spreadSpikeReports
+          ? parseInt(body.spreadSpikeReports)
+          : 0,
         platformIssues: body.platformIssues ? parseInt(body.platformIssues) : 0,
-        serverDownReports: body.serverDownReports ? parseInt(body.serverDownReports) : 0,
-        accountBansReported: body.accountBansReported ? parseInt(body.accountBansReported) : 0,
-        accountSuspensions: body.accountSuspensions ? parseInt(body.accountSuspensions) : 0,
-        resolvedIncidents: body.resolvedIncidents ? parseInt(body.resolvedIncidents) : 0,
-        disputedIncidents: body.disputedIncidents ? parseInt(body.disputedIncidents) : 0,
-        lastIncidentAt: body.lastIncidentAt ? new Date(body.lastIncidentAt) : null,
+        serverDownReports: body.serverDownReports
+          ? parseInt(body.serverDownReports)
+          : 0,
+        accountBansReported: body.accountBansReported
+          ? parseInt(body.accountBansReported)
+          : 0,
+        accountSuspensions: body.accountSuspensions
+          ? parseInt(body.accountSuspensions)
+          : 0,
+        resolvedIncidents: body.resolvedIncidents
+          ? parseInt(body.resolvedIncidents)
+          : 0,
+        disputedIncidents: body.disputedIncidents
+          ? parseInt(body.disputedIncidents)
+          : 0,
+        lastIncidentAt: body.lastIncidentAt
+          ? new Date(body.lastIncidentAt)
+          : null,
         minDeposit: body.minDeposit ? parseFloat(body.minDeposit) : null,
         maxLeverage: body.leverage,
         averageSpreads: body.spreads,
@@ -138,7 +196,9 @@ export async function PUT(
         depositMethods: body.depositMethods || [],
         withdrawalMethods: body.withdrawalMethods || [],
         withdrawalFee: body.withdrawalFee,
-        minWithdrawal: body.minWithdrawal ? parseFloat(body.minWithdrawal) : null,
+        minWithdrawal: body.minWithdrawal
+          ? parseFloat(body.minWithdrawal)
+          : null,
         supportLanguages: body.supportLanguages || [],
         supportAvailability: body.supportAvailability,
         hasEducation: body.hasEducation === true,
@@ -147,10 +207,14 @@ export async function PUT(
         awards: body.awards || [],
         isRecommended: body.isRecommended === true,
         country: body.country,
-        yearsInOperation: body.yearsInOperation ? parseInt(body.yearsInOperation) : null,
+        yearsInOperation: body.yearsInOperation
+          ? parseInt(body.yearsInOperation)
+          : null,
         assets: body.assets,
         promo: body.promo,
-        maxAllocation: body.maxAllocation ? parseFloat(body.maxAllocation) : null,
+        maxAllocation: body.maxAllocation
+          ? parseFloat(body.maxAllocation)
+          : null,
         payout: body.payout ? parseFloat(body.payout) : null,
         bonusOffer: body.bonusOffer,
         bonus: body.bonus,
@@ -191,7 +255,7 @@ export async function PUT(
         socialMedia: body.socialMedia,
         pressReleases: body.pressReleases,
         // ✅ REGION FIELDS
-        regions: body.regions || ['GLOBAL'],
+        regions: body.regions || ["GLOBAL"],
         restrictedRegions: body.restrictedRegions || [],
         regionNotes: body.regionNotes || null,
         regionDescriptions: body.regionDescriptions || null,
@@ -200,107 +264,19 @@ export async function PUT(
       },
     });
 
-    // ✅ Handle accountTypes
-    if (body.accountTypes) {
-      await prisma.brokerAccountType.deleteMany({ where: { brokerId: parseInt(id) } });
-      for (const account of body.accountTypes) {
-        await prisma.brokerAccountType.create({
-          data: {
-            name: account.name,
-            minDeposit: account.minDeposit ? parseFloat(account.minDeposit) : null,
-            commission: account.commission,
-            spreadType: account.spreadType,
-            swapFree: account.swapFree === true,
-            brokerId: parseInt(id),
-          },
-        });
-      }
-    }
-
-    // ✅ Handle bonuses WITH REGION FIELDS
-    if (body.bonuses) {
-      await prisma.brokerBonus.deleteMany({ where: { brokerId: parseInt(id) } });
-      for (const bonus of body.bonuses) {
-        await prisma.brokerBonus.create({
-          data: {
-            type: bonus.type,
-            amount: bonus.amount,
-            conditions: bonus.conditions || '',
-            expiry: bonus.expiry || 'Ongoing',
-            code: bonus.code || '',
-            brokerId: parseInt(id),
-            // ✅ REGION FIELDS FOR BONUSES
-            regions: bonus.regions || body.regions || ['GLOBAL'],
-            restrictedRegions: bonus.restrictedRegions || body.restrictedRegions || [],
-          },
-        });
-      }
-    }
-
-    // ✅ Handle promotions WITH REGION FIELDS
-    if (body.promotions) {
-      await prisma.brokerPromotion.deleteMany({ where: { brokerId: parseInt(id) } });
-      for (const promo of body.promotions) {
-        await prisma.brokerPromotion.create({
-          data: {
-            name: promo.name || '',
-            description: promo.description || '',
-            discount: promo.discount || '',
-            code: promo.code || '',
-            validUntil: promo.validUntil ? new Date(promo.validUntil) : null,
-            brokerId: parseInt(id),
-            // ✅ REGION FIELDS FOR PROMOTIONS
-            regions: promo.regions || body.regions || ['GLOBAL'],
-            restrictedRegions: promo.restrictedRegions || body.restrictedRegions || [],
-          },
-        });
-      }
-    }
-
-    const updatedBroker = await prisma.broker.findUnique({
-      where: { id: parseInt(id) },
-      include: {
-        accountTypes: true,
-        bonuses: true,
-        promotions: true,
-      },
-    });
-
-    return NextResponse.json({ success: true, broker: updatedBroker });
+    await syncBrokerOfferings(tx,parseInt(id),body);
+    const updatedBroker=await tx.broker.findUnique({where:{id:parseInt(id)},include:{accountTypes:true,bonuses:true,promotions:true}});
+    await tx.auditEvent.create({data:{actorId:admin.id,action:'PROVIDER_UPDATED',entityType:'brokers',entityId:id,metadata:{changedFields:Object.keys(body)}}});
+    return NextResponse.json({success:true,broker:updatedBroker});
+    },{timeout:20000});
   } catch (error) {
-    console.error('Error updating broker:', error);
-    return NextResponse.json({ error: 'Failed to update broker' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    console.error("Error updating broker:", error);
+    return NextResponse.json(
+      { error: "Failed to update broker" },
+      { status: 500 },
+    );
   }
 }
 
 // DELETE /api/admin/brokers/[id] - Delete broker
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const admin = await getAdminFromToken(request);
-    if (!admin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { id } = await params;
-    
-    await prisma.brokerAccountType.deleteMany({ where: { brokerId: parseInt(id) } });
-    await prisma.brokerBonus.deleteMany({ where: { brokerId: parseInt(id) } });
-    await prisma.brokerPromotion.deleteMany({ where: { brokerId: parseInt(id) } });
-    
-    await prisma.broker.delete({
-      where: { id: parseInt(id) },
-    });
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting broker:', error);
-    return NextResponse.json({ error: 'Failed to delete broker' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
-  }
-}
+export async function DELETE(request:NextRequest,{params}:{params:Promise<{id:string}>}){try{const admin=await getAdminFromToken(request);if(!admin)return NextResponse.json({error:'Unauthorized'},{status:401});const id=Number((await params).id);if(!Number.isSafeInteger(id)||id<1)return NextResponse.json({error:'Provider required'},{status:400});await prisma.$transaction(async tx=>{await tx.broker.update({where:{id},data:{status:'INACTIVE'}});await tx.auditEvent.create({data:{actorId:admin.id,action:'PROVIDER_UNPUBLISHED',entityType:'brokers',entityId:String(id)}});});return NextResponse.json({success:true,message:'Provider unpublished. Records and contributions are preserved.'});}catch{return NextResponse.json({error:'Provider could not be unpublished'},{status:400});}}

@@ -420,8 +420,8 @@ function LogoUpload({ currentLogo, onLogoUploaded, onLogoRemoved }: {
 function BonusItem({ bonus, index, onChange, onRemove }: { bonus: any; index: number; onChange: (index: number, field: string, value: any) => void; onRemove: (index: number) => void }) {
   const regionOptions = ['GLOBAL', 'SA', 'EU', 'UK', 'UAE', 'KE', 'AU', 'SG', 'US', 'CA'];
   const regionDisplay: Record<string, string> = {
-    'GLOBAL': '🌍 Global', 'SA': '🇿🇦 SA', 'EU': '🇪🇺 EU', 'UK': '🇬🇧 UK', 'UAE': '🇦🇪 UAE',
-    'KE': '🇰🇪 KE', 'AU': '🇦🇺 AU', 'SG': '🇸🇬 SG', 'US': '🇺🇸 US', 'CA': '🇨🇦 CA'
+    'GLOBAL': ' Global', 'SA': ' SA', 'EU': ' EU', 'UK': ' UK', 'UAE': ' UAE',
+    'KE': ' KE', 'AU': ' AU', 'SG': ' SG', 'US': ' US', 'CA': ' CA'
   };
 
   return (
@@ -478,8 +478,8 @@ function BonusItem({ bonus, index, onChange, onRemove }: { bonus: any; index: nu
 function PromotionItem({ promotion, index, onChange, onRemove }: { promotion: any; index: number; onChange: (index: number, field: string, value: any) => void; onRemove: (index: number) => void }) {
   const regionOptions = ['GLOBAL', 'SA', 'EU', 'UK', 'UAE', 'KE', 'AU', 'SG', 'US', 'CA'];
   const regionDisplay: Record<string, string> = {
-    'GLOBAL': '🌍 Global', 'SA': '🇿🇦 SA', 'EU': '🇪🇺 EU', 'UK': '🇬🇧 UK', 'UAE': '🇦🇪 UAE',
-    'KE': '🇰🇪 KE', 'AU': '🇦🇺 AU', 'SG': '🇸🇬 SG', 'US': '🇺🇸 US', 'CA': '🇨🇦 CA'
+    'GLOBAL': ' Global', 'SA': ' SA', 'EU': ' EU', 'UK': ' UK', 'UAE': ' UAE',
+    'KE': ' KE', 'AU': ' AU', 'SG': ' SG', 'US': ' US', 'CA': ' CA'
   };
 
   return (
@@ -592,6 +592,7 @@ export default function AdminBrokersPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingBroker, setEditingBroker] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [listPage,setListPage]=useState(1);const [listPages,setListPages]=useState(1);const [listTotal,setListTotal]=useState(0);const [listStatus,setListStatus]=useState('all');
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set([
     'basic', 'regions', 'trading', 'ratings', 'trust', 'incidents', 'features', 'instruments',
     'accountTypes', 'payments', 'support', 'bonuses', 'promotions', 'regulatory',
@@ -701,16 +702,16 @@ export default function AdminBrokersPage() {
       return;
     }
     if (user?.role === 'ADMIN') {
-      fetchBrokers();
+      const timer=setTimeout(()=>void fetchBrokers(),250);return()=>clearTimeout(timer);
     }
-  }, [user, isLoading]);
+  }, [user, isLoading,listPage,searchQuery,listStatus]);
 
   const fetchBrokers = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/admin/brokers', { credentials: 'include' });
+      const response = await fetch(`/api/admin/brokers?${new URLSearchParams({page:String(listPage),limit:'20',search:searchQuery,status:listStatus})}`, { credentials: 'include' });
       const data = await response.json();
-      if (data.success) setBrokers(data.brokers);
+      if (data.success) {setBrokers(data.brokers);setListPages(data.pagination.pages);setListTotal(data.pagination.total);}else notify(data.error||"Provider list unavailable");
     } catch (error) {
       console.error('Error fetching brokers:', error);
     } finally {
@@ -719,7 +720,7 @@ export default function AdminBrokersPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!await confirmAction('Delete this broker? This cannot be undone.')) return;
+    if (!await confirmAction('Unpublish this broker? Existing records and trader contributions will be preserved.')) return;
     try {
       const response = await fetch(`/api/admin/brokers?id=${id}`, { method: 'DELETE', credentials: 'include' });
       if (response.ok) fetchBrokers();
@@ -1057,9 +1058,9 @@ export default function AdminBrokersPage() {
     setShowModal(true);
   };
 
-  const filteredBrokers = brokers.filter(b => b.name?.toLowerCase().includes(searchQuery.toLowerCase()) || b.country?.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredBrokers = brokers;
 
-  if (isLoading || loading) {
+  if (isLoading) {
     return <div className="min-h-screen bg-[var(--ip-bg)] flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" /></div>;
   }
 
@@ -1094,12 +1095,14 @@ export default function AdminBrokersPage() {
           </div>
         </div>
 
+        <div className="v2-community-actions"><select aria-label="Filter publication status" value={listStatus} onChange={e=>{setListStatus(e.target.value);setListPage(1);}}><option value="all">All publication statuses</option><option value="ACTIVE">Published</option><option value="INACTIVE">Unpublished</option></select><span>{listTotal} matching records</span></div>
         <div className="relative mb-6">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ip-text-2)]" size={16} />
-          <input type="text" placeholder="Search brokers..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg pl-10 pr-4 py-2 text-[var(--ip-text)] text-sm" />
+          <input type="text" placeholder="Search brokers..." value={searchQuery} onChange={(e) => {setSearchQuery(e.target.value);setListPage(1);}} className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg pl-10 pr-4 py-2 text-[var(--ip-text)] text-sm" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {loading&&<p role="status" className="v2-form-note">Loading provider records…</p>}
+        <div aria-busy={loading} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredBrokers.map((broker) => (
             <div key={broker.id} className="bg-[var(--ip-surface)] rounded-xl border border-[var(--ip-border)] p-5 hover:border-blue-500/50 transition-all group">
               <div className="flex justify-between items-start mb-3">
@@ -1114,8 +1117,8 @@ export default function AdminBrokersPage() {
                   <div><h3 className="font-semibold text-[var(--ip-text)] group-hover:text-blue-400">{broker.name}</h3><p className="text-xs text-[var(--ip-text-2)]">{broker.country || 'International'}</p></div>
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => openEditModal(broker)} className="p-1.5 rounded-lg text-[var(--ip-text-2)] hover:text-blue-400"><Edit size={14} /></button>
-                  <button onClick={() => handleDelete(broker.id)} className="p-1.5 rounded-lg text-[var(--ip-text-2)] hover:text-red-400"><Trash2 size={14} /></button>
+                  <button aria-label={`Edit ${broker.name}`} onClick={() => openEditModal(broker)} className="p-1.5 rounded-lg text-[var(--ip-text-2)] hover:text-blue-400"><Edit size={14} /></button>
+                  <button aria-label={`Unpublish ${broker.name}`} onClick={() => handleDelete(broker.id)} className="p-1.5 rounded-lg text-[var(--ip-text-2)] hover:text-red-400"><Trash2 size={14} /></button>
                 </div>
               </div>
               <div className="space-y-2 text-sm">
@@ -1127,7 +1130,7 @@ export default function AdminBrokersPage() {
                   <span className={`text-xs px-2 py-0.5 rounded-full ${broker.status === 'ACTIVE' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>{broker.status}</span>
                   {broker.regions && broker.regions.length > 0 && (
                     <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">
-                      {broker.regions.includes('GLOBAL') ? '🌍 Global' : `${broker.regions.length} regions`}
+                      {broker.regions.includes('GLOBAL') ? ' Global' : `${broker.regions.length} regions`}
                     </span>
                   )}
                 </div>
@@ -1137,6 +1140,7 @@ export default function AdminBrokersPage() {
         </div>
 
         {/* ==================== COMPLETE MODAL WITH ALL SECTIONS ==================== */}
+        <div className="v2-pagination"><button disabled={listPage===1} onClick={()=>setListPage(listPage-1)}>Previous</button><span>Page {listPage} of {Math.max(1,listPages)}</span><button disabled={listPage>=listPages} onClick={()=>setListPage(listPage+1)}>Next</button></div>
         <AnimatePresence>
           {showModal && (
             <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -1154,7 +1158,7 @@ export default function AdminBrokersPage() {
                   <div className="flex overflow-x-auto gap-1 p-4 border-b border-[var(--ip-border)] bg-[var(--ip-surface)] sticky top-[73px] z-10">
                     {['basic', 'regions', 'trading', 'ratings', 'trust', 'incidents', 'features', 'instruments', 'accountTypes', 'payments', 'support', 'bonuses', 'promotions', 'regulatory', 'security', 'social', 'metadata'].map((section) => (
                       <button key={section} onClick={() => document.getElementById(`section-${section}`)?.scrollIntoView({ behavior: 'smooth' })} className="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap bg-[var(--ip-surface-2)] text-[var(--ip-text-2)] hover:bg-zinc-700">
-                        {section === 'regions' ? '🌍 Regions' : section.charAt(0).toUpperCase() + section.slice(1).replace(/([A-Z])/g, ' $1')}
+                        {section === 'regions' ? ' Regions' : section.charAt(0).toUpperCase() + section.slice(1).replace(/([A-Z])/g, ' $1')}
                       </button>
                     ))}
                   </div>
@@ -1167,7 +1171,7 @@ export default function AdminBrokersPage() {
                     {/* ===== SECTION 1: BASIC INFORMATION ===== */}
                     <div id="section-basic" className="mb-8 scroll-mt-24">
                       <button type="button" onClick={() => toggleSection('basic')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">📋 Basic Information</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]"> Basic Information</h3>
                         {expandedSections.has('basic') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('basic') && (
@@ -1226,7 +1230,7 @@ export default function AdminBrokersPage() {
                       >
                         <h3 className="text-lg font-semibold text-[var(--ip-text)] flex items-center gap-2">
                           <Globe size={18} className="text-blue-400" />
-                          🌍 Region Settings
+                           Region Settings
                           <span className="text-xs text-[var(--ip-text-2)] font-normal">(Control where this broker appears)</span>
                         </h3>
                         {expandedSections.has('regions') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
@@ -1251,28 +1255,28 @@ export default function AdminBrokersPage() {
                               }}
                               className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-3 py-2 text-[var(--ip-text)] text-sm min-h-[120px] focus:outline-none focus:border-blue-500"
                             >
-                              <option value="GLOBAL">🌍 Global (All Regions)</option>
-                              <option value="SA">🇿🇦 South Africa</option>
-                              <option value="EU">🇪🇺 Europe</option>
-                              <option value="UK">🇬🇧 United Kingdom</option>
-                              <option value="UAE">🇦🇪 UAE</option>
-                              <option value="KE">🇰🇪 Kenya</option>
-                              <option value="AU">🇦🇺 Australia</option>
-                              <option value="SG">🇸🇬 Singapore</option>
-                              <option value="US">🇺🇸 United States</option>
-                              <option value="CA">🇨🇦 Canada</option>
-                              <option value="MU">🇲🇺 Mauritius</option>
-                              <option value="SC">🇸🇨 Seychelles</option>
-                              <option value="BVI">🇻🇬 BVI</option>
-                              <option value="NZ">🇳🇿 New Zealand</option>
-                              <option value="HK">🇭🇰 Hong Kong</option>
-                              <option value="IN">🇮🇳 India</option>
-                              <option value="BR">🇧🇷 Brazil</option>
-                              <option value="MX">🇲🇽 Mexico</option>
-                              <option value="NG">🇳🇬 Nigeria</option>
-                              <option value="GH">🇬🇭 Ghana</option>
-                              <option value="TZ">🇹🇿 Tanzania</option>
-                              <option value="ZW">🇿🇼 Zimbabwe</option>
+                              <option value="GLOBAL"> Global (All Regions)</option>
+                              <option value="SA"> South Africa</option>
+                              <option value="EU"> Europe</option>
+                              <option value="UK"> United Kingdom</option>
+                              <option value="UAE"> UAE</option>
+                              <option value="KE"> Kenya</option>
+                              <option value="AU"> Australia</option>
+                              <option value="SG"> Singapore</option>
+                              <option value="US"> United States</option>
+                              <option value="CA"> Canada</option>
+                              <option value="MU"> Mauritius</option>
+                              <option value="SC"> Seychelles</option>
+                              <option value="BVI"> BVI</option>
+                              <option value="NZ"> New Zealand</option>
+                              <option value="HK"> Hong Kong</option>
+                              <option value="IN"> India</option>
+                              <option value="BR"> Brazil</option>
+                              <option value="MX"> Mexico</option>
+                              <option value="NG"> Nigeria</option>
+                              <option value="GH"> Ghana</option>
+                              <option value="TZ"> Tanzania</option>
+                              <option value="ZW"> Zimbabwe</option>
                             </select>
                             <p className="text-xs text-[var(--ip-text-2)] mt-1">Hold Ctrl/Cmd to select multiple regions</p>
                           </div>
@@ -1293,27 +1297,27 @@ export default function AdminBrokersPage() {
                               }}
                               className="w-full bg-[var(--ip-surface-2)] border border-[var(--ip-border)] rounded-lg px-3 py-2 text-[var(--ip-text)] text-sm min-h-[100px] focus:outline-none focus:border-blue-500"
                             >
-                              <option value="SA">🇿🇦 South Africa</option>
-                              <option value="EU">🇪🇺 Europe</option>
-                              <option value="UK">🇬🇧 United Kingdom</option>
-                              <option value="UAE">🇦🇪 UAE</option>
-                              <option value="KE">🇰🇪 Kenya</option>
-                              <option value="AU">🇦🇺 Australia</option>
-                              <option value="SG">🇸🇬 Singapore</option>
-                              <option value="US">🇺🇸 United States</option>
-                              <option value="CA">🇨🇦 Canada</option>
-                              <option value="MU">🇲🇺 Mauritius</option>
-                              <option value="SC">🇸🇨 Seychelles</option>
-                              <option value="BVI">🇻🇬 BVI</option>
-                              <option value="NZ">🇳🇿 New Zealand</option>
-                              <option value="HK">🇭🇰 Hong Kong</option>
-                              <option value="IN">🇮🇳 India</option>
-                              <option value="BR">🇧🇷 Brazil</option>
-                              <option value="MX">🇲🇽 Mexico</option>
-                              <option value="NG">🇳🇬 Nigeria</option>
-                              <option value="GH">🇬🇭 Ghana</option>
-                              <option value="TZ">🇹🇿 Tanzania</option>
-                              <option value="ZW">🇿🇼 Zimbabwe</option>
+                              <option value="SA"> South Africa</option>
+                              <option value="EU"> Europe</option>
+                              <option value="UK"> United Kingdom</option>
+                              <option value="UAE"> UAE</option>
+                              <option value="KE"> Kenya</option>
+                              <option value="AU"> Australia</option>
+                              <option value="SG"> Singapore</option>
+                              <option value="US"> United States</option>
+                              <option value="CA"> Canada</option>
+                              <option value="MU"> Mauritius</option>
+                              <option value="SC"> Seychelles</option>
+                              <option value="BVI"> BVI</option>
+                              <option value="NZ"> New Zealand</option>
+                              <option value="HK"> Hong Kong</option>
+                              <option value="IN"> India</option>
+                              <option value="BR"> Brazil</option>
+                              <option value="MX"> Mexico</option>
+                              <option value="NG"> Nigeria</option>
+                              <option value="GH"> Ghana</option>
+                              <option value="TZ"> Tanzania</option>
+                              <option value="ZW"> Zimbabwe</option>
                             </select>
                             <p className="text-xs text-[var(--ip-text-2)] mt-1">Hold Ctrl/Cmd to select multiple regions. Restricted regions override Available Regions.</p>
                           </div>
@@ -1329,16 +1333,16 @@ export default function AdminBrokersPage() {
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 {['GLOBAL', 'SA', 'EU', 'UK', 'UAE', 'KE', 'AU', 'SG', 'US', 'CA'].map((region) => {
                                   const regionDisplay: Record<string, string> = {
-                                    'GLOBAL': '🌍 Global',
-                                    'SA': '🇿🇦 South Africa',
-                                    'EU': '🇪🇺 Europe',
-                                    'UK': '🇬🇧 UK',
-                                    'UAE': '🇦🇪 UAE',
-                                    'KE': '🇰🇪 Kenya',
-                                    'AU': '🇦🇺 Australia',
-                                    'SG': '🇸🇬 Singapore',
-                                    'US': '🇺🇸 USA',
-                                    'CA': '🇨🇦 Canada',
+                                    'GLOBAL': ' Global',
+                                    'SA': ' South Africa',
+                                    'EU': ' Europe',
+                                    'UK': ' UK',
+                                    'UAE': ' UAE',
+                                    'KE': ' Kenya',
+                                    'AU': ' Australia',
+                                    'SG': ' Singapore',
+                                    'US': ' USA',
+                                    'CA': ' Canada',
                                   };
                                   return (
                                     <div key={region} className="bg-[var(--ip-surface-2)] rounded-lg p-2 border border-[var(--ip-border)]">
@@ -1374,16 +1378,16 @@ export default function AdminBrokersPage() {
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 {['GLOBAL', 'SA', 'EU', 'UK', 'UAE', 'KE', 'AU', 'SG', 'US', 'CA'].map((region) => {
                                   const regionDisplay: Record<string, string> = {
-                                    'GLOBAL': '🌍 Global',
-                                    'SA': '🇿🇦 South Africa',
-                                    'EU': '🇪🇺 Europe',
-                                    'UK': '🇬🇧 UK',
-                                    'UAE': '🇦🇪 UAE',
-                                    'KE': '🇰🇪 Kenya',
-                                    'AU': '🇦🇺 Australia',
-                                    'SG': '🇸🇬 Singapore',
-                                    'US': '🇺🇸 USA',
-                                    'CA': '🇨🇦 Canada',
+                                    'GLOBAL': ' Global',
+                                    'SA': ' South Africa',
+                                    'EU': ' Europe',
+                                    'UK': ' UK',
+                                    'UAE': ' UAE',
+                                    'KE': ' Kenya',
+                                    'AU': ' Australia',
+                                    'SG': ' Singapore',
+                                    'US': ' USA',
+                                    'CA': ' Canada',
                                   };
                                   return (
                                     <div key={region} className="bg-[var(--ip-surface-2)] rounded-lg p-2 border border-[var(--ip-border)]">
@@ -1446,16 +1450,16 @@ export default function AdminBrokersPage() {
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 {['GLOBAL', 'SA', 'EU', 'UK', 'UAE', 'KE', 'AU', 'SG', 'US', 'CA'].map((region) => {
                                   const regionDisplay: Record<string, string> = {
-                                    'GLOBAL': '🌍 Global',
-                                    'SA': '🇿🇦 South Africa',
-                                    'EU': '🇪🇺 Europe',
-                                    'UK': '🇬🇧 UK',
-                                    'UAE': '🇦🇪 UAE',
-                                    'KE': '🇰🇪 Kenya',
-                                    'AU': '🇦🇺 Australia',
-                                    'SG': '🇸🇬 Singapore',
-                                    'US': '🇺🇸 USA',
-                                    'CA': '🇨🇦 Canada',
+                                    'GLOBAL': ' Global',
+                                    'SA': ' South Africa',
+                                    'EU': ' Europe',
+                                    'UK': ' UK',
+                                    'UAE': ' UAE',
+                                    'KE': ' Kenya',
+                                    'AU': ' Australia',
+                                    'SG': ' Singapore',
+                                    'US': ' USA',
+                                    'CA': ' Canada',
                                   };
                                   return (
                                     <div key={region} className="bg-[var(--ip-surface-2)] rounded-lg p-2 border border-[var(--ip-border)]">
@@ -1505,7 +1509,7 @@ export default function AdminBrokersPage() {
                     {/* ===== SECTION 3: TRADING CONDITIONS ===== */}
                     <div id="section-trading" className="mb-8 scroll-mt-24">
                       <button type="button" onClick={() => toggleSection('trading')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">💰 Trading Conditions</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]"> Trading Conditions</h3>
                         {expandedSections.has('trading') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('trading') && (
@@ -1582,7 +1586,7 @@ export default function AdminBrokersPage() {
                     {/* ===== SECTION 5: TRUST SCORE & METRICS ===== */}
                     <div id="section-trust" className="mb-8 scroll-mt-24">
                       <button type="button" onClick={() => toggleSection('trust')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">🔒 Trust Score & Metrics</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]"> Trust Score & Metrics</h3>
                         {expandedSections.has('trust') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('trust') && (
@@ -1619,7 +1623,7 @@ export default function AdminBrokersPage() {
                     {/* ===== SECTION 7: FEATURES & PLATFORMS ===== */}
                     <div id="section-features" className="mb-8 scroll-mt-24">
                       <button type="button" onClick={() => toggleSection('features')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">🎯 Features & Platforms</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]"> Features & Platforms</h3>
                         {expandedSections.has('features') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('features') && (
@@ -1643,7 +1647,7 @@ export default function AdminBrokersPage() {
                     {/* ===== SECTION 8: INSTRUMENTS ===== */}
                     <div id="section-instruments" className="mb-8 scroll-mt-24">
                       <button type="button" onClick={() => toggleSection('instruments')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">📊 Tradable Instruments</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]"> Tradable Instruments</h3>
                         {expandedSections.has('instruments') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('instruments') && (
@@ -1657,7 +1661,7 @@ export default function AdminBrokersPage() {
                     {/* ===== SECTION 9: ACCOUNT TYPES ===== */}
                     <div id="section-accountTypes" className="mb-8 scroll-mt-24">
                       <button type="button" onClick={() => toggleSection('accountTypes')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">🏦 Account Types</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]"> Account Types</h3>
                         {expandedSections.has('accountTypes') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('accountTypes') && (
@@ -1673,7 +1677,7 @@ export default function AdminBrokersPage() {
                     {/* ===== SECTION 10: PAYMENT METHODS ===== */}
                     <div id="section-payments" className="mb-8 scroll-mt-24">
                       <button type="button" onClick={() => toggleSection('payments')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">💳 Payment Methods</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]"> Payment Methods</h3>
                         {expandedSections.has('payments') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('payments') && (
@@ -1718,7 +1722,7 @@ export default function AdminBrokersPage() {
                     {/* ===== SECTION 11: CUSTOMER SUPPORT ===== */}
                     <div id="section-support" className="mb-8 scroll-mt-24">
                       <button type="button" onClick={() => toggleSection('support')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">🎧 Customer Support</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]"> Customer Support</h3>
                         {expandedSections.has('support') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('support') && (
@@ -1734,7 +1738,7 @@ export default function AdminBrokersPage() {
                     {/* ===== SECTION 12: BONUSES ===== */}
                     <div id="section-bonuses" className="mb-8 scroll-mt-24">
                       <button type="button" onClick={() => toggleSection('bonuses')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">🎁 Bonuses</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]"> Bonuses</h3>
                         {expandedSections.has('bonuses') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('bonuses') && (
@@ -1750,7 +1754,7 @@ export default function AdminBrokersPage() {
                     {/* ===== SECTION 13: PROMOTIONS ===== */}
                     <div id="section-promotions" className="mb-8 scroll-mt-24">
                       <button type="button" onClick={() => toggleSection('promotions')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">🏷️ Promotions</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">️ Promotions</h3>
                         {expandedSections.has('promotions') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('promotions') && (
@@ -1766,7 +1770,7 @@ export default function AdminBrokersPage() {
                     {/* ===== SECTION 14: REGULATORY DETAILS ===== */}
                     <div id="section-regulatory" className="mb-8 scroll-mt-24">
                       <button type="button" onClick={() => toggleSection('regulatory')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">🔒 Regulatory Details</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]"> Regulatory Details</h3>
                         {expandedSections.has('regulatory') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('regulatory') && (
@@ -1792,7 +1796,7 @@ export default function AdminBrokersPage() {
                     {/* ===== SECTION 15: SECURITY ===== */}
                     <div id="section-security" className="mb-8 scroll-mt-24">
                       <button type="button" onClick={() => toggleSection('security')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">🔐 Security Features</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]"> Security Features</h3>
                         {expandedSections.has('security') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('security') && (
@@ -1807,7 +1811,7 @@ export default function AdminBrokersPage() {
                     {/* ===== SECTION 16: SOCIAL MEDIA ===== */}
                     <div id="section-social" className="mb-8 scroll-mt-24">
                       <button type="button" onClick={() => toggleSection('social')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">📱 Social Media</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]"> Social Media</h3>
                         {expandedSections.has('social') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('social') && (
@@ -1820,7 +1824,7 @@ export default function AdminBrokersPage() {
                     {/* ===== SECTION 17: METADATA & PARTNERSHIPS ===== */}
                     <div id="section-metadata" className="mb-8 scroll-mt-24">
                       <button type="button" onClick={() => toggleSection('metadata')} className="w-full flex items-center justify-between p-3 bg-[var(--ip-surface-2)] rounded-lg mb-4">
-                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">🏷️ Metadata & Partnerships</h3>
+                        <h3 className="text-lg font-semibold text-[var(--ip-text)]">️ Metadata & Partnerships</h3>
                         {expandedSections.has('metadata') ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </button>
                       {expandedSections.has('metadata') && (

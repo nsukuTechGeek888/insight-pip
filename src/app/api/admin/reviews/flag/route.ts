@@ -1,49 +1,39 @@
-import {sessionSecret} from '@/lib/session-secret';
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
+import { requestUser } from "@/lib/request-user";
+import { NextRequest, NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/db";
 
 async function getAdminUser(request: NextRequest) {
-  const token = request.cookies.get('auth_token')?.value;
-  if (!token) return null;
-  
-  try {
-    const decoded = jwt.verify(token, sessionSecret()) as { userId: string };
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: { id: true, email: true, name: true, role: true }
-    });
-    return user;
-  } catch {
-    return null;
-  }
+  const user = await requestUser(request);
+  return user?.role === "ADMIN" ? user : null;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const admin = await getAdminUser(request);
-    
-    if (!admin || admin.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    if (!admin || admin.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
     const { reviewId, reason, details } = body;
 
     if (!reviewId || !reason) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
     }
 
     // Check if review exists
     const review = await prisma.review.findUnique({
       where: { id: reviewId },
-      include: { user: { select: { id: true, name: true, email: true } } }
+      include: { user: { select: { id: true, name: true, email: true } } },
     });
 
     if (!review) {
-      return NextResponse.json({ error: 'Review not found' }, { status: 404 });
+      return NextResponse.json({ error: "Review not found" }, { status: 404 });
     }
 
     // Create report
@@ -53,14 +43,14 @@ export async function POST(request: NextRequest) {
         userId: admin.id,
         reason,
         details: details || null,
-        status: 'PENDING'
-      }
+        status: "PENDING",
+      },
     });
 
     // Update review report count
     await prisma.review.update({
       where: { id: reviewId },
-      data: { reportCount: { increment: 1 } }
+      data: { reportCount: { increment: 1 } },
     });
 
     // Log the action (you could add audit logging here)
@@ -68,12 +58,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       report,
-      message: 'Review flagged successfully'
+      message: "Review flagged successfully",
     });
   } catch (error) {
-    console.error('Error flagging review:', error);
-    return NextResponse.json({ error: 'Failed to flag review' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    console.error("Error flagging review:", error);
+    return NextResponse.json(
+      { error: "Failed to flag review" },
+      { status: 500 },
+    );
   }
 }

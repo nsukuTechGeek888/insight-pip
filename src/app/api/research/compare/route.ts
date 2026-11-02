@@ -58,12 +58,9 @@ export async function GET(request: NextRequest) {
               programs: true,
             },
           });
-    return NextResponse.json({
-      success: true,
-      data: data
-        .filter((p) => isAvailableInRegion(p, region))
-        .sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id)),
-    });
+    const visible=data.filter(p=>isAvailableInRegion(p,region)).sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id));
+    const sources=await prisma.providerSource.findMany({where:{entityType:type,entityId:{in:visible.map(p=>p.id)}},select:{entityId:true,id:true,label:true,url:true,verifiedAt:true}});
+    return NextResponse.json({success:true,data:visible.map(p=>({...p,sources:sources.filter(s=>s.entityId===p.id)}))});
   } catch {
     return NextResponse.json(
       { error: "Comparison data is unavailable" },

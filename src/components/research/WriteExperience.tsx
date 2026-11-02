@@ -1,7 +1,8 @@
 "use client";
+import EvidenceUploader from "./EvidenceUploader";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -27,6 +28,7 @@ const empty = {
   reliability: 0,
   incidentType: "WITHDRAWAL_DELAY",
   incidentDate: "",
+  evidenceIds: [] as string[],
 };
 type Draft = typeof empty;
 type Provider = { id: number; name: string };
@@ -47,6 +49,7 @@ export default function WriteExperience({
   const { user } = useUser();
   const { region } = useRegion();
   const router = useRouter();
+  const params = useSearchParams();
   const key = `insightpip-draft-${incident ? "incident" : "review"}-v2`;
   useEffect(() => {
     try {
@@ -60,14 +63,26 @@ export default function WriteExperience({
               typeof value[k] === typeof v ? value[k] : v,
             ]),
           );
+          valid.evidenceIds = Array.isArray(value.evidenceIds)
+            ? value.evidenceIds
+                .filter((x: unknown) => typeof x === "string")
+                .slice(0, 5)
+            : [];
           setDraft(valid as Draft);
         }
       }
     } catch {
       /* Storage may be disabled. */
     }
+    if (params.get("provider") && /^\d+$/.test(params.get("provider")!))
+      setDraft((d) => ({
+        ...d,
+        type: params.get("type") === "prop-firms" ? "prop-firms" : "brokers",
+        provider: params.get("provider")!,
+        providerName: params.get("name") || "",
+      }));
     setReady(true);
-  }, [key]);
+  }, [key, params]);
   useEffect(() => {
     if (!ready || done) return;
     setSaved(false);
@@ -137,6 +152,7 @@ export default function WriteExperience({
             title: draft.title,
             description: draft.content,
             incidentDate: new Date(draft.incidentDate).toISOString(),
+            evidenceIds: draft.evidenceIds,
           }
         : {
             ...draft,
@@ -265,6 +281,12 @@ export default function WriteExperience({
                 <option value="">Select a provider</option>
                 {draft.provider &&
                   !providers.some((p) => String(p.id) === draft.provider) && (
+                    <option value={draft.provider}>
+                      {draft.providerName || "Selected provider"}
+                    </option>
+                  )}
+                {draft.provider &&
+                  !providers.some((p) => String(p.id) === draft.provider) && (
                     <option value={draft.provider}>{draft.providerName}</option>
                   )}
                 {providers.map((p) => (
@@ -302,7 +324,7 @@ export default function WriteExperience({
                       "OTHER",
                     ].map((v) => (
                       <option key={v} value={v}>
-                        {v.replaceAll("_", " ").toLowerCase()}
+                        {v==="OTHER"?"Customer support / other issue":v==="WITHDRAWAL_DELAY"?"Payout / withdrawal delay":v==="WITHDRAWAL_REJECTED"?"Payout / withdrawal dispute":v.replaceAll("_", " ").toLowerCase()}
                       </option>
                     ))}
                   </select>
@@ -383,7 +405,7 @@ export default function WriteExperience({
             </small>
             <p className="v2-form-note">
               Do not include passwords, account numbers or identity documents.
-              Private evidence upload is not available in this submission form.
+              Attach relevant supporting information privately below.
             </p>
           </fieldset>
           {error && (
@@ -391,6 +413,10 @@ export default function WriteExperience({
               {error}
             </div>
           )}
+          <EvidenceUploader
+            ids={draft.evidenceIds}
+            onChange={(ids) => update("evidenceIds", ids)}
+          />
           <div className="v2-compose-submit">
             <p>
               {user

@@ -1,48 +1,53 @@
-import {sessionSecret} from '@/lib/session-secret';
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
+import { requestUser } from "@/lib/request-user";
+import { NextRequest, NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/db";
 
 async function getUserFromToken(request: NextRequest) {
-  const token = request.cookies.get('auth_token')?.value;
-  if (!token) return null;
-  
-  try {
-    const decoded = jwt.verify(token, sessionSecret()) as { userId: string };
-    return await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: { id: true, email: true, name: true, role: true }
-    });
-  } catch {
-    return null;
-  }
+  return requestUser(request);
 }
 
 // GET /api/user/favorites - Get user's favorites
 export async function GET(request: NextRequest) {
   try {
     const user = await getUserFromToken(request);
-    
+
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const favorites = await prisma.favorite.findMany({
       where: { userId: user.id },
       include: {
-        broker: { select: { id: true, name: true, slug: true, logo: true, rating: true, avgTrustScore: true } },
-        propFirm: { select: { id: true, name: true, slug: true, logo: true, rating: true, avgTrustScore: true } }
+        broker: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logo: true,
+            rating: true,
+            avgTrustScore: true,
+          },
+        },
+        propFirm: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logo: true,
+            rating: true,
+            avgTrustScore: true,
+          },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
-    const formattedFavorites = favorites.map(fav => ({
+    const formattedFavorites = favorites.map((fav) => ({
       id: fav.id,
       entityId: fav.brokerId || fav.propFirmId,
       entityName: fav.broker?.name || fav.propFirm?.name,
-      entityType: fav.brokerId ? 'broker' : 'propFirm',
+      entityType: fav.brokerId ? "broker" : "propFirm",
       entitySlug: fav.broker?.slug || fav.propFirm?.slug,
       entityLogo: fav.broker?.logo || fav.propFirm?.logo,
       rating: fav.broker?.rating || fav.propFirm?.rating,
@@ -55,13 +60,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       favorites: formattedFavorites,
-      total: favorites.length
+      total: favorites.length,
     });
   } catch (error) {
-    console.error('Error fetching favorites:', error);
-    return NextResponse.json({ error: 'Failed to fetch favorites' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    console.error("Error fetching favorites:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch favorites" },
+      { status: 500 },
+    );
   }
 }
 
@@ -69,45 +75,60 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await getUserFromToken(request);
-    
+
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
     const { entityType, entityId, notes, tags } = body;
 
-    if (!entityType || !entityId) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    if (
+      !["broker", "propFirm"].includes(entityType) ||
+      !Number.isSafeInteger(entityId) ||
+      entityId < 1
+    ) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
     }
 
     // Check if favorite already exists
     const existingFavorite = await prisma.favorite.findFirst({
       where: {
         userId: user.id,
-        ...(entityType === 'broker' ? { brokerId: entityId } : { propFirmId: entityId })
-      }
+        ...(entityType === "broker"
+          ? { brokerId: entityId }
+          : { propFirmId: entityId }),
+      },
     });
 
     if (existingFavorite) {
-      return NextResponse.json({ error: 'Favorite already exists' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Favorite already exists" },
+        { status: 400 },
+      );
     }
 
     const favorite = await prisma.favorite.create({
       data: {
         userId: user.id,
-        ...(entityType === 'broker' ? { brokerId: entityId } : { propFirmId: entityId }),
+        ...(entityType === "broker"
+          ? { brokerId: entityId }
+          : { propFirmId: entityId }),
         notes: notes || null,
         tags: tags || [],
-      }
+      },
     });
 
     return NextResponse.json({ success: true, favorite }, { status: 201 });
   } catch (error) {
-    console.error('Error adding favorite:', error);
-    return NextResponse.json({ error: 'Failed to add favorite' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    console.error("Error adding favorite:", error);
+    return NextResponse.json(
+      { error: "Failed to add favorite" },
+      { status: 500 },
+    );
   }
 }
 
@@ -115,36 +136,45 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const user = await getUserFromToken(request);
-    
+
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
-    const favoriteId = searchParams.get('id');
-    const entityType = searchParams.get('type');
-    const entityId = searchParams.get('entityId');
+    const favoriteId = searchParams.get("id");
+    const entityType = searchParams.get("type");
+    const entityId = searchParams.get("entityId");
 
     let whereCondition = {};
 
     if (favoriteId) {
-      whereCondition = { id: parseInt(favoriteId) };
+      whereCondition = { id: parseInt(favoriteId), userId: user.id };
     } else if (entityType && entityId) {
       whereCondition = {
         userId: user.id,
-        ...(entityType === 'broker' ? { brokerId: parseInt(entityId) } : { propFirmId: parseInt(entityId) })
+        ...(entityType === "broker"
+          ? { brokerId: parseInt(entityId) }
+          : { propFirmId: parseInt(entityId) }),
       };
     } else {
-      return NextResponse.json({ error: 'Missing identifier' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing identifier" },
+        { status: 400 },
+      );
     }
 
     await prisma.favorite.deleteMany({ where: whereCondition });
 
-    return NextResponse.json({ success: true, message: 'Favorite removed successfully' });
+    return NextResponse.json({
+      success: true,
+      message: "Favorite removed successfully",
+    });
   } catch (error) {
-    console.error('Error removing favorite:', error);
-    return NextResponse.json({ error: 'Failed to remove favorite' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    console.error("Error removing favorite:", error);
+    return NextResponse.json(
+      { error: "Failed to remove favorite" },
+      { status: 500 },
+    );
   }
 }

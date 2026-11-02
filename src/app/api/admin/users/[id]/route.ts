@@ -1,41 +1,30 @@
-import {sessionSecret} from '@/lib/session-secret';
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
+import { requestUser } from "@/lib/request-user";
+import { NextRequest, NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/db";
 
 async function getAdminUser(request: NextRequest) {
-  const token = request.cookies.get('auth_token')?.value;
-  if (!token) return null;
-  
-  try {
-    const decoded = jwt.verify(token, sessionSecret()) as { userId: string };
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: { id: true, email: true, name: true, role: true }
-    });
-    return user;
-  } catch {
-    return null;
-  }
+  const user = await requestUser(request);
+  return user?.role === "ADMIN" ? user : null;
 }
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const admin = await getAdminUser(request);
-    
-    if (!admin || admin.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    if (!admin || admin.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const userId = (await params).id;
     const { searchParams } = new URL(request.url);
-    const includeReviews = searchParams.get('include')?.includes('reviews') || false;
-    const includeReplies = searchParams.get('include')?.includes('replies') || false;
+    const includeReviews =
+      searchParams.get("include")?.includes("reviews") || false;
+    const includeReplies =
+      searchParams.get("include")?.includes("replies") || false;
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -51,14 +40,14 @@ export async function GET(
           select: {
             reviews: true,
             incidents: true,
-            favorites: true
-          }
-        }
-      }
+            favorites: true,
+          },
+        },
+      },
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Get reviews with full details
@@ -73,14 +62,14 @@ export async function GET(
             include: {
               user: { select: { name: true, email: true } },
               broker: { select: { name: true } },
-              propFirm: { select: { name: true } }
+              propFirm: { select: { name: true } },
             },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: "desc" },
           },
           votes: true,
-          reports: true
+          reports: true,
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: "desc" },
       });
     }
 
@@ -95,48 +84,74 @@ export async function GET(
               id: true,
               title: true,
               broker: { select: { name: true } },
-              propFirm: { select: { name: true } }
-            }
+              propFirm: { select: { name: true } },
+            },
           },
           user: { select: { name: true, email: true } },
           broker: { select: { name: true } },
-          propFirm: { select: { name: true } }
+          propFirm: { select: { name: true } },
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: "desc" },
       });
     }
 
     // Get incidents
     const incidents = await prisma.incident.findMany({
       where: { userId },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
     // Calculate stats
     const [reviewsStats, helpfulGiven] = await Promise.all([
       prisma.review.findMany({
         where: { userId },
-        select: { status: true, rating: true, helpfulCount: true, trustScore: true, reportCount: true }
+        select: {
+          status: true,
+          rating: true,
+          helpfulCount: true,
+          trustScore: true,
+          reportCount: true,
+        },
       }),
-      prisma.helpfulVote.count({ where: { userId } })
+      prisma.helpfulVote.count({ where: { userId } }),
     ]);
 
     const totalReviews = reviewsStats.length;
-    const approvedReviews = reviewsStats.filter(r => r.status === 'APPROVED').length;
-    const pendingReviews = reviewsStats.filter(r => r.status === 'PENDING').length;
-    const rejectedReviews = reviewsStats.filter(r => r.status === 'REJECTED').length;
-    const reportedReviews = reviewsStats.filter(r => (r.reportCount || 0) > 0).length;
-    
+    const approvedReviews = reviewsStats.filter(
+      (r) => r.status === "APPROVED",
+    ).length;
+    const pendingReviews = reviewsStats.filter(
+      (r) => r.status === "PENDING",
+    ).length;
+    const rejectedReviews = reviewsStats.filter(
+      (r) => r.status === "REJECTED",
+    ).length;
+    const reportedReviews = reviewsStats.filter(
+      (r) => (r.reportCount || 0) > 0,
+    ).length;
+
     const totalIncidents = incidents.length;
-    const resolvedIncidents = incidents.filter(i => i.status === 'APPROVED' || i.resolutionStatus === 'RESOLVED').length;
-    const pendingIncidents = incidents.filter(i => i.status === 'PENDING').length;
-    
-    const helpfulReceived = reviewsStats.reduce((sum, r) => sum + (r.helpfulCount || 0), 0);
-    
-    const approvedWithTrust = reviewsStats.filter(r => r.status === 'APPROVED' && r.trustScore);
+    const resolvedIncidents = incidents.filter(
+      (i) => i.status === "APPROVED" || i.resolutionStatus === "RESOLVED",
+    ).length;
+    const pendingIncidents = incidents.filter(
+      (i) => i.status === "PENDING",
+    ).length;
+
+    const helpfulReceived = reviewsStats.reduce(
+      (sum, r) => sum + (r.helpfulCount || 0),
+      0,
+    );
+
+    const approvedWithTrust = reviewsStats.filter(
+      (r) => r.status === "APPROVED" && r.trustScore,
+    );
     let avgTrustScore = 0;
     if (approvedWithTrust.length > 0) {
-      const totalTrust = approvedWithTrust.reduce((sum, r) => sum + (r.trustScore || 0), 0);
+      const totalTrust = approvedWithTrust.reduce(
+        (sum, r) => sum + (r.trustScore || 0),
+        0,
+      );
       avgTrustScore = Math.round(totalTrust / approvedWithTrust.length);
     }
 
@@ -161,41 +176,42 @@ export async function GET(
         helpfulReceived,
         helpfulGiven,
         avgTrustScore,
-        impactScore: Math.min(100, impactScore)
+        impactScore: Math.min(100, impactScore),
       },
       recentActivity: {
-        reviews: reviews.slice(0, 5).map(r => ({
+        reviews: reviews.slice(0, 5).map((r) => ({
           id: r.id,
           title: r.title,
           status: r.status,
           rating: r.rating,
           createdAt: r.createdAt,
-          entityName: r.broker?.name || r.propFirm?.name || 'Unknown',
-          helpfulCount: r.helpfulCount
+          entityName: r.broker?.name || r.propFirm?.name || "Unknown",
+          helpfulCount: r.helpfulCount,
         })),
-        incidents: incidents.slice(0, 5).map(i => ({
+        incidents: incidents.slice(0, 5).map((i) => ({
           id: i.id,
           title: i.title,
           status: i.status,
           incidentType: i.incidentType,
           resolutionStatus: i.resolutionStatus,
           createdAt: i.createdAt,
-          confirmations: i.confirmations
-        }))
+          confirmations: i.confirmations,
+        })),
       },
       reviews: includeReviews ? reviews : undefined,
       reviewReplies: includeReplies ? reviewReplies : undefined,
-      _count: user._count
+      _count: user._count,
     };
 
     return NextResponse.json({
       success: true,
-      user: userWithStats
+      user: userWithStats,
     });
   } catch (error) {
-    console.error('Error fetching user details:', error);
-    return NextResponse.json({ error: 'Failed to fetch user details' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    console.error("Error fetching user details:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch user details" },
+      { status: 500 },
+    );
   }
 }
