@@ -1,0 +1,16 @@
+[
+  {
+    "name": "Example provider",
+    "website": "https://example.com",
+    "status": "INACTIVE",
+    "signupLink": "",
+    "programs": [
+      {
+        "name": "Example evaluation",
+        "type": "Evaluation",
+        "rules": {},
+        "accountOptions": []
+      }
+    ]
+  }
+]

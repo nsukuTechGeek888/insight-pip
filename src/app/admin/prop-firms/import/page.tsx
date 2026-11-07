@@ -35,7 +35,7 @@ export default function ImportPropFirmsPage() {
     e.preventDefault();
     setDragActive(false);
     const droppedFile = e.dataTransfer.files[0];
-    if (droppedFile && droppedFile.type === 'application/json') {
+    if (droppedFile && /\.json$/i.test(droppedFile.name)) {
       setFile(droppedFile);
       setError(null);
       setResult(null);
@@ -46,7 +46,7 @@ export default function ImportPropFirmsPage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile && selectedFile.type === 'application/json') {
+    if (selectedFile && /\.json$/i.test(selectedFile.name)) {
       setFile(selectedFile);
       setError(null);
       setResult(null);
@@ -211,58 +211,18 @@ export default function ImportPropFirmsPage() {
             <FileJson size={16} className="text-blue-400" />
             JSON Format Example:
           </h3>
+          <a href="/templates/prop-firms.json" download className="v2-button">Download JSON template</a>
           <pre className="text-xs text-[var(--ip-text-2)] bg-[var(--ip-surface)] p-3 rounded-lg overflow-x-auto">
 {`[
   {
-    "name": "FTMO",
-    "website": "https://ftmo.com",
-    "shortDescription": "Leading prop firm with 90% profit split",
-    "description": "Full description here...",
-    "founded": 2015,
-    "country": "Czech Republic",
-    "regulated": false,
-    "yearsInOperation": 9,
-    "payoutFrequency": "Weekly",
-    "minimumPayout": 100,
-    "platforms": ["MT4", "MT5", "cTrader"],
-    "features": ["No minimum trading days", "Scaling plan", "Free retry"],
-    "programs": [
-      {
-        "name": "2-Step Challenge",
-        "type": "Standard",
-        "description": "Two-step evaluation process",
-        "rules": {
-          "profitTarget": "10% + 5%",
-          "maxDrawdown": 10,
-          "dailyDrawdown": 5,
-          "minTradingDays": 0
-        },
-        "accountOptions": [
-          {
-            "accountSize": 10000,
-            "price": 155,
-            "payoutPercentage": 90,
-            "maxAllocation": 10000,
-            "profitSplit": 90,
-            "minTradingDays": 0
-          }
-        ]
-      }
-    ],
-    "promotions": [
-      {
-        "name": "Black Friday Sale",
-        "discount": 30,
-        "code": "BF30",
-        "validUntil": "2025-12-31",
-        "description": "30% off all challenges"
-      }
-    ]
+    "name": "Example provider",
+    "website": "https://example.com",
+    "status": "INACTIVE"
   }
 ]`}
           </pre>
           <p className="text-xs text-[var(--ip-text-2)] mt-3">
-            💡 You can import a single prop firm or multiple prop firms in an array. All fields are optional except "name".
+            New providers default to unpublished. Existing records can be updated in the provider editor. You can import a single prop firm or multiple prop firms in an array. All fields are optional except "name".
           </p>
         </div>
       </div>

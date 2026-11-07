@@ -1,3 +1,4 @@
+import { publicImageDirectory } from "@/lib/public-image-directory";
 import { NextRequest, NextResponse } from "next/server";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -39,7 +40,7 @@ export async function uploadPublicImage(
       );
     const filename =
       randomUUID() + "." + (mime === "image/jpeg" ? "jpg" : mime.split("/")[1]);
-    const directory = path.join(process.cwd(), "public", "uploads", type);
+    const directory = publicImageDirectory(type);
     await mkdir(directory, { recursive: true });
     await writeFile(path.join(directory, filename), bytes, { flag: "wx" });
     return NextResponse.json({

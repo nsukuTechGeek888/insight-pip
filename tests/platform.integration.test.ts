@@ -949,6 +949,44 @@ await t.test(
           assert.equal(await prisma.user.count(), 4);
         },
       );
+      await t.test("provider imports preserve existing records and roll back invalid offerings", async () => {
+        const brokers = await import("../src/app/api/admin/brokers/import/route");
+        const firms = await import("../src/app/api/admin/prop-firms/import/route");
+        for (const [type, handler] of [["brokers", brokers.POST], ["prop-firms", firms.POST]] as const) {
+          const url = "/api/admin/" + type + "/import";
+          const name = "QA import " + type;
+          const payload = { name, website: "https://example.invalid", signupLink: "https://example.invalid/partner?ref=qa" };
+          assert.equal((await call(handler, url, "POST", payload)).status, 401);
+          const submit = async (body: unknown) => (await call(handler, url, "POST", body, adminCookie)).json();
+          const invalid = type === "brokers" ? { accountTypes: [null] } : { programs: [null] };
+          assert.equal((await submit({ ...payload, ...invalid })).imported, 0);
+          assert.equal((await submit(payload)).imported, 1);
+          assert.equal((await submit({ ...payload, website: "https://changed.invalid" })).imported, 0);
+          const record = type === "brokers" ? await prisma.broker.findFirstOrThrow({ where: { name } }) : await prisma.propFirm.findFirstOrThrow({ where: { name } });
+          assert.equal(record.website, payload.website);
+          assert.equal(record.signupLink, payload.signupLink);
+          assert.equal(record.status, "INACTIVE");
+        }
+      });
+      await t.test("admin logo upload stores the image returned by its public URL", async () => {
+        const upload = await import("../src/app/api/upload/route");
+        const bytes = await readFile("public/favicon-16x16.png");
+        const form = new FormData();
+        form.append("file", new File([new Uint8Array(bytes)], "logo.png", { type: "image/png" }));
+        form.append("type", "broker");
+        assert.equal((await call(upload.POST, "/api/upload", "POST", form)).status, 401);
+        const result = await call(upload.POST, "/api/upload", "POST", form, adminCookie);
+        assert.equal(result.status, 200);
+        const { url } = await result.json();
+        assert.match(url, /^\/uploads\/broker\/[a-f0-9-]+\.png$/);
+        try {
+          const media = await import("../src/app/uploads/[kind]/[filename]/route");
+          const image = await media.GET(new Request("http://localhost" + url), { params: Promise.resolve({ kind: "broker", filename: path.basename(url) }) });
+          assert.equal(image.headers.get("Content-Type"), "image/png");
+          assert.deepEqual(Buffer.from(await image.arrayBuffer()), bytes);
+        }
+        finally { await rm(path.join("public", url)); }
+      });
     } catch (e) {
       console.error(e);
       throw e;

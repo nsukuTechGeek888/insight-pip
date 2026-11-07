@@ -34,7 +34,7 @@ export default function ImportBrokersPage() {
     e.preventDefault();
     setDragActive(false);
     const droppedFile = e.dataTransfer.files[0];
-    if (droppedFile && droppedFile.type === 'application/json') {
+    if (droppedFile && /\.json$/i.test(droppedFile.name)) {
       setFile(droppedFile);
       setError(null);
       setResult(null);
@@ -45,7 +45,7 @@ export default function ImportBrokersPage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile && selectedFile.type === 'application/json') {
+    if (selectedFile && /\.json$/i.test(selectedFile.name)) {
       setFile(selectedFile);
       setError(null);
       setResult(null);
@@ -203,36 +203,18 @@ export default function ImportBrokersPage() {
             <FileJson size={16} className="text-blue-400" />
             JSON Format Example:
           </h3>
+          <a href="/templates/brokers.json" download className="v2-button">Download JSON template</a>
           <pre className="text-xs text-[var(--ip-text-2)] bg-[var(--ip-surface)] p-3 rounded-lg overflow-x-auto">
 {`[
   {
-    "name": "Deriv",
-    "website": "https://deriv.com",
-    "shortDescription": "Trade CFDs with $5 min deposit, 1:1000 leverage",
-    "description": "Full description here...",
-    "founded": 1999,
-    "headquarters": "Birkirkara, Malta",
-    "country": "Malta",
-    "contactEmail": "support@deriv.com",
-    "contactPhone": "+356 2778 0350",
-    "regulated": true,
-    "minDeposit": 5,
-    "leverage": "1:1000",
-    "spreads": {
-      "eurusd": "0.5 - 0.6 pips",
-      "gbpusd": "0.6 - 0.7 pips"
-    },
-    "platforms": ["MT5", "cTrader", "Deriv X"],
-    "features": ["24/7 trading", "Negative balance protection"],
-    "depositMethods": ["Credit Card", "Bank Transfer", "Crypto"],
-    "withdrawalMethods": ["Bank Transfer", "Crypto"],
-    "supportLanguages": ["English", "Spanish", "Arabic"],
-    "supportAvailability": "24/7"
+    "name": "Example provider",
+    "website": "https://example.com",
+    "status": "INACTIVE"
   }
 ]`}
           </pre>
           <p className="text-xs text-[var(--ip-text-2)] mt-3">
-            💡 You can import a single broker or multiple brokers in an array. All fields are optional except "name".
+            New providers default to unpublished. Existing records can be updated in the provider editor. You can import a single broker or multiple brokers in an array. All fields are optional except "name".
           </p>
         </div>
       </div>

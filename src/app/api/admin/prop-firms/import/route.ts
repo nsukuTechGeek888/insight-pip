@@ -301,319 +301,327 @@ export async function POST(request: NextRequest) {
 
     for (const firmData of firms) {
       try {
-        const slug =
-          firmData.slug ||
-          firmData.name
-            .toLowerCase()
-            .replace(/\s+/g, "-")
-            .replace(/[^a-z0-9-]/g, "");
+        if (typeof firmData?.name !== "string" || !firmData.name.trim()) {
+          throw new Error("A provider name is required.");
+        }
+        const imported = await prisma.$transaction(async (tx) => {
+          const slug =
+            firmData.slug ||
+            firmData.name
+              .toLowerCase()
+              .replace(/\s+/g, "-")
+              .replace(/[^a-z0-9-]/g, "");
 
-        // Build clean data object with ONLY valid fields
-        const cleanDataObj: any = {
-          name: firmData.name,
-          slug: slug,
-        };
+          // Build clean data object with ONLY valid fields
+          const cleanDataObj: any = {
+            name: firmData.name,
+            slug: slug,
+          };
 
-        // Only include fields that are in VALID_FIELDS and have non-null/undefined values
-        for (const field of VALID_FIELDS) {
-          if (firmData[field] !== undefined && firmData[field] !== null) {
-            cleanDataObj[field] = firmData[field];
+          // Only include fields that are in VALID_FIELDS and have non-null/undefined values
+          for (const field of VALID_FIELDS) {
+            if (firmData[field] !== undefined && firmData[field] !== null) {
+              cleanDataObj[field] = firmData[field];
+            }
           }
-        }
 
-        // Handle arrays properly
-        if (firmData.assets && firmData.assets.length > 0) {
-          cleanDataObj.assets = firmData.assets;
-        }
-        if (firmData.platforms && firmData.platforms.length > 0) {
-          cleanDataObj.platforms = firmData.platforms;
-        }
-        if (firmData.features && firmData.features.length > 0) {
-          cleanDataObj.features = firmData.features;
-        }
-        if (
-          firmData.tradingInstruments &&
-          firmData.tradingInstruments.length > 0
-        ) {
-          cleanDataObj.tradingInstruments = firmData.tradingInstruments;
-        }
-        if (firmData.payoutMethods && firmData.payoutMethods.length > 0) {
-          cleanDataObj.payoutMethods = firmData.payoutMethods;
-        }
-        if (
-          firmData.supportedCountries &&
-          firmData.supportedCountries.length > 0
-        ) {
-          cleanDataObj.supportedCountries = firmData.supportedCountries;
-        }
-        if (
-          firmData.prohibitedCountries &&
-          firmData.prohibitedCountries.length > 0
-        ) {
-          cleanDataObj.prohibitedCountries = firmData.prohibitedCountries;
-        }
-        if (firmData.customerSupport && firmData.customerSupport.length > 0) {
-          cleanDataObj.customerSupport = firmData.customerSupport;
-        }
-        if (
-          firmData.educationResources &&
-          firmData.educationResources.length > 0
-        ) {
-          cleanDataObj.educationResources = firmData.educationResources;
-        }
-        if (
-          firmData.communityFeatures &&
-          firmData.communityFeatures.length > 0
-        ) {
-          cleanDataObj.communityFeatures = firmData.communityFeatures;
-        }
-        if (firmData.chartingTools && firmData.chartingTools.length > 0) {
-          cleanDataObj.chartingTools = firmData.chartingTools;
-        }
-        if (firmData.securityFeatures && firmData.securityFeatures.length > 0) {
-          cleanDataObj.securityFeatures = firmData.securityFeatures;
-        }
-        if (
-          firmData.positiveReviewThemes &&
-          firmData.positiveReviewThemes.length > 0
-        ) {
-          cleanDataObj.positiveReviewThemes = firmData.positiveReviewThemes;
-        }
-        if (
-          firmData.negativeReviewThemes &&
-          firmData.negativeReviewThemes.length > 0
-        ) {
-          cleanDataObj.negativeReviewThemes = firmData.negativeReviewThemes;
-        }
-        if (firmData.supportAgents && firmData.supportAgents.length > 0) {
-          cleanDataObj.supportAgents = firmData.supportAgents;
-        }
-        if (firmData.systemBugs && firmData.systemBugs.length > 0) {
-          cleanDataObj.systemBugs = firmData.systemBugs;
-        }
-        if (firmData.riskFactors && firmData.riskFactors.length > 0) {
-          cleanDataObj.riskFactors = firmData.riskFactors;
-        }
-        if (firmData.redFlags && firmData.redFlags.length > 0) {
-          cleanDataObj.redFlags = firmData.redFlags;
-        }
-        if (firmData.greenFlags && firmData.greenFlags.length > 0) {
-          cleanDataObj.greenFlags = firmData.greenFlags;
-        }
-        if (
-          firmData.payLaterAccountSizes &&
-          firmData.payLaterAccountSizes.length > 0
-        ) {
-          cleanDataObj.payLaterAccountSizes = firmData.payLaterAccountSizes;
-        }
-        if (
-          firmData.accountCurrencies &&
-          firmData.accountCurrencies.length > 0
-        ) {
-          cleanDataObj.accountCurrencies = firmData.accountCurrencies;
-        }
-        if (
-          firmData.regulatoryWarnings &&
-          firmData.regulatoryWarnings.length > 0
-        ) {
-          cleanDataObj.regulatoryWarnings = firmData.regulatoryWarnings;
-        }
-        if (firmData.regulatoryBodies && firmData.regulatoryBodies.length > 0) {
-          cleanDataObj.regulatoryBodies = firmData.regulatoryBodies;
-        }
-        if (
-          firmData.partnershipPrograms &&
-          firmData.partnershipPrograms.length > 0
-        ) {
-          cleanDataObj.partnershipPrograms = firmData.partnershipPrograms;
-        }
-        if (
-          firmData.restrictedFeatures &&
-          firmData.restrictedFeatures.length > 0
-        ) {
-          cleanDataObj.restrictedFeatures = firmData.restrictedFeatures;
-        }
-        if (firmData.warnings && firmData.warnings.length > 0) {
-          cleanDataObj.warnings = firmData.warnings;
-        }
-        if (
-          firmData.scalingLevel1Benefits &&
-          firmData.scalingLevel1Benefits.length > 0
-        ) {
-          cleanDataObj.scalingLevel1Benefits = firmData.scalingLevel1Benefits;
-        }
-        if (
-          firmData.scalingLevel2Benefits &&
-          firmData.scalingLevel2Benefits.length > 0
-        ) {
-          cleanDataObj.scalingLevel2Benefits = firmData.scalingLevel2Benefits;
-        }
-        if (
-          firmData.scalingLevel3Benefits &&
-          firmData.scalingLevel3Benefits.length > 0
-        ) {
-          cleanDataObj.scalingLevel3Benefits = firmData.scalingLevel3Benefits;
-        }
-        if (
-          firmData.scalingLevel4Benefits &&
-          firmData.scalingLevel4Benefits.length > 0
-        ) {
-          cleanDataObj.scalingLevel4Benefits = firmData.scalingLevel4Benefits;
-        }
-        if (
-          firmData.prohibitedStrategies &&
-          firmData.prohibitedStrategies.length > 0
-        ) {
-          cleanDataObj.prohibitedStrategies = firmData.prohibitedStrategies;
-        }
-        if (firmData.awards && firmData.awards.length > 0) {
-          cleanDataObj.awards = firmData.awards;
-        }
-
-        // Handle JSON fields
-        if (
-          firmData.leverageOptions &&
-          Object.keys(firmData.leverageOptions).length > 0
-        ) {
-          cleanDataObj.leverageOptions = firmData.leverageOptions;
-        }
-        if (
-          firmData.averageSpreads &&
-          Object.keys(firmData.averageSpreads).length > 0
-        ) {
-          cleanDataObj.averageSpreads = firmData.averageSpreads;
-        }
-        if (
-          firmData.commissions &&
-          Object.keys(firmData.commissions).length > 0
-        ) {
-          cleanDataObj.commissions = firmData.commissions;
-        }
-        if (
-          firmData.entityMapping &&
-          Object.keys(firmData.entityMapping).length > 0
-        ) {
-          cleanDataObj.entityMapping = firmData.entityMapping;
-        }
-        if (
-          firmData.profitCaps &&
-          Object.keys(firmData.profitCaps).length > 0
-        ) {
-          cleanDataObj.profitCaps = firmData.profitCaps;
-        }
-        if (
-          firmData.scalingPlan &&
-          Object.keys(firmData.scalingPlan).length > 0
-        ) {
-          cleanDataObj.scalingPlan = firmData.scalingPlan;
-        }
-        if (
-          firmData.socialMedia &&
-          Object.keys(firmData.socialMedia).length > 0
-        ) {
-          cleanDataObj.socialMedia = firmData.socialMedia;
-        }
-        if (
-          firmData.depositMethodsDetails &&
-          Object.keys(firmData.depositMethodsDetails).length > 0
-        ) {
-          cleanDataObj.depositMethodsDetails = firmData.depositMethodsDetails;
-        }
-        if (
-          firmData.withdrawalMethodsDetails &&
-          Object.keys(firmData.withdrawalMethodsDetails).length > 0
-        ) {
-          cleanDataObj.withdrawalMethodsDetails =
-            firmData.withdrawalMethodsDetails;
-        }
-        if (firmData.publicWarnings && firmData.publicWarnings.length > 0) {
-          cleanDataObj.publicWarnings = firmData.publicWarnings;
-        }
-        if (firmData.knownIssues && firmData.knownIssues.length > 0) {
-          cleanDataObj.knownIssues = firmData.knownIssues;
-        }
-        if (
-          firmData.discountCodes &&
-          Object.keys(firmData.discountCodes).length > 0
-        ) {
-          cleanDataObj.discountCodes = firmData.discountCodes;
-        }
-        if (
-          firmData.activationFee &&
-          Object.keys(firmData.activationFee).length > 0
-        ) {
-          cleanDataObj.activationFee = firmData.activationFee;
-        }
-        if (
-          firmData.ifTimeLimit &&
-          Object.keys(firmData.ifTimeLimit).length > 0
-        ) {
-          cleanDataObj.ifTimeLimit = firmData.ifTimeLimit;
-        }
-        if (firmData.pressReleases && firmData.pressReleases.length > 0) {
-          cleanDataObj.pressReleases = firmData.pressReleases;
-        }
-
-        // Remove any fields that are still null/undefined
-        for (const key in cleanDataObj) {
-          if (cleanDataObj[key] === null || cleanDataObj[key] === undefined) {
-            delete cleanDataObj[key];
+          // Handle arrays properly
+          if (firmData.assets && firmData.assets.length > 0) {
+            cleanDataObj.assets = firmData.assets;
           }
-        }
+          if (firmData.platforms && firmData.platforms.length > 0) {
+            cleanDataObj.platforms = firmData.platforms;
+          }
+          if (firmData.features && firmData.features.length > 0) {
+            cleanDataObj.features = firmData.features;
+          }
+          if (
+            firmData.tradingInstruments &&
+            firmData.tradingInstruments.length > 0
+          ) {
+            cleanDataObj.tradingInstruments = firmData.tradingInstruments;
+          }
+          if (firmData.payoutMethods && firmData.payoutMethods.length > 0) {
+            cleanDataObj.payoutMethods = firmData.payoutMethods;
+          }
+          if (
+            firmData.supportedCountries &&
+            firmData.supportedCountries.length > 0
+          ) {
+            cleanDataObj.supportedCountries = firmData.supportedCountries;
+          }
+          if (
+            firmData.prohibitedCountries &&
+            firmData.prohibitedCountries.length > 0
+          ) {
+            cleanDataObj.prohibitedCountries = firmData.prohibitedCountries;
+          }
+          if (firmData.customerSupport && firmData.customerSupport.length > 0) {
+            cleanDataObj.customerSupport = firmData.customerSupport;
+          }
+          if (
+            firmData.educationResources &&
+            firmData.educationResources.length > 0
+          ) {
+            cleanDataObj.educationResources = firmData.educationResources;
+          }
+          if (
+            firmData.communityFeatures &&
+            firmData.communityFeatures.length > 0
+          ) {
+            cleanDataObj.communityFeatures = firmData.communityFeatures;
+          }
+          if (firmData.chartingTools && firmData.chartingTools.length > 0) {
+            cleanDataObj.chartingTools = firmData.chartingTools;
+          }
+          if (firmData.securityFeatures && firmData.securityFeatures.length > 0) {
+            cleanDataObj.securityFeatures = firmData.securityFeatures;
+          }
+          if (
+            firmData.positiveReviewThemes &&
+            firmData.positiveReviewThemes.length > 0
+          ) {
+            cleanDataObj.positiveReviewThemes = firmData.positiveReviewThemes;
+          }
+          if (
+            firmData.negativeReviewThemes &&
+            firmData.negativeReviewThemes.length > 0
+          ) {
+            cleanDataObj.negativeReviewThemes = firmData.negativeReviewThemes;
+          }
+          if (firmData.supportAgents && firmData.supportAgents.length > 0) {
+            cleanDataObj.supportAgents = firmData.supportAgents;
+          }
+          if (firmData.systemBugs && firmData.systemBugs.length > 0) {
+            cleanDataObj.systemBugs = firmData.systemBugs;
+          }
+          if (firmData.riskFactors && firmData.riskFactors.length > 0) {
+            cleanDataObj.riskFactors = firmData.riskFactors;
+          }
+          if (firmData.redFlags && firmData.redFlags.length > 0) {
+            cleanDataObj.redFlags = firmData.redFlags;
+          }
+          if (firmData.greenFlags && firmData.greenFlags.length > 0) {
+            cleanDataObj.greenFlags = firmData.greenFlags;
+          }
+          if (
+            firmData.payLaterAccountSizes &&
+            firmData.payLaterAccountSizes.length > 0
+          ) {
+            cleanDataObj.payLaterAccountSizes = firmData.payLaterAccountSizes;
+          }
+          if (
+            firmData.accountCurrencies &&
+            firmData.accountCurrencies.length > 0
+          ) {
+            cleanDataObj.accountCurrencies = firmData.accountCurrencies;
+          }
+          if (
+            firmData.regulatoryWarnings &&
+            firmData.regulatoryWarnings.length > 0
+          ) {
+            cleanDataObj.regulatoryWarnings = firmData.regulatoryWarnings;
+          }
+          if (firmData.regulatoryBodies && firmData.regulatoryBodies.length > 0) {
+            cleanDataObj.regulatoryBodies = firmData.regulatoryBodies;
+          }
+          if (
+            firmData.partnershipPrograms &&
+            firmData.partnershipPrograms.length > 0
+          ) {
+            cleanDataObj.partnershipPrograms = firmData.partnershipPrograms;
+          }
+          if (
+            firmData.restrictedFeatures &&
+            firmData.restrictedFeatures.length > 0
+          ) {
+            cleanDataObj.restrictedFeatures = firmData.restrictedFeatures;
+          }
+          if (firmData.warnings && firmData.warnings.length > 0) {
+            cleanDataObj.warnings = firmData.warnings;
+          }
+          if (
+            firmData.scalingLevel1Benefits &&
+            firmData.scalingLevel1Benefits.length > 0
+          ) {
+            cleanDataObj.scalingLevel1Benefits = firmData.scalingLevel1Benefits;
+          }
+          if (
+            firmData.scalingLevel2Benefits &&
+            firmData.scalingLevel2Benefits.length > 0
+          ) {
+            cleanDataObj.scalingLevel2Benefits = firmData.scalingLevel2Benefits;
+          }
+          if (
+            firmData.scalingLevel3Benefits &&
+            firmData.scalingLevel3Benefits.length > 0
+          ) {
+            cleanDataObj.scalingLevel3Benefits = firmData.scalingLevel3Benefits;
+          }
+          if (
+            firmData.scalingLevel4Benefits &&
+            firmData.scalingLevel4Benefits.length > 0
+          ) {
+            cleanDataObj.scalingLevel4Benefits = firmData.scalingLevel4Benefits;
+          }
+          if (
+            firmData.prohibitedStrategies &&
+            firmData.prohibitedStrategies.length > 0
+          ) {
+            cleanDataObj.prohibitedStrategies = firmData.prohibitedStrategies;
+          }
+          if (firmData.awards && firmData.awards.length > 0) {
+            cleanDataObj.awards = firmData.awards;
+          }
 
-        // Set default status if not present
-        if (!cleanDataObj.status) {
-          cleanDataObj.status = "ACTIVE";
-        }
+          // Handle JSON fields
+          if (
+            firmData.leverageOptions &&
+            Object.keys(firmData.leverageOptions).length > 0
+          ) {
+            cleanDataObj.leverageOptions = firmData.leverageOptions;
+          }
+          if (
+            firmData.averageSpreads &&
+            Object.keys(firmData.averageSpreads).length > 0
+          ) {
+            cleanDataObj.averageSpreads = firmData.averageSpreads;
+          }
+          if (
+            firmData.commissions &&
+            Object.keys(firmData.commissions).length > 0
+          ) {
+            cleanDataObj.commissions = firmData.commissions;
+          }
+          if (
+            firmData.entityMapping &&
+            Object.keys(firmData.entityMapping).length > 0
+          ) {
+            cleanDataObj.entityMapping = firmData.entityMapping;
+          }
+          if (
+            firmData.profitCaps &&
+            Object.keys(firmData.profitCaps).length > 0
+          ) {
+            cleanDataObj.profitCaps = firmData.profitCaps;
+          }
+          if (
+            firmData.scalingPlan &&
+            Object.keys(firmData.scalingPlan).length > 0
+          ) {
+            cleanDataObj.scalingPlan = firmData.scalingPlan;
+          }
+          if (
+            firmData.socialMedia &&
+            Object.keys(firmData.socialMedia).length > 0
+          ) {
+            cleanDataObj.socialMedia = firmData.socialMedia;
+          }
+          if (
+            firmData.depositMethodsDetails &&
+            Object.keys(firmData.depositMethodsDetails).length > 0
+          ) {
+            cleanDataObj.depositMethodsDetails = firmData.depositMethodsDetails;
+          }
+          if (
+            firmData.withdrawalMethodsDetails &&
+            Object.keys(firmData.withdrawalMethodsDetails).length > 0
+          ) {
+            cleanDataObj.withdrawalMethodsDetails =
+              firmData.withdrawalMethodsDetails;
+          }
+          if (firmData.publicWarnings && firmData.publicWarnings.length > 0) {
+            cleanDataObj.publicWarnings = firmData.publicWarnings;
+          }
+          if (firmData.knownIssues && firmData.knownIssues.length > 0) {
+            cleanDataObj.knownIssues = firmData.knownIssues;
+          }
+          if (
+            firmData.discountCodes &&
+            Object.keys(firmData.discountCodes).length > 0
+          ) {
+            cleanDataObj.discountCodes = firmData.discountCodes;
+          }
+          if (
+            firmData.activationFee &&
+            Object.keys(firmData.activationFee).length > 0
+          ) {
+            cleanDataObj.activationFee = firmData.activationFee;
+          }
+          if (
+            firmData.ifTimeLimit &&
+            Object.keys(firmData.ifTimeLimit).length > 0
+          ) {
+            cleanDataObj.ifTimeLimit = firmData.ifTimeLimit;
+          }
+          if (firmData.pressReleases && firmData.pressReleases.length > 0) {
+            cleanDataObj.pressReleases = firmData.pressReleases;
+          }
 
-        console.log(
-          "📦 Creating prop firm with data:",
-          JSON.stringify(cleanDataObj, null, 2),
-        );
+          // Remove any fields that are still null/undefined
+          for (const key in cleanDataObj) {
+            if (cleanDataObj[key] === null || cleanDataObj[key] === undefined) {
+              delete cleanDataObj[key];
+            }
+          }
 
-        const firm = await prisma.propFirm.create({
-          data: cleanDataObj,
+          // Set default status if not present
+          if (!cleanDataObj.status) {
+            cleanDataObj.status = "INACTIVE";
+          }
+
+          console.log(
+            "📦 Creating prop firm with data:",
+            JSON.stringify(cleanDataObj, null, 2),
+          );
+
+          const firm = await tx.propFirm.create({
+            data: cleanDataObj,
+          });
+
+          // Create programs
+          if (firmData.programs && firmData.programs.length > 0) {
+            for (const program of firmData.programs) {
+              await tx.propFirmProgram.create({
+                data: {
+                  name: program.name || program.type || "Program",
+                  type: program.type || program.name || "Standard",
+                  description: program.description || "",
+                  timeLimit: program.timeLimit || {},
+                  rules: program.rules || {},
+                  accountOptions: program.accountOptions || [],
+                  propFirmId: firm.id,
+                },
+              });
+            }
+          }
+
+          // Create promotions
+          if (firmData.promotions && firmData.promotions.length > 0) {
+            for (const promo of firmData.promotions) {
+              await tx.propFirmPromotion.create({
+                data: {
+                  name: promo.name,
+                  description: promo.description || "",
+                  discount: promo.discount || null,
+                  code: promo.code || "",
+                  validUntil: promo.validUntil
+                    ? new Date(promo.validUntil)
+                    : null,
+                  propFirmId: firm.id,
+                },
+              });
+            }
+          }
+
+          await tx.auditEvent.create({ data: { actorId: admin.id, action: "PROVIDER_IMPORTED", entityType: "prop-firms", entityId: String(firm.id) } });
+          return firm;
         });
+        results.push(imported);
+      } catch (err) {
+        const duplicate = err && typeof err === "object" && "code" in err && err.code === "P2002";
+        errors.push({ name: firmData?.name || "(unnamed)", error: duplicate ? "Already exists. Use the provider editor to update it." : "Check the name, field types and required offering details." });
 
-        // Create programs
-        if (firmData.programs && firmData.programs.length > 0) {
-          for (const program of firmData.programs) {
-            await prisma.propFirmProgram.create({
-              data: {
-                name: program.name || program.type || "Program",
-                type: program.type || program.name || "Standard",
-                description: program.description || "",
-                timeLimit: program.timeLimit || {},
-                rules: program.rules || {},
-                accountOptions: program.accountOptions || [],
-                propFirmId: firm.id,
-              },
-            });
-          }
-        }
-
-        // Create promotions
-        if (firmData.promotions && firmData.promotions.length > 0) {
-          for (const promo of firmData.promotions) {
-            await prisma.propFirmPromotion.create({
-              data: {
-                name: promo.name,
-                description: promo.description || "",
-                discount: promo.discount || null,
-                code: promo.code || "",
-                validUntil: promo.validUntil
-                  ? new Date(promo.validUntil)
-                  : null,
-                propFirmId: firm.id,
-              },
-            });
-          }
-        }
-
-        results.push(firm);
-      } catch (err: any) {
-        console.error("Error importing firm:", err);
-        errors.push({ name: firmData.name, error: err.message });
       }
     }
 

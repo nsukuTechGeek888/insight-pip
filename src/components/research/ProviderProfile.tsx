@@ -207,6 +207,8 @@ export default function ProviderProfile({
       </div>
     );
   const p = data.provider;
+  const partner = safeUrl(p.signupLink);
+  const destination = partner || safeUrl(p.website);
   const tabs = [
     "Overview",
     type === "brokers" ? "Accounts" : "Funding programs",
@@ -246,20 +248,20 @@ export default function ProviderProfile({
           >
             Compare
           </Link>
-          {safeUrl(p.website) && (
+          {destination && (
             <a
               className="v2-button v2-button-primary"
-              href={safeUrl(p.website)}
+              href={destination}
               target="_blank"
-              rel="sponsored noopener noreferrer"
+              rel={partner ? "sponsored noopener noreferrer" : "noopener noreferrer"}
             >
-              Visit provider <ArrowUpRight size={15} />
+              {partner ? "Visit partner site" : "Visit provider"} <ArrowUpRight size={15} />
             </a>
           )}
         </div>
       </header>
       <p className="v2-form-note">
-        Provider links may involve affiliate compensation. Check the provider’s
+        {partner && "InsightPip may earn a commission if you sign up through this partner link. "}Check the provider’s
         current terms and regional eligibility before committing money.
       </p>
       <div className="v2-profile-signals">

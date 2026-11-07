@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Example provider",
+    "website": "https://example.com",
+    "status": "INACTIVE",
+    "signupLink": "",
+    "accountTypes": [
+      {
+        "name": "Example account"
+      }
+    ]
+  }
+]
