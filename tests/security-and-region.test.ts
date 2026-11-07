@@ -53,3 +53,22 @@ test("regional entity mapping accepts stored JSON and rejects invalid claims", (
 });
 
 test('new password hashes distinguish Unicode suffixes beyond bcrypt’s legacy byte limit',async()=>{const {hashPassword,verifyPassword}=await import('../src/lib/passwords');const password='🔐'.repeat(20)+'first';const hash=await hashPassword(password);assert.equal(await verifyPassword(password,hash),true);assert.equal(await verifyPassword('🔐'.repeat(20)+'different',hash),false);});
+
+test("same-origin writes behind a reverse proxy use the configured public origin", async () => {
+  const { NextRequest } = await import("next/server");
+  const saved = process.env.APP_URL;
+  const previousDb = process.env.DATABASE_URL;
+  try {
+    process.env.DATABASE_URL ||= "postgresql://test:test@localhost:5432/test";
+    const { sameOrigin } = await import("../src/lib/request-user");
+    process.env.APP_URL = "https://insightpip.example";
+    const request = (origin: string) => new NextRequest("http://localhost:3000/api/upload", { headers: { origin } });
+    assert.equal(sameOrigin(request("https://insightpip.example")), true);
+    assert.equal(sameOrigin(request("https://unrelated.example")), false);
+  } finally {
+    if (previousDb === undefined) delete process.env.DATABASE_URL;
+    else process.env.DATABASE_URL = previousDb;
+    if (saved === undefined) delete process.env.APP_URL;
+    else process.env.APP_URL = saved;
+  }
+});

@@ -33,8 +33,13 @@ export async function requestUser(request: NextRequest) {
 }
 export function sameOrigin(request: NextRequest) {
   const origin = request.headers.get("origin");
-  return (
-    request.headers.get("sec-fetch-site") !== "cross-site" &&
-    (!origin || origin === request.nextUrl.origin)
-  );
+  if (request.headers.get("sec-fetch-site") === "cross-site") return false;
+  if (!origin) return true;
+  const publicUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_SITE_URL;
+  try {
+    const expected = publicUrl ? new URL(publicUrl).origin : request.nextUrl.origin;
+    return origin === expected;
+  } catch {
+    return false;
+  }
 }
