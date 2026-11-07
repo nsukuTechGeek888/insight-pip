@@ -5,9 +5,11 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { randomBytes } from "node:crypto";
 import path from "node:path";
 import bcrypt from "bcryptjs";
-export async function startQaDatabase() {
+import { addResearchDrafts } from "./research-starter.mjs";
+
+export async function startQaDatabase({ research = false } = {}) {
   if(process.env.NODE_ENV==="production")throw Error("QA mode is available only in development");
-  const directory = path.resolve(".private/qa");
+  const directory = path.resolve(research ? ".private/research" : ".private/qa");
   await mkdir(directory, { recursive: true, mode: 0o700 });
   const db = await PGlite.create(path.join(directory, "database"));
   const existing = await db.query(
@@ -33,16 +35,23 @@ export async function startQaDatabase() {
   process.env.NEXTAUTH_SECRET =
     process.env.NEXTAUTH_SECRET || randomBytes(48).toString("hex");
   process.env.LOCAL_TEST_MODE = "1";
-  process.env.NEXT_PUBLIC_QA_MODE = "1";
+  process.env.NEXT_PUBLIC_QA_MODE = research ? "" : "1";
+  if (research) {
+    process.env.PRIVATE_STORAGE_DIR = path.join(directory, "private");
+    process.env.PUBLIC_UPLOAD_DIR = path.join(directory, "images");
+    process.env.APP_URL = "http://127.0.0.1:3000";
+    delete process.env.SMTP_HOST;
+  }
   const prisma = new PrismaClient({ datasources: { db: { url } } });
   const accessFile = path.join(directory, "access.json");
   let access;
   try {
     access = JSON.parse(await readFile(accessFile, "utf8"));
-  } catch {
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
     access = {
       admin: {
-        email: "admin@insightpip-qa.invalid",
+        email: research ? "editor@insightpip.local" : "admin@insightpip-qa.invalid",
         password: randomBytes(18).toString("base64url"),
       },
       trader: {
@@ -50,6 +59,7 @@ export async function startQaDatabase() {
         password: randomBytes(18).toString("base64url"),
       },
     };
+    if (research) delete access.trader;
     await writeFile(accessFile, JSON.stringify(access, null, 2), {
       mode: 0o600,
     });
@@ -59,7 +69,7 @@ export async function startQaDatabase() {
     accounts[role] = await prisma.user.upsert({
       where: { email: credentials.email },
       create: {
-        name: role === "admin" ? "QA administrator" : "QA trader",
+        name: research ? "Research editor" : role === "admin" ? "QA administrator" : "QA trader",
         email: credentials.email,
         password: await bcrypt.hash(credentials.password, 12),
         role: role === "admin" ? "ADMIN" : "USER",
@@ -68,7 +78,8 @@ export async function startQaDatabase() {
       update: {},
     });
   }
-  if ((await prisma.broker.count()) === 0) {
+  if (research) await addResearchDrafts(prisma);
+  else if ((await prisma.broker.count()) === 0) {
     const brokers = [];
     for (let i = 1; i <= 3; i++)
       brokers.push(
@@ -220,7 +231,7 @@ export async function startQaDatabase() {
   }
   await prisma.$disconnect();
   console.log(
-    "Isolated QA database ready. Fictional test data only. Local access details: .private/qa/access.json",
+    research ? "Research workspace ready at http://127.0.0.1:3000. Admin login: .private/research/access.json" : "Isolated QA database ready. Fictional test data only. Local access details: .private/qa/access.json",
   );
   return async () => {
     await server.stop();

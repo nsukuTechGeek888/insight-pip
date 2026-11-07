@@ -3,12 +3,13 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const { loadEnvConfig } = require("@next/env");
 loadEnvConfig(process.cwd(), true);
+const research = process.argv.includes("--research");
 let stopDatabase;
-if (process.argv.includes("--qa") || process.env.INSIGHTPIP_QA_MODE === "1") {
+if (research || process.argv.includes("--qa") || process.env.INSIGHTPIP_QA_MODE === "1") {
   const { startQaDatabase } = await import("./qa-database.mjs");
-  stopDatabase = await startQaDatabase();
+  stopDatabase = await startQaDatabase({ research });
 }
-const args = process.argv
+const args = research ? ["--hostname", "127.0.0.1", "--port", "3000"] : process.argv
   .slice(2)
   .filter((x) => !["--strictPort", "--qa"].includes(x))
   .map((x) => (x === "--host" ? "--hostname" : x));
